@@ -125,7 +125,6 @@ $(function(){
 function calcSize(obj){
 	if(obj.length > 0){
 		var height = $(window).height() - parseFloat(obj.offset().top)-20;
-		console.log(height);
 		obj.css('height',height).children('.panel-body').css('height',height - 44);
 	}
 }
