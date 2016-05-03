@@ -1,0 +1,53 @@
+/* CSS Document */
+html{ height:100%;}
+body{ height:auto; width:100%; font-family: Calibri,"微软雅黑"; text-align:center;}
+
+
+/*登录页*/
+.login{ background:url(../images/login-bg.jpg) fixed no-repeat center; }
+.login_container{ background:rgba(0,0,0,0.3); filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4D000000', endColorstr='#4D000000',GradientType=0 );  height:1500px; display:block;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*首页*/
+.index{ background:url(../images/index-bg.jpg) repeat 0 0;}
+.index header{ background:url(../images/header-bg.jpg); height:130px; width:100%; z-index:999; top:0; left:0; text-align:left;}
+.index header .logo{ height:100px; width:100px; display:block; float:left; margin:15px 30px 0 10px;}
+.index header h1{ line-height:130px; margin:0; position:absolute; left:4em; white-space:nowrap; color:#fff;}
+.index_container{ margin-top:150px; height: calc(100% - 100px);}
+.index_list{ position:relative;} 
+.index_list > li{ margin:40px 0 0; height:60px;}
+.index_list_item{ height:100%; width:70%; margin:0 auto; position:relative; padding:0;}
+.index_list_item p{ margin:0; width:100%; position:absolute; top:50%; margin-top:-10px;}
+
+
+
+
+/*左侧固定导航*/
+.nav_display{ height:20px; width:150px; float:left;}
+.nav_fixed{ height:100%; width:150px; background:url(../images/header-bg.jpg); top:130px; left:-150px; overflow:hidden; border-right:#666 2px solid; }
+.nav_fixed li{ margin:20px 0 0; padding:0; height:40px;}
+.nav_fixed li a{ width:100%; line-height:26px;}
+
+
+/*右侧主体内容*/
+.index_container .panel{ background:none; color:#FFF; margin:0 20px 20px 170px; border:2px  solid #67686A;}
+.index_container .panel-heading{ background:url(../images/header-bg.jpg) repeat top left; color:#fff; border-color:#67686A;}
+.index_container .panel-heading h4{ margin:0;}
+
+
+
+
+
