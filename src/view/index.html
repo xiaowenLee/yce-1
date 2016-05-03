@@ -25,27 +25,27 @@
 		<div class="container">
 			<ul id="index_list" class="index_list">
 				<li class="row">
-					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-success" data-url="code">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-success" data-url="codeManagement">
 						<p>代码管理</p>
 					</div>
 				</li>
 				<li class="row">
-					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-info" data-url="rollback">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-info" data-url="imageManagement">
 						<p>镜像管理</p>
 					</div>
 				</li>
 				<li class="row">
-					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-danger" data-url="monitor">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-danger" data-url="deployManagement">
 						<p>部署管理</p>
 					</div>
 				</li>
 				<li class="row">
-					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-primary" data-url="topology">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-primary" data-url="monitorManagement">
 						<p>监控管理</p>
 					</div>
 				</li>
 				<li class="row">
-					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-warning" data-url="elastic">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-warning" data-url="userManagement">
 						<p>用户管理</p>
 					</div>
 				</li>
@@ -58,19 +58,19 @@
 				<a class="btn btn-purple" href="" target="_self">首页</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="navTab btn btn-success" data-url="deploy">代码管理</a>
+				<a class="navTab btn btn-success" data-url="codeManagement">代码管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="navTab btn btn-info" data-url="rollback">镜像管理</a>
+				<a class="navTab btn btn-info" data-url="imageManagement">镜像管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="navTab btn btn-danger" data-url="monitor">部署管理</a>
+				<a class="navTab btn btn-danger" data-url="deployManagement">部署管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="navTab btn btn-primary" data-url="topology">监控管理</a>
+				<a class="navTab btn btn-primary" data-url="monitorManagement">监控管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="navTab btn btn-warning" data-url="elastic">用户管理</a>
+				<a class="navTab btn btn-warning" data-url="userManagement">用户管理</a>
 			</li>
 		</ul>
 	</nav>
@@ -124,8 +124,9 @@ $(function(){
 });
 function calcSize(obj){
 	if(obj.length > 0){
-		console.log(obj.offset().top);
-		obj.css('height',$(window).height() - parseFloat(obj.offset().top)-20);
+		var height = $(window).height() - parseFloat(obj.offset().top)-20;
+		console.log(height);
+		obj.css('height',height).children('.panel-body').css('height',height - 44);
 	}
 }
 </script>
