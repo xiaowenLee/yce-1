@@ -9,6 +9,7 @@ small{ font-size:12px; }
 ul, ol { list-style:none; }
 a { text-decoration:none; }
 a:hover { text-decoration:underline; }
+a:focus { outline: none; } 
 sup { vertical-align:text-top; }
 sub{ vertical-align:text-bottom; }
 legend { color:#000; }

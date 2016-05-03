@@ -1,6 +1,7 @@
 /* CSS Document */
 html{ height:100%;}
-body{ height:auto; width:100%; font-family: Calibri,"微软雅黑"; text-align:center;}
+body{ height:auto; width:100%; font-family: Calibri,"微软雅黑"; text-align:center; color:#fff;}
+
 
 
 /*登录页*/
@@ -26,11 +27,11 @@ body{ height:auto; width:100%; font-family: Calibri,"微软雅黑"; text-align:c
 .index header{ background:url(../images/header-bg.jpg); height:130px; width:100%; z-index:999; top:0; left:0; text-align:left;}
 .index header .logo{ height:100px; width:100px; display:block; float:left; margin:15px 30px 0 10px;}
 .index header h1{ line-height:130px; margin:0; position:absolute; left:4em; white-space:nowrap; color:#fff;}
-.index_container{ margin-top:150px; height: calc(100% - 100px);}
+.index_container{ margin-top:150px; display:block;}
 .index_list{ position:relative;} 
 .index_list > li{ margin:40px 0 0; height:60px;}
-.index_list_item{ height:100%; width:70%; margin:0 auto; position:relative; padding:0;}
-.index_list_item p{ margin:0; width:100%; position:absolute; top:50%; margin-top:-10px;}
+.index_list_item{ height:100%; position:relative; padding:0;}
+.index_list_item p{ margin:0; width:100%; position:absolute; top:50%; margin-top:-10px; font-size:20px;}
 
 
 
@@ -40,11 +41,12 @@ body{ height:auto; width:100%; font-family: Calibri,"微软雅黑"; text-align:c
 .nav_fixed{ height:100%; width:150px; background:url(../images/header-bg.jpg); top:130px; left:-150px; overflow:hidden; border-right:#666 2px solid; }
 .nav_fixed li{ margin:20px 0 0; padding:0; height:40px;}
 .nav_fixed li a{ width:100%; line-height:26px;}
+.nav_fixed li a:focus { outline: none !important; } 
 
 
 /*右侧主体内容*/
-.index_container .panel{ background:none; color:#FFF; margin:0 20px 20px 170px; border:2px  solid #67686A;}
-.index_container .panel-heading{ background:url(../images/header-bg.jpg) repeat top left; color:#fff; border-color:#67686A;}
+.index_container .panel{ background:none; margin:0 20px 20px 170px; border:2px  solid #67686A; overflow:auto;}
+.index_container .panel-heading{ background:url(../images/header-bg.jpg) repeat top left; color:#FFF; border-color:#67686A;}
 .index_container .panel-heading h4{ margin:0;}
 
 

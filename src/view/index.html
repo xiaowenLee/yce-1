@@ -1,5 +1,5 @@
 <!doctype html>
-<html><!-- InstanceBegin template="/Templates/layout.dwt" codeOutsideHTMLIsLocked="false" -->
+<html><!-- InstanceBegin template="/litanhua/yce/src/view/Templates/layout.dwt" codeOutsideHTMLIsLocked="false" -->
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,80 +21,56 @@
 	<header class=" container-fluid affix">
 		<a class="logo" href="#" target="_self"><img src="images/logo-100.png" height="100" width="100" alt="容器引擎管理平台" /></a><h1>容器引擎管理平台</h1>
 	</header>
-	<section id="container" class="index_container">
+	<div id="container" class="index_container">
 		<div class="container">
-			<ul id="index_list" class="index_list row">
-				<li class="col-sm-6" data-url="deploy">
-					<div class="index_list_item btn btn-success">
-						<p>上线</p>
+			<ul id="index_list" class="index_list">
+				<li class="row">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-success" data-url="code">
+						<p>代码管理</p>
 					</div>
 				</li>
-				<li class="col-sm-6" data-url="rollback">
-					<div class="index_list_item btn btn-info">
-						<p>回滚</p>
+				<li class="row">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-info" data-url="rollback">
+						<p>镜像管理</p>
 					</div>
 				</li>
-				<li class="col-sm-6" data-url="monitor">
-					<div class="index_list_item btn btn-danger">
-						<p>节点监控</p>
+				<li class="row">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-danger" data-url="monitor">
+						<p>部署管理</p>
 					</div>
 				</li>
-				<li class="col-sm-6" data-url="topology">
-					<div class="index_list_item btn btn-primary">
-						<p>集群拓扑图</p>
+				<li class="row">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-primary" data-url="topology">
+						<p>监控管理</p>
 					</div>
 				</li>
-				<li class="col-sm-6" data-url="elastic">
-					<div class="index_list_item btn btn-default">
-						<p>弹性计算</p>
-					</div>
-				</li>
-				<li class="col-sm-6" data-url="rolling">
-					<div class="index_list_item btn btn-warning">
-						<p>滚动升级</p>
-					</div>
-				</li>
-				<li class="col-sm-6" data-url="publish">
-					<div class="index_list_item btn btn-purple">
-						<p>发布服务</p>
-					</div>
-				</li>
-				<li class="col-sm-6" data-url="endpoint">
-					<div class="index_list_item btn btn-lightGreen">
-						<p>创建访问点</p>
+				<li class="row">
+					<div class="col-sm-6 col-sm-offset-3 index_list_item btn btn-warning" data-url="elastic">
+						<p>用户管理</p>
 					</div>
 				</li>
 			</ul>
 		</div>
-	</section>
+	</div>
 	<nav id="nav_fixed" class="nav_fixed affix pull-left container hidden-xs">
 		<ul class="row">
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn bg-success" href="" target="_self">首页</a>
+				<a class="btn btn-purple" href="" target="_self">首页</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-success" data-url="deploy">上线</a>
+				<a class="navTab btn btn-success" data-url="deploy">代码管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-info" data-url="rollback">回滚</a>
+				<a class="navTab btn btn-info" data-url="rollback">镜像管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-danger" data-url="monitor">节点监控</a>
+				<a class="navTab btn btn-danger" data-url="monitor">部署管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-primary" data-url="topology">集群拓扑图</a>
+				<a class="navTab btn btn-primary" data-url="topology">监控管理</a>
 			</li>
 			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-default" data-url="elastic">弹性计算</a>
-			</li>
-			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-warning" data-url="rolling">滚动升级</a>
-			</li>
-			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-purple" data-url="publish">发布服务</a>
-			</li>
-			<li class="col-xs-8 col-xs-push-2">
-				<a class="btn btn-lightGreen" data-url="endpoint">创建访问点</a>
+				<a class="navTab btn btn-warning" data-url="elastic">用户管理</a>
 			</li>
 		</ul>
 	</nav>
@@ -105,7 +81,10 @@
 <!-- InstanceBeginEditable name="js" -->
 <script>
 $(function(){
-	$('#index_list').on('click','li',function(e){
+	$(window).on('load resize',function(){
+		calcSize($('#container > .panel'));
+	});
+	$('#index_list').on('click','.index_list_item',function(e){
 		var $this = $(this);
 		var arrTop = [],arrLeft = [],arrWidth = [];
 		$('#index_list li').each(function(index, element) {
@@ -130,17 +109,25 @@ $(function(){
 			$(this).hide();
 			//$('#nav_display').stop().animate({marginLeft:0},300);
 			$('#nav_fixed').stop().animate({left:0}, 300, function(){
-				$('#container').load('./' + $this.attr('data-url') + '.html');
+				$('#container').load('./' + $this.attr('data-url') + '.html',function(){
+					calcSize($('#container > .panel'));
+				});
 			});
 		});
 	});
 	
-	$('#nav_fixed a.btn').on('click',function(){
+	$('#nav_fixed a.navTab').on('click',function(){
 		$('#container').load('./' + $(this).attr('data-url') + '.html');
 	});
 	
 	
 });
+function calcSize(obj){
+	if(obj.length > 0){
+		console.log(obj.offset().top);
+		obj.css('height',$(window).height() - parseFloat(obj.offset().top)-20);
+	}
+}
 </script>
 <!-- InstanceEndEditable -->
 <!-- InstanceEnd --></html>
