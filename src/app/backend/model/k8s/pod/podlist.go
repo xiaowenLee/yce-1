@@ -1,6 +1,6 @@
 package pod
 
-type PodList struct {
+type podList struct {
 	Kind string `json: "kind"`
 	ApiVersion string `json: "apiVersion"`
 	Metadata metadataPLType `json: "metadata"`
@@ -8,7 +8,7 @@ type PodList struct {
 }
 
 type metadataPLType struct {
-	SelfLink string `json: "selfLink"`
+    SelfLink string `json: "selfLink"`
 	ResourceVersion string `json: "resourceVersion"`
 }
 
@@ -309,7 +309,8 @@ type secretKeyRefEnvCon struct {
 -------------------------------------------------------------------
 
 type resourcesContainerType struct {
-
+    LimitsRsConType string `json: "limits"
+    R
 }
 
 type terminationGPSType struct {
