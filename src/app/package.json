@@ -16,8 +16,9 @@
     "grunt-contrib-qunit": "~1.2.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server -a 0.0.0.0 -p 8000"
   },
-  "author": "zhang.xiaofei10",
+  "author": "Jora",
   "license": "MIT"
 }
