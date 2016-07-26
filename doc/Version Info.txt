@@ -1,0 +1,16 @@
+Version 2.0 - 22nd July 2016
+- ADDED: Hospital Admin Theme
+- ADDED: CRM Admin Theme
+- ADDED: Music Admin Theme
+- ADDED: Blog Admin Theme
+- ADDED: Freelancing Admin Theme
+- ADDED: Ecommerce Admin Theme
+- ADDED: Social Media Admin Theme
+- ADDED: University Admin Theme
+- FIXED: Side Menu Progress Bars Look
+- FIXED: Automatically Sliding Menu to collapse view in Tablet View Mode
+- FIXED: Body menu height set to full page height for very long pages
+- FIXED: Improved CSS in various places
+
+Version 1.0 - 16th July 2016
+- Initial Release
