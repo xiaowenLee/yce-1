@@ -34,7 +34,7 @@ func Test_MysqlClient_Ping(*testing.T) {
 
 	client.Open()
 
-	// go client.Ping()
+	go client.Ping()
 
 }
 
