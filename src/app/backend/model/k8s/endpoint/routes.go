@@ -1,38 +1,37 @@
 package main
+
 import (
 	"net/http"
 )
 
 type Route struct {
-	Name string
-	Method string
-	Pattern string
+	Name        string
+	Method      string
+	Pattern     string
 	HandlerFunc http.HandlerFunc
 }
 
 type Routes []Route
 
-
-var routes = Routes {
-	Route {
+var routes = Routes{
+	Route{
 		"Index",
 		"GET",
 		"/",
 		Index,
 	},
 
-	Route {
+	Route{
 		"endpointlist",
 		"GET",
 		"/endpoints",
 		Endpointlist,
 	},
-	
-	Route {
-                "servicelist",
-                "GET",
-                "/services",
-                Servicelist,
-        },
 
+	Route{
+		"servicelist",
+		"GET",
+		"/services",
+		Servicelist,
+	},
 }
