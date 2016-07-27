@@ -1,10 +1,11 @@
-package mysql
+package user
 
 import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"testing"
+	mysql "github.com/yce/common/client/mysql"
 )
 
 // INSERT INTO USERS(name, password, org_id, created_ts, last_modified_ts, last_modifed_op) VALUES('litanhua', 'root', 0, now(), now(), 0)
