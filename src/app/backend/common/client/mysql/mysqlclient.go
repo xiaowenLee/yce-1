@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"time"
+	"sync"
 )
 
 const (
@@ -18,8 +19,9 @@ const (
 	DELAY_MILLISECONDS   = 5000
 )
 
+
 type MysqlClient struct {
-	db       *sql.DB
+	DB       *sql.DB
 	host     string
 	user     string
 	password string
@@ -27,8 +29,20 @@ type MysqlClient struct {
 	pool     int
 }
 
+
+var instance *MysqlClient
+
+var once sync.Once
+
+func MysqlInstance() *MysqlClient {
+	return instance
+}
+
 func NewMysqlClient(host, user, password, database string, pool int) *MysqlClient {
-	return &MysqlClient{host: host, password: password, database: database, pool: pool}
+	once.Do(func(){
+		instance = &MysqlClient{host: host, password: password, database: database, pool: pool}
+	})
+	return instance
 }
 
 func (c *MysqlClient) Open() {
@@ -45,22 +59,23 @@ func (c *MysqlClient) Open() {
 	db.SetMaxOpenConns(c.pool)
 	db.SetMaxIdleConns((int)(c.pool / 2))
 
-	c.db = db
+	c.DB = db
+
 }
 
 func (c *MysqlClient) Close() {
-	c.db.Close()
+	c.DB.Close()
 }
 
 func (c *MysqlClient) Conn() *sql.DB {
-	return c.db
+	return c.DB
 }
 
 // Ping the connection, keep connection alive
 func (c *MysqlClient) Ping() {
 	select {
 	case <-time.After(time.Millisecond * time.Duration(DELAY_MILLISECONDS)):
-		err := c.db.Ping()
+		err := c.DB.Ping()
 		if err != nil {
 			log.Fatal(err)
 			c.Open()
