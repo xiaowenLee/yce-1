@@ -3,8 +3,7 @@ package user
 import (
 	"fmt"
 	"testing"
-	// mysql "app/backend/common/client/mysql"
-	mysql "app/backend/common/client/mysql"
+	mysql "app/backend/common/util/mysql"
 )
 
 // INSERT INTO USERS(name, password, org_id, created_ts, last_modified_ts, last_modifed_op) VALUES('litanhua', 'root', 0, now(), now(), 0)

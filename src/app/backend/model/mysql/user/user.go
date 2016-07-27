@@ -1,9 +1,9 @@
 package user
 
 import (
-	mysql "app/backend/common/client/mysql"
+	mysql "app/backend/common/util/mysql"
 	"log"
-	localtime "app/backend/common/client/time"
+	localtime "app/backend/common/util/time"
 	"fmt"
 )
 
