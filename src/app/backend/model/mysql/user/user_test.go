@@ -1,15 +1,12 @@
 package user
 
 import (
-	// "fmt"
 	"testing"
-	mysql "app/backend/common/util/mysql"
-	encrypt "app/backend/common/util/encrypt"
+	// mysql "app/backend/common/util/mysql"
+	// encrypt "app/backend/common/util/encrypt"
+	"fmt"
 )
 
-// INSERT INTO USERS(name, password, org_id, created_ts, last_modified_ts, last_modifed_op) VALUES('litanhua', 'root', 0, now(), now(), 0)
-
-/*
 func Test_NewUser(*testing.T) {
  	user := NewUser("dawei.li", "123456", "add dawei.li", 3, 1, VALID, 2)
 	fmt.Printf("User Name: %s\n", user.Name)
@@ -18,6 +15,19 @@ func Test_NewUser(*testing.T) {
 	fmt.Printf("User ModifiedAt: %s\n", user.ModifiedAt)
 }
 
+
+func Test_EncodeJson_DecodeJson(*testing.T) {
+
+	user := NewUser("dawei.li", "123456", "add dawei.li", 3, 1, VALID, 2)
+	fmt.Println(user.EncodeJson())
+
+	u := new(User)
+	u.DecodeJson(user.EncodeJson())
+
+	fmt.Println(u.Name)
+}
+
+/*
 func Test_GetUserByID(*testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
@@ -45,20 +55,17 @@ func Test_DeleteUser(*testing.T) {
 	user.QueryUserById(6)
 	user.DeleteUser(3)
 }
-*/
 
 func Test_UpdateUser(*testing.T) {
 
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
-	/*
 	user := new(User)
 	user.QueryUserById(6)
 
 	user.Password = "234567"
 	user.UpdateUser(2)
-	*/
 
 	u := new(User)
 	u.QueryUserById(7)
@@ -67,7 +74,6 @@ func Test_UpdateUser(*testing.T) {
 	u.UpdateUser(2)
 }
 
-/*
 func Test_Qurey_UserName(*testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
@@ -85,7 +91,6 @@ func Test_Qurey_UserName(*testing.T) {
 	fmt.Println(str)
 }
 
-/*
 func Test_Query_User(*testing.T) {
 
 	db, err := sql.Open("mysql", "root:root@tcp(172.21.1.11:32306)/yce?parseTime=true")

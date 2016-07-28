@@ -5,6 +5,7 @@ import (
 	"log"
 	localtime "app/backend/common/util/time"
 	"fmt"
+	"encoding/json"
 )
 
 const (
@@ -137,4 +138,22 @@ func (u *User) DeleteUser(op int32) {
 		log.Fatal(err)
 		panic(err.Error())
 	}
+}
+
+func (u *User) DecodeJson(data string) {
+	err := json.Unmarshal([]byte(data), u)
+
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
+}
+
+func (u *User) EncodeJson() string {
+	data, err := json.MarshalIndent(u, "", " ")
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
+	return string(data)
 }
