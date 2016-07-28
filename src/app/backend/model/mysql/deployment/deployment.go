@@ -1,12 +1,11 @@
 package deployment
 
 import (
-	// mysql "app/backend/common/util/mysql"
+	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	// "encoding/json"
 	// "fmt"
 	// "log
-	"app/backend/common/util/mysql"
 	"log"
 )
 
