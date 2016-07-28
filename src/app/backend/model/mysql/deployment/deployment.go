@@ -14,6 +14,8 @@ const (
 	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment where id=?"
 	DEPLOYMENT_BYNAME = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment where name=? ORDER BY id DESC"
 	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, sucdes, reason, json, comment) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	VALID = 1
+	INVALID = 0
 )
 
 type Deployment struct {
@@ -47,7 +49,7 @@ func NewDeployment(name, actionVerb, actionUrl, dcList, reason, json, comment st
 	}
 }
 
-func (d *Deployment) QueryDeployment(id int32) {
+func (d *Deployment) QueryDeploymentById(id int32) {
 	db := mysql.MysqlInstance().Conn()
 
 	//Prepare select-statement
