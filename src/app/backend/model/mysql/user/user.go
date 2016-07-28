@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	USER_SELECT = "SELECT id, name, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id = ? "
+	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
 	USER_INSERT = "INSERT INTO user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-	USER_UPDATE = ""
-	USER_DELETE = "UPDATE user SET status=0 WHERE id = ?"
+	USER_UPDATE = "UPDATE user SET password=?, orgId=?, modifiedAt=?, modifiedOp=? WHERE id=?"
+	USER_DELETE = "UPDATE user SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 	VALID = 1
 	INVALID = 0
 )
@@ -55,7 +55,7 @@ func (u *User) QueryUserById(id int32) {
 	defer  stmt.Close()
 
 	// Query user by id
-	stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+	stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())
@@ -64,7 +64,7 @@ func (u *User) QueryUserById(id int32) {
 	fmt.Printf("%v\n", u)
 }
 
-func (u *User) InsertUser() {
+func (u *User) InsertUser(op int32) {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
@@ -73,8 +73,12 @@ func (u *User) InsertUser() {
 		log.Fatal(err)
 		panic(err.Error())
 	}
-
 	defer stmt.Close()
+
+	// Update createdAt, modifiedAt, modifiedOp
+	u.CreatedAt = localtime.NewLocalTime().String()
+	u.ModifiedAt = localtime.NewLocalTime().String()
+	u.ModifiedOp = op
 
 	// Insert a user
 	_, err = stmt.Exec(u.Name, u.Password, u.OrgId, u.Status, u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment)
@@ -86,7 +90,31 @@ func (u *User) InsertUser() {
 	}
 }
 
-func (u *User) DeleteUser() {
+func (u *User) UpdateUser(op int32) {
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare update-statement
+	stmt, err := db.Prepare(USER_UPDATE)
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
+	defer  stmt.Close()
+
+	// Update modifiledAt
+	u.ModifiedAt = localtime.NewLocalTime().String()
+	u.ModifiedOp = op
+
+	// Update a user: password or orgId
+	_, err = stmt.Exec(u.Password, u.OrgId, u.ModifiedAt, u.ModifiedOp, u.Id)
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
+}
+
+func (u *User) DeleteUser(op int32) {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare delete-statement
@@ -98,8 +126,13 @@ func (u *User) DeleteUser() {
 
 	defer stmt.Close()
 
+	// Update modifiedAt and modifiedOp
+	u.ModifiedAt = localtime.NewLocalTime().String()
+	u.ModifiedOp = op
+
 	// Set user status  INVALED
-	_, err = stmt.Exec(u.Id)
+	u.Status = INVALID
+	_, err = stmt.Exec(u.Status, u.ModifiedAt, u.ModifiedOp, u.Id)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())
