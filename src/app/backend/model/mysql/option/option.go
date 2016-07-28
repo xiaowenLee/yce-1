@@ -18,10 +18,10 @@ const (
 )
 
 type Option struct {
-	Id         int32     `json:"id"`
-	Name       string    `json:"name"`
-	CreateAt   string    `json:"createAt"`
-	ModifiedAt time.Time `json:"modifiedAt"`
-	ModifiedOp int       `json:"modifiedOp"`
-	Comment    string    `json:"comment"`
+	Id         int32  `json:"id"`
+	Name       string `json:"name"`
+	CreateAt   string `json:"createAt"`
+	ModifiedAt string `json:"modifiedAt"`
+	ModifiedOp int    `json:"modifiedOp"`
+	Comment    string `json:"comment"`
 }

@@ -55,7 +55,7 @@ func (u *User) QueryUserById(id int32) {
 	defer stmt.Close()
 
 	// Query user by id
-	stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+	err = stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())

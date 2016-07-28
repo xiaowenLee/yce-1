@@ -61,7 +61,7 @@ func (o *Organization) QueryOrganizationById(id int32) {
 	defer stmt.Close()
 
 	// Query organization by id
-	stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &o.Comment)
+	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &o.Comment)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())
