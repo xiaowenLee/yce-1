@@ -29,10 +29,9 @@ type User struct {
 	Comment    string `json:"comment"`
 }
 
-func NewUser(name, password, comment string, id, orgId, status, modifiedOp int32) *User {
+func NewUser(name, password, comment string, orgId, status, modifiedOp int32) *User {
 
 	return &User{
-		Id: id,
 		Name: name,
 		Password: password,
 		OrgId: orgId,
