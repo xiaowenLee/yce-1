@@ -2,10 +2,10 @@ package user
 
 import (
 	mysql "app/backend/common/util/mysql"
-	"log"
 	localtime "app/backend/common/util/time"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"log"
 )
 
 const (
@@ -13,32 +13,32 @@ const (
 	USER_INSERT = "INSERT INTO user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 	USER_UPDATE = "UPDATE user SET password=?, orgId=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 	USER_DELETE = "UPDATE user SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
-	VALID = 1
-	INVALID = 0
+	VALID       = 1
+	INVALID     = 0
 )
 
 type User struct {
 	Id         int32  `json:"id"`
 	Name       string `json:"name"`
-	OrgId      int32 `json:"orgId"`
+	OrgId      int32  `json:"orgId"`
 	Password   string `json:"password"`
-	Status int32 `json:"status"`
+	Status     int32  `json:"status"`
 	CreatedAt  string `json:"createdAt"`
 	ModifiedAt string `json:"modifiedAt"`
-	ModifiedOp int32    `json:"modifiedOp"`
+	ModifiedOp int32  `json:"modifiedOp"`
 	Comment    string `json:"comment"`
 }
 
 func NewUser(name, password, comment string, orgId, status, modifiedOp int32) *User {
 
 	return &User{
-		Name: name,
-		Password: password,
-		OrgId: orgId,
-		Status: status,
-		Comment: comment,
+		Name:       name,
+		Password:   password,
+		OrgId:      orgId,
+		Status:     status,
+		Comment:    comment,
 		ModifiedAt: localtime.NewLocalTime().String(),
-		CreatedAt: localtime.NewLocalTime().String(),
+		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
 	}
 }
@@ -52,7 +52,7 @@ func (u *User) QueryUserById(id int32) {
 		log.Fatal(err)
 		panic(err.Error())
 	}
-	defer  stmt.Close()
+	defer stmt.Close()
 
 	// Query user by id
 	stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
@@ -100,7 +100,7 @@ func (u *User) UpdateUser(op int32) {
 		log.Fatal(err)
 		panic(err.Error())
 	}
-	defer  stmt.Close()
+	defer stmt.Close()
 
 	// Update modifiledAt
 	u.ModifiedAt = localtime.NewLocalTime().String()
