@@ -818,7 +818,6 @@ a:hover, a:focus {
     padding-left: 20px;
 }
 #main-menu-wrapper li ul.sub-menu {
-    display: none;
     list-style-type: none;
     font-size: 14px;
     width: 100%;

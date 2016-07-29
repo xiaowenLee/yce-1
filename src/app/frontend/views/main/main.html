@@ -390,77 +390,17 @@
 
 
             <ul class='wraplist'>
-                <li class="open">
-                    <a href="#">
-                        <i class="fa fa-dashboard"></i>
-                        <span class="title">Dashboard</span>
-                    </a>
-                </li>
-                <li class="" ng-repeat="nav in navList">
-                    <a href="{{nav.url}}">
-                        <i class="fa fa-suitcase" ng-class="nav.className"></i>
+                <li ng-class="{open:data.showSubnav[$index]}" ng-repeat="nav in navList">
+                    <a ui-sref="{{nav.state}}" ng-click="showSubnav($index)">
+                        <i class="fa fa-dashboard" ng-class="nav.className"></i>
                         <span class="title">{{nav.name}}</span>
-                        <span class="arrow " ng-if="nav.item"></span>
+                        <span class="arrow" ng-class="{open:data.showSubnav[$index]}" ng-if="nav.item"></span>
                     </a>
-                    <ul class="sub-menu">
+                    <ul class="sub-menu" ng-show="data.showSubnav[$index]">
                         <li ng-repeat="item in nav.item">
-                            <a class="" href="{{item.url}}">{{item.name}}</a>
-                        </li>
-                        <li>
-                            <a class="" href="#">回滚</a>
-                        </li>
-                        <li>
-                            <a class="" href="#">滚动升级</a>
-                        </li>
-                        <li>
-                            <a class="" href="#">撤销</a>
-                        </li>
-                        <li>
-                            <a class="" href="#">历史发布</a>
+                            <a class="" ui-sref="{{item.state}}">{{item.name}}</a>
                         </li>
                     </ul>
-                </li>
-                <li class="">
-                    <a href="javascript:;">
-                        <i class="fa fa-columns"></i>
-                        <span class="title">镜像管理</span>
-                        <span class="arrow "></span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a class="" href="#">查找镜像</a>
-                        </li>
-                        <li>
-                            <a class="" href="#">删除镜像</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="">
-                    <a href="#">
-                        <i class="fa fa-calendar"></i>
-                        <span class="title">云盘管理</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="javascript:;">
-                        <i class="fa fa-comments"></i>
-                        <span class="title">扩展功能</span>
-                        <span class="arrow "></span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a class="" href="#">创建服务</a>
-                        </li>
-                        <li>
-                            <a class="" href="#">创建访问点</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="">
-                    <a href="javascript:;">
-                        <i class="fa fa-envelope"></i>
-                        <span class="title">计费&nbsp;&&nbsp;充值</span>
-                    </a>
                 </li>
             </ul>
 

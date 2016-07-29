@@ -6,9 +6,20 @@ define([
     ], function(Base64){
         'use strict';
 
-        var ctrl = ['$scope','$state', function($scope, $state){
+        var ctrl = ['$scope','$state','mainService', function($scope, $state,mainService){
             $scope.$state = $state;
             $state.go('main.dashboard');
+            $scope.data = {
+                showSubnav : []
+            };
+
+            mainService.getNavlist(null,function(data){
+                $scope.navList = data.list;
+            });
+
+            $scope.showSubnav = function(index){
+                $scope.data.showSubnav[index] = !$scope.data.showSubnav[index];
+            };
 
         }];
 

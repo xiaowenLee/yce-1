@@ -52,7 +52,6 @@
                 original = response.config.original;
                 if (original) {
                   response.data = original.result;
-                  console.log(original);
                 }
                 return response;
               }
