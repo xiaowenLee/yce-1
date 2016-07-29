@@ -19,10 +19,19 @@ define([
 					.state('main', mainRouter.main)
 					.state('main.dashboard', dashboardRouter.dashboard)
 					.state('main.appManage', appManageRouter.appManage)
+					.state('main.appManageDeployment', appManageRouter.deployment)
+					.state('main.appManageRollback', appManageRouter.rollback)
+					.state('main.appManageRollup', appManageRouter.rollup)
+					.state('main.appManageCancel', appManageRouter.cancel)
+					.state('main.appManageHistory', appManageRouter.history)
 					.state('main.cloudManage', cloudManageRouter.cloudManage)
 					.state('main.costManage', costManageRouter.costManage)
 					.state('main.extensions', extensionsRouter.extensions)
+					.state('main.extensionsService', extensionsRouter.service)
+					.state('main.extensionsEndpoint', extensionsRouter.endpoint)
 					.state('main.imageManage', imageManageRouter.imageManage)
+					.state('main.imageManageSearch', imageManageRouter.search)
+					.state('main.imageManageDelete', imageManageRouter.delete)
 			}]);
 		};
 
