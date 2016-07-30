@@ -2,11 +2,11 @@ define([
 	'../pages/main/router',
 	'../pages/dashboard/router',
 	'../pages/appManage/router',
-	'../pages/cloudManage/router',
+	'../pages/rbdManage/router',
 	'../pages/costManage/router',
 	'../pages/extensions/router',
 	'../pages/imageManage/router'
-		], function(mainRouter, dashboardRouter, appManageRouter, cloudManageRouter, costManageRouter, extensionsRouter, imageManageRouter){
+		], function(mainRouter, dashboardRouter, appManageRouter, rbdManageRouter, costManageRouter, extensionsRouter, imageManageRouter){
 
 		'use strict';
 
@@ -24,7 +24,7 @@ define([
 					.state('main.appManageRollup', appManageRouter.rollup)
 					.state('main.appManageCancel', appManageRouter.cancel)
 					.state('main.appManageHistory', appManageRouter.history)
-					.state('main.cloudManage', cloudManageRouter.cloudManage)
+					.state('main.rbdManage', rbdManageRouter.rbdManage)
 					.state('main.costManage', costManageRouter.costManage)
 					.state('main.extensions', extensionsRouter.extensions)
 					.state('main.extensionsService', extensionsRouter.service)

@@ -2,11 +2,11 @@ define([
 	'../pages/main/controller',
 	'../pages/dashboard/controller',
 	'../pages/appManage/controller',
-	'../pages/cloudManage/controller',
+	'../pages/rbdManage/controller',
 	'../pages/costManage/controller',
 	'../pages/extensions/controller',
 	'../pages/imageManage/controller'
-	], function(mainController, dashboardController, appManageController, cloudManageController, costManageController, extensionsController, imageManageController){
+	], function(mainController, dashboardController, appManageController, rbdManageController, costManageController, extensionsController, imageManageController){
 
 		'use strict';
 		//获取全部controller

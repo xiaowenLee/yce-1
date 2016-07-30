@@ -10,8 +10,8 @@ define([
 	};	
 
 	var services = {
-		module: 'cloudManage',
-		name: 'cloudManageService',
+		module: 'rbdManage',
+		name: 'rbdManageService',
 		getApis: getApis
 	};
 

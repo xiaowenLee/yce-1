@@ -2,11 +2,11 @@ define([
 	'../pages/main/service',
 	'../pages/dashboard/service',
 	'../pages/appManage/service',
-	'../pages/cloudManage/service',
+	'../pages/rbdManage/service',
 	'../pages/costManage/service',
 	'../pages/extensions/service',
 	'../pages/imageManage/service'
-	], function(mainService, dashboardService, appManageService, cloudManageService, costManageService, extensionsService, imageManageService){
+	], function(mainService, dashboardService, appManageService, rbdManageService, costManageService, extensionsService, imageManageService){
 
 		'use strict';
 		//获取全部service

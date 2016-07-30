@@ -16,7 +16,7 @@ Mock.mock('http://10.69.40.36.com/api/main/navlist', {
                 {id: 32, name: '删除镜像', state: 'main.imageManageDelete', includeState: 'main.imageManageDelete'}
             ]
         },
-        {id: 4, name: '云盘管理', state: 'main.cloudManage', includeState: 'main.cloudManage',className:'fa-cloud'},
+        {id: 4, name: '云盘管理', state: 'main.rbdManage', includeState: 'main.rbdManage',className:'fa-rbd'},
         {id: 5, name: '扩展功能', state: 'main.extensions', includeState: 'main.extensions',className:'fa-arrows',
             item: [
                 {id: 51, name: '创建服务', state: 'main.extensionsService', includeState: 'main.extensionsService'},

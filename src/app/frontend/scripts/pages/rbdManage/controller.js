@@ -13,7 +13,7 @@ define([
 
 
         var controllers = [
-            {module: 'cloudManage', name: 'cloudManageController', ctrl: ctrl}
+            {module: 'rbdManage', name: 'rbdManageController', ctrl: ctrl}
         ];
 
         return controllers;
