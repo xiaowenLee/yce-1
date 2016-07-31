@@ -74,6 +74,10 @@ func (q *Quota) QueryQuotaById(id int32) {
 	err = stmt.QueryRow(id).Scan(&q.Name, &q.Cpu, &q.Mem, &q.Rbd,
 		&q.Price, &q.Status, &q.CreatedAt, &q.ModifiedAt, &q.ModifiedOp, q.Comment)
 
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
 
 }
 
@@ -144,6 +148,7 @@ func (q *Quota) DeleteQuota(op int32) {
 	// Update modifiedAt, modifiedOp
 	q.ModifiedAt = localtime.NewLocalTime().String()
 	q.ModifiedOp = op
+	q.Status = INVALID
 
 	// Update a quota
 	_, err = stmt.Exec(q.Status, q.ModifiedAt, q.ModifiedOp, q.Id)
