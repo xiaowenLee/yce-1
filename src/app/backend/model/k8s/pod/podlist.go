@@ -1,6 +1,6 @@
-package pod
+package applist 
 
-type podList struct {
+type PodList struct {
 	Kind string `json: "kind"`
 	ApiVersion string `json: "apiVersion"`
 	Metadata metadataPLType `json: "metadata"`
@@ -8,7 +8,6 @@ type podList struct {
 }
 
 type metadataPLType struct {
-    SelfLink string `json: "selfLink"`
 	ResourceVersion string `json: "resourceVersion"`
 }
 
@@ -16,9 +15,10 @@ type itemsPLType struct {
 	Kind string `json: "kind"`
 	ApiVersion string `json: "apiVersion"`
 	Metadata metadataIType `json: "metadata"`
-	Spec specIType `json: "spec"`
-	Status statusIType `json: "status"`	
+	Spec specType `json: "spec"`
+	Status statusType `json: "status"`	
 }
+
 
 type metadataIType struct {
 	Name string `json: "name"`
@@ -27,37 +27,26 @@ type metadataIType struct {
 	SelfLink string `json: "selfLink"`
 	Uid string `json: "uid"`
 	ResourceVersion string `json: "resourceVersion"`
-	Generation generationMI `json: "generation"`
+	//Generation float64 `json: "generation"` //float64 string
+	//Generation string `json: "generation"` //float64 string
 	CreationTimeStamp string `json: "creationTimeStamp"`
 	DeletionTimeStamp string `json: "deletionTimeStamp"`
-	DeletionGracePeriodSeconds deletionGPSMIType `json: "deletionGracePeriodSeconds"` //this long name how it is named ?
-	Labels string `json: "labels"`
-	Annotations string `json: "annotations"`
-}
-
-type generationMI struct {
-
-}
-
-type deletionGPSMIType struct {
-
+	Labels map[string] string `json: "labels"`
+	Annotations map[string] string `json: "annotations"`
 }
 
 type specType struct {
 	Volumes []volumesSType `json: "volumes"`
 	Containers []containerSType `json: "containers"`
 	RestartPolicy string `json: "restartPolicy"`
-	TerminationGracePeriodSeconds terminationGPSType `json: "terminationGracePeriodSeconds"`
-	ActiveDeadlineSeconds activeDeadlineSType `json: "activeDeadlineSeconds"`
+	TerminationGracePeriodSeconds float64 `json: "terminationGracePeriodSeconds"`
+	ActiveDeadlineSeconds float64 `json: "activeDeadlineSeconds"`
 	DnsPolicy string `json: "dnsPolicy"`
-	NodeSelector string `json: "nodeSelector"`
-	ServiceAccountName string `json: "serviceAccountName"`
-	ServiceAccount string `json: "serviceAccount"`
+	NodeSelector map[string] string  `json: "nodeSelector"`
 	NodeName string `json: "nodeName"`
 	HostNetwork bool `json: "hostNetwork"`
 	HostPID bool `json: "hostPID"`
 	HostIPC bool `json: "hostIPC"`
-	SecurityContext securityContextSType `json: "securityContext"`
 	ImagePullSecrets []imagePullSecretsType `json: "imagePullSecrets"`
 
 }
@@ -66,22 +55,8 @@ type volumesSType struct {
 	Name string `json: "name"`
 	HostPath hostPathVSType `json: "hostPath"`
 	EmptyDir emptyDirVSType `json: "emptyDir"`
-	GcePersistentDisk gceDiskVSType `json: "gcePersistentDisk"`
-	AwsElasticBlockStore awsEBVSType `json: "awsElasticBlockStore"`
-	GitRepo gitRepoVSType `json: "gitRepo"`
-	Secret secretVSType `json: "secret"`
-	Nfs nfsVSType `json: "nfs"`
-	Iscsi iscsiVSType `json: "iscsi"`
-	GlusterFS glusterfsVSType `json: "glusterfs"`
 	PersistentVolumeClaim pvClaimVSType `json: "persistentVolumeClaim"`
 	Rbd rbdVSType `json: "rbd"`
-	FlexVolume flexVolumeVSType `json: "flexVolume"`
-	Cinder cinderVSType `json: "cinder"`
-	Cephfs cephfsVSType `json: "cephfs"`
-	Flocker flockerVSType `json: "flocker"`
-	DownwardAPI downwardAPIVSType `json: "downwardAPI"`
-	Fc fcVSType `json: "fc"`
-	AzureFile azureFileVSType `json: "azurefile"`
 	ConfigMap configMapVSType `json: "configMap"`
 }
 
@@ -91,59 +66,6 @@ type hostPathVSType struct {
 
 type emptyDirVSType struct {
 	Medium string `json: "medium"`
-}
-
-type GcePersistentDisk struct {
-	PdName string `json: "pdName"`
-	FsType string `json: "fsType"`
-	Partition partitionGCEType `json: "partition"`
-	ReadOnly bool `json: "readOnly"`
-}
-
-type partitionGCEType struct {
-
-}
-
-type awsEBVSType struct {
-	VolumeID string `json: "volumeID"`
-	FsType string `json: "fsType"`
-	Partition partitionAWSType `json: "partition"`
-	ReadOnly bool `json: "readOnly"`
-}
-
-type partitionAWSType struct {
-
-}
-
-type gitRepoVSType struct {
-	Repository string `json: "repository"`
-	Revision string `json: "revision"`
-	Directory string `json: "directory"`
-}
-
-type secretVSType struct {
-	SecretName string `json: "secretName"`
-}
-
-type nfsVSType struct {
-	Server string `json: "server"`
-	Path string `json: "path"`
-	ReadOnly bool `json: "readOnly"`
-} 
-
-type iscsiVSType struct {
-	TargetPortal string `json: "targetPortal"`
-	Iqn string `json: "iqn"`
-	Lun lunISCSIType `json: "lun"`
-	IscsiInterface string `json: "iscsiInterface"`
-	FsType string `json: "fsType"`
-	ReadOnly bool `json: "readOnly"`
-}
-
-type glusterfsVSType struct {
-	Endpoints string `json: "endppints"`
-	Path string `json: "path"`
-	ReadOnly bool `json: "readOnly"`
 }
 
 type pvClaimVSType struct {
@@ -166,72 +88,6 @@ type secretRefrbdType struct {
 	Name string `json: "name"`
 }
 
-type flexVolumeVSType struct {
-	Driver string `json: "driver"`
-	FsType string `json: "fsType"`
-	SecretRef secretRefflexVolumeType `json: "secretRef"`
-	ReadOnly bool `json: "readOnly"`
-	Options string `json: "options"`
-}
-
-type secretRefflexVolumeType struct {
-	Name string `json: "name"`
-}
-
-type cinderVSType struct {
-	VolumeID string `json: "volumeID"`
-	FsType string `json: "fsType"`
-	ReadOnly bool `json: "readOnly"`
-}
-
-type cephfsVSType struct {
-	Monitors []string `json: "monitors"
-	Path string `json: "path"`
-	User string `json: "user"`
-	SecretFile string `json: "secretFile"`
-	SecretRef secretRefcephfsType `json: "secretRef"`
-	ReadOnly bool `json: "readOnly"`
-}
-
-type secretRefcephfs struct {
-	Name string `json: "name"`
-}
-
-type flockerVSType struct {
-	DatasetName string `json: "datasetName"`
-}
-
-type downwardAPIVSType struct {
-	Items []itemsDownTYpe `json: "items"`
-}
-
-type itemsDownTYpe struct {
-	Path string `json: "path"`
-	FieldRef fieldRefItemDownwardType `json: "fieldRef"`
-}
-
-type fieldRefItemDownwardType struct {
-	ApiVersion string `json: "apiVersion"`
-	FieldPath string `json: "fieldPath"`
-}
-
-type fcVSType struct {
-	TargetWWNs []targetfcType `json: "targetWWNs"`
-	Lun lunfcType `json: "lun"`
-	FsType string `json: "fsType"`
-	ReadOnly bool `json: "readOnly"`
-}
-
-type targetfcType struct {
-	
-}
-
-type azureFileVSType struct {
-	SecretName string `json: "secretName"`
-	ShareName string `json: "shareName"`
-	ReadOnly bool `json: "readOnly"`
-}
-
 type configMapVSType struct {
 	Name string `json: "name"`
 	Items []itemsConfigMapType `json: "items"`
@@ -248,16 +104,15 @@ type containerSType struct {
 	Command []string `json: "command"`
 	Args []string `json: "args"`
 	WorkingDir string `json: "workingDir"`
-	Ports []portsContainerType `json: "ports"
+	Ports []portsContainerType `json: "ports"`
 	Env []envContainerType `json: "env"`
 	Resources resourcesContainerType `json: "resources"`
-	VolumeMounts volumeMountsContainerType `json: "volumeMounts"`
+	VolumeMounts []volumeMountsContainerType `json: "volumeMounts"`
 	LivenessProbe livenessProbeContainerType `json: "livenessProbe"`
 	ReadinessProbe readinessProbeContainerType `json: "readinessProbe"`
 	Lifecycle lifecycleContainerType `json: "lifecycle"`
-	TerminationMesasgePath termsmgPathContainerType `json: "terminationMessagePath"`
-	ImagePullPolicy imagePullPolicyContainerType `json: "imagePullPolicy"`
-	SecurityContext secontextContainerType `json: "securityContext"`
+	TerminationMesasgePath string `json: "terminationMessagePath"`
+	ImagePullPolicy string `json: "imagePullPolicy"`
 	Stdin bool `json: "stdin"`
 	StdinOnce bool `json: "stdinOnce"`
 	Tty bool `json: "tty"`
@@ -265,17 +120,13 @@ type containerSType struct {
 
 type portsContainerType struct {
 	Name string `json: "name"`
-	HostPort hostPortContainerType `json: "hostPort"`
-	ContainerPort cPortContainerType `json: "containerPort"`
+	HostPort hostPortPCType `json: "hostPort"`
+	ContainerPort float64 `json: "containerPort"`
 	Protocol string `json: "protocol"`
 	HostIP string `json: "hostIP"`
 }
 
-type hostPortContainerType struct {
-
-}
-
-type cPortContainerType struct {
+type hostPortPCType struct {
 
 }
 
@@ -288,7 +139,7 @@ type envContainerType struct {
 type valueFromEnvContainer struct {
 	FieldRef fieldRefValueFromEnvCon `json: "fieldRef"`
 	ConfigMapKeyRef configMapKeyEnvCon `json: "configMapKeyRef"`
-	SecretKeyRef secretKeyRefEnvCon  `json: "secretKeyRefEnvCon"`
+	SecretKeyRef secretKeyRefEnvCon  `json: "secretKeyRef"`
 }
 
 type fieldRefValueFromEnvCon struct {
@@ -302,31 +153,152 @@ type configMapKeyEnvCon struct {
 }
 
 type secretKeyRefEnvCon struct {
-	Name string `json: "name"
+	Name string `json: "name"`
 	Key string `json: "key"`
 }
 
--------------------------------------------------------------------
-
 type resourcesContainerType struct {
-    LimitsRsConType string `json: "limits"
-    R
+    LimitsRsConType map[string] string `json: "limits"`
+    Requests map[string] string  `json: "requests"`
 }
 
-type terminationGPSType struct {
+type volumeMountsContainerType struct {
+    Name string `json: "name"`
+    ReadOnly bool `json: "readOnly"`
+    MountPath string `json: "mountPath"`
+}
+
+type livenessProbeContainerType struct {
+    Exec execLiveProbeType `json: "exec"`
+    HttpGet httpGetLiveProbeType `json: "httpGet"`
+    TcpSocket tcpLiveProbeType `json: "tcpSocket"`
+    InitialDelaySeconds float64 `json: "initialDelaySeconds"`
+    TimeoutSeconds float64 `json: "timeoutSeconds"`
+    PeriodSeconds float64 `json: "periodSeconds"`
+    SuccessThreshold float64 `json: "successThreshold"`
+    FailureThreshold float64 `json: "failureThreshold"`
+}
+
+type execLiveProbeType struct {
+    Command []string `json: "command"` 
+}
+
+type httpGetLiveProbeType struct {
+    Path string `json: "path"`
+    Port float64 `json: "port"`
+    Host string `json: "host"`
+    Scheme string `json: "scheme"`
+    HttpHeaders []headersGLPType `json: "httpHeaders"`    
+}
+
+type headersGLPType struct {
+    Name string `json: "name"`
+    Value string `json: "value"`
+}
+
+type tcpLiveProbeType struct {
+    Port float64 `json: "port"`
+}
+
+
+type readinessProbeContainerType struct {
+    Exec execReadProbeType `json: "exec"`
+    HttpGet httpGetReadProbeType `json: "httpGet"`
+    TcpSocket tcpReadProbeType `json: "tcpSocket"`
+    InitialDelaySeconds float64 `json: "initialDelaySeconds"`
+    TimeoutSeconds float64 `json: "timeoutSeconds"`
+    PeriodSeconds float64 `json: "periodSeconds"`
+    SuccessThreshold float64 `json: "successThreshold"`
+    FailureThreshold float64 `json: "failureThreshold"`
 
 }
 
-type activeDeadlineSType struct {
-
+type execReadProbeType struct {
+    Command []string `json: "command"` 
 }
 
-type securityContextSType struct {
+type httpGetReadProbeType struct {
+    Path string `json: "path"`
+    Port float64 `json: "port"`
+    Host string `json: "host"`
+    Scheme string `json: "scheme"`
+    HttpHeaders []headersGRPType `json: "httpHeaders"`    
+}
 
+type headersGRPType struct {
+    Name string `json: "name"`
+    Value string `json: "value"`
+}
+
+type tcpReadProbeType struct {
+    Port float64 `json: "port"`
+}
+
+
+
+type lifecycleContainerType struct {
+    PostStart postStartLCType `json: "postStart"`
+    PreStop preStopLCType `json: "preStop"`    
+}
+
+type postStartLCType struct {
+    Exec execPSLCType `json: "exec"`
+    HttpGet httpGetPSLCType `json: "httpGet"`
+    TcpSocket tcpPSLCType `json: "tcpPSLCType"`
+}
+
+type execPSLCType struct {
+    Command []string `json: "command"`
+}
+
+type httpGetPSLCType struct {
+    Path string `json: "path"`
+    Port float64 `json: "port"`
+    Host string `json: "host"`
+    Scheme string `json: "scheme"`
+    HttpHeaders []headersPSLCType `json: "httpHeaders"`    
+}
+
+type headersPSLCType struct {
+    Name string `json: "name"`
+    Value string `json: "value"`
+}
+
+type tcpPSLCType struct {
+    Port float64 `json: "port"`
+}
+
+
+
+type preStopLCType struct {
+    Exec execPrSLCType `json: "exec"`
+    HttpGet httpGetPrSLCType `json: "httpGet"`
+    TcpSocket tcpPrSLCType `json: "tcpPSLCType"`
+}
+
+type execPrSLCType struct {
+    Command []string `json: "command"`
+}
+
+type httpGetPrSLCType struct {
+    Path string `json: "path"`
+    Port float64 `json: "port"`
+    Host string `json: "host"`
+    Scheme string `json: "scheme"`
+    HttpHeaders []headersPrSLCType `json: "httpHeaders"`    
+}
+
+type headersPrSLCType struct {
+    Name string `json: "name"`
+    Value string `json: "value"`
+}
+
+type tcpPrSLCType struct {
+    Port float64 `json: "port"`
 }
 
 type imagePullSecretsType struct {
-
+    Name string `json: "name"`
 }
 
 type statusType struct {
@@ -339,6 +311,76 @@ type statusType struct {
 	ContainerStatuses []containerStatuesStatType `json: "containerStatuses"`
 }
 
-func podlist() {
+type conditionsStatType struct {
+    Type string `json: "type"`
+    Status string `json: "status"`
+    LastProbeTime string `json: "lastProbeTime"`
+    LastTransition string `json: "lastTransition"`
+    Reason string `json: "reason"`
+    Message string `json: "mesage"`
+} 
 
+type containerStatuesStatType struct {
+    Name string `json: "name"`
+    State statCSSType `json: "state"`
+    LastState lastStateCSSType `json: "lastState"`
+    Ready bool `json: "ready"`
+    RestartCount float64 `json: "restartCount"`
+    Image string `json: "image"`
+    ImageID string `json: "imageID"`
+    ContainerID string `json: "containerID"`
 }
+
+type statCSSType struct {
+    Waiting waitSCSSType `json: "waiting"`
+    Running runSCSSType `json: "running"`
+    Terminated termCSSType `json: "terminated"`
+}
+
+type waitSCSSType struct {
+    Reason string `json: "reason"`
+    Message string `json: "message"` 
+}
+
+type runSCSSType struct {
+    StartedAt string `json: "startedAt"`
+}
+
+type termCSSType struct {
+    ExitCode float64 `json: "exitCode"`
+    Signal float64 `json: "signal"`
+    Reason string `json: "reason"`
+    Message string `json: "message"`
+    StartedAt string `json: "startedAt"`
+    FinishedAt string `json: "finishedAt"`
+    ContainerID string `json: "containerID"`
+}
+
+type lastStateCSSType struct {
+    Waiting waitLSCSSType `json: "waiting"`
+    Running runLSCSSType `json: "running"`
+    Terminated termLSCSSType `json: "terminated"`
+}
+
+type waitLSCSSType struct {
+    Reason string `json: "reason"`
+    Message string `json: "message"`
+}
+
+type runLSCSSType struct {
+    StartedAt string `json: "startedAt"`
+}
+
+type termLSCSSType struct {
+    ExitCode float64 `json: "exitCode"`
+    Signal float64 `json: "signal"`
+    Reason string `json: "reason"`
+    Message string `json: "message"`
+    StartedAt string `json: "startedAt"`
+    FinishedAt string `json: "finishedAt"`
+    ContainerID string `json: "containerID"`
+}
+
+
+
+
