@@ -10,7 +10,11 @@ import (
 
 const (
 	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
-	USER_INSERT = "INSERT INTO user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+
+	USER_INSERT = "INSERT INTO " +
+		"user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+
 	USER_UPDATE = "UPDATE user SET password=?, orgId=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 	USER_DELETE = "UPDATE user SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 	VALID       = 1
@@ -55,7 +59,8 @@ func (u *User) QueryUserById(id int32) {
 	defer stmt.Close()
 
 	// Query user by id
-	err = stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+	err = stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
+		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())
@@ -81,7 +86,8 @@ func (u *User) InsertUser(op int32) {
 	u.ModifiedOp = op
 
 	// Insert a user
-	_, err = stmt.Exec(u.Name, u.Password, u.OrgId, u.Status, u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment)
+	_, err = stmt.Exec(u.Name, u.Password, u.OrgId, u.Status,
+		u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment)
 
 	if err != nil {
 		log.Fatal(err)
@@ -102,7 +108,7 @@ func (u *User) UpdateUser(op int32) {
 	}
 	defer stmt.Close()
 
-	// Update modifiledAt
+	// Update modifiedAt
 	u.ModifiedAt = localtime.NewLocalTime().String()
 	u.ModifiedOp = op
 
@@ -130,7 +136,7 @@ func (u *User) DeleteUser(op int32) {
 	u.ModifiedAt = localtime.NewLocalTime().String()
 	u.ModifiedOp = op
 
-	// Set user status  INVALED
+	// Set user status  INVALID
 	u.Status = INVALID
 	_, err = stmt.Exec(u.Status, u.ModifiedAt, u.ModifiedOp, u.Id)
 	if err != nil {

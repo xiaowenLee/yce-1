@@ -7,7 +7,7 @@ import (
 )
 
 func Test_NewDcQuota(*testing.T) {
-	dcQuota := NewDcQuota(1, 1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
+	dcQuota := NewDcQuota(1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
 	fmt.Printf("%v\n", dcQuota)
 }
 
@@ -25,7 +25,7 @@ func Test_InsertDcQuota(*testing.T) {
 	mysql.MysqlInstance().Open()
 
 
-	dc := NewDcQuota(1, 1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
+	dc := NewDcQuota(1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
 	dc.InsertDcQuota(2)
 
 }
@@ -57,7 +57,7 @@ func Test_DeleteQuota(*testing.T) {
 
 func Test_EncodeJson_DecodeJson(*testing.T) {
 
-	dc := NewDcQuota(1, 1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
+	dc := NewDcQuota(1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
 	fmt.Printf("%s\n", dc.EncodeJson())
 
 	d := new(DcQuota)

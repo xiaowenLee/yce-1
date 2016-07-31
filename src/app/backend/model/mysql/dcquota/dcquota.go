@@ -3,16 +3,26 @@ package dcquota
 import (
 	"app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
+	"encoding/json"
 	"fmt"
 	"log"
-	"os/user"
-	"encoding/json"
 )
 
 const (
-	DCQUOTA_SELECT = "SELECT id, dcId, orgId, podNumList, podCpuMax, podMemMax, podCpuMin, podMemMin, rbdQuota, podRbdMax, podRbdMin, price, status, createdAt, modifiedAt, modifiedOp, comment FROM dcquota WHERE id=?"
-	DCQUOTA_INSERT = "INSERT INTO dcquota(dcId, orgId, podNumList, podCpuMax, podMemMax, podCpuMin, podMemMin, rbdQuota, podRbdMax, podRbdMin, price, status, createdAt, modifiedAt, modifiedOp, comment) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	DCQUOTA_UPDATE = "UPDATE dcquota SET dcId=?, orgId=?, podNumList=?, podCpuMax=?, podMemMax=?, podCpuMin=?, podMemMin=?, rbdQuota=?, podRbdMax=?, podRbdMin=?, price=?, status=?, modifiedAt=?, modifiedOp=?, comment=? WHERE id=?"
+	DCQUOTA_SELECT = "SELECT id, dcId, orgId, podNumList, podCpuMax, podMemMax, podCpuMin, " +
+		"podMemMin, rbdQuota, podRbdMax, podRbdMin, " +
+		"price, status, createdAt, modifiedAt, modifiedOp, comment " +
+		"FROM dcquota WHERE id=?"
+
+	DCQUOTA_INSERT = "INSERT INTO dcquota(dcId, orgId, podNumList, podCpuMax, podMemMax, " +
+		"podCpuMin, podMemMin, rbdQuota, podRbdMax, podRbdMin, " +
+		"price, status, createdAt, modifiedAt, modifiedOp, comment) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+	DCQUOTA_UPDATE = "UPDATE dcquota SET dcId=?, orgId=?, podNumList=?, podCpuMax=?, " +
+		"podMemMax=?, podCpuMin=?, podMemMin=?, rbdQuota=?, podRbdMax=?, podRbdMin=?, " +
+		"price=?, status=?, modifiedAt=?, modifiedOp=?, comment=? WHERE id=?"
+
 	DCQUOTA_DELETE = "UPDATE dcquota SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 
 	VALID   = 1
@@ -39,9 +49,8 @@ type DcQuota struct {
 	Comment     string `json:"comment"`
 }
 
-func NewDcQuota(id, dcId, orgId, podNumLimit, podCpuMax, podMemMax, podCpuMin, podMemMin, rbdQuota, PodRbdMax, podRbdMin, modifiedOp int32, price, comment string) *DcQuota {
+func NewDcQuota(dcId, orgId, podNumLimit, podCpuMax, podMemMax, podCpuMin, podMemMin, rbdQuota, PodRbdMax, podRbdMin, modifiedOp int32, price, comment string) *DcQuota {
 	return &DcQuota{
-		Id:          id,
 		DcId:        dcId,
 		OrgId:       orgId,
 		PodNumLimit: podNumLimit,
@@ -153,7 +162,6 @@ func (dc *DcQuota) DeleteDcQuota(op int32) {
 		panic(err.Error())
 	}
 }
-
 
 func (dc *DcQuota) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), dc)
