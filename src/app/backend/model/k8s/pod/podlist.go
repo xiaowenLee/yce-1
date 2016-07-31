@@ -1,6 +1,6 @@
-package pod
+package applist 
 
-type podList struct {
+type PodList struct {
 	Kind string `json: "kind"`
 	ApiVersion string `json: "apiVersion"`
 	Metadata metadataPLType `json: "metadata"`
@@ -15,9 +15,10 @@ type itemsPLType struct {
 	Kind string `json: "kind"`
 	ApiVersion string `json: "apiVersion"`
 	Metadata metadataIType `json: "metadata"`
-	Spec specIType `json: "spec"`
-	Status statusIType `json: "status"`	
+	Spec specType `json: "spec"`
+	Status statusType `json: "status"`	
 }
+
 
 type metadataIType struct {
 	Name string `json: "name"`
@@ -26,26 +27,22 @@ type metadataIType struct {
 	SelfLink string `json: "selfLink"`
 	Uid string `json: "uid"`
 	ResourceVersion string `json: "resourceVersion"`
-	Generation genMIType `json: "generation"`
+	//Generation float64 `json: "generation"` //float64 string
+	//Generation string `json: "generation"` //float64 string
 	CreationTimeStamp string `json: "creationTimeStamp"`
 	DeletionTimeStamp string `json: "deletionTimeStamp"`
-	Labels string `json: "labels"`
-	Annotations string `json: "annotations"`
+	Labels map[string] string `json: "labels"`
+	Annotations map[string] string `json: "annotations"`
 }
-
-type genMIType struct {
-
-}
-
 
 type specType struct {
 	Volumes []volumesSType `json: "volumes"`
 	Containers []containerSType `json: "containers"`
 	RestartPolicy string `json: "restartPolicy"`
-	TerminationGracePeriodSeconds termGPSType `json: "terminationGracePeriodSeconds"`
-	ActiveDeadlineSeconds actDSType `json: "activeDeadlineSeconds"`
+	TerminationGracePeriodSeconds float64 `json: "terminationGracePeriodSeconds"`
+	ActiveDeadlineSeconds float64 `json: "activeDeadlineSeconds"`
 	DnsPolicy string `json: "dnsPolicy"`
-	NodeSelector string `json: "nodeSelector"`
+	NodeSelector map[string] string  `json: "nodeSelector"`
 	NodeName string `json: "nodeName"`
 	HostNetwork bool `json: "hostNetwork"`
 	HostPID bool `json: "hostPID"`
@@ -107,15 +104,15 @@ type containerSType struct {
 	Command []string `json: "command"`
 	Args []string `json: "args"`
 	WorkingDir string `json: "workingDir"`
-	Ports []portsContainerType `json: "ports"
+	Ports []portsContainerType `json: "ports"`
 	Env []envContainerType `json: "env"`
 	Resources resourcesContainerType `json: "resources"`
-	VolumeMounts volumeMountsContainerType `json: "volumeMounts"`
+	VolumeMounts []volumeMountsContainerType `json: "volumeMounts"`
 	LivenessProbe livenessProbeContainerType `json: "livenessProbe"`
 	ReadinessProbe readinessProbeContainerType `json: "readinessProbe"`
 	Lifecycle lifecycleContainerType `json: "lifecycle"`
-	TerminationMesasgePath termsmgPathContainerType `json: "terminationMessagePath"`
-	ImagePullPolicy imagePullPolicyContainerType `json: "imagePullPolicy"`
+	TerminationMesasgePath string `json: "terminationMessagePath"`
+	ImagePullPolicy string `json: "imagePullPolicy"`
 	Stdin bool `json: "stdin"`
 	StdinOnce bool `json: "stdinOnce"`
 	Tty bool `json: "tty"`
@@ -123,17 +120,13 @@ type containerSType struct {
 
 type portsContainerType struct {
 	Name string `json: "name"`
-	HostPort hostPortContainerType `json: "hostPort"`
-	ContainerPort cPortContainerType `json: "containerPort"`
+	HostPort hostPortPCType `json: "hostPort"`
+	ContainerPort float64 `json: "containerPort"`
 	Protocol string `json: "protocol"`
 	HostIP string `json: "hostIP"`
 }
 
-type hostPortContainerType struct {
-
-}
-
-type cPortContainerType struct {
+type hostPortPCType struct {
 
 }
 
@@ -160,13 +153,13 @@ type configMapKeyEnvCon struct {
 }
 
 type secretKeyRefEnvCon struct {
-	Name string `json: "name"
+	Name string `json: "name"`
 	Key string `json: "key"`
 }
 
 type resourcesContainerType struct {
-    LimitsRsConType string `json: "limits"
-    Requests string `json: "requests"`
+    LimitsRsConType map[string] string `json: "limits"`
+    Requests map[string] string  `json: "requests"`
 }
 
 type volumeMountsContainerType struct {
@@ -179,11 +172,11 @@ type livenessProbeContainerType struct {
     Exec execLiveProbeType `json: "exec"`
     HttpGet httpGetLiveProbeType `json: "httpGet"`
     TcpSocket tcpLiveProbeType `json: "tcpSocket"`
-    InitialDelaySeconds initLiveProbeType `json: "initialDelaySeconds"`
-    TimeoutSeconds timeoutLiveProbeType `json: "timeoutSeconds"`
-    PeriodSeconds prdLiveProbeType `json: "periodSeconds"`
-    SuccessThreshold succthLiveProbeType `json: "successThreshold"`
-    FailureThreshold failthLiveProbeType `json: "failureThreshold"`
+    InitialDelaySeconds float64 `json: "initialDelaySeconds"`
+    TimeoutSeconds float64 `json: "timeoutSeconds"`
+    PeriodSeconds float64 `json: "periodSeconds"`
+    SuccessThreshold float64 `json: "successThreshold"`
+    FailureThreshold float64 `json: "failureThreshold"`
 }
 
 type execLiveProbeType struct {
@@ -192,10 +185,10 @@ type execLiveProbeType struct {
 
 type httpGetLiveProbeType struct {
     Path string `json: "path"`
-    Port string `json: "port"`
+    Port float64 `json: "port"`
     Host string `json: "host"`
     Scheme string `json: "scheme"`
-    HttpHeaders headersGLPType `json: "httpHeaders"`    
+    HttpHeaders []headersGLPType `json: "httpHeaders"`    
 }
 
 type headersGLPType struct {
@@ -204,27 +197,7 @@ type headersGLPType struct {
 }
 
 type tcpLiveProbeType struct {
-    Port string `json: "port"`
-}
-
-type initLiveProbeType struct {
-
-}
-
-type timeoutLiveProbeType struct {
-
-}
-
-type prdLiveProbeType struct {
-
-}
-
-type succthLiveProbeType struct {
-
-}
-
-type failthLiveProbeType struct {
-
+    Port float64 `json: "port"`
 }
 
 
@@ -232,11 +205,11 @@ type readinessProbeContainerType struct {
     Exec execReadProbeType `json: "exec"`
     HttpGet httpGetReadProbeType `json: "httpGet"`
     TcpSocket tcpReadProbeType `json: "tcpSocket"`
-    InitialDelaySeconds initReadProbeType `json: "initialDelaySeconds"`
-    TimeoutSeconds timeoutReadProbeType `json: "timeoutSeconds"`
-    PeriodSeconds prdReadProbeType `json: "periodSeconds"`
-    SuccessThreshold succthReadProbeType `json: "successThreshold"`
-    FailureThreshold failthReadProbeType `json: "failureThreshold"`
+    InitialDelaySeconds float64 `json: "initialDelaySeconds"`
+    TimeoutSeconds float64 `json: "timeoutSeconds"`
+    PeriodSeconds float64 `json: "periodSeconds"`
+    SuccessThreshold float64 `json: "successThreshold"`
+    FailureThreshold float64 `json: "failureThreshold"`
 
 }
 
@@ -246,10 +219,10 @@ type execReadProbeType struct {
 
 type httpGetReadProbeType struct {
     Path string `json: "path"`
-    Port string `json: "port"`
+    Port float64 `json: "port"`
     Host string `json: "host"`
     Scheme string `json: "scheme"`
-    HttpHeaders headersGRPType `json: "httpHeaders"`    
+    HttpHeaders []headersGRPType `json: "httpHeaders"`    
 }
 
 type headersGRPType struct {
@@ -258,46 +231,71 @@ type headersGRPType struct {
 }
 
 type tcpReadProbeType struct {
-    Port string `json: "port"`
-}
-
-type initReadProbeType struct {
-
-}
-
-type timeoutReadProbeType struct {
-
-}
-
-type prdReadProbeType struct {
-
-}
-
-type succthReadProbeType struct {
-
-}
-
-type failthReadProbeType struct {
-
-}
-
-type termsmgPathContainerType struct {
-    
-}
-
-type imagePullPolicyContainerType struct {
-
+    Port float64 `json: "port"`
 }
 
 
-type termGPSType struct {
 
+type lifecycleContainerType struct {
+    PostStart postStartLCType `json: "postStart"`
+    PreStop preStopLCType `json: "preStop"`    
 }
 
-type actDSType struct {
-
+type postStartLCType struct {
+    Exec execPSLCType `json: "exec"`
+    HttpGet httpGetPSLCType `json: "httpGet"`
+    TcpSocket tcpPSLCType `json: "tcpPSLCType"`
 }
 
+type execPSLCType struct {
+    Command []string `json: "command"`
+}
+
+type httpGetPSLCType struct {
+    Path string `json: "path"`
+    Port float64 `json: "port"`
+    Host string `json: "host"`
+    Scheme string `json: "scheme"`
+    HttpHeaders []headersPSLCType `json: "httpHeaders"`    
+}
+
+type headersPSLCType struct {
+    Name string `json: "name"`
+    Value string `json: "value"`
+}
+
+type tcpPSLCType struct {
+    Port float64 `json: "port"`
+}
+
+
+
+type preStopLCType struct {
+    Exec execPrSLCType `json: "exec"`
+    HttpGet httpGetPrSLCType `json: "httpGet"`
+    TcpSocket tcpPrSLCType `json: "tcpPSLCType"`
+}
+
+type execPrSLCType struct {
+    Command []string `json: "command"`
+}
+
+type httpGetPrSLCType struct {
+    Path string `json: "path"`
+    Port float64 `json: "port"`
+    Host string `json: "host"`
+    Scheme string `json: "scheme"`
+    HttpHeaders []headersPrSLCType `json: "httpHeaders"`    
+}
+
+type headersPrSLCType struct {
+    Name string `json: "name"`
+    Value string `json: "value"`
+}
+
+type tcpPrSLCType struct {
+    Port float64 `json: "port"`
+}
 
 type imagePullSecretsType struct {
     Name string `json: "name"`
@@ -327,7 +325,7 @@ type containerStatuesStatType struct {
     State statCSSType `json: "state"`
     LastState lastStateCSSType `json: "lastState"`
     Ready bool `json: "ready"`
-    RestartCount restartCountCSSType `json: "restartCount"`
+    RestartCount float64 `json: "restartCount"`
     Image string `json: "image"`
     ImageID string `json: "imageID"`
     ContainerID string `json: "containerID"`
@@ -349,21 +347,13 @@ type runSCSSType struct {
 }
 
 type termCSSType struct {
-    ExitCode exitcodeTCSSType `json: "exitCode"`
-    Signal sigTCSSType `json: "signal"`
+    ExitCode float64 `json: "exitCode"`
+    Signal float64 `json: "signal"`
     Reason string `json: "reason"`
     Message string `json: "message"`
     StartedAt string `json: "startedAt"`
     FinishedAt string `json: "finishedAt"`
     ContainerID string `json: "containerID"`
-}
-
-type exitcodeTCSSType struct {
-
-}
-
-type sigTCSSType struct {
-
 }
 
 type lastStateCSSType struct {
@@ -382,8 +372,8 @@ type runLSCSSType struct {
 }
 
 type termLSCSSType struct {
-    ExitCode exitcodeTLSCSSType `json: "exitCode"`
-    Signal sigTLSCSSType `json: "signal"`
+    ExitCode float64 `json: "exitCode"`
+    Signal float64 `json: "signal"`
     Reason string `json: "reason"`
     Message string `json: "message"`
     StartedAt string `json: "startedAt"`
@@ -391,26 +381,6 @@ type termLSCSSType struct {
     ContainerID string `json: "containerID"`
 }
 
-type exitcodeTLSCSSType struct {
-    
-}
-
-type sigTLSCSSType struct {
-      
-}
-   
-type restartCountCSSType struct {
-
-}
 
 
 
-
-
-
-
-
-
-func podlist() {
-
-}
