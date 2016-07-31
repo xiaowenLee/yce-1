@@ -20,14 +20,14 @@ define([
 	angular.module('common', []);
 	angular.module('dashboardManage', ['common']);
 	angular.module('appManage', ['common']);
-	angular.module('cloudManage', ['common']);
+	angular.module('rbdManage', ['common']);
 	angular.module('costManage', ['common']);
 	angular.module('extensionsManage', ['common']);
 	angular.module('imageManage', ['common']);
 
 
 	//主应用
-	var app = angular.module('yce-manage', ['ui.router', 'common', 'dashboardManage', 'appManage', 'cloudManage', 'costManage', 'extensionsManage', 'imageManage']);
+	var app = angular.module('yce-manage', ['ui.router', 'common', 'dashboardManage', 'appManage', 'rbdManage', 'costManage', 'extensionsManage', 'imageManage']);
 	//路由引导
 	Mock.mockjax(app);
 

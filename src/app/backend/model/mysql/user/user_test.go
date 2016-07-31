@@ -74,7 +74,7 @@ func Test_UpdateUser(*testing.T) {
 	u.UpdateUser(2)
 }
 
-func Test_Qurey_UserName(*testing.T) {
+func Test_Query_UserName(*testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
