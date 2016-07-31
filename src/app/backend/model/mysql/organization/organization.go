@@ -3,21 +3,20 @@ package organization
 import (
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-	"github.com/shopspring/decimal"
 	"encoding/json"
 	"fmt"
-	"log"
 	"github.com/shopspring/decimal"
+	"log"
 )
 
 const (
 	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, createdAt, modifiedAt, modifiedOp, comment FROM organization WHERE id=?"
 	ORG_INSERT = "INSERT INTO organization(name, cpuQuota, memQuota, budget, balance, status, createdAt, modifiedAt, modifiedOp, comment) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	ORG_UPDATE = "UPDATE organization SET name=?, cpuQuota=?, memQuota=?, budget=?, balance=?, status=?, modifiedAt=?, modifiedOp=?, comment=? WHERE id=?"
-	ORG_DELETE = ""
+	ORG_DELETE = "UPDATE organization SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 
-	VALID      = 1
-	INVALID    = 0
+	VALID   = 1
+	INVALID = 0
 )
 
 type Organization struct {
@@ -42,7 +41,7 @@ func NewOrganization(name, budget, balance, comment string, cpuQuota, memQuota, 
 		MemQuota:   memQuota,
 		Budget:     budget,
 		Balance:    balance,
-		Status: VALID,
+		Status:     VALID,
 		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedAt: localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
@@ -62,7 +61,7 @@ func (o *Organization) QueryOrganizationById(id int32) {
 	defer stmt.Close()
 
 	// Query organization by id
-	stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &o.Comment)
+	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &o.Comment)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())
@@ -74,7 +73,7 @@ func (o *Organization) QueryOrganizationById(id int32) {
 func (o *Organization) QueryBudgetById(id int32) (decimal.Decimal, errr) {
 	o.QueryOrganizationById(id)
 	budget, err := decimal.NewFromString(o.Budget)
-	return  budget, err
+	return budget, err
 }
 
 func (o *Organization) QueryBalanceById(id int32) (decimal.Decimal, err) {
@@ -108,7 +107,62 @@ func (o *Organization) InsertOrganization(op int32) {
 }
 
 func (o *Organization) UpdateOrganization(op int32) {
+	db := mysql.MysqlInstance().Conn()
 
+	// Prepare update-statement
+	stmt, err := db.Prepared(ORG_UPDATE)
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
+	defer stmt.Close()
+
+	// Update modifiedAt and modifiedOp
+	u.ModifiedAt = localtime.NewLocalTime().String()
+	u.ModifiedOp = op
+
+	// Update a org: name, cpuQuota, memQuota, budget, balance, status, modifiedAt, modifiedOp, comment
+	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.ModifiedAt, o.ModifiedOp, o.Comment, o.Id)
+
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
+}
+
+func (o *Organization) UpdateBudgetById(budget string, op int32) {
+	o.Budget = buget
+	o.UpdateOrganization(op)
+
+}
+
+func (o *Organization) UpdateBalanceById(balance string, op int32) {
+	o.Balance = balance
+	o.UpdateOrganization(op)
+}
+
+func (o *Organization) DeleteOrganization(op int32) {
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepared delete-statement
+	stmt, err := db.Prepared(ORG_DELETE)
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
+	defer stmt.Close()
+
+	// Update modifiedAt and modifiedOp
+	u.ModifiedAt = localtime.NewLocalTime().String()
+	u.ModifiedOp = op
+	u.Status = INVALID
+
+	// Delete a org
+	_, err = stmt.Exec(o.Status, o.ModifiedAt, o.ModifiedOp, o.Id)
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
 }
 
 func (o *Organization) DecodeJson(data string) {
