@@ -108,7 +108,7 @@ func (u *User) UpdateUser(op int32) {
 	}
 	defer stmt.Close()
 
-	// Update modifiedAt
+	// Update modifiedAt, modifiedOp
 	u.ModifiedAt = localtime.NewLocalTime().String()
 	u.ModifiedOp = op
 
