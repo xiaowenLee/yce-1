@@ -1,15 +1,13 @@
 package quota
 
 import (
-	localtime "app/backend/common/util/time"
 	mysql "app/backend/common/util/mysql"
-	"fmt"
-	"log"
+	localtime "app/backend/common/util/time"
 	"encoding/json"
+	"log"
 )
 
 const (
-
 	QUOTA_SELECT = "SELECT id, name, cpu, mem, rbd, price, " +
 		"status, createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM quota WHERE id=?"
@@ -26,41 +24,41 @@ const (
 		"SET status=?, modifiedAt=?, modifiedOp=? " +
 		"WHERE id=?"
 
-	VALID = 1
+	VALID   = 1
 	INVALID = 0
 )
 
 type Quota struct {
-	Id         int32   `json:"id"`
-	Name       string  `json:"name"`
-	Cpu        int32   `json:"cpu"`
-	Mem        int32   `json:"mem"`
-	Rbd        int32   `json:"rbd"`
-	Price      string  `json:"price"`
-	Status     int32   `json:"status"`
-	CreatedAt  string  `json:"createdAt"`
-	ModifiedAt string  `json:"modifiedAt"`
-	ModifiedOp int     `json:"modifiedOp"`
-	Comment    string  `json:"comment"`
+	Id         int32  `json:"id"`
+	Name       string `json:"name"`
+	Cpu        int32  `json:"cpu"`
+	Mem        int32  `json:"mem"`
+	Rbd        int32  `json:"rbd"`
+	Price      string `json:"price"`
+	Status     int32  `json:"status"`
+	CreatedAt  string `json:"createdAt"`
+	ModifiedAt string `json:"modifiedAt"`
+	ModifiedOp int32  `json:"modifiedOp"`
+	Comment    string `json:"comment"`
 }
 
 func NewQuota(name, price, comment string, cpu, mem, rbd, modifiedOp int32) *Quota {
 	return &Quota{
-		Name: name,
-		Cpu: cpu,
-		Mem: mem,
-		Rbd: rbd,
-		Price: price,
-		Status: VALID,
-		CreatedAt: localtime.NewLocalTime().String(),
+		Name:       name,
+		Cpu:        cpu,
+		Mem:        mem,
+		Rbd:        rbd,
+		Price:      price,
+		Status:     VALID,
+		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedAt: localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
-		Comment: comment,
+		Comment:    comment,
 	}
 }
 
 func (q *Quota) QueryQuotaById(id int32) {
-	db := mysql. MysqlInstance().Conn()
+	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
 	stmt, err := db.Prepare(QUOTA_SELECT)
@@ -71,8 +69,8 @@ func (q *Quota) QueryQuotaById(id int32) {
 	defer stmt.Close()
 
 	// Query quota by id
-	err = stmt.QueryRow(id).Scan(&q.Name, &q.Cpu, &q.Mem, &q.Rbd,
-		&q.Price, &q.Status, &q.CreatedAt, &q.ModifiedAt, &q.ModifiedOp, q.Comment)
+	err = stmt.QueryRow(id).Scan(&q.Id, &q.Name, &q.Cpu, &q.Mem, &q.Rbd,
+		&q.Price, &q.Status, &q.CreatedAt, &q.ModifiedAt, &q.ModifiedOp, &q.Comment)
 
 	if err != nil {
 		log.Fatal(err)
@@ -99,7 +97,7 @@ func (q *Quota) InsertQuota(op int32) {
 
 	// Insert a user
 	_, err = stmt.Exec(q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status,
-		q.CreatedAt, q.ModifiedAt, q.ModifiedOp, q.Comment, q.Id)
+		q.CreatedAt, q.ModifiedAt, q.ModifiedOp, q.Comment)
 
 	if err != nil {
 		log.Fatal(err)

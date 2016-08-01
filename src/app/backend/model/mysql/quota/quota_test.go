@@ -12,16 +12,8 @@ func Test_NewQuota(*testing.T) {
 	fmt.Printf("%v\n", q)
 }
 
-func Test_QueryQuotaById(*testing.T) {
-	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
-	mysql.MysqlInstance().Open()
-
-	q := new(Quota)
-	q.QueryQuotaById(2)
-	fmt.Printf("%v\n", q)
-}
-
 func Test_InsertQuota(*testing.T) {
+	fmt.Println("Test_InsertQuota")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
@@ -30,18 +22,29 @@ func Test_InsertQuota(*testing.T) {
 	fmt.Printf("%v\n", q)
 }
 
-func Test_UpdateQuota(*testing.T) {
+func Test_QueryQuotaById(*testing.T) {
+	fmt.Println("Test_QueryQuotaById")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
 	q := new(Quota)
-	q.QueryQuotaById(3)
+	q.QueryQuotaById(2)
+	fmt.Printf("%v\n", q)
+}
+
+func Test_UpdateQuota(*testing.T) {
+	fmt.Println("Test_UpdateQuota")
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	q := new(Quota)
+	q.QueryQuotaById(1)
 
 	q.Name = "LimitRange"
 	q.UpdateQuota(2)
 
 	quota := new(Quota)
-	q.QueryQuotaById(3)
+	quota.QueryQuotaById(2)
 
 	fmt.Printf("%v\n", quota)
 
@@ -52,7 +55,7 @@ func Test_DeleteQuota(*testing.T) {
 	mysql.MysqlInstance().Open()
 
 	q := new(Quota)
-	q.QueryQuotaById(4)
+	q.QueryQuotaById(1)
 	q.DeleteQuota(3)
 }
 
