@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment FROM datacenter WHERE id=?"
+	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment " +
+		"FROM datacenter WHERE id=?"
 
 	DC_INSERT = "INSERT INTO " +
 		"datacenter(name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment) " +
