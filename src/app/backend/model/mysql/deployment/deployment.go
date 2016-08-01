@@ -10,9 +10,17 @@ import (
 )
 
 const (
-	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment where id=?"
-	DEPLOYMENT_BYNAME = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment where name=? ORDER BY id DESC"
-	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, sucdes, reason, json, comment) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
+		"actionAt, actionOp, dcList, success, reason, json, comment " +
+		"FROM deployment where id=?"
+
+	DEPLOYMENT_BYNAME = "SELECT id, name, actionType, actionVerb, actionUrl, " +
+		"actionAt, actionOp, dcList, success, reason, json, comment " +
+		"FROM deployment where name=? ORDER BY id DESC"
+
+	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, " +
+		"actionAt, actionOp, dcList, success, reason, json, comment) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	VALID = 1
 	INVALID = 0
 )
@@ -60,14 +68,14 @@ func (d *Deployment) QueryDeploymentById(id int32) {
 	defer stmt.Close()
 
 	// Query user by id
-	err = stmt.QueryRow(id).Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionVerb, &d.ActionUrl, &d.ActionAt, &d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &d.Comment)
+	err = stmt.QueryRow(id).Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt, &d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &d.Comment)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())
 	}
 }
 
-func (d *Deployment) InsertDeployment() {
+func (d *Deployment) InsertDeployment(op int32) {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
@@ -80,6 +88,7 @@ func (d *Deployment) InsertDeployment() {
 
 	// Update ActionAt
 	d.ActionAt = localtime.NewLocalTime().String()
+	d.ActionOp = op
 
 	// Insert a deployment
 	_, err = stmt.Exec(d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
@@ -113,7 +122,8 @@ func QueryDeploymentByAppName(name string) *[]*Deployment {
 
 	for rows.Next() {
 		d := new(Deployment)
-		err = rows.Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt, &d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &d.Comment)
+		err = rows.Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt,
+			&d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &d.Comment)
 		if err != nil {
 			log.Fatal(err)
 			panic(err.Error())
