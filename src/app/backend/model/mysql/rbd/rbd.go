@@ -1,10 +1,10 @@
 package rbd
 
 import (
-	localtime "app/backend/common/util/time"
 	mysql "app/backend/common/util/mysql"
-	"log"
+	localtime "app/backend/common/util/time"
 	"encoding/json"
+	"log"
 )
 
 const (
@@ -13,18 +13,18 @@ const (
 		"FROM rbd WHERE id=?"
 
 	RBD_INSERT = "INSERT INTO rbd(name, pool, size, filesystem, " +
-		"orgId, dcId, status, createdAt, modifiedAt, modifiedOp, comment " +
+		"orgId, dcId, status, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-	RBD_UPDATE = "UPDATE rbd SET name=?, pool=?, size=?, filesystem=? " +
-		"orgId=?, dcId=?, status=?, createdAt, modifiedAt, modifiedOp=?, comment=? " +
+	RBD_UPDATE = "UPDATE rbd SET name=?, pool=?, size=?, filesystem=?, " +
+		"orgId=?, dcId=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=? " +
 		"WHERE id=?"
 
 	RBD_DELETE = "UPDATE rbd SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 
 	DEFAULT_FILESYSTEM = "ext4"
 
-	VALID = 1
+	VALID   = 1
 	INVALID = 0
 )
 
@@ -39,28 +39,28 @@ type Rbd struct {
 	Status     int32  `json:"status"`
 	CreatedAt  string `json:"createdAt"`
 	ModifiedAt string `json:"modifiedAt"`
-	ModifiedOp int    `json:"modifiedOp"`
+	ModifiedOp int32  `json:"modifiedOp"`
 	Comment    string `json:"comment"`
 }
 
 func NewRbd(name, pool, comment string, size, orgId, dcId, modifiedOp int32) *Rbd {
 	return &Rbd{
-		Name: name,
-		Pool: pool,
-		Size: size,
+		Name:       name,
+		Pool:       pool,
+		Size:       size,
 		FileSystem: DEFAULT_FILESYSTEM,
-		OrgId: orgId,
-		DcID: dcId,
-		Status: VALID,
-		CreatedAt: localtime.NewLocalTime().String(),
+		OrgId:      orgId,
+		DcID:       dcId,
+		Status:     VALID,
+		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedAt: localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
-		Comment: comment,
+		Comment:    comment,
 	}
 }
 
 func (r *Rbd) QueryRbdById(id int32) {
-	db := mysql. MysqlInstance().Conn()
+	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
 	stmt, err := db.Prepare(RBD_SELECT)
@@ -125,7 +125,7 @@ func (r *Rbd) UpdateRbd(op int32) {
 	r.ModifiedOp = op
 
 	// Update a quota
-	_, err = stmt.Exec(r.Name, r.Pool, r.FileSystem, r.OrgId, r.DcID,
+	_, err = stmt.Exec(r.Name, r.Pool, r.Size, r.FileSystem, r.OrgId, r.DcID,
 		r.Status, r.CreatedAt, r.ModifiedAt, r.ModifiedOp, r.Comment, r.Id)
 
 	if err != nil {
@@ -178,4 +178,3 @@ func (r *Rbd) EncodeJson() string {
 	}
 	return string(data)
 }
-
