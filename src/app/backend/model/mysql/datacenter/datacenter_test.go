@@ -11,7 +11,17 @@ func Test_NewDataCenter(*testing.T) {
 	fmt.Printf("%v\n", dc)
 }
 
+func Test_InsertDataCenter(t *testing.T) {
+	fmt.Println("Test_InsertDataCenter")
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	dc := NewDataCenter("dianxin", "10.149.149.3", "", "add dianxin", 8080, 2)
+	dc.InsertDataCenter(2)
+}
+
 func Test_QueryDataCenterById(*testing.T) {
+	fmt.Println("Test_QueryDataCenter")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
@@ -21,16 +31,8 @@ func Test_QueryDataCenterById(*testing.T) {
 
 }
 
-func Test_InsertDataCenter(t *testing.T) {
-	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
-	mysql.MysqlInstance().Open()
-
-	dc := NewDataCenter("dianxin", "10.149.149.3", "", "add dianxin", 8080, 2)
-	dc.InsertDataCenter(2)
-}
-
-
 func Test_UpdateDataCenter(t *testing.T) {
+	fmt.Println("Test_UpdateDataCenter")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
@@ -46,6 +48,7 @@ func Test_UpdateDataCenter(t *testing.T) {
 }
 
 func Test_DeleteDataCenter(t *testing.T) {
+	fmt.Println("Test_DeleteDataCenter")
 
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()

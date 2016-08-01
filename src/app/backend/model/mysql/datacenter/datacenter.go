@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment WHERE id=?"
+	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment FROM datacenter WHERE id=?"
 
 	DC_INSERT = "INSERT INTO " +
-		"datacenter(name, host, port, secret, status, createAt, modifiedAt, modifiedOp, comment) " +
+		"datacenter(name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	DC_UPDATE = "UPDATE datacenter " +
@@ -94,7 +94,7 @@ func (dc *DataCenter) InsertDataCenter(op int32) {
 	dc.ModifiedOp = op
 
 	// Insert a idc
-	_, err = stmt.Exec(dc.Name, dc.Host, dc.Port, dc.Secret,
+	_, err = stmt.Exec(dc.Name, dc.Host, dc.Port, dc.Secret, dc.Status,
 		dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp, dc.Comment)
 
 	if err != nil {
