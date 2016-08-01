@@ -49,11 +49,11 @@ func Test_HttpClient_Post(t *testing.T) {
     tempDeploy.Spec.Template.Spec.Containers[0].Image = "nginx:1.7.9" 
 
     var result []byte
-        result, _ = json.MarshalIndent(tempDeploy, "", "    ")
+    result, _ = json.MarshalIndent(tempDeploy, "", "    ")
 
      
     client := NewHttpClient("http://master", "8080")
-	resp, err := client.Post("http://master:8080/apis/extensions/v1beta1/namespaces/default/deployments", strings.NewReader(string(result)))
+    resp, err := client.Post("http://master:8080/apis/extensions/v1beta1/namespaces/default/deployments", strings.NewReader(string(result)))
 
     if err != nil {
         t.Error("Post pods error")
