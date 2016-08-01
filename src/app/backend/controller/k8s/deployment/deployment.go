@@ -20,3 +20,11 @@ func (dc *DeploymentController) Post() {
 func (dc *DeploymentController) Delete() {
 
 }
+
+func (dc *DeploymentController) EncodeJson() {
+
+}
+
+func (dc *DeploymentController) DecodeJson() {
+
+}
