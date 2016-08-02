@@ -6,6 +6,10 @@ define([
 	var getApis = function($http){
 		var apis = {};
 
+		apis.getAppList = function(param, success, error){
+			return utils.http($http, 'post', '/api/appManage/appList', param, success, error);
+		};
+
 		return apis;
 	};	
 

@@ -6,8 +6,11 @@ define([
     ], function(Base64){
         'use strict';
 
-        var ctrl = ['$scope', function($scope){
+        var ctrl = ['$scope', 'appManageService', function($scope,appManageService){
 
+            appManageService.getAppList(null,function(data){
+                $scope.appList = data.list;
+            });
         }];
 
 

@@ -27,3 +27,17 @@ Mock.mock('http://10.69.40.36.com/api/main/navlist', {
     ]
 });
 
+Mock.mock('http://10.69.40.36.com/api/appManage/appList', {
+    list: [
+        {id: 1, name: 'Dashboard1',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 2, name: 'Dashboard2',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 3, name: 'Dashboard3',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 4, name: 'Dashboard4',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 5, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 6, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 7, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 8, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 9, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+    ]
+});
+
