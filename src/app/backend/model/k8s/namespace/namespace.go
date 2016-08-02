@@ -19,29 +19,29 @@ type ItemsListType Namespace
 type Namespace struct {
     Kind string `json:"kind"`
     ApiVersion string `json:"apiVersion"`
-    Metadata MetadataType `json:"metadata"`
-    Spec SpecType `json:"spec"`
-    Status StatusType `json:"status"`
+    Metadata *MetadataType `json:"metadata"`
+    Spec *SpecType `json:"spec"`
+    Status *StatusType `json:"status,omitempty"`
 }
 
 type MetadataType struct {
     Name string `json:"name"`
-    GenerateName string `json:"generateName"`
-    Namespace string `json:"namespace"`
-    SelfLink string `json:"selfLink"`
-    Uid string `json:"uid"`
-    ResourceVersion string `json:"resourceVersion"`
-    Generation float64 `json:"generation"`
-    CreationTimestamp string `json:"creationTimestamp"`
-    DeletionTimestamp string `json:"deletionTimestamp"`
-    DeletionGracePeriodSeconds float64 `json:"deletionGracePeriodSeconds"`
+    GenerateName string `json:"generateName,omitempty"`
+    Namespace string `json:"namespace,omitempty"`
+    SelfLink string `json:"selfLink,omitempty"`
+    Uid string `json:"uid,omitempty"`
+    ResourceVersion string `json:"resourceVersion,omitempty"`
+    Generation float64 `json:"generation,omitempty"`
+    CreationTimestamp string `json:"creationTimestamp,omitempty"`
+    DeletionTimestamp string `json:"deletionTimestamp,omitempty"`
+    DeletionGracePeriodSeconds float64 `json:"deletionGracePeriodSeconds,omitempty"`
     Labels map[string] string `json:"labels"`
-    Annotations map[string] string `json:"annotations"`
+    Annotations map[string] string `json:"annotations,omitempty"`
 }
 
 type SpecType struct {
 //   Finalizers []FinalizersType `json:finalizers"`
-    Finalizers []string `json:"finalizers"`
+    Finalizers []string `json:"finalizers,omitempty"`
 }
 /*
 type FinalizersType struct {
@@ -49,5 +49,5 @@ type FinalizersType struct {
 }
 */
 type StatusType struct {
-    Phase string `json:"phase"`
+    Phase string `json:"phase,omitempty"`
 }
