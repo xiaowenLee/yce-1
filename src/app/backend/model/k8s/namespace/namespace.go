@@ -1,6 +1,6 @@
 package namespace
 
-// NamespaceList for Get /api/v1/namespaces
+// NamespaceList for Get @/api/v1/namespaces
 type NamespaceList struct {
     Kind string `json:"kind"`
     ApiVersion string `json:"apiVersion"`
@@ -15,12 +15,12 @@ type MetadataListType struct {
 
 type ItemsListType Namespace 
 
-// Namespace for Post /api/v1/namespace
+// Namespace for Post @/api/v1/namespace
 type Namespace struct {
     Kind string `json:"kind"`
     ApiVersion string `json:"apiVersion"`
-    Metadata *MetadataType `json:"metadata"`
-    Spec *SpecType `json:"spec"`
+    Metadata MetadataType `json:"metadata"`
+    Spec SpecType `json:"spec"`
     Status *StatusType `json:"status,omitempty"`
 }
 
