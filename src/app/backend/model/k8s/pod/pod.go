@@ -73,7 +73,7 @@ type SpecType struct {
 }
 
 // Pod/Spec/Volumes
-type VolumesSType struct {
+type VolumesS struct {
 	Name                  string       `json:"name"`
 	HostPath              *HostPathVS  `json:"hostPath",omitempty`
 	EmptyDir              *EmptyDirVS  `json:"emptyDir",omitempty`
