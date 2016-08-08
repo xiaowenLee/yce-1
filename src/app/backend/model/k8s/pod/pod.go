@@ -40,6 +40,7 @@ type ItemsPLType struct {
 
 type Pod ItemsPLType
 
+// Pod/Metadata
 type MetadataIType struct {
 	Name            string `json:"name"`
 	GenerateName    string `json:"generateName,omitempty"`
@@ -55,275 +56,318 @@ type MetadataIType struct {
 	Annotations       map[string]string `json:"annotations,omitempty"`
 }
 
+// Pod/Spec
 type SpecType struct {
-	Volumes                       []VolumesSType         `json:"volumes,omitempty"`
-	Containers                    []ContainerSType       `json:"containers"`
-	RestartPolicy                 string                 `json:"restartPolicy,omitempty"`
-	TerminationGracePeriodSeconds float64                `json:"terminationGracePeriodSeconds,omitempty"`
-	ActiveDeadlineSeconds         float64                `json:"activeDeadlineSeconds,omitempty"`
-	DnsPolicy                     string                 `json:"dnsPolicy,omitempty"`
-	NodeSelector                  map[string]string      `json:"nodeSelector,omitempty"`
-	NodeName                      string                 `json:"nodeName,omitempty"`
-	HostNetwork                   bool                   `json:"hostNetwork,omitempty"`
-	HostPID                       bool                   `json:"hostPID,omitempty"`
-	HostIPC                       bool                   `json:"hostIPC,omitempty"`
-	ImagePullSecrets              []ImagePullSecretsType `json:"imagePullSecrets,omitempty"`
+	Volumes                       []VolumesS          `json:"volumes,omitempty"`
+	Containers                    []ContainerS        `json:"containers"`
+	RestartPolicy                 string              `json:"restartPolicy,omitempty"`
+	TerminationGracePeriodSeconds float64             `json:"terminationGracePeriodSeconds,omitempty"`
+	ActiveDeadlineSeconds         float64             `json:"activeDeadlineSeconds,omitempty"`
+	DnsPolicy                     string              `json:"dnsPolicy,omitempty"`
+	NodeSelector                  map[string]string   `json:"nodeSelector,omitempty"`
+	NodeName                      string              `json:"nodeName,omitempty"`
+	HostNetwork                   bool                `json:"hostNetwork,omitempty"`
+	HostPID                       bool                `json:"hostPID,omitempty"`
+	HostIPC                       bool                `json:"hostIPC,omitempty"`
+	ImagePullSecrets              []ImagePullSecretsS `json:"imagePullSecrets,omitempty"`
 }
 
+// Pod/Spec/Volumes
 type VolumesSType struct {
-	Name                  string           `json:"name"`
-	HostPath              *HostPathVSType  `json:"hostPath",omitempty`
-	EmptyDir              *EmptyDirVSType  `json:"emptyDir",omitempty`
-	PersistentVolumeClaim *PvClaimVSType   `json:"persistentVolumeClaim,omitempty"`
-	Rbd                   *RbdVSType       `json:"rbd,omitempty"`
-	ConfigMap             *ConfigMapVSType `json:"configMap,omitempty"`
+	Name                  string       `json:"name"`
+	HostPath              *HostPathVS  `json:"hostPath",omitempty`
+	EmptyDir              *EmptyDirVS  `json:"emptyDir",omitempty`
+	PersistentVolumeClaim *PvClaimVS   `json:"persistentVolumeClaim,omitempty"`
+	Rbd                   *RbdVS       `json:"rbd,omitempty"`
+	ConfigMap             *ConfigMapVS `json:"configMap,omitempty"`
 }
 
-type HostPathVSType struct {
+// Pod/Spec/Volumes/HostPath
+type HostPathVS struct {
 	Path string `json:"path,omitempty"`
 }
 
-type EmptyDirVSType struct {
+// Pod/Spec/Volumes/EmptyDir
+type EmptyDirVS struct {
 	Medium string `json:"medium,omitempty"`
 }
 
-type PvClaimVSType struct {
+// Pod/Spec/Volumes/PersistentVolumeClaim
+type PvClaimVS struct {
 	ClaimName string `json:"claimName,omitempty"`
 	ReadOnly  string `json:"readOnly,omitempty"`
 }
 
-type RbdVSType struct {
-	Monitors  []string          `json:"monitors,omitempty"`
-	Image     string            `json:"image,omitempty"`
-	FsType    string            `json:"fsType,omitempty"`
-	Pool      string            `json:"pool,omitempty"`
-	User      string            `json:"user,omitempty"`
-	Keyring   string            `json:"keyring,omitempty"`
-	SecretRef *SecretRefrbdType `json:"secretRef,omitempty"`
-	ReadOnly  bool              `json:"readOnly,omitempty"`
+// Pod/Spec/Volumes/Rbd
+type RbdVS struct {
+	Monitors  []string      `json:"monitors,omitempty"`
+	Image     string        `json:"image,omitempty"`
+	FsType    string        `json:"fsType,omitempty"`
+	Pool      string        `json:"pool,omitempty"`
+	User      string        `json:"user,omitempty"`
+	Keyring   string        `json:"keyring,omitempty"`
+	SecretRef *SecretRefRVS `json:"secretRef,omitempty"`
+	ReadOnly  bool          `json:"readOnly,omitempty"`
 }
 
-type SecretRefrbdType struct {
+// Pod/Spec/Volumes/SecretRef
+type SecretRefRVS struct {
 	Name string `json:"name,omitempty"`
 }
 
-type ConfigMapVSType struct {
-	Name  string               `json:"name,omitempty"`
-	Items []ItemsConfigMapType `json:"items,omitempty"`
+// Pod/Spec/Volumes/ConfigMap
+type ConfigMapVS struct {
+	Name  string             `json:"name,omitempty"`
+	Items []ItemsConfigMapVS `json:"items,omitempty"`
 }
 
-type ItemsConfigMapType struct {
+// Pod/Spec/Volumes/ConfigMap/Items
+type ItemsConfigMapVS struct {
 	Key  string `json:"key",omitempty`
 	Path string `json:"path,omitempty"`
 }
 
-type ContainerSType struct {
-	Name                   string                       `json:"name"`
-	Image                  string                       `json:"image"`
-	Command                []string                     `json:"command,omitempty"`
-	Args                   []string                     `json:"args,omitempty"`
-	WorkingDir             string                       `json:"workingDir,omitempty"`
-	Ports                  []PortsContainerType         `json:"ports,omitempty"`
-	Env                    []EnvContainerType           `json:"env,omitempty"`
-	Resources              *ResourcesContainerType      `json:"resources,omitempty"`
-	VolumeMounts           []VolumeMountsContainerType  `json:"volumeMounts,omitempty"`
-	LivenessProbe          *LivenessProbeContainerType  `json:"livenessProbe,omitempty"`
-	ReadinessProbe         *ReadinessProbeContainerType `json:"readinessProbe,omitempty"`
-	Lifecycle              *LifecycleContainerType      `json:"lifecycle,omitempty"`
-	TerminationMesasgePath string                       `json:"terminationMessagePath,omitempty"`
-	ImagePullPolicy        string                       `json:"imagePullPolicy,omitempty"`
-	Stdin                  bool                         `json:"stdin,omitempty"`
-	StdinOnce              bool                         `json:"stdinOnce,omitempty"`
-	Tty                    bool                         `json:"tty,omitempty"`
+// Pod/Spec/Containers
+type ContainerS struct {
+	Name                   string            `json:"name"`
+	Image                  string            `json:"image"`
+	Command                []string          `json:"command,omitempty"`
+	Args                   []string          `json:"args,omitempty"`
+	WorkingDir             string            `json:"workingDir,omitempty"`
+	Ports                  []PortsCS         `json:"ports,omitempty"`
+	Env                    []EnvCS           `json:"env,omitempty"`
+	Resources              *ResourcesCS      `json:"resources,omitempty"`
+	VolumeMounts           []VolumeMountsCS  `json:"volumeMounts,omitempty"`
+	LivenessProbe          *LivenessProbeCS  `json:"livenessProbe,omitempty"`
+	ReadinessProbe         *ReadinessProbeCS `json:"readinessProbe,omitempty"`
+	Lifecycle              *LifecycleCS      `json:"lifecycle,omitempty"`
+	TerminationMesasgePath string            `json:"terminationMessagePath,omitempty"`
+	ImagePullPolicy        string            `json:"imagePullPolicy,omitempty"`
+	Stdin                  bool              `json:"stdin,omitempty"`
+	StdinOnce              bool              `json:"stdinOnce,omitempty"`
+	Tty                    bool              `json:"tty,omitempty"`
 }
 
-type PortsContainerType struct {
-	Name          string          `json:"name,omitempty"`
-	HostPort      *HostPortPCType `json:"hostPort,omitempty"`
-	ContainerPort float64         `json:"containerPort,omitempty"`
-	Protocol      string          `json:"protocol,omitempty"`
-	HostIP        string          `json:"hostIP,omitempty"`
+// Pod/Spec/Containers/Ports
+type PortsCS struct {
+	Name          string       `json:"name,omitempty"`
+	HostPort      *HostPortPCS `json:"hostPort,omitempty"`
+	ContainerPort float64      `json:"containerPort,omitempty"`
+	Protocol      string       `json:"protocol,omitempty"`
+	HostIP        string       `json:"hostIP,omitempty"`
 }
 
-type HostPortPCType struct {
+// Pod/Spec/Containers/Ports/HostPort
+type HostPortPCS struct {
 }
 
-type EnvContainerType struct {
-	Name      string                 `json:"name",omitempty`
-	Value     string                 `json:"value",omitempty`
-	ValueFrom *ValueFromEnvContainer `json:"valueFrom",omitempty`
+// Pod/Spec/Contaienrs/Env
+type EnvCS struct {
+	Name      string        `json:"name",omitempty`
+	Value     string        `json:"value",omitempty`
+	ValueFrom *ValueFromECS `json:"valueFrom",omitempty`
 }
 
-type ValueFromEnvContainer struct {
-	FieldRef        *FieldRefValueFromEnvCon `json:"fieldRef,omitempty"`
-	ConfigMapKeyRef *ConfigMapKeyEnvCon      `json:"configMapKeyRef,omitempty"`
-	SecretKeyRef    *SecretKeyRefEnvCon      `json:"secretKeyRef,omitempty"`
+// Pod/Spec/Containers/Env/ValueFrom
+type ValueFromECS struct {
+	FieldRef        *FieldRefVECS        `json:"fieldRef,omitempty"`
+	ConfigMapKeyRef *ConfigMapKeyRefVECS `json:"configMapKeyRef,omitempty"`
+	SecretKeyRef    *SecretKeyRefVECS    `json:"secretKeyRef,omitempty"`
 }
 
-type FieldRefValueFromEnvCon struct {
+// Pod/Spec/Containers/Env/ValueFrom/FieldRef
+type FieldRefVECS struct {
 	ApiVersion string `json:"apiVersion,omitempty"`
 	FieldPath  string `json:"fieldPath,omitempty"`
 }
 
-type ConfigMapKeyEnvCon struct {
+// Pod/Spec/Containers/Env/ValueFrom/ConfigMapKeyRef
+type ConfigMapKeyRefVECS struct {
 	Name string `json:"name,omitempty"`
 	Key  string `json:"key,omitempty"`
 }
 
-type SecretKeyRefEnvCon struct {
+// Pod/Spec/Containers/Env/ValueFrom/SecretKeyRef
+type SecretKeyRefVECS struct {
 	Name string `json:"name,omitempty"`
 	Key  string `json:"key,omitempty"`
 }
 
-type ResourcesContainerType struct {
-	LimitsRsConType map[string]string `json:"limits,omitempty"`
-	Requests        map[string]string `json:"requests,omitempty"`
+// Pod/Spec/Containers/Resources
+type ResourcesCS struct {
+	Limits   map[string]string `json:"limits,omitempty"`
+	Requests map[string]string `json:"requests,omitempty"`
 }
 
-type VolumeMountsContainerType struct {
+// Pod/Spec/Containers/VolumeMounts
+type VolumeMountsCS struct {
 	Name      string `json:"name,omitempty"`
 	ReadOnly  bool   `json:"readOnly,omitempty"`
 	MountPath string `json:"mountPath,omitempty"`
 }
 
-type LivenessProbeContainerType struct {
-	Exec                *ExecLiveProbeType    `json:"exec,omitempty"`
-	HttpGet             *HttpGetLiveProbeType `json:"httpGet,omitempty"`
-	TcpSocket           *TcpLiveProbeType     `json:"tcpSocket,omitempty"`
-	InitialDelaySeconds float64               `json:"initialDelaySeconds,omitempty"`
-	TimeoutSeconds      float64               `json:"timeoutSeconds,omitempty"`
-	PeriodSeconds       float64               `json:"periodSeconds,omitempty"`
-	SuccessThreshold    float64               `json:"successThreshold,omitempty"`
-	FailureThreshold    float64               `json:"failureThreshold,omitempty"`
+// Pod/Spec/Containers/LivenessProbe
+type LivenessProbeCS struct {
+	Exec                *ExecLCS      `json:"exec,omitempty"`
+	HttpGet             *HttpGetLCS   `json:"httpGet,omitempty"`
+	TcpSocket           *TcpSocketLCS `json:"tcpSocket,omitempty"`
+	InitialDelaySeconds float64       `json:"initialDelaySeconds,omitempty"`
+	TimeoutSeconds      float64       `json:"timeoutSeconds,omitempty"`
+	PeriodSeconds       float64       `json:"periodSeconds,omitempty"`
+	SuccessThreshold    float64       `json:"successThreshold,omitempty"`
+	FailureThreshold    float64       `json:"failureThreshold,omitempty"`
 }
 
-type ExecLiveProbeType struct {
+// Pod/Spec/Containers/LivenessProbe/Exec
+type ExecLCS struct {
 	Command []string `json:"command,omitempty"`
 }
 
-type HttpGetLiveProbeType struct {
-	Path        string           `json:"path,omitempty"`
-	Port        float64          `json:"port,omitempty"`
-	Host        string           `json:"host,omitempty"`
-	Scheme      string           `json:"scheme,omitempty"`
-	HttpHeaders []HeadersGLPType `json:"httpHeaders,omitempty"`
+// Pod/Spec/Containers/LivenessProbe/HttpGet
+type HttpGetLCS struct {
+	Path        string        `json:"path,omitempty"`
+	Port        float64       `json:"port,omitempty"`
+	Host        string        `json:"host,omitempty"`
+	Scheme      string        `json:"scheme,omitempty"`
+	HttpHeaders []HeadersGLCS `json:"httpHeaders,omitempty"`
 }
 
-type HeadersGLPType struct {
+// Pod/Spec/Containers/LivenessProbe/HttpGet/HttpHeaders
+type HeadersGLCS struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
 
-type TcpLiveProbeType struct {
+// Pod/Spec/Containers/LivenessProbe/TcpSocket
+type TcpSocketLCS struct {
 	Port float64 `json:"port,omitempty"`
 }
 
-type ReadinessProbeContainerType struct {
-	Exec                *ExecReadProbeType    `json:"exec,omitempty"`
-	HttpGet             *HttpGetReadProbeType `json:"httpGet,omitempty"`
-	TcpSocket           *TcpReadProbeType     `json:"tcpSocket,omitempty"`
-	InitialDelaySeconds float64               `json:"initialDelaySeconds,omitempty"`
-	TimeoutSeconds      float64               `json:"timeoutSeconds,omitempty"`
-	PeriodSeconds       float64               `json:"periodSeconds,omitempty"`
-	SuccessThreshold    float64               `json:"successThreshold,omitempty"`
-	FailureThreshold    float64               `json:"failureThreshold,omitempty"`
+// Pod/Spec/Containers/ReadinessProbe
+type ReadinessProbeCS struct {
+	Exec                *ExecRCS      `json:"exec,omitempty"`
+	HttpGet             *HttpGetRCS   `json:"httpGet,omitempty"`
+	TcpSocket           *TcpSocketRCS `json:"tcpSocket,omitempty"`
+	InitialDelaySeconds float64       `json:"initialDelaySeconds,omitempty"`
+	TimeoutSeconds      float64       `json:"timeoutSeconds,omitempty"`
+	PeriodSeconds       float64       `json:"periodSeconds,omitempty"`
+	SuccessThreshold    float64       `json:"successThreshold,omitempty"`
+	FailureThreshold    float64       `json:"failureThreshold,omitempty"`
 }
 
-type ExecReadProbeType struct {
+// Pod/Spec/Containers/ReadinessProbe/Exec
+type ExecRCS struct {
 	Command []string `json:"command,omitempty"`
 }
 
-type HttpGetReadProbeType struct {
-	Path        string           `json:"path,omitempty"`
-	Port        float64          `json:"port,omitempty"`
-	Host        string           `json:"host,omitempty"`
-	Scheme      string           `json:"scheme,omitempty"`
-	HttpHeaders []HeadersGRPType `json:"httpHeaders,omitempty"`
+// Pod/Spec/Containers/Readiness/HttpGet
+type HttpGetRCS struct {
+	Path        string        `json:"path,omitempty"`
+	Port        float64       `json:"port,omitempty"`
+	Host        string        `json:"host,omitempty"`
+	Scheme      string        `json:"scheme,omitempty"`
+	HttpHeaders []HeadersGRCS `json:"httpHeaders,omitempty"`
 }
 
-type HeadersGRPType struct {
+// Pod/Spec/Containers/Readiness/HttpGet/HttpHeaders
+type HeadersGRCS struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
 
-type TcpReadProbeType struct {
+// Pod/Spec/Containers/Readiness/TcpSocket
+type TcpSocketRCS struct {
 	Port float64 `json:"port,omitempty"`
 }
 
-type LifecycleContainerType struct {
-	PostStart *PostStartLCType `json:"postStart,omitempty"`
-	PreStop   *PreStopLCType   `json:"preStop,omitempty"`
+// Pod/Spec/Containers/Lifecycles
+type LifecycleCS struct {
+	PostStart *PostStartLCS `json:"postStart,omitempty"`
+	PreStop   *PreStopLCS   `json:"preStop,omitempty"`
 }
 
-type PostStartLCType struct {
-	Exec      *ExecPSLCType    `json:"exec,omitempty"`
-	HttpGet   *HttpGetPSLCType `json:"httpGet,omitempty"`
-	TcpSocket *TcpPSLCType     `json:"tcpPSLCType,omitempty"`
+// Pod/Spec/Containers/Lifecycles/PostStart
+type PostStartLCS struct {
+	Exec      *ExecPostStartLCS      `json:"exec,omitempty"`
+	HttpGet   *HttpGetPostStartLCS   `json:"httpGet,omitempty"`
+	TcpSocket *TcpSocketPostStartLCS `json:"tcpPSLCType,omitempty"`
 }
 
-type ExecPSLCType struct {
+// Pod/Spec/Containers/Lifecycles/PostStart/Exec
+type ExecPostStartLCS struct {
 	Command []string `json:"command,omitempty"`
 }
 
-type HttpGetPSLCType struct {
-	Path        string            `json:"path,omitempty"`
-	Port        float64           `json:"port,omitempty"`
-	Host        string            `json:"host,omitempty"`
-	Scheme      string            `json:"scheme,omitempty"`
-	HttpHeaders []HeadersPSLCType `json:"httpHeaders,omitempty"`
+// Pod/Spec/Containers/Lifecycles/PostStart/HttpGet
+type HttpGetPostStartLCS struct {
+	Path        string                `json:"path,omitempty"`
+	Port        float64               `json:"port,omitempty"`
+	Host        string                `json:"host,omitempty"`
+	Scheme      string                `json:"scheme,omitempty"`
+	HttpHeaders []HeadersPostStartLCS `json:"httpHeaders,omitempty"`
 }
 
-type HeadersPSLCType struct {
+// Pod/Spec/Containers/Lifecycles/PostStart/HttpGet/HttpHeaders
+type HeadersPostStartLCS struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
 
-type TcpPSLCType struct {
+// Pod/Spec/Containers/Lifecycles/PostStart/TcpSocket
+type TcpSocketPostStartLCS struct {
 	Port float64 `json:"port,omitempty"`
 }
 
-type PreStopLCType struct {
-	Exec      *ExecPrSLCType    `json:"exec,omitempty"`
-	HttpGet   *HttpGetPrSLCType `json:"httpGet,omitempty"`
-	TcpSocket *TcpPrSLCType     `json:"tcpPSLCType,omitempty"`
+// Pod/Spec/Containers/Lifecycles/PreStop
+type PreStopLCS struct {
+	Exec      *ExecPreStopLCS      `json:"exec,omitempty"`
+	HttpGet   *HttpGetPreStopLCS   `json:"httpGet,omitempty"`
+	TcpSocket *TcpSocketPreStopLCS `json:"tcpPSLCType,omitempty"`
 }
 
-type ExecPrSLCType struct {
+// Pod/Spec/Containers/Lifecycles/PreStop/Exec
+type ExecPreStopLCS struct {
 	Command []string `json:"command,omitempty"`
 }
 
-type HttpGetPrSLCType struct {
-	Path        string             `json:"path,omitempty"`
-	Port        float64            `json:"port,omitempty"`
-	Host        string             `json:"host,omitempty"`
-	Scheme      string             `json:"scheme,omitempty"`
-	HttpHeaders []HeadersPrSLCType `json:"httpHeaders,omitempty"`
+// Pod/Spec/Containers/Lifecycles/PreStop/HttpGet
+type HttpGetPreStopLCS struct {
+	Path        string              `json:"path,omitempty"`
+	Port        float64             `json:"port,omitempty"`
+	Host        string              `json:"host,omitempty"`
+	Scheme      string              `json:"scheme,omitempty"`
+	HttpHeaders []HeadersPreStopLCS `json:"httpHeaders,omitempty"`
 }
 
-type HeadersPrSLCType struct {
+// Pod/Spec/Containers/Lifecycles/PreStop/HttpGet/HttpHeaders
+type HeadersPreStopLCS struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
 
-type TcpPrSLCType struct {
+// Pod/Spec/Containers/Lifecycles/PreStop/TcpSocket
+type TcpSocketPreStopLCS struct {
 	Port float64 `json:"port,omitempty"`
 }
 
-type ImagePullSecretsType struct {
+// Pod/Spec/ImagePullSecrets
+type ImagePullSecretsS struct {
 	Name string `json:"name,omitempty"`
 }
 
+// Pod/Status
 type StatusType struct {
-	Phase             string                     `json:"phase,omitempty"`
-	Conditions        []ConditionsStatType       `json:"conditions,omitempty"`
-	Message           string                     `json:"message,omitempty"`
-	Reason            string                     `json:"reason,omitempty"`
-	HostIP            string                     `json:"hostIP,omitempty"`
-	StartTime         string                     `json:"startTime,omitempty"`
-	ContainerStatuses []ContainerStatuesStatType `json:"containerStatuses,omitempty"`
+	Phase             string               `json:"phase,omitempty"`
+	Conditions        []ConditionsSt       `json:"conditions,omitempty"`
+	Message           string               `json:"message,omitempty"`
+	Reason            string               `json:"reason,omitempty"`
+	HostIP            string               `json:"hostIP,omitempty"`
+	StartTime         string               `json:"startTime,omitempty"`
+	ContainerStatuses []ContainerStatuesSt `json:"containerStatuses,omitempty"`
 }
 
-type ConditionsStatType struct {
+// Pod/Status/Conditions
+type ConditionsSt struct {
 	Type           string `json:"type,omitempty"`
 	Status         string `json:"status,omitempty"`
 	LastProbeTime  string `json:"lastProbeTime,omitempty"`
@@ -332,33 +376,34 @@ type ConditionsStatType struct {
 	Message        string `json:"mesage,omitempty"`
 }
 
-type ContainerStatuesStatType struct {
-	Name         string            `json:"name,omitempty"`
-	State        *StatCSSType      `json:"state,omitempty"`
-	LastState    *LastStateCSSType `json:"lastState,omitempty"`
-	Ready        bool              `json:"ready,omitempty"`
-	RestartCount float64           `json:"restartCount,omitempty"`
-	Image        string            `json:"image,omitempty"`
-	ImageID      string            `json:"imageID,omitempty"`
-	ContainerID  string            `json:"containerID,omitempty"`
+// Pod/Status/ContainerStatuses
+type ContainerStatuesSt struct {
+	Name         string        `json:"name,omitempty"`
+	State        *StateCSt     `json:"state,omitempty"`
+	LastState    *LastStateCSt `json:"lastState,omitempty"`
+	Ready        bool          `json:"ready,omitempty"`
+	RestartCount float64       `json:"restartCount,omitempty"`
+	Image        string        `json:"image,omitempty"`
+	ImageID      string        `json:"imageID,omitempty"`
+	ContainerID  string        `json:"containerID,omitempty"`
 }
 
-type StatCSSType struct {
-	Waiting    *WaitSCSSType `json:"waiting,omitempty"`
-	Running    *RunSCSSType  `json:"running,omitempty"`
-	Terminated *TermCSSType  `json:"terminated,omitempty"`
+type StateCSt struct {
+	Waiting    *WaitSCSt `json:"waiting,omitempty"`
+	Running    *RunSCSt  `json:"running,omitempty"`
+	Terminated *TermSCSt `json:"terminated,omitempty"`
 }
 
-type WaitSCSSType struct {
+type WaitSCSt struct {
 	Reason  string `json:"reason,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
-type RunSCSSType struct {
+type RunSCSt struct {
 	StartedAt string `json:"startedAt,omitempty"`
 }
 
-type TermCSSType struct {
+type TermSCSt struct {
 	ExitCode    float64 `json:"exitCode,omitempty"`
 	Signal      float64 `json:"signal,omitempty"`
 	Reason      string  `json:"reason,omitempty"`
@@ -368,22 +413,22 @@ type TermCSSType struct {
 	ContainerID string  `json:"containerID,omitempty"`
 }
 
-type LastStateCSSType struct {
-	Waiting    *WaitLSCSSType `json:"waiting,omitempty"`
-	Running    *RunLSCSSType  `json:"running,omitempty"`
-	Terminated *TermLSCSSType `json:"terminated,omitempty"`
+type LastStateCSt struct {
+	Waiting    *WaitLastStateCSt `json:"waiting,omitempty"`
+	Running    *RunLastStateCSt  `json:"running,omitempty"`
+	Terminated *TermLastStateCSt `json:"terminated,omitempty"`
 }
 
-type WaitLSCSSType struct {
+type WaitLastStateCSt struct {
 	Reason  string `json:"reason,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
-type RunLSCSSType struct {
+type RunLastStateCSt struct {
 	StartedAt string `json:"startedAt,omitempty"`
 }
 
-type TermLSCSSType struct {
+type TermLastStateCSt struct {
 	ExitCode    float64 `json:"exitCode,omitempty"`
 	Signal      float64 `json:"signal,omitempty"`
 	Reason      string  `json:"reason,omitempty"`
