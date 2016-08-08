@@ -1,5 +1,6 @@
 package deployment
 
+// DeploymentList is the list of Deployment
 // DeploymentList for Get @/apis/extensions/v1beta1/namespaces/{namespace}/deployments
 type DeploymentList struct {
 	Kind       string           `json:"kind"`
@@ -8,13 +9,16 @@ type DeploymentList struct {
 	Items      []ItemsListType  `json:"items"`
 }
 
-type MetadataListType struct { // DeploymentList/Metadata
+// DeploymentList/Metadata
+type MetadataListType struct {
 	SelfLink        string `json:"selfLink"`
 	ResourceVersion string `json:"resourceVersion"`
 }
 
-type ItemsListType Deployment // DeploymentList/Items
+// DeploymentList/Items
+type ItemsListType Deployment
 
+// Deployment is the details of one Deployment
 // Deployment for Post @/apis/extensions/v1beta1/namespaces/{namespace}/deployments
 type Deployment struct {
 	ApiVersion string       `json:"apiVersion"`
@@ -23,7 +27,8 @@ type Deployment struct {
 	Spec       SpecType     `json:"spec"`
 }
 
-type MetadataType struct { // Deployment/Metadata
+// Deployment/Metadata
+type MetadataType struct {
 	Name              string            `json:"name"`
 	Namespace         string            `json:"namespace"`
 	CreationTimestamp string            `json:"creationTimestamp,omitempty"`
@@ -31,91 +36,105 @@ type MetadataType struct { // Deployment/Metadata
 	Annotations       map[string]string `json:"annotations,omitempty"`
 }
 
-type SpecType struct { // Deployment/Spec
-	Replicas float64      `json:"replicas"`
-	Template TemplateSpec `json:"template"`
+// Deployment/Spec
+type SpecType struct {
+	Replicas float64   `json:"replicas"`
+	Template TemplateS `json:"template"`
 }
 
-type TemplateSpec struct { // Deployment/Spec/Template
-	Metadata MetadataTSDL `json:"metadata"`
-	Spec     SpecTSDL     `json:"spec"`
+// Deployment/Spec/Template
+type TemplateS struct {
+	Metadata MetadataTS `json:"metadata"`
+	Spec     SpecTS     `json:"spec"`
 }
 
-type MetadataTSDL struct { // Deployment/Spec/Template/Metadata
+// Deployment/Spec/Template/Metadata
+type MetadataTS struct {
 	Name   string            `json:"name"`
 	Labels map[string]string `json:"labels"`
 }
 
-type SpecTSDL struct { // Deployment/Spec/Template/Spec
-	Volumes []VolumesSTSDL `json:"volumes,omitempty"`
+// Deployment/Spec/Template/Spec
+type SpecTS struct {
+	Volumes []VolumesSTS `json:"volumes,omitempty"`
 	//Containers []ContainersSTSDL `json:"containers"`
 	Containers []ContainerType `json:"containers"`
 }
 
-type VolumesSTSDL struct { // Deployment/Spec/Template/Spec/Volumes
-	Name                  string           `json:"name"`
-	HostPath              *HostPathVSTSDL  `json:"hostPath,omitempty"`
-	EmptyDir              *EmptyDirVSTSDL  `json:"emptyDir,omitempty"`
-	PersistentVolumeClaim *PvClaimVSTSDL   `json:"persistentVolumeClaim,omitempty"`
-	Rbd                   *RbdVSTSDL       `json:"rbd,omitempty"`
-	ConfigMap             *ConfigMapVSTSDL `json:"configMap,omitempty"`
+// Deployment/Spec/Template/Spec/Volumes
+type VolumesSTS struct {
+	Name                  string         `json:"name"`
+	HostPath              *HostPathVSTS  `json:"hostPath,omitempty"`
+	EmptyDir              *EmptyDirVSTS  `json:"emptyDir,omitempty"`
+	PersistentVolumeClaim *PvClaimVSTS   `json:"persistentVolumeClaim,omitempty"`
+	Rbd                   *RbdVSTS       `json:"rbd,omitempty"`
+	ConfigMap             *ConfigMapVSTS `json:"configMap,omitempty"`
 }
 
-type HostPathVSTSDL struct { // Deployment/Spec/Template/Spec/HostPath
+// Deployment/Spec/Template/Spec/Volumes/HostPath
+type HostPathVSTS struct {
 	Path string `json:"path"`
 }
 
-type EmptyDirVSTSDL struct { // Deployment/Spec/Template/Spec/EmptyDir
+// Deployment/Spec/Template/Spec/Volumes/EmptyDir
+type EmptyDirVSTS struct {
 	Medium string `json:"medium"`
 }
 
-type PvClaimVSTSDL struct { // Deployment/Spec/Template/Spec/PersistentVolumeClaim
+// Deployment/Spec/Template/Spec/Volumes/PersistentVolumeClaim
+type PvClaimVSTS struct {
 	ClaimName string `json:"claimName"`
 	ReadOnly  bool   `json:"readOnly"`
 }
 
-type RbdVSTSDL struct { // Deployment/Spec/Template/Spec/Rbd
-	Monitors  []string          `json:"monitors"`
-	Image     string            `json:"image"`
-	FsType    string            `json:"fsType"`
-	Pool      string            `json:"pool"`
-	User      string            `json:"user"`
-	Keyring   string            `json:"keyring"`
-	SecretRef *SecretRefRVSTSDL `json:"secretRef"`
-	ReadOnly  bool              `json:"readOnly"`
+// Deployment/Spec/Template/Spec/Volumes/Rbd
+type RbdVSTS struct {
+	Monitors  []string        `json:"monitors"`
+	Image     string          `json:"image"`
+	FsType    string          `json:"fsType"`
+	Pool      string          `json:"pool"`
+	User      string          `json:"user"`
+	Keyring   string          `json:"keyring"`
+	SecretRef *SecretRefRVSTS `json:"secretRef"`
+	ReadOnly  bool            `json:"readOnly"`
 }
 
-type SecretRefRVSTSDL struct { // Deployment/Spec/Template/Spec/Rbd/SecretRef
+// Deployment/Spec/Template/Spec/Volumes/Rbd/SecretRef
+type SecretRefRVSTS struct {
 	Name string `json: name"`
 }
 
-type ConfigMapVSTSDL struct { // Deployment/Spec/Template/Spec/ConfigMap
-	Name  string           `json:"name"`
-	Items []ItemsConfigMap `json:"items"`
+// Deployment/Spec/Template/Spec/Volumes/ConfigMap
+type ConfigMapVSTS struct {
+	Name  string               `json:"name"`
+	Items []ItemsConfigMapVSTS `json:"items"`
 }
 
-type ItemsConfigMap struct { // Deployment/Spec/Template/Spec/ConfigMap/Items
+// Deployment/Spec/Template/Spec/Volumes/ConfigMap/Items
+type ItemsConfigMapVSTS struct {
 	Key  string `json:"key"`
 	Path string `json:"Path"`
 }
 
-type ContainersSTSDL struct { // Deployment/Spec/Template/Spec/Containers
-	Name           string                   `json:"name"`
-	Image          string                   `json:"image"`
-	Command        []string                 `json:"command,omitempty"`
-	Args           []string                 `json:"args,omitempty"`
-	Ports          []PortContainer          `json:"ports"`
-	Env            []EnvContainer           `json:"env,omitempty"`
-	Resources      *ResourcesContainer      `json:"resources,omitempty"`
-	VolumeMounts   []VolumeMountsContainer  `json:"volumeMounts,omitempty"`
-	LivenessProbe  *LivenessProbeContainer  `json:"livenessProbe,omitempty"`
-	ReadinessProbe *ReadinessProbeContainer `json:"readinessProbe,omitempty"`
-	Lifecycle      *LifecycleContainer      `json:"lifecycle,omitempty"`
+// Deployment/Spec/Template/Spec/Containers
+type ContainersSTS struct {
+	Name           string              `json:"name"`
+	Image          string              `json:"image"`
+	Command        []string            `json:"command,omitempty"`
+	Args           []string            `json:"args,omitempty"`
+	Ports          []PortCSTS          `json:"ports"`
+	Env            []EnvCSTS           `json:"env,omitempty"`
+	Resources      *ResourcesCSTS      `json:"resources,omitempty"`
+	VolumeMounts   []VolumeMountsCSTS  `json:"volumeMounts,omitempty"`
+	LivenessProbe  *LivenessProbeCSTS  `json:"livenessProbe,omitempty"`
+	ReadinessProbe *ReadinessProbeCSTS `json:"readinessProbe,omitempty"`
+	Lifecycle      *LifecycleCSTS      `json:"lifecycle,omitempty"`
 }
 
-type ContainerType ContainersSTSDL
+type ContainerType ContainersSTS
 
-type PortContainer struct { // Deployment/Spec/Template/Spec/Containers/Ports
+// Deployment/Spec/Template/Spec/Containers/Ports
+type PortCSTS struct {
 	Name          string  `json:"name"`
 	HostPort      float64 `json:"hostPort"`
 	ContainerPort float64 `json:"containerPort"`
@@ -123,93 +142,109 @@ type PortContainer struct { // Deployment/Spec/Template/Spec/Containers/Ports
 	HostIP        string  `json:"hostIP"`
 }
 
-type EnvContainer struct { // Deployment/Spec/Template/Spec/Containers/Env
+// Deployment/Spec/Template/Spec/Containers/Env
+type EnvCSTS struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-type ResourcesContainer struct { // Deployment/Spec/Template/Spec/Containers/Resources
+// Deployment/Spec/Template/Spec/Containers/Resources
+type ResourcesCSTS struct {
 	Limits   map[string]string `json:"limits"`
 	Requests map[string]string `json:"requests"`
 }
 
-type VolumeMountsContainer struct { // Deployment/Spec/Template/Spec/Containers/VolumeMounts
+// Deployment/Spec/Template/Spec/Containers/VolumeMounts
+type VolumeMountsCSTS struct {
 	Name      string `json:"name"`
 	ReadOnly  bool   `json:"readOnly"`
 	MountPath string `json:"mountPath"`
 }
 
-type LivenessProbeContainer struct { // Deployment/Spec/Template/Spec/Containers/LivenessProbe
-	Exec                *ExecLiveProbeType    `json:"exec,omitempty"`
-	HttpGet             *HttpGetLiveProbeType `json:"httpGet,omitempty"`
-	TcpSocket           *TcpLiveProbeType     `json:"tcpSocket,omitempty"`
-	InitialDelaySeconds float64               `json:"initialDelaySeconds"`
-	TimeoutSeconds      float64               `json:"timeoutSeconds"`
-	PeriodSeconds       float64               `json:"periodSeconds"`
-	SuccessThreshold    float64               `json:"successThreshold"`
-	FailureThreshold    float64               `json:"failureThreshold"`
+// Deployment/Spec/Template/Spec/Containers/LivenessProbe
+type LivenessProbeCSTS struct {
+	Exec                *ExecLCSTS      `json:"exec,omitempty"`
+	HttpGet             *HttpGetLCSTS   `json:"httpGet,omitempty"`
+	TcpSocket           *TcpSocketLCSTS `json:"tcpSocket,omitempty"`
+	InitialDelaySeconds float64         `json:"initialDelaySeconds"`
+	TimeoutSeconds      float64         `json:"timeoutSeconds"`
+	PeriodSeconds       float64         `json:"periodSeconds"`
+	SuccessThreshold    float64         `json:"successThreshold"`
+	FailureThreshold    float64         `json:"failureThreshold"`
 }
 
-type ExecLiveProbeType struct { // Deployment/Spec/Template/Spec/Containers/LivenessProbe/Exec
+// Deployment/Spec/Template/Spec/Containers/LivenessProbe/Exec
+type ExecLiveProbeCSTS struct {
 	Command []string `json:"command"`
 }
 
-type HttpGetLiveProbeType struct { // Deployment/Spec/Template/Spec/Containers/LivenessProbe/HttpGet
-	Path        string           `json:"path"`
-	Port        float64          `json:"port"`
-	Host        string           `json:"host"`
-	Scheme      string           `json:"scheme"`
-	HttpHeaders []HeadersGLPType `json:"httpHeaders"`
+// Deployment/Spec/Template/Spec/Containers/LivenessProbe/HttpGet
+type HttpGetLiveProbeCSTS struct {
+	Path        string          `json:"path"`
+	Port        float64         `json:"port"`
+	Host        string          `json:"host"`
+	Scheme      string          `json:"scheme"`
+	HttpHeaders []HeadersHLCSTS `json:"httpHeaders"`
 }
 
-type HeadersGLPType struct { // Deployment/Spec/Template/Spec/Containers/LivenessProbe/HttpGet/HttpHeaders
+// Deployment/Spec/Template/Spec/Containers/LivenessProbe/HttpGet/HttpHeaders
+type HeadersHLCSTS struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-type TcpLiveProbeType struct { // Deployment/Spec/Template/Spec/Containers/LivenessProbe/TcpSocket
+// Deployment/Spec/Template/Spec/Containers/LivenessProbe/TcpSocket
+type TcpSocketLCSTS struct {
 	Port float64 `json:"port"`
 }
 
-type ReadinessProbeContainer struct { //Deployment/Spec/Template/Spec/Containers/ReadnessProbe
-	HttpGet             *HttpGetReadProbeType `json:"httpGet,omitempty"`
-	InitialDelaySeconds float64               `json:"initialDelaySeconds"`
-	TimeoutSeconds      float64               `json:"timeoutSeconds"`
-	PeriodSeconds       float64               `json:"periodSeconds"`
-	SuccessThreshold    float64               `json:"successThreshold"`
-	FailureThreshold    float64               `json:"failureThreshold"`
+//Deployment/Spec/Template/Spec/Containers/ReadinessProbe
+type ReadinessProbeCSTS struct {
+	HttpGet             *HttpGetRCSTS `json:"httpGet,omitempty"`
+	InitialDelaySeconds float64       `json:"initialDelaySeconds"`
+	TimeoutSeconds      float64       `json:"timeoutSeconds"`
+	PeriodSeconds       float64       `json:"periodSeconds"`
+	SuccessThreshold    float64       `json:"successThreshold"`
+	FailureThreshold    float64       `json:"failureThreshold"`
 }
 
-type HttpGetReadProbeType struct { //Deployment/Spec/Template/Spec/Containers/ReadnessProbe/HttpGet
-	Path        string           `json:"path"`
-	Port        float64          `json:"port"`
-	Host        string           `json:"host"`
-	Scheme      string           `json:"scheme"`
-	HttpHeaders []HeadersGRPType `json:"httpHeaders"`
+//Deployment/Spec/Template/Spec/Containers/ReadnessProbe/HttpGet
+type HttpGetRCSTS struct {
+	Path        string          `json:"path"`
+	Port        float64         `json:"port"`
+	Host        string          `json:"host"`
+	Scheme      string          `json:"scheme"`
+	HttpHeaders []HeadersHRCSTS `json:"httpHeaders"`
 }
 
-type HeadersGRPType struct { //Deployment/Spec/Template/Spec/Containers/ReadnessProbe/HttpGet/HttpHeaders
+//Deployment/Spec/Template/Spec/Containers/ReadnessProbe/HttpGet/HttpHeaders
+type HeadersHRCSTS struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-type LifecycleContainer struct { //Deployment/Spec/Template/Spec/Containers/Livecycle
-	PostStart *PostStartLCType `json:"postStart,omitempty"`
-	PreStop   *PreStopLCType   `json:"preStop,omitempty"`
+//Deployment/Spec/Template/Spec/Containers/Livecycle
+type LifecycleCSTS struct {
+	PostStart *PostStartLCSTS `json:"postStart,omitempty"`
+	PreStop   *PreStopLCSTS   `json:"preStop,omitempty"`
 }
 
-type PostStartLCType struct { //Deployment/Spec/Template/Spec/Containers/Livecycle/PostStart
-	Exec *ExecPSLCType `json:"exec,omitempty"`
+//Deployment/Spec/Template/Spec/Containers/Livecycle/PostStart
+type PostStartLCSTS struct {
+	Exec *ExecPostStartLCSTS `json:"exec,omitempty"`
 }
 
-type ExecPSLCType struct { //Deployment/Spec/Template/Spec/Containers/Livecycle/PostStart/Exec
+//Deployment/Spec/Template/Spec/Containers/Livecycle/PostStart/Exec
+type ExecPostStartLCSTS struct {
 	Command []string `json:"command"`
 }
 
-type PreStopLCType struct { //Deployment/Spec/Template/Spec/Containers/Livecycle/PreStop
-	Exec *ExecPrSLCType `json:"exec,omitempty"`
+//Deployment/Spec/Template/Spec/Containers/Livecycle/PreStop
+type PreStopLCSTS struct {
+	Exec *ExecPreStopLCSTS `json:"exec,omitempty"`
 }
 
-type ExecPrSLCType struct { //Deployment/Spec/Template/Spec/Containers/Livecycle/PreStop/Exec
+//Deployment/Spec/Template/Spec/Containers/Livecycle/PreStop/Exec
+type ExecPreStopLCSTS struct {
 	Command []string `json:"command"`
 }
