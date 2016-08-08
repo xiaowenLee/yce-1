@@ -8,13 +8,12 @@ import (
 )
 
 func Test_NewUser(*testing.T) {
- 	user := NewUser("dawei.li", "123456", "add dawei.li", 1, VALID, 2)
+	user := NewUser("dawei.li", "123456", "add dawei.li", 1, VALID, 2)
 	fmt.Printf("User Name: %s\n", user.Name)
 	fmt.Printf("User Comment: %s\n", user.Comment)
 	fmt.Printf("User CreateAt: %s\n", user.CreatedAt)
 	fmt.Printf("User ModifiedAt: %s\n", user.ModifiedAt)
 }
-
 
 func Test_EncodeJson_DecodeJson(*testing.T) {
 

@@ -4,21 +4,21 @@ import (
 	"app/backend/common/util/placeholder"
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os/exec"
 	"strconv"
 	"strings"
-	"encoding/json"
 )
 
 const (
-	RBD_CREATE = "rbd create <image> -s <size> -p <pool>"
-	RBD_SHOWMAPPED = "rbd showmapped"
-	RBD_UNMAP = "rbd unmap <device>"
-	RBD_MAP = "rbd map <image>"
-	MAKEFS = "mkfs.<fs> <device>"
-	RBD_REMOVE = "rbd rm <image>"
+	RBD_CREATE         = "rbd create <image> -s <size> -p <pool>"
+	RBD_SHOWMAPPED     = "rbd showmapped"
+	RBD_UNMAP          = "rbd unmap <device>"
+	RBD_MAP            = "rbd map <image>"
+	MAKEFS             = "mkfs.<fs> <device>"
+	RBD_REMOVE         = "rbd rm <image>"
 	DEFAULT_FILESYSTEM = "ext4"
 )
 
@@ -166,7 +166,6 @@ func (rb *RbdBlock) Map() error {
 
 	return nil
 }
-
 
 func (rb *RbdBlock) UnMap() error {
 

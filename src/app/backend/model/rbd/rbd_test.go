@@ -1,8 +1,8 @@
 package rbd
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func Test_NewRbdBlock_Decode_Encode(*testing.T) {
@@ -52,7 +52,6 @@ func Test_CreateRbdBlock(t *testing.T) {
 	fmt.Printf(rbd.EncodeJson())
 
 }
-
 
 func Test_RemoveRbdBlock(t *testing.T) {
 	fmt.Println("Test_RemoveRbdBlock")

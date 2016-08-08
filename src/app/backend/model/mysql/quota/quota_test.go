@@ -1,8 +1,8 @@
 package quota
 
 import (
-	"testing"
 	mysql "app/backend/common/util/mysql"
+	"testing"
 	// encrypt "app/backend/common/util/encrypt"
 	"fmt"
 )
@@ -68,4 +68,3 @@ func Test_EncodeJSON_DecodeJson(*testing.T) {
 
 	fmt.Printf("%v\n", quota)
 }
-

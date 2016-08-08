@@ -1,8 +1,8 @@
 package datacenter
 
 import (
-	"fmt"
 	mysql "app/backend/common/util/mysql"
+	"fmt"
 	"testing"
 )
 
