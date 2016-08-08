@@ -85,7 +85,7 @@ type MetadataTS struct {
 // Replicaset/Spec/Template/Spec
 type SpecTS struct {
 	Volumes                       []VolumesSTS      `json:"volumes,omitempty"`
-	Containers                    []ContainersSTS   `json:"containers"`
+	Containers                    []ContainerType   `json:"containers"`
 	RestartPolicy                 string            `json:"restartPolicy,omitempty"`
 	TerminationGracePeriodSeconds float64           `json:"terminationGracePeriodSeconds,omitempty"`
 	ActiveDeadlineSeconds         float64           `json:"activeDeadlineSeconds,omitempty"`
@@ -267,7 +267,7 @@ type TcpSocketLCSTS struct {
 }
 
 // Replicaset/Spec/Template/Spec/Container/ReadinessProbe
-type ReadinessProbeCSTT struct {
+type ReadinessProbeCSTS struct {
 	Exec                *ExecRCSTS      `json:"exec,omitempty"`
 	HttpGet             *HttpGetRCSTS   `json:"httpGet,omitempty"`
 	TcpSocket           *TcpSocketRCSTS `json:"tcpSocket,omitempty"`
