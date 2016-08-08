@@ -13,8 +13,6 @@ type MetadataListType struct {
 	ResourceVersion string `json:"resourceVersion,omitempty"`
 }
 
-type ItemsListType Endpoint
-
 // Endpoint for Post @/api/v1/namespaces/{namespace}/endpoints
 type ItemsListType struct {
 	Kind       string        `json:"kind,omitempty"`
@@ -22,6 +20,8 @@ type ItemsListType struct {
 	Metadata   MetadataType  `json:"metadata"`
 	SubSets    []SubSetsType `json:"subsets"`
 }
+
+type Endpoint ItemsListType
 
 // Endpoint/Metadata
 type MetadataType struct {
