@@ -388,21 +388,25 @@ type ContainerStatuesSt struct {
 	ContainerID  string        `json:"containerID,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/State
 type StateCSt struct {
 	Waiting    *WaitSCSt `json:"waiting,omitempty"`
 	Running    *RunSCSt  `json:"running,omitempty"`
 	Terminated *TermSCSt `json:"terminated,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/State/Waiting
 type WaitSCSt struct {
 	Reason  string `json:"reason,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/Running
 type RunSCSt struct {
 	StartedAt string `json:"startedAt,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/Terminated
 type TermSCSt struct {
 	ExitCode    float64 `json:"exitCode,omitempty"`
 	Signal      float64 `json:"signal,omitempty"`
@@ -413,21 +417,25 @@ type TermSCSt struct {
 	ContainerID string  `json:"containerID,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/LastState
 type LastStateCSt struct {
 	Waiting    *WaitLastStateCSt `json:"waiting,omitempty"`
 	Running    *RunLastStateCSt  `json:"running,omitempty"`
 	Terminated *TermLastStateCSt `json:"terminated,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/Waiting
 type WaitLastStateCSt struct {
 	Reason  string `json:"reason,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/Running
 type RunLastStateCSt struct {
 	StartedAt string `json:"startedAt,omitempty"`
 }
 
+// Pod/Status/ContainerStatuses/Terminated
 type TermLastStateCSt struct {
 	ExitCode    float64 `json:"exitCode,omitempty"`
 	Signal      float64 `json:"signal,omitempty"`
