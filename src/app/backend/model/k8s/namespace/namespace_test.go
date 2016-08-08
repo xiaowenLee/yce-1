@@ -9,10 +9,6 @@ import (
 	"testing"
 )
 
-type NamespaceController struct {
-	Name string
-}
-
 func Test_Get(t *testing.T) {
 	url := "http://master:8080/api/v1/namespaces"
 	var nslist NamespaceList
