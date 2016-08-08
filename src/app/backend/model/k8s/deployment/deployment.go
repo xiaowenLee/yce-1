@@ -174,12 +174,12 @@ type LivenessProbeCSTS struct {
 }
 
 // Deployment/Spec/Template/Spec/Containers/LivenessProbe/Exec
-type ExecLiveProbeCSTS struct {
+type ExecLCSTS struct {
 	Command []string `json:"command"`
 }
 
 // Deployment/Spec/Template/Spec/Containers/LivenessProbe/HttpGet
-type HttpGetLiveProbeCSTS struct {
+type HttpGetLCSTS struct {
 	Path        string          `json:"path"`
 	Port        float64         `json:"port"`
 	Host        string          `json:"host"`
