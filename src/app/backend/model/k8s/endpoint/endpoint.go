@@ -13,17 +13,18 @@ type MetadataListType struct {
 	ResourceVersion string `json:"resourceVersion,omitempty"`
 }
 
-type Endpoint ItemsListType
-
 // Endpoint for Post @/api/v1/namespaces/{namespace}/endpoints
 type ItemsListType struct {
-	Kind       string      `json:"kind,omitempty"`
-	ApiVersion string      `json:"apiVersion,omitempty"`
-	Metadata   MetadataEL  `json:"metadata"`
-	SubSets    []SubSetsEL `json:"subsets"`
+	Kind       string        `json:"kind,omitempty"`
+	ApiVersion string        `json:"apiVersion,omitempty"`
+	Metadata   MetadataType  `json:"metadata"`
+	SubSets    []SubSetsType `json:"subsets"`
 }
 
-type MetadataEL struct {
+type Endpoint ItemsListType
+
+// Endpoint/Metadata
+type MetadataType struct {
 	Name                       string            `json:"name"`
 	GenerateName               string            `json:"generateName,omitempty"`
 	Namespace                  string            `json:"namespace,omitempty"`
@@ -38,17 +39,20 @@ type MetadataEL struct {
 	Annotations                map[string]string `json:"annotations,omitempty"`
 }
 
-type SubSetsEL struct {
+// Endpoint/SubSets
+type SubSetsType struct {
 	Addresses         []AddressesType         `json:"addresses,omitempty"`
 	NotReadyAddresses []NotReadyAddressesType `json:"notReadyAddressesType,omitempty"`
 	Ports             []PortsType             `json:"ports,omitempty"`
 }
 
+// Endpoint/SubSets/Addresses
 type AddressesType struct {
 	IP        string         `json:"ip"`
 	TargetRef *TargetRefType `json:"targetRef,omitempty"`
 }
 
+// Endpoint/SubSets/Addresses/TargetRef
 type TargetRefType struct {
 	Kind            string `json:"kind,omitempty"`
 	Namespace       string `json:"namespace,omitempty"`
@@ -59,11 +63,13 @@ type TargetRefType struct {
 	FieldPath       string `json:"fieldPath"`
 }
 
+// Endpoint/SubSets/NotReadyAddresses
 type NotReadyAddressesType struct {
 	IP        string         `json:"ip"`
 	TargetRef *TargetRefType `json:"targetRef,omitempty"`
 }
 
+// Endpoint/Subsets/Ports
 type PortsType struct {
 	Name     string  `json:"name,omitempty"`
 	Port     float64 `json:"port"`

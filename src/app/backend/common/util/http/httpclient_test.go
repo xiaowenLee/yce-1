@@ -1,4 +1,4 @@
-package httpclient
+package http
 
 import (
 	appdeploy "app/backend/model/k8s/deployment"

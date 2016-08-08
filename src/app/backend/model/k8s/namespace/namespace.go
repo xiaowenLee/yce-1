@@ -24,6 +24,7 @@ type Namespace struct {
 	Status     *StatusType  `json:"status,omitempty"`
 }
 
+// Namespace/Metadata
 type MetadataType struct {
 	Name                       string            `json:"name"`
 	GenerateName               string            `json:"generateName,omitempty"`
@@ -39,6 +40,7 @@ type MetadataType struct {
 	Annotations                map[string]string `json:"annotations,omitempty"`
 }
 
+// Namespace/Spec
 type SpecType struct {
 	//   Finalizers []FinalizersType `json:finalizers"`
 	Finalizers []string `json:"finalizers,omitempty"`
@@ -49,6 +51,8 @@ type FinalizersType struct {
 
 }
 */
+
+// Namespace/Status
 type StatusType struct {
 	Phase string `json:"phase,omitempty"`
 }
