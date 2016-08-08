@@ -15,16 +15,17 @@ type MetadataListType struct {
 
 // Service for Post @/api/v1/namespaces/{namespace}/services
 type ItemsListType struct {
-	Kind       string     `json:"kind"`
-	ApiVersion string     `json:"apiVersion"`
-	Metadata   MetadataSL `json:"metadata"`
-	Spec       SpecSL     `json:"spec"`
-	Status     StatusSL   `json:"status,omitempty"`
+	Kind       string       `json:"kind"`
+	ApiVersion string       `json:"apiVersion"`
+	Metadata   MetadataType `json:"metadata"`
+	Spec       SpecType     `json:"spec"`
+	Status     StatusType   `json:"status,omitempty"`
 }
 
 type Service ItemsListType
 
-type MetadataSL struct {
+// Service/Metadata
+type MetadataType struct {
 	Name                       string            `json:"name"`
 	GenerateName               string            `json:generateName,omitempty"`
 	Namespace                  string            `json:"namespace,omitempty"`
@@ -39,8 +40,9 @@ type MetadataSL struct {
 	Annotations                map[string]string `json:"annotations,omitempty"`
 }
 
-type SpecSL struct {
-	Ports               []PortsType       `json:"ports"`
+// Service/Spec
+type SpecType struct {
+	Ports               []PortsS          `json:"ports"`
 	Selector            map[string]string `json:"selector,omitempty"`
 	ClusterIP           string            `json:"clusterIP,omitempty"`
 	Type                string            `json:"type,omitempty"`
@@ -50,7 +52,8 @@ type SpecSL struct {
 	LoadBalancerIP      string            `json:"loadBalancerIP,omitempty"`
 }
 
-type PortsSL struct {
+// Service/Spec/Ports
+type PortsS struct {
 	Name       string  `json:"name,omitempty"`
 	Protocol   string  `json:"protocol"`
 	Port       float64 `json:"port"`
@@ -58,17 +61,20 @@ type PortsSL struct {
 	NodePort   float64 `json:"nodePort,omitempty"`
 }
 
-type PortsType PortsSL
+type PortsType PortsS
 
-type StatusSL struct {
-	LoadBalancer *LBStatusSL `json:"loadBalancer,omitempty"`
+// Service/Status
+type StatusType struct {
+	LoadBalancer *LBStatusSt `json:"loadBalancer,omitempty"`
 }
 
-type LBStatusSL struct {
-	Ingress []IngressLBSSL `json:"ingress,omitempty"`
+// Service/Status/LoadBalancer
+type LBStatusSt struct {
+	Ingress []IngressLBStatusSt `json:"ingress,omitempty"`
 }
 
-type IngressLBSSL struct {
+// Service/Status/LoadBalancer/Ingress
+type IngressLBStatusSt struct {
 	IP       string `json:"ip"`
 	Hostname string `json:"hostname"`
 }

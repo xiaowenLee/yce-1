@@ -15,16 +15,17 @@ type MetadataListType struct {
 
 // ReplicaSet for Post @/apis/extensions/v1beta1/namespaces/{namespace}/replicasets
 type ItemsListType struct {
-	Kind       string     `json:"kind"`
-	ApiVersion string     `json:"apiVersion"`
-	Metadata   MetadataIT `json:"metadata"`
-	Spec       SpecType   `json:"spec"`
-	Status     StatusType `json:"status,omitempty"`
+	Kind       string       `json:"kind"`
+	ApiVersion string       `json:"apiVersion"`
+	Metadata   MetadataType `json:"metadata"`
+	Spec       SpecType     `json:"spec"`
+	Status     StatusType   `json:"status,omitempty"`
 }
 
 type ReplicaSet ItemsListType
 
-type MetadataIT struct {
+// Replicaset/Metadata
+type MetadataType struct {
 	Name                      string            `json:"name"`
 	GenerateName              string            `json:"generateName,omitempty"`
 	Namespace                 string            `json:"namespace,omitempty"`
@@ -39,29 +40,34 @@ type MetadataIT struct {
 	Annotations               map[string]string `json:"annotations,omitempty"`
 }
 
+// Replicaset/Spec
 type SpecType struct {
-	Replicas float64       `json:"replicas"`
-	Selector *SelectorType `json:"selector,omitempty"`
-	Template TemplateType  `json:"template"`
+	Replicas float64    `json:"replicas"`
+	Selector *SelectorS `json:"selector,omitempty"`
+	Template TemplateS  `json:"template"`
 }
 
-type SelectorType struct {
+// Replicaset/Spec/Selector
+type SelectorS struct {
 	MatchLabels      map[string]string `json:"matchLabels,omitempty"`
-	MatchExpressions []MatchExpType    `json:"matchExpressions,omitempty"`
+	MatchExpressions []MatchExpSS      `json:"matchExpressions,omitempty"`
 }
 
-type MatchExpType struct {
+// Replicaset/Spec/Selector/MatchExpressions
+type MatchExpSS struct {
 	Key      string   `json:"key,omitempty"`
 	Operator string   `json:"operator,omitempty"`
 	Values   []string `json:"values,omitempty"`
 }
 
-type TemplateType struct {
-	Metadata MetadataTemplateType `json:"metadata"`
-	Spec     SpecTemplateType     `json:"spec"`
+// Replicaset/Spec/Template
+type TemplateS struct {
+	Metadata MetadataTS `json:"metadata"`
+	Spec     SpecTS     `json:"spec"`
 }
 
-type MetadataTemplateType struct {
+// Replicaset/Spec/Template/Metadata
+type MetadataTS struct {
 	Name                       string            `json:"name,omitempty"`
 	GenerateName               string            `json:"generateName,omitempty"`
 	Namespace                  string            `json:"namespace,omitempty"`
@@ -76,8 +82,9 @@ type MetadataTemplateType struct {
 	Annotations                map[string]string `json:"annotations,omitempty"`
 }
 
-type SpecTemplateType struct {
-	Volumes                       []VolumesSTT      `json:"volumes,omitempty"`
+// Replicaset/Spec/Template/Spec
+type SpecTS struct {
+	Volumes                       []VolumesSTS      `json:"volumes,omitempty"`
 	Containers                    []ContainerType   `json:"containers"`
 	RestartPolicy                 string            `json:"restartPolicy,omitempty"`
 	TerminationGracePeriodSeconds float64           `json:"terminationGracePeriodSeconds,omitempty"`
@@ -90,66 +97,75 @@ type SpecTemplateType struct {
 	HostIPC                       bool              `json:"hostIPC,omitempty"`
 }
 
-type VolumesSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes
+type VolumesSTS struct {
 	Name                  string         `json:"name,omitempty"`
-	HostPath              *HostPathVSTT  `json:"hostPath,omitempty"`
-	EmptyDir              *EmptyDirVSTT  `json:"emptyDir,omitempty"`
-	PersistentVolumeClaim *PVClaimVSTT   `json:"persistentVolumeClaim,omitempty"`
-	Rbd                   *RbdVSTT       `json:"rbd,omitempty"`
-	ConfigMap             *ConfigMapVSTT `json:"configMap,omitempty"`
+	HostPath              *HostPathVSTS  `json:"hostPath,omitempty"`
+	EmptyDir              *EmptyDirVSTS  `json:"emptyDir,omitempty"`
+	PersistentVolumeClaim *PVClaimVSTS   `json:"persistentVolumeClaim,omitempty"`
+	Rbd                   *RbdVSTS       `json:"rbd,omitempty"`
+	ConfigMap             *ConfigMapVSTS `json:"configMap,omitempty"`
 }
 
-type HostPathVSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes/HostPath
+type HostPathVSTS struct {
 	Path string `json:"path,omitempty"`
 }
 
-type EmptyDirVSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes/EmptyDir
+type EmptyDirVSTS struct {
 	Medium string `json:"medium,omitempty"`
 }
 
-type PVClaimVSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes/PersistentVolumeClaim
+type PVClaimVSTS struct {
 	ClaimName string `json:"claimName,omitempty"`
 	ReadOnly  bool   `json:"readOnly,omitempty"`
 }
 
-type RbdVSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes/Rbd
+type RbdVSTS struct {
 	Monitors  []string        `json:"monitors,omitempty"`
 	Image     string          `json:"image,omitempty"`
 	FsType    string          `json:"fsType,omitempty"`
 	Pool      string          `json:"pool,omitempty"`
 	User      string          `json:"user,omitempty"`
 	Keyring   string          `json:"keyring,omitempty"`
-	SecretRef *SecretRefRVSTT `json:"secretRef,omitempty"`
+	SecretRef *SecretRefRVSTS `json:"secretRef,omitempty"`
 	ReadOnly  bool            `json:"readOnly,omitempty"`
 }
 
-type SecretRefRVSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes/Rbd/SecretRef
+type SecretRefRVSTS struct {
 	Name string `json:"name,omitempty"`
 }
 
-type ConfigMapVSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes/ConfigMap
+type ConfigMapVSTS struct {
 	Name  string       `json:"name,omitempty"`
-	Items []ItemsCVSTT `json:"items,omitempty"`
+	Items []ItemsCVSTS `json:"items,omitempty"`
 }
 
-type ItemsCVSTT struct {
+// Replicaset/Spec/Template/Spec/Volumes/ConfigMap/Items
+type ItemsCVSTS struct {
 	Key  string `json:"key,omitempty"`
 	Path string `json:"path,omitempty"`
 }
 
+// Replicaset/Spec/Template/Spec/Container
 type ContainerType struct {
 	Name                   string              `json:"name,omitempty"`
 	Image                  string              `json:"image"`
 	Command                []string            `json:"command,omitempty"`
 	Args                   []string            `json:"args,omitempty"`
 	WorkingDir             string              `json:"workingDir,omitempty"`
-	Ports                  []PortsCSTT         `json:"ports,omitempty"`
-	Env                    []EnvCSTT           `json:"env,omitempty"`
-	Resources              *ResourceCSTT       `json:"resource,omitempty"`
-	VolumeMounts           []VolumeMountsCSTT  `json:"volumeMounts,omitempty"`
-	LivenessProbe          *LivenessProbeCSTT  `json:"livenessProbe,omitempty"`
-	ReadinessProbe         *ReadinessProbeCSTT `json:"readinessProbe,omitempty"`
-	LifeCycle              *LifeCycleCSTT      `json:"lifecycle,omitempty"`
+	Ports                  []PortsCSTS         `json:"ports,omitempty"`
+	Env                    []EnvCSTS           `json:"env,omitempty"`
+	Resources              *ResourceCSTS       `json:"resource,omitempty"`
+	VolumeMounts           []VolumeMountsCSTS  `json:"volumeMounts,omitempty"`
+	LivenessProbe          *LivenessProbeCSTS  `json:"livenessProbe,omitempty"`
+	ReadinessProbe         *ReadinessProbeCSTS `json:"readinessProbe,omitempty"`
+	LifeCycle              *LifeCycleCSTS      `json:"lifecycle,omitempty"`
 	TerminationMessagePath string              `json:"terminationMessagePath,omitempty"`
 	ImagePullPolicy        string              `json:"imagePullPolicy,omitempty"`
 	Stdin                  bool                `json:"stdin,omitempty"`
@@ -157,9 +173,10 @@ type ContainerType struct {
 	Tty                    bool                `json:"tty,omitempty"`
 }
 
-type ContainersSTT ContainerType
+type ContainersSTS ContainerType
 
-type PortsCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Ports
+type PortsCSTS struct {
 	Name          string  `json:"name,omitempty"`
 	HostPort      float64 `json:"hostPort,omitempty"`
 	ContainerPort float64 `json:"containerPort,omitempty"`
@@ -167,129 +184,152 @@ type PortsCSTT struct {
 	HostIP        string  `json:"hostIP,omitempty"`
 }
 
-type EnvCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Env
+type EnvCSTS struct {
 	Name      string          `json:"name,omitempty"`
 	Value     string          `json:"value,omitempty"`
-	ValueFrom *ValueFromECSTT `json:"valueFrom,omitempty"`
+	ValueFrom *ValueFromECSTS `json:"valueFrom,omitempty"`
 }
 
-type ValueFromECSTT struct {
-	FieldRef        *FieldRefVFECSTT        `json:"fieldRef,omitempty"`
-	ConfigMapKeyRef *ConfigMapKeyRefVFECSTT `json:"configMapKeyRef,omitempty"`
-	SecretKeyRef    *SecretKeyRefVFECSTT    `json:"secretKeyRef,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/Env/ValueFrom
+type ValueFromECSTS struct {
+	FieldRef        *FieldRefVECSTS        `json:"fieldRef,omitempty"`
+	ConfigMapKeyRef *ConfigMapKeyRefVECSTS `json:"configMapKeyRef,omitempty"`
+	SecretKeyRef    *SecretKeyRefVECSTS    `json:"secretKeyRef,omitempty"`
 }
 
-type FieldRefVFECSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Env/ValueFrom/FieldRef
+type FieldRefVECSTS struct {
 	ApiVersion string `json:"apiVersion,omitempty"`
 	FieldPath  string `json:"fieldPath,omitempty"`
 }
 
-type ConfigMapKeyRefVFECSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Env/ValueFrom/ConfigMapKeyRef
+type ConfigMapKeyRefVECSTS struct {
 	Name string `json:"name,omitempty"`
 	Key  string `json:"key,omitempty"`
 }
 
-type SecretKeyRefVFECSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Env/ValueFrom/SecretKeyRef
+type SecretKeyRefVECSTS struct {
 	Name string `json:"name,omitempty"`
 	Key  string `json:"key,omitempty"`
 }
 
-type ResourceCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Resources
+type ResourceCSTS struct {
 	Limits   map[string]string `json:"limits,omitempty"`
 	Requests map[string]string `json:"requests,omitempty"`
 }
 
-type VolumeMountsCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/VolumeMounts
+type VolumeMountsCSTS struct {
 	Name      string `json:"name,omitempty"`
 	ReadOnly  bool   `json:"readOnly,omitempty"`
 	MountPath string `json:"mountPath,omitempty"`
 }
 
-type LivenessProbeCSTT struct {
-	Exec                *ExecLPCSTT      `json:"exec,omitempty"`
-	HttpGet             *HttpGetLPCSTT   `json:"httpGet,omitempty"`
-	TcpSocket           *TcpSocketLPCSTT `json:"tcpSocket,omitempty"`
-	InitialDelaySeConds float64          `json:"initialDelaySeconds,omitempty"`
-	TimeoutSeconds      float64          `json:"timeoutSeconds,omitempty"`
-	PeriodSeconds       float64          `json:"periodSeconds,omitempty"`
-	SuccessThreshold    float64          `json:"successThreshold,omitempty"`
-	FailureThreshold    float64          `json:"failureThreshold,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/LivenessProbe
+type LivenessProbeCSTS struct {
+	Exec                *ExecLCSTS      `json:"exec,omitempty"`
+	HttpGet             *HttpGetLCSTS   `json:"httpGet,omitempty"`
+	TcpSocket           *TcpSocketLCSTS `json:"tcpSocket,omitempty"`
+	InitialDelaySeConds float64         `json:"initialDelaySeconds,omitempty"`
+	TimeoutSeconds      float64         `json:"timeoutSeconds,omitempty"`
+	PeriodSeconds       float64         `json:"periodSeconds,omitempty"`
+	SuccessThreshold    float64         `json:"successThreshold,omitempty"`
+	FailureThreshold    float64         `json:"failureThreshold,omitempty"`
 }
 
-type ExecLPCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/LivenessProbe/Exec
+type ExecLCSTS struct {
 	Command []string `json:"command,omitempty"`
 }
 
-type HttpGetLPCSTT struct {
-	Path        string                `json:"path,omitempty"`
-	Port        string                `json:"port,omitempty"`
-	Host        string                `json:"host,omitempty"`
-	Scheme      string                `json:"scheme,omitempty"`
-	HttpHeaders []HttpHeadersHGLPCSTT `json:"httpHeaders,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/LivenessProbe/HttpGet
+type HttpGetLCSTS struct {
+	Path        string              `json:"path,omitempty"`
+	Port        string              `json:"port,omitempty"`
+	Host        string              `json:"host,omitempty"`
+	Scheme      string              `json:"scheme,omitempty"`
+	HttpHeaders []HttpHeadersHLCSTS `json:"httpHeaders,omitempty"`
 }
 
-type HttpHeadersHGLPCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/LivenessProbe/HttpGet/HttpHeaders
+type HttpHeadersHLCSTS struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
 
-type TcpSocketLPCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/LivenessProbe/TcpSocket
+type TcpSocketLCSTS struct {
 	Port string `json:"port,omitempty"`
 }
 
-type ReadinessProbeCSTT struct {
-	Exec                *ExecRPCSTT      `json:"exec,omitempty"`
-	HttpGet             *HttpGetRPCSTT   `json:"httpGet,omitempty"`
-	TcpSocket           *TcpSocketRPCSTT `json:"tcpSocket,omitempty"`
-	InitialDelaySeConds float64          `json:"initialDelaySeconds,omitempty"`
-	TimeoutSeconds      float64          `json:"timeoutSeconds,omitempty"`
-	PeriodSeconds       float64          `json:"periodSeconds,omitempty"`
-	SuccessThreshold    float64          `json:"successThreshold,omitempty"`
-	FailureThreshold    float64          `json:"failureThreshold,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/ReadinessProbe
+type ReadinessProbeCSTS struct {
+	Exec                *ExecRCSTS      `json:"exec,omitempty"`
+	HttpGet             *HttpGetRCSTS   `json:"httpGet,omitempty"`
+	TcpSocket           *TcpSocketRCSTS `json:"tcpSocket,omitempty"`
+	InitialDelaySeConds float64         `json:"initialDelaySeconds,omitempty"`
+	TimeoutSeconds      float64         `json:"timeoutSeconds,omitempty"`
+	PeriodSeconds       float64         `json:"periodSeconds,omitempty"`
+	SuccessThreshold    float64         `json:"successThreshold,omitempty"`
+	FailureThreshold    float64         `json:"failureThreshold,omitempty"`
 }
 
-type ExecRPCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/ReadinessProbe/Exec
+type ExecRCSTS struct {
 	Command []string `json:"command,omitempty"`
 }
 
-type HttpGetRPCSTT struct {
-	Path        string                `json:"path,omitempty"`
-	Port        string                `json:"port,omitempty"`
-	Host        string                `json:"host,omitempty"`
-	Scheme      string                `json:"scheme,omitempty"`
-	HttpHeaders []HttpHeadersHGRPCSTT `json:"httpHeaders,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/ReadinessProbe/HttpGet
+type HttpGetRCSTS struct {
+	Path        string              `json:"path,omitempty"`
+	Port        string              `json:"port,omitempty"`
+	Host        string              `json:"host,omitempty"`
+	Scheme      string              `json:"scheme,omitempty"`
+	HttpHeaders []HttpHeadersHRCSTS `json:"httpHeaders,omitempty"`
 }
 
-type HttpHeadersHGRPCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/ReadinessProbe/HttpGet/HttpHeaders
+type HttpHeadersHRCSTS struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
 
-type TcpSocketRPCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/ReadinessProbe/TcpSocket
+type TcpSocketRCSTS struct {
 	Port string `json:"port,omitempty"`
 }
 
-type LifeCycleCSTT struct {
-	PostStart *PostStartLCCSTT `json:"postStart",omitempty`
-	PreStop   *PreStopLCCSTT   `json:"preStop,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/Lifecycle
+type LifeCycleCSTS struct {
+	PostStart *PostStartLCSTS `json:"postStart",omitempty`
+	PreStop   *PreStopLCSTS   `json:"preStop,omitempty"`
 }
 
-type PostStartLCCSTT struct {
-	Exec *ExecPostLCCSTT `json:"exec,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/Lifecycle/PostStart
+type PostStartLCSTS struct {
+	Exec *ExecPostLCSTS `json:"exec,omitempty"`
 }
 
-type ExecPostLCCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Lifecycle/PostStart/Exec
+type ExecPostLCSTS struct {
 	Command []string `json:"command,omitempty"`
 }
 
-type PreStopLCCSTT struct {
-	Exec *ExecPreLCCSTT `json:"exec,omitempty"`
+// Replicaset/Spec/Template/Spec/Container/Lifecycle/PreStop
+type PreStopLCSTS struct {
+	Exec *ExecPreLCSTS `json:"exec,omitempty"`
 }
 
-type ExecPreLCCSTT struct {
+// Replicaset/Spec/Template/Spec/Container/Lifecycle/PreStop/Exec
+type ExecPreLCSTS struct {
 	Command []string `json:"command,omitempty"`
 }
 
+// Replicaset/Status
 type StatusType struct {
 	Replicas             float64 `json:"replicas,omitempty"`
 	FullyLabeledReplicas float64 `json:"fullyLabeledReplicas,omitempty"`
