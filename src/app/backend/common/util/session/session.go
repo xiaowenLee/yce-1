@@ -10,6 +10,7 @@ import (
 
 	redigo "app/backend/common/util/redigo"
 	redis "github.com/garyburd/redigo/redis"
+	"sync"
 )
 
 const (
@@ -26,26 +27,36 @@ type Session struct {
 	Expiration string    `json:"Expiration"` // expiration in seconds
 }
 
-func NewSession(userId, userName, orgId string, dcList []string) *Session {
+func NewSession(userId, userName, orgId string) *Session {
 	return &Session{
 		SessionId:  uuid.New(),
 		UserId:     userId,
 		UserName:   userName,
 		OrgId:      orgId,
-		DcList:     dcList,
 		CreatedAt:  localtime.NewLocalTime().String(),
 		Expiration: DEFAULT_EXPIRATION,
 	}
 }
 
+var instance *SessionStore
+
+var once sync.Once
+
 type SessionStore struct {
 	pool *redis.Pool
 }
 
+func SessionStoreInstance() *SessionStore {
+	return instance
+}
+
 func NewSessionStore() *SessionStore {
-	return &SessionStore{
-		pool: redigo.NewRedisClient(),
-	}
+	once.Do(func(){
+		instance = &SessionStore{
+			pool: redigo.NewRedisClient(),
+		}
+	})
+	return instance
 }
 
 func (ss *SessionStore) Get(sessionId string) (*Session, error) {
