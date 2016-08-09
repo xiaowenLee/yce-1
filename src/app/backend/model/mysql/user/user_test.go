@@ -4,10 +4,9 @@ import (
 	"testing"
 	mysql "app/backend/common/util/mysql"
 	encrypt "app/backend/common/util/encrypt"
-	// "fmt"
+	"fmt"
 )
 
-/*
 func Test_NewUser(*testing.T) {
 	user := NewUser("dawei.li", "123456", "add dawei.li", 1, VALID, 2)
 	fmt.Printf("User Name: %s\n", user.Name)
@@ -37,6 +36,7 @@ func Test_GetUserByNameAndPassword(t *testing.T) {
 	user.QueryUserByNameAndPassword("jingru.zhang", "234567")
 	fmt.Printf("%v\n", user)
 
+	/*
 	// not exists
 	u := new(User)
 	err := user.QueryUserByNameAndPassword("jingru.zhang", "123456")
@@ -46,6 +46,7 @@ func Test_GetUserByNameAndPassword(t *testing.T) {
 	}
 
 	fmt.Printf("%v\n", u)
+	*/
 
 }
 
@@ -63,12 +64,12 @@ func Test_InsertUser(*testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
-	user := NewUser("dawei.li.richard", "123456", "add dawei.li", 1, VALID, 2)
+	password := encrypt.NewEncryption("123456").String()
+	user := NewUser("dawei.li.rich", password, "add dawei.li", 1, VALID, 2)
 	user.InsertUser(2)
 }
 
-*/
-
+/*
 func Test_DeleteUser(*testing.T) {
 
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
@@ -96,3 +97,6 @@ func Test_UpdateUser(*testing.T) {
 	u.OrgId = 1
 	u.UpdateUser(2)
 }
+*/
+
+
