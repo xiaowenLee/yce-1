@@ -2,12 +2,13 @@ package login
 
 import (
 	"log"
+	"fmt"
+	"strconv"
 	"github.com/kataras/iris"
 	"app/backend/common/util/encrypt"
 	myuser "app/backend/model/mysql/user"
 	mysession "app/backend/common/util/session"
-	"strconv"
-	"fmt"
+	myerror "app/backend/common/error"
 )
 
 type LoginController struct {
@@ -24,6 +25,9 @@ func (lc LoginController) Post() {
 
 	encryptPass := encrypt.NewEncryption(password).String()
 
+	// YceError pointer
+	var ye *myerror.YceError
+
 	// New a User
 	user := new(myuser.User)
 
@@ -31,6 +35,9 @@ func (lc LoginController) Post() {
 
 	if err != nil {
 		log.Printf("Can not find the user: username=%s, err=%s\n", email, err)
+		ye = myerror.NewYceError(1001, err.Error())
+		json, _ := ye.EncodeJson()
+		lc.Write(json)
 		return
 	}
 
@@ -48,9 +55,14 @@ func (lc LoginController) Post() {
 
 	if err != nil {
 		log.Fatal("Set session error: sessionId=%s, err=%s\n", session.SessionId, err)
+		ye = myerror.NewYceError(2001, err.Error())
+		json, _ := ye.EncodeJson()
+		lc.Write(json)
 		return
 	}
 
 	// auth pass
-	lc.Write("Hello world")
+	ye = myerror.NewYceError(0, "OK")
+	json, _ := ye.EncodeJson()
+	lc.Write(json)
 }
