@@ -19,6 +19,8 @@ func main() {
 
 	iris.API("/api/v1/users/:email/login", *lc)
 
+	iris.StaticWeb("/", "./static", 0)
+
 	iris.Listen(":8080")
 
 }

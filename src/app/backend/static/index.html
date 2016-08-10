@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<title>登录</title>
+</head>
+<body>
+
+
+	<form method="post" action="">
+		用户名： <input type="text" name="name" id="Names" ><br>
+		密  码： <input type="password" name="password" id="Password" ><br>
+		<button id="btn">提交</button>
+	</form>
+    
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    
+    $("#btn").click(function(){
+        
+        var names=$("#Names").val();        
+        var pwd=$("#Password").val();
+        var url = "/api/v1/users/"+names+"/login";
+
+        $.post(url,{
+            password:pwd
+        },function(data){
+        	console.log(data)
+            if(data.code === 0){
+                alert("ok");
+                location.href='ok.html';
+            }
+        });
+
+    })
+})
+    
+</script>
+
+</body>
+
+</html>
