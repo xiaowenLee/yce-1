@@ -6,7 +6,7 @@ import (
 )
 
 func Test_NewSession(*testing.T) {
-	s := NewSession("123", "lidawei", "20", []string{"shijihulian", "dianxin"})
+	s := NewSession("123", "lidawei", "20")
 
 	fmt.Printf("NewSession: %v\n", s)
 }
@@ -19,7 +19,7 @@ func Test_NewSessionStore(*testing.T) {
 
 func Test_SessionStore(t *testing.T) {
 
-	s := NewSession("123", "lidawei", "20", []string{"shijihulian", "dianxin"})
+	s := NewSession("123", "lidawei", "20")
 
 	ss := NewSessionStore()
 
