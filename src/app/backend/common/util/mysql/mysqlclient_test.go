@@ -24,11 +24,11 @@ func Test_MysqlClient_Open(*testing.T) {
 func Test_MysqlClient_Close(*testing.T) {
 
 	/*
-	client := NewMysqlClient(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, MAX_POOL_SIZE)
+		client := NewMysqlClient(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, MAX_POOL_SIZE)
 
-	client.Open()
+		client.Open()
 
-	client.Close()
+		client.Close()
 	*/
 
 	NewMysqlClient(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, MAX_POOL_SIZE)
@@ -56,9 +56,9 @@ func Test_MysqlClient_Ping(*testing.T) {
 func TestMysqlClient_Query(*testing.T) {
 
 	/*
-	client := NewMysqlClient(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, MAX_POOL_SIZE)
+		client := NewMysqlClient(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, MAX_POOL_SIZE)
 
-	client.Open()
+		client.Open()
 	*/
 
 	MysqlInstance().Open()

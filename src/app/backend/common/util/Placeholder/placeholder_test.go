@@ -14,7 +14,6 @@ func Test_NewPlaceHolder(*testing.T) {
 
 }
 
-
 func Test_Replace_RBDCREATE(*testing.T) {
 	fs := "mkfs.<fs> <path>"
 

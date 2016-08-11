@@ -1,10 +1,10 @@
 package organization
 
 import (
-	"fmt"
-	"testing"
 	mysql "app/backend/common/util/mysql"
+	"fmt"
 	"github.com/shopspring/decimal"
+	"testing"
 )
 
 func Test_NewOrganization(*testing.T) {

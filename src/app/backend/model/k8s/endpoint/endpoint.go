@@ -1,47 +1,77 @@
-package main
+package endpoint
 
-//import "fmt"
-type EndpointType struct {
-	Kind       string     `json: "kind"`
-	ApiVersion string     `json: "apiVersion"`
-	Items      []ItemType `json: "items"`
+// Endpoint for Get @/api/v1/namespaces/{namespace}/endpoints
+type EndpointList struct {
+	Kind       string           `json:"kind"`
+	ApiVersion string           `json:"apiVersion"`
+	Metadata   MetadataListType `json:"metadata"`
+	Items      []ItemsListType  `json:"items"`
 }
 
-type ItemType struct {
-	Metadata MetadataType `json: "metadata"`
-	Subsets  []SubsetType `json: "subsets"`
+type MetadataListType struct {
+	SelfLink        string `json:"selfLink,omitempty"`
+	ResourceVersion string `json:"resourceVersion,omitempty"`
 }
 
+// Endpoint for Post @/api/v1/namespaces/{namespace}/endpoints
+type ItemsListType struct {
+	Kind       string        `json:"kind,omitempty"`
+	ApiVersion string        `json:"apiVersion,omitempty"`
+	Metadata   MetadataType  `json:"metadata"`
+	SubSets    []SubSetsType `json:"subsets"`
+}
+
+type Endpoint ItemsListType
+
+// Endpoint/Metadata
 type MetadataType struct {
-	Name              string    `json: "name"`
-	Namespace         string    `json: "namespace"`
-	CreationTimestamp string    `json: "creationTimestamp"`
-	Labels            LabelType `json: "labels"`
+	Name                       string            `json:"name"`
+	GenerateName               string            `json:"generateName,omitempty"`
+	Namespace                  string            `json:"namespace,omitempty"`
+	SelfLink                   string            `json:"selfLink,omitempty"`
+	Uid                        string            `json:"uid,omitempty"`
+	ResourceVersion            string            `json:"resourceVersion,omitempty"`
+	Generation                 float64           `json:"generation,omitempty"`
+	CreationTimestamp          string            `json:"creationTimestamp,omitempty"`
+	DeletionTimestamp          string            `json:"deletionTimestamp,omitempty"`
+	DeletionGracePeriodSeconds float64           `json:"deletionGracePeriodSeconds,omitempty"`
+	Labels                     map[string]string `json:"labels"`
+	Annotations                map[string]string `json:"annotations,omitempty"`
 }
 
-type LabelType struct {
-	Name string `json: "name"`
+// Endpoint/SubSets
+type SubSetsType struct {
+	Addresses         []AddressesType         `json:"addresses,omitempty"`
+	NotReadyAddresses []NotReadyAddressesType `json:"notReadyAddressesType,omitempty"`
+	Ports             []PortsType             `json:"ports,omitempty"`
 }
 
-type SubsetType struct {
-	Addresses []AddressType `json: "addresses"`
-	Ports     []PortType    `json: "ports"`
+// Endpoint/SubSets/Addresses
+type AddressesType struct {
+	IP        string         `json:"ip"`
+	TargetRef *TargetRefType `json:"targetRef,omitempty"`
 }
 
-type AddressType struct {
-	Ip string `json: "ip"`
+// Endpoint/SubSets/Addresses/TargetRef
+type TargetRefType struct {
+	Kind            string `json:"kind,omitempty"`
+	Namespace       string `json:"namespace,omitempty"`
+	Name            string `json:"name"`
+	Uid             string `json:"uid",omitempty`
+	ApiVersion      string `json:"apiVersion,omitempty"`
+	ResourceVersion string `json:"resourceVersion,omitempty"`
+	FieldPath       string `json:"fieldPath"`
 }
 
-type PortType struct {
-	Port int `json: "port"`
+// Endpoint/SubSets/NotReadyAddresses
+type NotReadyAddressesType struct {
+	IP        string         `json:"ip"`
+	TargetRef *TargetRefType `json:"targetRef,omitempty"`
 }
 
-/*
-func main() {
-	var ep EndpointTypeRemote
-	its := make([]EndpointType, 1)
-	its[0].Kind="the kind"
-
-	ep.Items=its
-	fmt.Println(ep)
-}*/
+// Endpoint/Subsets/Ports
+type PortsType struct {
+	Name     string  `json:"name,omitempty"`
+	Port     float64 `json:"port"`
+	Protocol string  `json:"protocol,omitempty"`
+}

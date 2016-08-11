@@ -19,8 +19,8 @@ const (
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	ORG_UPDATE = "UPDATE organization SET name=?, cpuQuota=?, memQuota=?, budget=?, " +
-	"balance=?, status=?, modifiedAt=?, modifiedOp=?, comment=? " +
-	"WHERE id=?"
+		"balance=?, status=?, modifiedAt=?, modifiedOp=?, comment=? " +
+		"WHERE id=?"
 
 	ORG_DELETE = "UPDATE organization SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
 
@@ -165,7 +165,6 @@ func (o *Organization) DeleteOrganization(op int32) {
 	o.ModifiedAt = localtime.NewLocalTime().String()
 	o.ModifiedOp = op
 	o.Status = INVALID
-
 
 	// Delete a org
 	_, err = stmt.Exec(o.Status, o.ModifiedAt, o.ModifiedOp, o.Id)

@@ -1,9 +1,9 @@
 package deployment
 
 import (
+	mysql "app/backend/common/util/mysql"
 	"fmt"
 	"testing"
-	mysql "app/backend/common/util/mysql"
 )
 
 func Test_NewDeployment(*testing.T) {

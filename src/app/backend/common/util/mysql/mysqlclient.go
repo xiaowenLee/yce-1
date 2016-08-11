@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	"time"
 	"sync"
+	"time"
 )
 
 const (
@@ -19,7 +19,6 @@ const (
 	DELAY_MILLISECONDS   = 5000
 )
 
-
 type MysqlClient struct {
 	DB       *sql.DB
 	host     string
@@ -28,7 +27,6 @@ type MysqlClient struct {
 	database string
 	pool     int
 }
-
 
 var instance *MysqlClient
 
@@ -39,7 +37,7 @@ func MysqlInstance() *MysqlClient {
 }
 
 func NewMysqlClient(host, user, password, database string, pool int) *MysqlClient {
-	once.Do(func(){
+	once.Do(func() {
 		instance = &MysqlClient{host: host, password: password, database: database, pool: pool}
 	})
 	return instance

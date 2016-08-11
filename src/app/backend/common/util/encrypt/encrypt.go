@@ -1,6 +1,5 @@
 package encrypt
 
-
 import (
 	"crypto/sha256"
 	"encoding/base64"

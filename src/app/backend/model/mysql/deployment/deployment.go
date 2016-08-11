@@ -21,7 +21,7 @@ const (
 	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, " +
 		"actionAt, actionOp, dcList, success, reason, json, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	VALID = 1
+	VALID   = 1
 	INVALID = 0
 )
 
@@ -42,17 +42,17 @@ type Deployment struct {
 
 func NewDeployment(name, actionVerb, actionUrl, dcList, reason, json, comment string, actionType, actionOp, success int32) *Deployment {
 	return &Deployment{
-		Name: name,
+		Name:       name,
 		ActionType: actionType,
 		ActionVerb: actionVerb,
-		ActionUrl: actionUrl,
-		ActionAt: localtime.NewLocalTime().String(),
-		ActionOp: actionOp,
- 		DcList: dcList,
-		Success: success,
-		Reason: reason,
-		Json: json,
-		Comment: comment,
+		ActionUrl:  actionUrl,
+		ActionAt:   localtime.NewLocalTime().String(),
+		ActionOp:   actionOp,
+		DcList:     dcList,
+		Success:    success,
+		Reason:     reason,
+		Json:       json,
+		Comment:    comment,
 	}
 }
 

@@ -9,6 +9,8 @@ import (
 )
 
 const (
+	USER_PASSWORD = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? and password=?"
+
 	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
 
 	USER_INSERT = "INSERT INTO " +
@@ -47,14 +49,36 @@ func NewUser(name, password, comment string, orgId, status, modifiedOp int32) *U
 	}
 }
 
-func (u *User) QueryUserById(id int32) {
+func (u *User) QueryUserByNameAndPassword(name, password string) error {
+	db := mysql.MysqlInstance().Conn()
+
+	// Preaper user-paswrod statement
+	stmt, err := db.Prepare(USER_PASSWORD)
+	if err != nil {
+		log.Println(err)
+		// panic(err.Error())
+	}
+	defer stmt.Close()
+
+	// Query Id by name and password
+	err = stmt.QueryRow(name, password).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
+		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (u *User) QueryUserById(id int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
 	stmt, err := db.Prepare(USER_SELECT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
 	}
 	defer stmt.Close()
 
@@ -62,21 +86,24 @@ func (u *User) QueryUserById(id int32) {
 	err = stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
 		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
+		return err
 	}
 
 	fmt.Printf("%v\n", u)
+
+	return nil
 }
 
-func (u *User) InsertUser(op int32) {
+func (u *User) InsertUser(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
 	stmt, err := db.Prepare(USER_INSERT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
 	}
 	defer stmt.Close()
 
@@ -90,21 +117,24 @@ func (u *User) InsertUser(op int32) {
 		u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
-
+		log.Println(err)
+		// panic(err.Error())
+		return nil
 	}
+
+	return nil
 }
 
-func (u *User) UpdateUser(op int32) {
+func (u *User) UpdateUser(op int32) error {
 
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare update-statement
 	stmt, err := db.Prepare(USER_UPDATE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
+		return err
 	}
 	defer stmt.Close()
 
@@ -115,19 +145,23 @@ func (u *User) UpdateUser(op int32) {
 	// Update a user: password or orgId
 	_, err = stmt.Exec(u.Password, u.OrgId, u.ModifiedAt, u.ModifiedOp, u.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
+		return err
 	}
+
+	return nil
 }
 
-func (u *User) DeleteUser(op int32) {
+func (u *User) DeleteUser(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare delete-statement
 	stmt, err := db.Prepare(USER_DELETE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
+		return err
 	}
 
 	defer stmt.Close()
@@ -140,25 +174,32 @@ func (u *User) DeleteUser(op int32) {
 	u.Status = INVALID
 	_, err = stmt.Exec(u.Status, u.ModifiedAt, u.ModifiedOp, u.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
+		return err
 	}
+
+	return nil
 }
 
-func (u *User) DecodeJson(data string) {
+func (u *User) DecodeJson(data string) error {
 	err := json.Unmarshal([]byte(data), u)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
+		return err
 	}
+
+	return nil
 }
 
-func (u *User) EncodeJson() string {
+func (u *User) EncodeJson() (string, error) {
 	data, err := json.MarshalIndent(u, "", " ")
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		// panic(err.Error())
+		return "", err
 	}
-	return string(data)
+	return string(data), nil
 }

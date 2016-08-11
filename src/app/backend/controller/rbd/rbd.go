@@ -1,9 +1,7 @@
 package rbd
 
 type RbdController struct {
-
 }
-
 
 func (rc *RbdController) Create() {
 
