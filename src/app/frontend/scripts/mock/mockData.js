@@ -37,7 +37,37 @@ Mock.mock('http://10.69.40.36.com/api/appManage/appList', {
         {id: 6, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
         {id: 7, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
         {id: 8, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
-        {id: 9, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
+        {id: 9, name: 'Dashboard',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'}
     ]
+});
+
+Mock.mock('http://10.69.40.36.com/api/v1/organizations/1/users/1/deployments/new', {
+    "code": 0,
+    "message": "",
+    "data": {
+        "orgId":  "1",
+        "orgName": "Ops",
+        "dataCenter": [{
+            "dcId": "1",
+            "name": "世纪互联",
+            "budget": 10000000,
+            "balance": 10000000
+        },{
+            "dcId": "2",
+            "name": "电信机房",
+            "budget": 10000000,
+            "balance": 10000000
+        },{
+            "dcId": "3",
+            "name": "电子城机房",
+            "budget": 10000000,
+            "balance": 10000000
+        }],
+        "dcQuotas": {
+            "dcId": "1",
+            "PodMax": 1
+            // 第一版用不到...
+        }
+    }
 });
 
