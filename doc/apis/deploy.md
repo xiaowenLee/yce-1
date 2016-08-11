@@ -23,9 +23,12 @@
 
 ```json
 {
-    "orgId":  "1",
-    "orgName": "Ops",
-    "dataCenter": [
+    "code": 0,
+    "message": "....",
+    "data": {
+        "orgId":  "1",
+        "orgName": "Ops",
+        "dataCenter": [
         {
             "dcId": "1",
             "name": "世纪互联",
@@ -44,11 +47,12 @@
             "budget": 10000000,
             "balance": 10000000
         }
-    ],
-    "dcQuotas": {
-        "dcId": "1"
-        "PodMax": 1 
-        // 第一版用不到...
+        ],
+        "dcQuotas": {
+            "dcId": "1"
+            "PodMax": 1 
+            // 第一版用不到...
+        }
     }
 }
 ```
@@ -66,15 +70,20 @@
 返回值:
 
 ```json
-[
-    {
-        "imageName": "",
-        "imageTag": "",
-        // 其他一些可有可无的信息,第一版不需考虑...
-    },
-    {
-    }
-]
+{
+    "code": 0,
+    "message": "....",
+    "data": [
+        {
+            "imageName": "",
+            "imageTag": "",
+            // 其他一些可有可无的信息,第一版不需考虑...
+        },
+        {
+            //...
+        }
+    ]
+}
 ```
 
 输入辅助是根据imageName来筛选的
@@ -87,8 +96,112 @@
 
 请求头包含: Authorization: ${x-auth-token}
 
-POST数据格式:
+POST数据格式(data里面的是实例,用于讲解跟页面的输入框的关系,更严谨的定义看后面)
 
+```json
+{
+    "code": 0,
+    "message": "...",
+    "data": {
+        "spec": {
+        "template": {
+          "spec": {
+            "containers": [
+              {
+                "lifecycle": {  
+                  "preStop": {  //  启动准备输入框
+                    "exec": {
+                      "command": [
+                        "echopreStop"
+                      ]
+                    }
+                  },
+                  "postStart": { // 优雅的停止输入框
+                    "exec": {
+                      "command": [
+                        "echopostStart"
+                      ]
+                    }
+                  }
+                },
+                "readinessProbe": {  // 可读性检查
+                  "failureThreshold": 0,
+                  "successThreshold": 0,
+                  "periodSeconds": 2,  // 每隔多长时间探测
+                  "timeoutSeconds": 0,
+                  "initialDelaySeconds": 3, // 启动等待时间
+                  "httpGet": {
+                    "httpHeaders": null,
+                    "scheme": "",
+                    "host": "",
+                    "port": 11001,  // 端口
+                    "path": "http://api/v1/readiness" // 路径
+                  }
+                },
+                "name": "nginx-test", // 名称,跟应用名称一样
+                "image": "nginx:1.7.9",  // 镜像名称
+                "command": [  // 启动命令输入框的
+                  "echo"
+                ],
+                "args": [ // 参数输入框的
+                  "abc"
+                ],
+                "ports": null,  // 端口
+                "env": [  // 环境变量列表
+                  {
+                    "value": "good",
+                    "name": "magic"
+                  },
+                  {
+                    "value": "mushroom",
+                    "name": "sheep"
+                  }
+                ],
+                "resources": {
+                  "requests": null
+                },
+                "livenessProbe": {  // 健康检查
+                  "failureThreshold": 0,
+                  "successThreshold": 0,
+                  "periodSeconds": 2, // 每隔多长时间
+                  "timeoutSeconds": 0,
+                  "initialDelaySeconds": 3,  // 启动等待时间
+                  "httpGet": {
+                    "httpHeaders": null,
+                    "scheme": "",
+                    "host": "",
+                    "port": 11000,  // 端口输入框
+                    "path": "http://api/v1/healthz" // 请求路径的输入框
+                  }
+                }
+              }
+            ]
+          },
+          "metadata": { // 这部分看跟下面的metadata同样,见下面metadata
+            "labels": {
+              "maintainer": "liyao",
+              "appname": "nginx-test"
+            },
+            "name": "nginx-test"
+          }
+        },
+        "replicas": 3 // 副本个数
+        },
+        "metadata": {
+          "labels": { // 标签,支持多个
+            "maintainer": "liyao",
+            "appname": "nginx-test"
+          },
+          "namespace": "default", // 组织名称
+          "name": "nginx-test"  // 应用名称那个输入框
+        },
+        "kind": "Deployment", // 这是写死的
+        "apiVersion": "extensions/v1beta1" // 这个默认写死的
+    }
+}
+```
+
+一个标准的Deployment对象定义
 ```json
 {
   "spec": {
@@ -96,15 +209,15 @@ POST数据格式:
       "spec": {
         "containers": [
           {
-            "lifecycle": {  
-              "preStop": {  //  启动准备输入框
+            "lifecycle": {
+              "preStop": {
                 "exec": {
                   "command": [
                     "echopreStop"
                   ]
                 }
               },
-              "postStart": { // 优雅的停止输入框
+              "postStart": {
                 "exec": {
                   "command": [
                     "echopostStart"
@@ -112,30 +225,30 @@ POST数据格式:
                 }
               }
             },
-            "readinessProbe": {  // 可读性检查
+            "readinessProbe": {
               "failureThreshold": 0,
               "successThreshold": 0,
-              "periodSeconds": 2,  // 每隔多长时间探测
+              "periodSeconds": 2,
               "timeoutSeconds": 0,
-              "initialDelaySeconds": 3, // 启动等待时间
+              "initialDelaySeconds": 3,
               "httpGet": {
                 "httpHeaders": null,
                 "scheme": "",
                 "host": "",
-                "port": 11001,  // 端口
-                "path": "http://api/v1/readiness" // 路径
+                "port": 11001,
+                "path": "http://api/v1/readiness"
               }
             },
-            "name": "nginx-test", // 名称,跟应用名称一样
-            "image": "nginx:1.7.9",  // 镜像名称
-            "command": [  // 启动命令输入框的
+            "name": "nginx-test",
+            "image": "nginx:1.7.9",
+            "command": [
               "echo"
             ],
-            "args": [ // 参数输入框的
+            "args": [
               "abc"
             ],
-            "ports": null,  // 端口
-            "env": [  // 环境变量列表
+            "ports": null,
+            "env": [
               {
                 "value": "good",
                 "name": "magic"
@@ -148,24 +261,24 @@ POST数据格式:
             "resources": {
               "requests": null
             },
-            "livenessProbe": {  // 健康检查
+            "livenessProbe": {
               "failureThreshold": 0,
               "successThreshold": 0,
-              "periodSeconds": 2, // 每隔多长时间
+              "periodSeconds": 2,
               "timeoutSeconds": 0,
-              "initialDelaySeconds": 3,  // 启动等待时间
+              "initialDelaySeconds": 3,
               "httpGet": {
                 "httpHeaders": null,
                 "scheme": "",
                 "host": "",
-                "port": 11000,  // 端口输入框
-                "path": "http://api/v1/healthz" // 请求路径的输入框
+                "port": 11000,
+                "path": "http://api/v1/healthz"
               }
             }
           }
         ]
       },
-      "metadata": { // 这部分看跟下面的metadata同样,见下面metadata
+      "metadata": {
         "labels": {
           "maintainer": "liyao",
           "appname": "nginx-test"
@@ -173,19 +286,17 @@ POST数据格式:
         "name": "nginx-test"
       }
     },
-    "replicas": 3 // 副本个数
+    "replicas": 3
   },
   "metadata": {
-    "labels": { // 标签,支持多个
+    "labels": {
       "maintainer": "liyao",
       "appname": "nginx-test"
     },
-    "namespace": "default", // 组织名称
-    "name": "nginx-test"  // 应用名称那个输入框
+    "namespace": "default",
+    "name": "nginx-test"
   },
-  "kind": "Deployment", // 这是写死的
-  "apiVersion": "extensions/v1beta1" // 这个默认写死的
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1"
 }
 ```
-
-
