@@ -28,7 +28,7 @@
     "data": {
         "orgId":  "1",
         "orgName": "Ops",
-        "dataCenter": [
+        "dataCenters": [
         {
             "dcId": "1",
             "name": "世纪互联",
@@ -100,9 +100,18 @@ POST数据格式(data里面的是实例,用于讲解跟页面的输入框的关�
 
 ```json
 {
-    "code": 0,
-    "message": "...",
-    "data": {
+    "dataCenters": [
+        {
+            "dcId": 1
+        },
+        {
+            "dcId": 3
+        },
+        {
+            "dcId": 5
+        }
+    ]
+    "deployment": {
         "spec": {
         "template": {
           "spec": {
