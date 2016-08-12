@@ -1,9 +1,9 @@
 package rbd
 
 import (
+	mysql "app/backend/common/util/mysql"
 	"fmt"
 	"testing"
-	mysql "app/backend/common/util/mysql"
 )
 
 func Test_NewRbd(*testing.T) {
@@ -48,7 +48,6 @@ func Test_UpdateRbd(*testing.T) {
 
 	fmt.Printf("%v\n", r)
 }
-
 
 func Test_DeleteRbd(*testing.T) {
 	fmt.Println("Test_DeleteRbd")

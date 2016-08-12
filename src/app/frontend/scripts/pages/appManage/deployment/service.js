@@ -1,0 +1,22 @@
+define([
+	'utils'
+	], function(utils){
+	'use strict';
+
+	var getApis = function($http){
+		var apis = {};
+		apis.getDeploymentIint = function(param, success, error){
+			return utils.http($http, 'get', '/api/v1/organizations/1/users/1/deployments/new', param, success, error);
+		};
+
+		return apis;
+	};	
+
+	var services = {
+		module: 'appManage',
+		name: 'deploymentService',
+		getApis: getApis
+	};
+
+	return services;
+});

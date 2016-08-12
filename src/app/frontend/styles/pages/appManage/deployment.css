@@ -1,0 +1,3 @@
+.deployment .data-center label{ height: 100px; width: 150px; line-height: 100px; text-align: center; display: inline-block; color: #868686; margin-right: 10px; border: 1px solid #e1e1e1; cursor: pointer;}
+.deployment .data-center label.checked{ color: #3F51B5; border-color: #3F51B5;}
+.deployment .data-center input{ display: none;}

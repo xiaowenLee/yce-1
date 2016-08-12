@@ -7,11 +7,6 @@ define([], function(){
 			templateUrl: 'views/appManage/appManage.html',
 			controller: 'appManageController'
 		},
-		deployment: {
-			url: '/deployment',
-			templateUrl: 'views/appManage/deployment.html',
-			controller: 'appManageController'
-		},
 		rollback: {
 			url: '/rollback',
 			templateUrl: 'views/appManage/rollback.html',

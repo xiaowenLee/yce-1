@@ -5,8 +5,9 @@ define([
 	'../pages/rbdManage/controller',
 	'../pages/costManage/controller',
 	'../pages/extensions/controller',
-	'../pages/imageManage/controller'
-	], function(mainController, dashboardController, appManageController, rbdManageController, costManageController, extensionsController, imageManageController){
+	'../pages/imageManage/controller',
+	'../pages/appManage/deployment/controller'
+	], function(mainController, dashboardController, appManageController, rbdManageController, costManageController, extensionsController, imageManageController, deploymentController){
 
 		'use strict';
 		//获取全部controller
