@@ -5,16 +5,16 @@ define([
 
 	var getApis = function($http){
 		var apis = {};
-
-		apis.getAppList = function(param, success, error){
-			return utils.http($http, 'post', '/api/appManage/appList', param, success, error);
+		apis.getDeploymentIint = function(param, success, error){
+			return utils.http($http, 'get', '/api/v1/organizations/1/users/1/deployments/new', param, success, error);
 		};
+
 		return apis;
 	};	
 
 	var services = {
 		module: 'appManage',
-		name: 'appManageService',
+		name: 'deploymentService',
 		getApis: getApis
 	};
 

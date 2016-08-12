@@ -3,8 +3,9 @@ package main
 
 import (
 	"github.com/kataras/iris"
-	mylogin "app/backend/controller/yce/login"
 	"app/backend/common/util/mysql"
+	mylogin "app/backend/controller/yce/login"
+	// mylogout "app/backend/controller/yce/logout"
 	mysession "app/backend/common/util/session"
 )
 
@@ -15,9 +16,13 @@ func main() {
 
 	mysession.NewSessionStore()
 
-	lc := new(mylogin.LoginController)
+	login := new(mylogin.LoginController)
+	// logout := new(mylogout.LogoutController)
 
-	iris.API("/api/v1/users/:email/login", *lc)
+	iris.StaticWeb("/", "./static", 0)
+
+	iris.API("/api/v1/users/:email/login", *login)
+	// iris.API("/api/v1/users/:email/logout", *logout)
 
 	iris.Listen(":8080")
 
