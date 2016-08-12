@@ -7,7 +7,7 @@ define([
 		var apis = {};
 
 		apis.getAppList = function(param, success, error){
-			return utils.http($http, 'post', '/api/appManage/appList', param, success, error);
+			return utils.http($http, 'get', '/api/appManage/appList', param, success, error);
 		};
 
 		return apis;

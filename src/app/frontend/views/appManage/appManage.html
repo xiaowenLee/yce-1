@@ -2,7 +2,7 @@
     <div class="col-lg-12">
         <section class="box ">
             <header class="panel_header">
-                <h2 class="title pull-left">All Tags</h2>
+                <h2 class="title pull-left">应用管理</h2>
 
                 <div class="actions panel_actions pull-right">
                     <a class="box_toggle fa fa-chevron-down"></a>
@@ -16,7 +16,11 @@
                         <div id="example_wrapper" class="dataTables_wrapper form-inline no-footer">
                             <div class="row">
                                 <div class="col-md-3 pull-right">
-                                    <div id="example_filter" class="dataTables_filter"><label>Search:<input type="search" class="form-control input-sm input-medium" placeholder="" aria-controls="example"></label></div>
+                                    <div id="example_filter" class="dataTables_filter">
+                                        <label>
+                                            Search:<input type="search" class="form-control input-sm input-medium" placeholder="" aria-controls="example">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <table id="appList" class="display table table-hover table-condensed dataTable no-footer appList-table"
@@ -38,7 +42,7 @@
                                     <tr role="row" ng-class="{odd:$odd,even:$even}" ng-repeat="app in appList">
                                         <td>{{app.id}}</td>
                                         <td class="sorting_1">{{app.name}}</td>
-                                        <td>{{app.labels}}</td>
+                                        <td>{{app.labels}}{{app.labels}}{{app.labels}}</td>
                                         <td>{{app.dataCenter}}</td>
                                         <td>{{app.replicas}}</td>
                                         <td>{{app.time}}</td>

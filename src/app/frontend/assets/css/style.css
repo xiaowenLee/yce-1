@@ -8185,3 +8185,14 @@ table.dataTable tfoot th select, table.dataTable tfoot td select{
 table.dataTable.display tbody tr:first-child td {
     border-top: 1px solid #eeeeee;
 }
+
+
+
+
+
+
+
+
+.dataTables_filter{
+    margin-right: 200px;
+}
