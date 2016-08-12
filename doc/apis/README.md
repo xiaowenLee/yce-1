@@ -242,7 +242,7 @@ DELETE /api/v1/organizations/{id}/rbds/{id}
 POST /api/v1/deployments
 ```
 
-#### 查询过去的发布操作(倒叙)
+#### 查询过去的发布操作(倒序)
 
 查询列表:
 
