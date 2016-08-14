@@ -19,9 +19,9 @@ func main() {
 	login := new(mylogin.LoginController)
 	// logout := new(mylogout.LogoutController)
 
-	iris.StaticWeb("/", "./static", 0)
+	// iris.StaticWeb("/", "./static", 0)
 
-	iris.API("/api/v1/users/:email/login", *login)
+	iris.API("/api/v1/users/login", *login)
 	// iris.API("/api/v1/users/:email/logout", *logout)
 
 	iris.Listen(":8080")
