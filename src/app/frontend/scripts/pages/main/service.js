@@ -6,6 +6,10 @@ define([
 	var getApis = function($http){
 		var apis = {};
 
+		apis.login = function(param, success, error){
+			return utils.http($http, 'post', '/api/login', param, success, error);
+		};
+
 		apis.getNavlist = function(param, success, error){
 			return utils.http($http, 'post', '/api/main/navlist', param, success, error);
 		};
