@@ -2,8 +2,8 @@ define([], function(){
 	'use strict';
 
 	var router = {
-		index: {
-			url: '/index',
+		login: {
+			url: '/login',
 			templateUrl: 'views/main/login.html',
 			controller: 'mainController'
 		},

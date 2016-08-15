@@ -3,6 +3,7 @@ define([
 	'Underscore',
 	'Angular',
 	'uiRouter',
+	'ngStorage',
 	'mock',
 	'mockAngular',
 	'mockData',
@@ -13,7 +14,7 @@ define([
 	'./common/services',
 	'./common/routers',
 	'./common/controllers'
-], function($, _, angular, uiRouter, Mock, mockAngular, mockData, constant, factory, filter, directive, services, routers, controllers){
+], function($, _, angular, uiRouter, ngStorage, Mock, mockAngular, mockData, constant, factory, filter, directive, services, routers, controllers){
 	'use strict';
 
 	//通用模块
@@ -27,7 +28,7 @@ define([
 
 
 	//主应用
-	var app = angular.module('yce-manage', ['ui.router', 'common', 'dashboardManage', 'appManage', 'rbdManage', 'costManage', 'extensionsManage', 'imageManage']);
+	var app = angular.module('yce-manage', ['ui.router', 'common', 'ngStorage', 'dashboardManage', 'appManage', 'rbdManage', 'costManage', 'extensionsManage', 'imageManage']);
 	//路由引导
 	Mock.mockjax(app);
 
