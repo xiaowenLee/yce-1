@@ -38,16 +38,6 @@ CREATE TABLE `datacenter` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `datacenter`
---
-
-LOCK TABLES `datacenter` WRITE;
-/*!40000 ALTER TABLE `datacenter` DISABLE KEYS */;
-INSERT INTO `datacenter` VALUES (1,'办公网','172.21.1.11',880,NULL,1,'2016-08-15T16:27:30Z','2016-08-15T16:27:30Z',1,NULL);
-/*!40000 ALTER TABLE `datacenter` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `dcquota`
 --
 
@@ -80,16 +70,6 @@ CREATE TABLE `dcquota` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `dcquota`
---
-
-LOCK TABLES `dcquota` WRITE;
-/*!40000 ALTER TABLE `dcquota` DISABLE KEYS */;
-INSERT INTO `dcquota` VALUES (1,1,1,100,10,20,1,4,10,100,10,'10000','2016-08-15T17:13:23Z','2016-08-15T17:13:23Z',1,NULL);
-/*!40000 ALTER TABLE `dcquota` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `deployment`
 --
 
@@ -116,15 +96,6 @@ CREATE TABLE `deployment` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `deployment`
---
-
-LOCK TABLES `deployment` WRITE;
-/*!40000 ALTER TABLE `deployment` DISABLE KEYS */;
-/*!40000 ALTER TABLE `deployment` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `option`
 --
 
@@ -141,16 +112,6 @@ CREATE TABLE `option` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='操作类型属性表';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `option`
---
-
-LOCK TABLES `option` WRITE;
-/*!40000 ALTER TABLE `option` DISABLE KEYS */;
-INSERT INTO `option` VALUES (1,'GET','2016-08-15T16:41:32Z','1',NULL,'2016-08-15T16:41:32Z'),(2,'ONLINE','2016-08-15T16:41:32Z','1',NULL,'2016-08-15T16:41:32Z'),(3,'ROLLBACK','2016-08-15T16:41:32Z','1',NULL,'2016-08-15T16:41:32Z'),(4,'ROLLINGUPGRADE','2016-08-15T16:41:32Z','1',NULL,'2016-08-15T16:41:32Z'),(5,'CANCEL','2016-08-15T16:41:32Z','1',NULL,'2016-08-15T16:41:32Z'),(6,'PAUSE','2016-08-15T16:41:32Z','1',NULL,'2016-08-15T16:41:32Z'),(7,'RESUME','2016-08-15T16:41:32Z','1',NULL,'2016-08-15T16:41:32Z');
-/*!40000 ALTER TABLE `option` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `organization`
@@ -176,16 +137,6 @@ CREATE TABLE `organization` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `organization`
---
-
-LOCK TABLES `organization` WRITE;
-/*!40000 ALTER TABLE `organization` DISABLE KEYS */;
-INSERT INTO `organization` VALUES (1,'ops',1000,2000,'1000000','1000000',1,'2016-08-15T16:15:00Z','2016-08-15T16:16:00',1,NULL);
-/*!40000 ALTER TABLE `organization` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `quota`
 --
 
@@ -207,16 +158,6 @@ CREATE TABLE `quota` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='配额表';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `quota`
---
-
-LOCK TABLES `quota` WRITE;
-/*!40000 ALTER TABLE `quota` DISABLE KEYS */;
-INSERT INTO `quota` VALUES (1,'2C4G50G',2,4,50,'1000',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL),(2,'4C8G100G',4,8,100,'1800',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL),(3,'4C16G200G',4,16,200,'2860',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL);
-/*!40000 ALTER TABLE `quota` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `rbd`
@@ -246,15 +187,6 @@ CREATE TABLE `rbd` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `rbd`
---
-
-LOCK TABLES `rbd` WRITE;
-/*!40000 ALTER TABLE `rbd` DISABLE KEYS */;
-/*!40000 ALTER TABLE `rbd` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `user`
 --
 
@@ -276,16 +208,6 @@ CREATE TABLE `user` (
   CONSTRAINT `FK_user_1` FOREIGN KEY (`orgId`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'admin','123456',1,1,'2016-08-15T16:20:30Z','2016-08-15T16:20:30Z',1,NULL),(2,'dawei.li','123456',1,1,'2016-08-15T16:20:30Z','2016-08-15T16:20:30Z',1,NULL);
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -296,4 +218,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-08-15 17:35:39
+-- Dump completed on 2016-08-15 17:35:29

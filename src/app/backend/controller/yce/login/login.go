@@ -15,6 +15,8 @@ type LoginController struct {
 	*iris.Context
 }
 
+
+/*
 // Check username && password
 func (lc *LoginController) check(name, password string) (*myuser.User, *myerror.YceError) {
 
@@ -95,4 +97,15 @@ func (lc *LoginController) Post() {
 		session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	lc.Write(json)
+}
+*/
+
+func (lc *LoginController) Post() {
+
+	username := string(lc.FormValue("username"))
+	password := string(lc.FormValue("password"))
+
+	fmt.Printf("User Login: username=%s, password=%s\n", username, password)
+
+	session := mysession.NewSession()
 }
