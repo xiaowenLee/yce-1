@@ -3,7 +3,7 @@
 
 ### 点击登录按钮
 
-请求的URL: POST /api/v1/users/{email/login
+请求的URL: POST /api/v1/users/login
 
 数据通过表单提交: username=${username}  password=${password}
 
@@ -31,7 +31,7 @@
         "userId": "12",
         "userName": "lidawei",
         "orgId": "2",
-        "token": "sfssfd-afds-asdf-af32s"
+        "sessionId": "sfssfd-afds-asdf-af32s"
     }
 }
 ```
