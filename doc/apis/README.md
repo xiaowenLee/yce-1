@@ -79,7 +79,7 @@ DELETE /api/v1/organizations/{id}/users/{id}
 登录
 
 ```bash
-POST /api/v1/users/{email}/login
+POST /api/v1/users/login
 ```
 
 登出
