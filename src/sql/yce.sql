@@ -34,7 +34,7 @@ CREATE TABLE `datacenter` (
   `modifiedOp` int(10) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='数据中心表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='数据中心表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,7 +43,7 @@ CREATE TABLE `datacenter` (
 
 LOCK TABLES `datacenter` WRITE;
 /*!40000 ALTER TABLE `datacenter` DISABLE KEYS */;
-INSERT INTO `datacenter` VALUES (1,'办公网','172.21.1.11',880,NULL,1,'2016-08-15T16:27:30Z','2016-08-15T16:27:30Z',1,NULL);
+INSERT INTO `datacenter` VALUES (1,'办公网','172.21.1.11',8080,NULL,1,'2016-08-15T16:27:30Z','2016-08-15T16:27:30Z',1,NULL),(2,'bangongwang','172.21.1.11',8080,'',0,'2016-08-15T17:46:42+08:00','2016-08-15T20:36:45+08:00',2,'');
 /*!40000 ALTER TABLE `datacenter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -71,12 +71,13 @@ CREATE TABLE `dcquota` (
   `modifiedAt` varchar(256) NOT NULL COMMENT '最后修改时间戳',
   `modifiedOp` int(10) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
+  `status` int(10) NOT NULL COMMENT '1启用/0弃用',
   PRIMARY KEY (`id`),
   KEY `FK_dcquota_1` (`orgId`),
   KEY `FK_dcquota_2` (`dcId`),
   CONSTRAINT `FK_dcquota_1` FOREIGN KEY (`orgId`) REFERENCES `organization` (`id`),
   CONSTRAINT `FK_dcquota_2` FOREIGN KEY (`dcId`) REFERENCES `datacenter` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='数据中心配额表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='数据中心配额表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -85,7 +86,7 @@ CREATE TABLE `dcquota` (
 
 LOCK TABLES `dcquota` WRITE;
 /*!40000 ALTER TABLE `dcquota` DISABLE KEYS */;
-INSERT INTO `dcquota` VALUES (1,1,1,100,10,20,1,4,10,100,10,'10000','2016-08-15T17:13:23Z','2016-08-15T17:13:23Z',1,NULL);
+INSERT INTO `dcquota` VALUES (1,1,1,100,10,20,1,4,10,100,10,'10000','2016-08-15T17:13:23Z','2016-08-15T17:13:23Z',1,NULL,1),(2,1,1,1000,10,20,1,2,100,10,0,'1000','2016-08-15T21:17:39+08:00','2016-08-15T21:17:39+08:00',2,'add dcquota',1),(3,1,1,1000,10,20,1,2,100,10,0,'1000','2016-08-15T21:23:00+08:00','2016-08-15T21:23:00+08:00',2,'add dcquota',1);
 /*!40000 ALTER TABLE `dcquota` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -100,7 +101,7 @@ CREATE TABLE `deployment` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `name` varchar(256) NOT NULL COMMENT '应用名',
   `actionType` int(10) NOT NULL COMMENT '操作类型（上线，回滚等）',
-  `actioVerb` varchar(256) NOT NULL COMMENT 'GET/POST/DELETE',
+  `actionVerb` varchar(256) NOT NULL COMMENT 'GET/POST/DELETE',
   `actionUrl` varchar(256) NOT NULL COMMENT '操作的URL',
   `actionAt` varchar(256) NOT NULL COMMENT '操作时间戳',
   `actionOp` int(10) NOT NULL COMMENT '操作人员',
@@ -112,7 +113,7 @@ CREATE TABLE `deployment` (
   PRIMARY KEY (`id`),
   KEY `FK_deployment_1` (`actionType`),
   CONSTRAINT `FK_deployment_1` FOREIGN KEY (`actionType`) REFERENCES `option` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='应用发布日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='应用发布日志表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -121,6 +122,7 @@ CREATE TABLE `deployment` (
 
 LOCK TABLES `deployment` WRITE;
 /*!40000 ALTER TABLE `deployment` DISABLE KEYS */;
+INSERT INTO `deployment` VALUES (1,'ncpay',1,'GET','http://192.168.1.11:8080/namespaces/default/pods/','2016-08-15T21:50:17+08:00',2,'shijihulian:dianxin',1,'null','null','null');
 /*!40000 ALTER TABLE `deployment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,7 +174,7 @@ CREATE TABLE `organization` (
   `modifiedOp` int(10) NOT NULL COMMENT '最后修改人员',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='组织表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='组织表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,7 +183,7 @@ CREATE TABLE `organization` (
 
 LOCK TABLES `organization` WRITE;
 /*!40000 ALTER TABLE `organization` DISABLE KEYS */;
-INSERT INTO `organization` VALUES (1,'ops',1000,2000,'1000000','1000000',1,'2016-08-15T16:15:00Z','2016-08-15T16:16:00',1,NULL);
+INSERT INTO `organization` VALUES (1,'ops',1000,2000,'996000','1000000',1,'2016-08-15T16:15:00Z','2016-08-15T20:54:21+08:00',2,''),(2,'dev',1000,2000,'1000000.00','996000',1,'2016-08-15T19:22:53+08:00','2016-08-15T20:54:21+08:00',2,'add dev org'),(3,'dev',1000,2000,'1000000.00','1000000.00',0,'2016-08-15T19:59:02+08:00','2016-08-15T20:54:21+08:00',2,'add dev org'),(4,'dev',1000,2000,'1000000.00','1000000.00',1,'2016-08-15T20:22:40+08:00','2016-08-15T20:22:40+08:00',2,'add dev org'),(5,'dev',1000,2000,'1000000.00','1000000.00',1,'2016-08-15T20:54:21+08:00','2016-08-15T20:54:21+08:00',2,'add dev org');
 /*!40000 ALTER TABLE `organization` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -205,7 +207,7 @@ CREATE TABLE `quota` (
   `modifiedOp` varchar(256) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='配额表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='配额表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -214,7 +216,7 @@ CREATE TABLE `quota` (
 
 LOCK TABLES `quota` WRITE;
 /*!40000 ALTER TABLE `quota` DISABLE KEYS */;
-INSERT INTO `quota` VALUES (1,'2C4G50G',2,4,50,'1000',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL),(2,'4C8G100G',4,8,100,'1800',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL),(3,'4C16G200G',4,16,200,'2860',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL);
+INSERT INTO `quota` VALUES (1,'2C4G50G',2,4,50,'1000',1,'2016-08-15T16:32:32Z','2016-08-15T20:58:16+08:00','3',''),(2,'4C8G100G',4,8,100,'1800',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL),(3,'4C16G200G',4,16,200,'2860',1,'2016-08-15T16:32:32Z','2016-08-15T16:32:32Z','1',NULL),(4,'quota',200,400,500,'100000',1,'2016-08-15T20:58:15+08:00','2016-08-15T20:58:15+08:00','2','add quota');
 /*!40000 ALTER TABLE `quota` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -269,12 +271,12 @@ CREATE TABLE `user` (
   `status` int(10) NOT NULL COMMENT '1启用/0弃用',
   `createdAt` varchar(256) NOT NULL COMMENT '创建时间（2016-07-22T10:20:30Z）',
   `modifiedAt` varchar(256) NOT NULL COMMENT '最后修改时间',
-  `modifedOp` int(10) NOT NULL COMMENT '最后修改操作人',
+  `modifiedOp` int(10) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`),
   KEY `FK_user_1` (`orgId`),
   CONSTRAINT `FK_user_1` FOREIGN KEY (`orgId`) REFERENCES `organization` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -283,7 +285,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'admin','123456',1,1,'2016-08-15T16:20:30Z','2016-08-15T16:20:30Z',1,NULL),(2,'dawei.li','123456',1,1,'2016-08-15T16:20:30Z','2016-08-15T16:20:30Z',1,NULL);
+INSERT INTO `user` VALUES (1,'admin','8VhzL/51k3AnmWQa0dw5Htv7o13nMIXwiszdb4sybJg=',1,1,'2016-08-15T16:20:30Z','2016-08-15T16:20:30Z',1,NULL),(2,'dawei.li','8VhzL/51k3AnmWQa0dw5Htv7o13nMIXwiszdb4sybJg=',1,1,'2016-08-15T16:20:30Z','2016-08-15T16:20:30Z',1,NULL),(3,'dawei.li.rich','8VhzL/51k3AnmWQa0dw5Htv7o13nMIXwiszdb4sybJg=',1,1,'2016-08-15T17:41:20+08:00','2016-08-15T17:41:20+08:00',2,'add dawei.li');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -296,4 +298,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-08-15 17:35:39
+-- Dump completed on 2016-08-15 22:01:44

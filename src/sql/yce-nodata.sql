@@ -34,7 +34,7 @@ CREATE TABLE `datacenter` (
   `modifiedOp` int(10) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='数据中心表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='数据中心表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,12 +61,13 @@ CREATE TABLE `dcquota` (
   `modifiedAt` varchar(256) NOT NULL COMMENT '最后修改时间戳',
   `modifiedOp` int(10) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
+  `status` int(10) NOT NULL COMMENT '1启用/0弃用',
   PRIMARY KEY (`id`),
   KEY `FK_dcquota_1` (`orgId`),
   KEY `FK_dcquota_2` (`dcId`),
   CONSTRAINT `FK_dcquota_1` FOREIGN KEY (`orgId`) REFERENCES `organization` (`id`),
   CONSTRAINT `FK_dcquota_2` FOREIGN KEY (`dcId`) REFERENCES `datacenter` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='数据中心配额表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='数据中心配额表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -80,7 +81,7 @@ CREATE TABLE `deployment` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `name` varchar(256) NOT NULL COMMENT '应用名',
   `actionType` int(10) NOT NULL COMMENT '操作类型（上线，回滚等）',
-  `actioVerb` varchar(256) NOT NULL COMMENT 'GET/POST/DELETE',
+  `actionVerb` varchar(256) NOT NULL COMMENT 'GET/POST/DELETE',
   `actionUrl` varchar(256) NOT NULL COMMENT '操作的URL',
   `actionAt` varchar(256) NOT NULL COMMENT '操作时间戳',
   `actionOp` int(10) NOT NULL COMMENT '操作人员',
@@ -92,7 +93,7 @@ CREATE TABLE `deployment` (
   PRIMARY KEY (`id`),
   KEY `FK_deployment_1` (`actionType`),
   CONSTRAINT `FK_deployment_1` FOREIGN KEY (`actionType`) REFERENCES `option` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='应用发布日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='应用发布日志表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -133,7 +134,7 @@ CREATE TABLE `organization` (
   `modifiedOp` int(10) NOT NULL COMMENT '最后修改人员',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='组织表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='组织表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -156,7 +157,7 @@ CREATE TABLE `quota` (
   `modifiedOp` varchar(256) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='配额表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='配额表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -201,12 +202,12 @@ CREATE TABLE `user` (
   `status` int(10) NOT NULL COMMENT '1启用/0弃用',
   `createdAt` varchar(256) NOT NULL COMMENT '创建时间（2016-07-22T10:20:30Z）',
   `modifiedAt` varchar(256) NOT NULL COMMENT '最后修改时间',
-  `modifedOp` int(10) NOT NULL COMMENT '最后修改操作人',
+  `modifiedOp` int(10) NOT NULL COMMENT '最后修改操作人',
   `comment` varchar(256) DEFAULT NULL COMMENT '说明',
   PRIMARY KEY (`id`),
   KEY `FK_user_1` (`orgId`),
   CONSTRAINT `FK_user_1` FOREIGN KEY (`orgId`) REFERENCES `organization` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -218,4 +219,4 @@ CREATE TABLE `user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-08-15 17:35:29
+-- Dump completed on 2016-08-15 21:58:05
