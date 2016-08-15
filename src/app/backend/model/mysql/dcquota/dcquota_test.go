@@ -6,6 +6,17 @@ import (
 	"testing"
 )
 
+func Test_QueryDcQuotaById(*testing.T) {
+	fmt.Println("Test_QueryDcQuotaById")
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	dc := new(DcQuota)
+	dc.QueryDcQuotaById(3)
+	fmt.Printf("%v\n", dc)
+}
+
+/*
 func Test_NewDcQuota(*testing.T) {
 	dcQuota := NewDcQuota(1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
 	fmt.Printf("%v\n", dcQuota)
@@ -21,14 +32,14 @@ func Test_InsertDcQuota(*testing.T) {
 
 }
 
-func Test_QueryDcQuotaById(*testing.T) {
-	fmt.Println("Test_QueryDcQuotaById")
+func Test_DeleteDcQuota(*testing.T) {
+
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
 	dc := new(DcQuota)
-	dc.QueryDcQuotaById(3)
-	fmt.Printf("%v\n", dc)
+	dc.QueryDcQuotaById(6)
+	dc.DeleteDcQuota(2)
 }
 
 func Test_UpdateDcQuota(*testing.T) {
@@ -46,16 +57,6 @@ func Test_UpdateDcQuota(*testing.T) {
 	fmt.Printf("%v\n", dc)
 }
 
-func Test_DeleteDcQuota(*testing.T) {
-
-	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
-	mysql.MysqlInstance().Open()
-
-	dc := new(DcQuota)
-	dc.QueryDcQuotaById(6)
-	dc.DeleteDcQuota(2)
-}
-
 func Test_EncodeJson_DecodeJson(*testing.T) {
 
 	dc := NewDcQuota(1, 1, 1000, 10, 20, 1, 2, 100, 10, 0, 1, "1000", "add dcquota")
@@ -65,3 +66,4 @@ func Test_EncodeJson_DecodeJson(*testing.T) {
 	d.DecodeJson(dc.EncodeJson())
 	fmt.Printf("%v\n", d)
 }
+*/

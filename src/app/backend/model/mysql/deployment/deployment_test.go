@@ -23,6 +23,22 @@ func Test_QueryDeploymentById(*testing.T) {
 
 }
 
+func Test_QueryDeploymentByAppName(*testing.T) {
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	app := "ncpay"
+	deployments, _ := QueryDeploymentByAppName(app)
+
+	fmt.Printf("%v\n", deployments)
+
+	for _, d := range *deployments {
+		// fmt.Printf("%s\n", d.Name)
+		fmt.Printf("%v\n", d)
+	}
+}
+
+/*
 func Test_InsertDeployment(*testing.T) {
 
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
@@ -35,18 +51,6 @@ func Test_InsertDeployment(*testing.T) {
 	dp.QueryDeploymentById(1)
 	fmt.Printf("%v\n", dp)
 }
+*/
 
-func Test_QueryDeploymentByAppName(*testing.T) {
-	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
-	mysql.MysqlInstance().Open()
 
-	app := "ncpay"
-	deployments := QueryDeploymentByAppName(app)
-
-	fmt.Printf("%v\n", deployments)
-
-	for _, d := range *deployments {
-		// fmt.Printf("%s\n", d.Name)
-		fmt.Printf("%v\n", d)
-	}
-}

@@ -4,7 +4,6 @@ import (
 	"app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -70,37 +69,43 @@ func NewDcQuota(dcId, orgId, podNumLimit, podCpuMax, podMemMax, podCpuMin, podMe
 	}
 }
 
-func (dc *DcQuota) QueryDcQuotaById(id int32) {
+func (dc *DcQuota) QueryDcQuotaById(id int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
 	stmt, err := db.Prepare(DCQUOTA_SELECT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Fatal("QueryDcQuotaById Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
 	// Query DcQuota by id
+	var comment []byte
 	err = stmt.QueryRow(id).Scan(&dc.Id, &dc.DcId, &dc.OrgId, &dc.PodNumLimit, &dc.PodCpuMax,
 		&dc.PodMemMax, &dc.PodCpuMin, &dc.PodMemMin, &dc.RbdQuota, &dc.PodRbdMax,
-		&dc.PodRbdMin, &dc.Price, &dc.Status, &dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &dc.Comment)
+		&dc.PodRbdMin, &dc.Price, &dc.Status, &dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &comment)
+
+	dc.Comment = string(comment)
+
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("QueryDcQuotaById Error: err=%s\n", err)
+		return err
 	}
 
-	fmt.Printf("%v\n", dc)
+	log.Printf("QueryDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+	return nil
 }
 
-func (dc *DcQuota) InsertDcQuota(op int32) {
+func (dc *DcQuota) InsertDcQuota(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
 	stmt, err := db.Prepare(DCQUOTA_INSERT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertDcQuota Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -113,19 +118,23 @@ func (dc *DcQuota) InsertDcQuota(op int32) {
 	_, err = stmt.Exec(dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.RbdQuota, dc.PodRbdMax, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp, dc.Comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertDcQuota Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("InsertDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+	return nil
 }
 
-func (dc *DcQuota) UpdateDcQuota(op int32) {
+func (dc *DcQuota) UpdateDcQuota(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepared update-statement
 	stmt, err := db.Prepare(DCQUOTA_UPDATE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateDcQuota Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -136,19 +145,23 @@ func (dc *DcQuota) UpdateDcQuota(op int32) {
 	// Update a dcQuota
 	_, err = stmt.Exec(dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.RbdQuota, dc.PodRbdMax, dc.PodRbdMin, dc.Price, dc.Status, dc.ModifiedAt, dc.ModifiedOp, dc.Comment, dc.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateDcQuota Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("UpdateDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+	return nil
 }
 
-func (dc *DcQuota) DeleteDcQuota(op int32) {
+func (dc *DcQuota) DeleteDcQuota(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepared delet-statement
 	stmt, err := db.Prepare(DCQUOTA_DELETE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DeleteDcQuota Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -160,25 +173,28 @@ func (dc *DcQuota) DeleteDcQuota(op int32) {
 	dc.Status = INVALID
 	_, err = stmt.Exec(dc.Status, dc.ModifiedAt, dc.ModifiedOp, dc.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DeleteDcQuota Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("DeleteDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+	return nil
 }
 
 func (dc *DcQuota) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), dc)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println("DecodeJson Error: err=%s\n", err)
 	}
 }
 
 func (dc *DcQuota) EncodeJson() string {
 	data, err := json.MarshalIndent(dc, "", " ")
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println("EncodeJson Error: err=%s\n", err)
+		return ""
 	}
 	return string(data)
 }
