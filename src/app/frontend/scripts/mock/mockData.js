@@ -1,3 +1,4 @@
+/*
 Mock.mock('http://10.69.40.36.com/api/v1/users/login', {
     "code": 0,
     "message": "",
@@ -8,6 +9,7 @@ Mock.mock('http://10.69.40.36.com/api/v1/users/login', {
         "sessionId": "sfssfd-afds-asdf-af32s"
     }
 });
+*/
 
 Mock.mock('http://10.69.40.36.com/api/main/navlist', {
     list: [

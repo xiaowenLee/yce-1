@@ -1,6 +1,6 @@
 define([], function(){
 	var yce = {};
-	yce.preUrl = 'http://10.69.40.36.com';
+	yce.preUrl = '';
 
 	yce.http = function($http, method, url, param, success, error){
 		$http[method](yce.preUrl + url, param, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
