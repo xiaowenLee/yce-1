@@ -38,6 +38,26 @@ func NewSession(userId, userName, orgId string) *Session {
 	}
 }
 
+func (s *Session) DecodeJson(data string) error {
+	err := json.Unmarshal([]byte(data), s)
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *Session) EncodeJson() (string, error) {
+	data, err := json.MarshalIndent(s, "", " ")
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	return string(data), nil
+}
+
 var instance *SessionStore
 
 var once sync.Once

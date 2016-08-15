@@ -13,10 +13,10 @@ define([
 
 		var init = function(app){
 			app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
-				$urlRouterProvider.otherwise("/index");
+				$urlRouterProvider.otherwise("/login");
 
 				$stateProvider
-					.state('index', mainRouter.index)
+					.state('login', mainRouter.login)
 					.state('main', mainRouter.main)
 					.state('main.dashboard', dashboardRouter.dashboard)
 					.state('main.appManage', appManageRouter.appManage)

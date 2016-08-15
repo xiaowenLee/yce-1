@@ -1,3 +1,7 @@
+Mock.mock('http://10.69.40.36.com/api/login', {
+    code : 0
+});
+
 Mock.mock('http://10.69.40.36.com/api/main/navlist', {
     list: [
         {id: 1, name: 'Dashboard', state: 'main.dashboard',includeState: 'main.dashboard',className:'fa-dashboard'},

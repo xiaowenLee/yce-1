@@ -9,6 +9,7 @@ requirejs.config({
         jQueryUI: 'lib/jquery-ui/jquery-ui.min',
         Angular: 'lib/angular/angular',
         uiRouter: 'lib/angular-ui-router/angular-ui-router.min',
+        ngStorage: 'lib/angular-storage/ngStorage.min',
         base64: 'lib/base64/base64',
         utils: 'common/utils',
         mockAngular: 'mock/mock.angular',
@@ -20,6 +21,9 @@ requirejs.config({
             deps: ['jQuery']
         },
         'uiRouter': {
+            deps: ['Angular']
+        },
+        'ngStorage' : {
             deps: ['Angular']
         },
         'jQueryUI': {

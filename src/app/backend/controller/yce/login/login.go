@@ -20,9 +20,6 @@ func (lc *LoginController) check(name, password string) (*myuser.User, *myerror.
 
 	encryptPass := encrypt.NewEncryption(password).String()
 
-	// YceError pointer
-	var ye *myerror.YceError
-
 	// New a User
 	user := new(myuser.User)
 
@@ -30,7 +27,7 @@ func (lc *LoginController) check(name, password string) (*myuser.User, *myerror.
 
 	if err != nil {
 		log.Printf("Can not find the user: username=%s, err=%s\n", name, err)
-		ye = myerror.NewYceError(1001, err.Error())
+		ye := myerror.NewYceError(1001, err.Error(), "")
 		return nil, ye
 	}
 
@@ -39,7 +36,7 @@ func (lc *LoginController) check(name, password string) (*myuser.User, *myerror.
 }
 
 // Store Session and Set cookie
-func (lc *LoginController) session(user *myuser.User) *myerror.YceError {
+func (lc *LoginController) session(user *myuser.User) (*mysession.Session, *myerror.YceError) {
 
 	// Store (id,orgId) in SessionStore
 	id := strconv.Itoa(int(user.Id))
@@ -55,23 +52,19 @@ func (lc *LoginController) session(user *myuser.User) *myerror.YceError {
 
 	if err != nil {
 		log.Fatal("Set session error: sessionId=%s, err=%s\n", session.SessionId, err)
-		ye := myerror.NewYceError(2001, err.Error())
-		json, _ := ye.EncodeJson()
-		lc.Write(json)
-		return ye
+		ye := myerror.NewYceError(2001, err.Error(), "")
+		return nil, ye
 	}
 
-	// Set cookie
-	lc.SetCookieKV("sessionId", session.SessionId)
-
-	return nil
+	return session, nil
 
 }
 
 // POST /api/v1/users/{email}/login
-func (lc LoginController) Post() {
+func (lc *LoginController) Post() {
 
-	email := lc.Param("email")
+	// email := lc.Param("email")
+	email := string(lc.FormValue("username"))
 	password := string(lc.FormValue("password"))
 
 	user, ye := lc.check(email, password)
@@ -81,15 +74,25 @@ func (lc LoginController) Post() {
 		return
 	}
 
-	ye = lc.session(user)
+	session, ye := lc.session(user)
 	if ye != nil {
 		json, _ := ye.EncodeJson()
 		lc.Write(json)
 		return
 	}
 
+	// Set cookie
+	// lc.SetCookieKV("sessionId", session.SessionId)
+
 	// Auth pass
-	ye = myerror.NewYceError(0, "OK")
+	sessionStr, _:= session.EncodeJson()
+
+	ye = myerror.NewYceError(0, "OK", sessionStr)
+
 	json, _ := ye.EncodeJson()
+
+	log.Printf("User Login: userId=%s, userName=%s, orgId=%s\n",
+		session.SessionId, session.UserId, session.UserName, session.OrgId)
+
 	lc.Write(json)
 }
