@@ -1,18 +1,21 @@
 package error
+
 import (
 	"encoding/json"
 	"log"
 )
 
 type YceError struct {
-	Code int32 `json:"code"`
+	Code    int32  `json:"code"`
 	Message string `json:"message"`
+	Data    string `json:"data"`
 }
 
-func NewYceError(code int32, message string) *YceError {
+func NewYceError(code int32, message, data string) *YceError {
 	return &YceError{
-		Code: code,
+		Code:    code,
 		Message: message,
+		Data:    data,
 	}
 }
 
@@ -20,7 +23,7 @@ func (ye *YceError) DecodeJson(data string) error {
 	err := json.Unmarshal([]byte(data), ye)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 
@@ -36,11 +39,3 @@ func (ye *YceError) EncodeJson() (string, error) {
 	}
 	return string(data), nil
 }
-
-/*
-const (
-	ErrorMap = map[int32][string]{
-
-	}
-)
-*/
