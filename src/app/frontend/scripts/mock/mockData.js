@@ -1,4 +1,4 @@
-Mock.mock('http://10.69.40.36.com/api/login', {
+Mock.mock('http://10.69.40.36.com/api/v1/users/test/login', {
     code : 0
 });
 

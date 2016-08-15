@@ -7,7 +7,7 @@ define([
 		var apis = {};
 
 		apis.login = function(param, success, error){
-			return utils.http($http, 'post', '/api/login', param, success, error);
+			return utils.http($http, 'post', '/api/v1/users/' + param.username + '/login', param, success, error);
 		};
 
 		apis.getNavlist = function(param, success, error){
