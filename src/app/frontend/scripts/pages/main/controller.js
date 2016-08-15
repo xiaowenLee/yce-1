@@ -14,7 +14,8 @@ define([
                 }, function (data) {
                     if (data.code == 0) {
                         alert('登录成功！');
-                        $sessionStorage.login = true;
+                        console.log(data);
+                        $sessionStorage.username = data.data.userName;
                         $scope.jump();
                     }
                 });
@@ -27,7 +28,9 @@ define([
             $scope.jump = function(){
                 $state.go('main.dashboard');
                 $scope.data = {
-                    showSubnav: []
+                    username : $sessionStorage.username,
+                    showSubnav: [],
+                    toggleNav : false
                 };
 
                 mainService.getNavlist(null, function (data) {
@@ -39,7 +42,7 @@ define([
                 };
             };
 
-            if(!$sessionStorage.login) {
+            if(!$sessionStorage.username) {
                 $state.go('login');
             }else{
                 $scope.jump();
