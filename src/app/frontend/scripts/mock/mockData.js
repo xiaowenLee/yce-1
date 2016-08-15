@@ -1,5 +1,12 @@
-Mock.mock('http://10.69.40.36.com/api/v1/users/test/login', {
-    code : 0
+Mock.mock('http://10.69.40.36.com/api/v1/users/login', {
+    "code": 0,
+    "message": "",
+    "data": {
+        "userId": "12",
+        "userName": "lidawei",
+        "orgId": "2",
+        "sessionId": "sfssfd-afds-asdf-af32s"
+    }
 });
 
 Mock.mock('http://10.69.40.36.com/api/main/navlist', {
