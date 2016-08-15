@@ -7,20 +7,6 @@ import (
 	"fmt"
 )
 
-func Test_NewQuota(*testing.T) {
-	q := NewQuota("quota", "100000", "add quota", 200, 400, 500, 2)
-	fmt.Printf("%v\n", q)
-}
-
-func Test_InsertQuota(*testing.T) {
-	fmt.Println("Test_InsertQuota")
-	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
-	mysql.MysqlInstance().Open()
-
-	q := NewQuota("quota", "100000", "add quota", 200, 400, 500, 2)
-	q.InsertQuota(2)
-	fmt.Printf("%v\n", q)
-}
 
 func Test_QueryQuotaById(*testing.T) {
 	fmt.Println("Test_QueryQuotaById")
@@ -32,22 +18,15 @@ func Test_QueryQuotaById(*testing.T) {
 	fmt.Printf("%v\n", q)
 }
 
-func Test_UpdateQuota(*testing.T) {
-	fmt.Println("Test_UpdateQuota")
+/*
+func Test_InsertQuota(*testing.T) {
+	fmt.Println("Test_InsertQuota")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
-	q := new(Quota)
-	q.QueryQuotaById(1)
-
-	q.Name = "LimitRange"
-	q.UpdateQuota(2)
-
-	quota := new(Quota)
-	quota.QueryQuotaById(2)
-
-	fmt.Printf("%v\n", quota)
-
+	q := NewQuota("quota", "100000", "add quota", 200, 400, 500, 2)
+	q.InsertQuota(2)
+	fmt.Printf("%v\n", q)
 }
 
 func Test_DeleteQuota(*testing.T) {
@@ -68,3 +47,27 @@ func Test_EncodeJSON_DecodeJson(*testing.T) {
 
 	fmt.Printf("%v\n", quota)
 }
+
+func Test_NewQuota(*testing.T) {
+	q := NewQuota("quota", "100000", "add quota", 200, 400, 500, 2)
+	fmt.Printf("%v\n", q)
+}
+
+func Test_UpdateQuota(*testing.T) {
+	fmt.Println("Test_UpdateQuota")
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	q := new(Quota)
+	q.QueryQuotaById(1)
+
+	q.Name = "LimitRange"
+	q.UpdateQuota(2)
+
+	quota := new(Quota)
+	quota.QueryQuotaById(2)
+
+	fmt.Printf("%v\n", quota)
+
+}
+*/

@@ -57,36 +57,42 @@ func NewQuota(name, price, comment string, cpu, mem, rbd, modifiedOp int32) *Quo
 	}
 }
 
-func (q *Quota) QueryQuotaById(id int32) {
+func (q *Quota) QueryQuotaById(id int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
 	stmt, err := db.Prepare(QUOTA_SELECT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("QueryQuotaById Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
 	// Query quota by id
+	var comment []byte
 	err = stmt.QueryRow(id).Scan(&q.Id, &q.Name, &q.Cpu, &q.Mem, &q.Rbd,
-		&q.Price, &q.Status, &q.CreatedAt, &q.ModifiedAt, &q.ModifiedOp, &q.Comment)
+		&q.Price, &q.Status, &q.CreatedAt, &q.ModifiedAt, &q.ModifiedOp, &comment)
+
+	q.Comment = string(comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("QueryQuotaById Error: err=%s\n", err)
+		return err
 	}
 
+	log.Printf("QueryQuotaById: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
+	return nil
 }
 
-func (q *Quota) InsertQuota(op int32) {
+func (q *Quota) InsertQuota(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepared insert-statement
 	stmt, err := db.Prepare(QUOTA_INSERT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertQuota Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -100,21 +106,24 @@ func (q *Quota) InsertQuota(op int32) {
 		q.CreatedAt, q.ModifiedAt, q.ModifiedOp, q.Comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertQuota Error: err=%s\n", err)
+		return err
 	}
 
+	log.Printf("QueryQuotaById: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
+	return nil
 }
 
-func (q *Quota) UpdateQuota(op int32) {
+func (q *Quota) UpdateQuota(op int32) error {
 
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepared update-statement
 	stmt, err := db.Prepare(QUOTA_UPDATE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateQuota Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -125,21 +134,24 @@ func (q *Quota) UpdateQuota(op int32) {
 	// Update a quota
 	_, err = stmt.Exec(q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.ModifiedAt, q.ModifiedOp, q.Comment, q.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateQuota Error: err=%s\n", err)
+		return nil
 	}
 
+	log.Printf("UpdateQuota: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
+	return nil
 }
 
-func (q *Quota) DeleteQuota(op int32) {
+func (q *Quota) DeleteQuota(op int32) error {
 
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepared delete-statement
 	stmt, err := db.Prepare(QUOTA_DELETE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateQuota Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -151,26 +163,28 @@ func (q *Quota) DeleteQuota(op int32) {
 	// Update a quota
 	_, err = stmt.Exec(q.Status, q.ModifiedAt, q.ModifiedOp, q.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateQuota Error: err=%s\n", err)
+		return err
 	}
 
+	log.Printf("UpdateQuota: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
+	return nil
 }
 
 func (q *Quota) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), q)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DecodeJson Error: err=%s\n", err)
 	}
 }
 
 func (q *Quota) EncodeJson() string {
 	data, err := json.MarshalIndent(q, "", " ")
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println("DecodeJson Error: err=%s\n", err)
+		return ""
 	}
 	return string(data)
 }

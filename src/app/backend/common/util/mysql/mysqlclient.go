@@ -11,7 +11,7 @@ import (
 const (
 	MAX_POOL_SIZE        = 10
 	DATABASE_DRIVER      = "mysql"
-	DB_HOST              = "172.21.1.11:32306"
+	DB_HOST              = "172.21.1.11:3306"
 	DB_USER              = "root"
 	DB_PASSWORD          = "root"
 	DB_NAME              = "yce"
