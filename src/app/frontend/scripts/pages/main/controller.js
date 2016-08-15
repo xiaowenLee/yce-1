@@ -21,7 +21,7 @@ define([
                 });
             };
             $scope.logout = function(){
-                delete $sessionStorage.login;
+                delete $sessionStorage.username;
                 alert('退出成功！');
                 $state.go('login');
             }
