@@ -18,13 +18,13 @@ const (
 )
 
 type Session struct {
-	SessionId  string    `json:"sessionId"`
-	UserId     string    `json:"userId"`
-	UserName   string    `json:"userName"`
-	OrgId      string    `json:"orgId"`
-	DcList     []string  `json:"dcList"`
-	CreatedAt  string  `json:"CreatedAt"`
-	Expiration string    `json:"Expiration"` // expiration in seconds
+	SessionId  string   `json:"sessionId"`
+	UserId     string   `json:"userId"`
+	UserName   string   `json:"userName"`
+	OrgId      string   `json:"orgId"`
+	DcList     []string `json:"dcList"`
+	CreatedAt  string   `json:"CreatedAt"`
+	Expiration string   `json:"Expiration"` // expiration in seconds
 }
 
 func NewSession(userId, userName, orgId string) *Session {
