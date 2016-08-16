@@ -43,7 +43,7 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 请求头中包含: Authorization: ${sessionId}
 
-其中: uid, orgId, sessionId在登录成功后从后台返回给浏览器, 前端存储在LocalStorage里面
+其中: userId, orgId, sessionId在登录成功后从后台返回给浏览器, 前端存储在LocalStorage里面
 
 返回值:
 
