@@ -7,6 +7,7 @@ import (
 	mylogin "app/backend/controller/yce/login"
 	// mylogout "app/backend/controller/yce/logout"
 	mysession "app/backend/common/util/session"
+	mynavList "app/backend/controller/yce/navlist"
 )
 
 func main() {
@@ -17,11 +18,16 @@ func main() {
 	mysession.NewSessionStore()
 
 	login := new(mylogin.LoginController)
+	nav := new(mynavList.NavListController)
+
 	// logout := new(mylogout.LogoutController)
 
-	// iris.StaticWeb("/", "./static", 0)
+	// iris.StaticWeb("/", "../frontend", 0)
+	iris.StaticServe("../frontend", "/static")
 
 	iris.API("/api/v1/users/login", *login)
+	iris.API("/api/v1/navlist", *nav)
+
 	// iris.API("/api/v1/users/:email/logout", *logout)
 
 	iris.Listen(":8080")

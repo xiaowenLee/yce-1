@@ -13,16 +13,19 @@ define([
                     'password': $scope.pwd
                 }, function (data) {
                     if (data.code == 0) {
-                        alert('登录成功！');
-                        console.log(data);
-                        $sessionStorage.username = data.data.userName;
+                        // alert('登录成功！');
+                        $sessionStorage.username = JSON.parse(data.data).userName;
                         $scope.jump();
+                    }else{
+                        alert(data.message);
                     }
+                },function(data){
+                    //console.log(data);
                 });
             };
             $scope.logout = function(){
                 delete $sessionStorage.username;
-                alert('退出成功！');
+                // alert('退出成功！');
                 $state.go('login');
             }
             $scope.jump = function(){

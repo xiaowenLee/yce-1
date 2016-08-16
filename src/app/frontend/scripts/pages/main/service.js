@@ -11,7 +11,7 @@ define([
 		};
 
 		apis.getNavlist = function(param, success, error){
-			return utils.http($http, 'post', '/api/main/navlist', param, success, error);
+			return utils.http($http, 'get', '/api/v1/navlist', param, success, error);
 		};
 
 		return apis;
