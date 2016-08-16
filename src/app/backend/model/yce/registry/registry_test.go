@@ -6,10 +6,10 @@ import (
 )
 
 func TestRegistry_DecodeJson(t *testing.T) {
-	r := NewRegistry("registry.test.com", CERT, 5000)
+	r := NewRegistry(REGISTRY_HOST, REGISTRY_PORT, REGISTRY_CERT)
 	fmt.Printf("%v\n", r)
 
-	images, err := r.GetImageList()
+	images, err := r.GetImagesList()
 	if err != nil {
 		t.Fatal(err)
 	}

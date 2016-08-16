@@ -25,7 +25,7 @@ func NewHttpsClient(host string, port int32, cert string) *HttpsClient {
 
 
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{RootCAs: pool},
+		TLSClientConfig: &tls.Config{RootCAs: https.pool},
 		DisableCompression: true,
 	}
 

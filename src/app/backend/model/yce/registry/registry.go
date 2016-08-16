@@ -5,7 +5,11 @@ import (
 	"log"
 )
 
-const CERT = `
+const (
+
+	REGISTRY_HOST = "registry.test.com"
+	REGISTRY_PORT = "5000"
+	REGISTRY_CERT = `
 -----BEGIN CERTIFICATE-----
 MIIFlTCCA32gAwIBAgIJAL/V18aLUarxMA0GCSqGSIb3DQEBCwUAMGExCzAJBgNV
 BAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBX
@@ -39,6 +43,7 @@ TaUKMkzJ7hRhK2CdnJd8A0ud1j65pMtLs6jrMxNAXT7B0v46aAxYN1LDU+CMrP8J
 T7rkh2yVNeXLki1gStjJeso+Qo89Yh+7dPUDsiQvh8sEfPGX6a3aA8Y=
 -----END CERTIFICATE-----
 `
+)
 
 type Image struct {
 	Name string   `json:"name"`
@@ -46,27 +51,29 @@ type Image struct {
 }
 
 type Registry struct {
-	Host   string  `json:"host"`
-	Port   int32   `json:"port"`
-	cert   string  `json:"cert"`
+	Host   string `json:"host"`
+	Port   string `json:"port"`
+	Cert   string `json:"cert"`
 	Images []Image `json:"images"`
 }
 
-func NewRegistry(host, cert string, port int32) *Registry {
+func NewRegistry(host, port, cert string) *Registry {
 
-	return &Registry{
+	return &Registry {
 		Host: host,
-		cert: cert,
 		Port: port,
+		Cert: cert,
 	}
 }
 
-func (r *Registry) GetImageList() (string, error) {
+func (r *Registry) GetImagesList() (string, error) {
 	images, err := json.MarshalIndent(r.Images, "", " ")
+
 	if err != nil {
-		log.Printf("GetImageList marshal error: err=%s\n", err)
+		log.Printf("GetImageList Error: err=%s\n", err)
 		return "", err
 	}
+
 	return string(images), nil
 }
 
@@ -81,7 +88,7 @@ func (r *Registry) DecodeJson(data string) error {
 	return nil
 }
 
-func (r *Registry) EncodeJson() (string , error) {
+func (r *Registry) EncodeJson() (string, error) {
 	data, err := json.MarshalIndent(r, "", " ")
 	if err != nil {
 		log.Printf("EncodeJson Error: err=%s\n", err)
