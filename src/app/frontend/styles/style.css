@@ -2733,6 +2733,7 @@ ul.states li {
     border-left: 1px solid #eaeaea;
     margin-left: -1px;
     z-index: 1;
+    width: 100%;
 }
 .tab-content.vertical.left-aligned .tab-pane {
     padding-left: 15px;
@@ -8178,4 +8179,18 @@ table.dataTable tfoot th select, table.dataTable tfoot td select{
 
 table.dataTable.display tbody tr:first-child td {
     border-top: 1px solid #eeeeee;
+}
+.main_bdck{
+    margin: 30px 0 30px 0;
+}
+.text-left{
+    margin: 70px 0 70px 0;
+}
+.pull-center-b{
+    display: inline-block;
+    margin-top: 100px;
+}
+.btn-primary{
+    width: 120px;
+    height: 37px;
 }

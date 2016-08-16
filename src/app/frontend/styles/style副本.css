@@ -818,7 +818,6 @@ a:hover, a:focus {
     padding-left: 20px;
 }
 #main-menu-wrapper li ul.sub-menu {
-    display: none;
     list-style-type: none;
     font-size: 14px;
     width: 100%;
@@ -2733,11 +2732,13 @@ ul.states li {
     border-left: 1px solid #eaeaea;
     margin-left: -1px;
     z-index: 1;
+    width: 100%;
+    height: 100%;
 }
 .tab-content.vertical.left-aligned .tab-pane {
     padding-left: 15px;
     padding-right: 15px;
-
+    height: 100%;
 }
 .nav-tabs.vertical.left-aligned>li.active>a, .nav-tabs.vertical.left-aligned>li.active>a:hover, .nav-tabs.vertical.left-aligned>li.active>a:focus {
     color: #555555;
@@ -8078,11 +8079,9 @@ table.dataTable{
     /*background: #fafafa !important;*/
 }
 
-table.dataTable tr.odd td, table.dataTable tr.even td,
+table.dataTable tr.even td,
 table.dataTable.display tbody tr.even > .sorting_1, 
-table.dataTable.order-column.stripe tbody tr.even > .sorting_1,
-table.dataTable.display tbody tr.odd > .sorting_1, 
-table.dataTable.order-column.stripe tbody tr.odd > .sorting_1{
+table.dataTable.order-column.stripe tbody tr.even > .sorting_1{
     background-color: #ffffff;
     border-color: #eeeeee;
 }
@@ -8093,6 +8092,7 @@ table.dataTable.order-column.stripe tbody tr.even:hover > .sorting_1,
 table.dataTable.display tbody tr.odd:hover > .sorting_1, 
 table.dataTable.order-column.stripe tbody tr.odd:hover > .sorting_1{
     background-color: #f5f5f5;
+    /*   eff1fe*/
 }
 
 table.dataTable thead th, table.dataTable thead td{
@@ -8187,12 +8187,194 @@ table.dataTable.display tbody tr:first-child td {
 }
 
 
-
-
-
-
-
-
-.dataTables_filter{
-    margin-right: 200px;
+.btn-show{
+    display: block;
+    position: absolute;
+    width: 100px;
+    box-shadow: 0px 0px 4px #ccc;
+    border-radius: 3px;
+    margin-left: 1.2%;
+    background: #fff;
 }
+.btn-show a{
+    display: block;
+    width: 100px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    color: #666;
+}
+.btn-show a:hover{
+    background: #f5f5f5;
+}
+
+
+
+.apply-leave{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.apply-box1{
+    width: 100%;
+    height: 100%;
+    background: red;
+}
+
+
+
+.post-checkbox span{
+    width: 120px;height: 75px;
+    border: 1px solid #ccc;
+    display: inline-block;
+    line-height: 75px;
+    text-align: center;
+    margin-left: 10px;
+}
+.post-radios-p span{
+    width: 150px;height: 100px;
+    border: 1px solid #ccc;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    margin-left: 10px;
+}
+.post-checkbox span input,.post-radios-p span input{
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+
+.text-left{
+    margin-top: 20px;
+}
+
+
+
+.del-9{
+    width: 100%;
+}
+
+
+
+.label{
+    float: right;
+    margin-right: 10px;
+}
+.user-checkboxs label{
+    width: 100%;
+    height: 100%;
+}
+.user-checkboxs input:checked + label{
+    background: #3F51B5;
+    box-shadow: 1px 4px 8px #ccc;
+    border-style: none;
+    color: #fff;
+}
+
+.user-radios + label{
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.user-radios:checked + label{
+    box-shadow: 1px 4px 5px #ccc;
+    border-style: none;
+    color: #fff;
+}
+.user-radios:checked + label .post-spans1{
+    background: #3F51B5;
+}
+
+.user-radios:checked + label .post-spans2{
+    color: #666;
+}
+.post-spans1{
+    width: 100%;
+    height: 35%;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    font-weight:normal;
+    background: #f1f1f1;
+}
+.post-spans2{
+    width: 80%;
+    height: 45%;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 10%;
+    font-weight:normal;
+}
+
+/*
+.post-btn{
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    line-height: 15px;
+    border-radius: 15px;
+    display: inline-block;
+}*/
+
+.cancel-box{
+    width: 100%;
+}
+
+
+.post-btn{
+    width: 26px;
+    height: 26px;
+    background: #3F51B5;
+    border: none;
+    border-radius: 18px;
+    line-height: 26px;
+    text-align: center;
+    color: #fff;
+    font-size: 20px;
+    display: inline-block;
+    font-weight: normal;
+}
+
+#post-addtext{
+    margin-top: 5px;
+}
+
+#cbox1,#cbox2,#cbox3,#cbox4{
+    margin-bottom: 20px;
+}
+
+
+.post-rs p span{
+    width: 60px;
+    display: inline-block;
+}
+
+.post-rs,.post-taps{
+    margin-left: 55px;
+}
+
+.post-time{
+    margin-left: 70px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
