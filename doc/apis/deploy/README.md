@@ -1,9 +1,45 @@
+应用发布相关定义
+============
+
+Controller定义在src/backend/controller/yce/deploy里面，例如：
+
+应用管理（列表）：CreateDeployController的定义在src/backend/controller/yce/deploy/create.go里
+
+Model定义在src/backend/model/yce/deploy里面，例如：
+
+应用管理（列表）：AppDeployment的定义在src/backend/model/yce/deploy/create.go里
+
+下同：
+
+应用管理(列表)：ListDeployController
+
+应用详情：DescribeDeployController
+
+应用发布：CreateDeployController
+
+应用滚升：RollupDeployController
+
+应用回滚：RolldownDeployController
+
+应用撤销：DrainDeployController
+
+应用扩容：ScaleupDeployController 
+
+应用缩容：ScaledownDeployController 
+
+发布暂停：PauseDeployController
+
+发布恢复：ResumeDeployController
+
+发布历史：HistoryDeployController 
+
+
 应用发布页面数据交互说明
 ============
 
 ### 点击应用发布(左侧菜单)时请求后台数据:
 
-请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/new
+请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/new
 
 请求头中包含: Authorization: ${x-auth-token}
 
@@ -57,6 +93,34 @@
 }
 ```
 
+### 点击应用列表时请求后台数据:
+
+请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/{id}
+
+请求头中包含: Authorization: ${x-auth-token}
+
+其中: uid, orgId, x-auth-token在登录成功后从后台返回给浏览器, 前端存储在LocalStorage里面
+
+返回值:
+
+* 该组织下数据中心里的应用列表
+
+大概数据结构：
+
+{
+    "code":{},
+    "message":[
+        ""
+    ],
+    "list":[{
+        "dcId": {
+            //该数据中心下的应用列表
+        }
+    }]
+}
+
+
+
 ### 在应用发布页面中,点击镜像输入框后,弹出选择镜像的窗口
 
 弹出框上面有搜索框,支持输入辅助,就是可以根据用户的输入筛选镜像列表
@@ -92,7 +156,7 @@
 
 ### 应用发布请求提交
 
-请求的URL: POST /api/v1/depolyments
+请求的URL: POST /api/v1/organization/{orgId}/deployments
 
 请求头包含: Authorization: ${x-auth-token}
 
