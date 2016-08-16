@@ -18,6 +18,7 @@ define([
 				$stateProvider
 					.state('login', mainRouter.login)
 					.state('main', mainRouter.main)
+              //      .state('cancel', mainRouter.cancel)
 					.state('main.dashboard', dashboardRouter.dashboard)
 					.state('main.appManage', appManageRouter.appManage)
 					.state('main.appManageDeployment', deploymentRouter.deployment)
