@@ -10,6 +10,10 @@ define([
 			return utils.http($http, 'post', '/api/v1/users/login', param, success, error);
 		};
 
+		apis.logout = function(param, success, error){
+			return utils.http($http, 'post', '/api/v1/users/logout', param, success, error);
+		};
+
 		apis.getNavlist = function(param, success, error){
 			return utils.http($http, 'get', '/api/v1/navlist', param, success, error);
 		};

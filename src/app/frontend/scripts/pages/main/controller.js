@@ -7,6 +7,7 @@ define([
         'use strict';
 
         var ctrl = ['$scope','$state','mainService', '$sessionStorage', function($scope, $state,mainService, $sessionStorage){
+            // login
             $scope.login = function () {
                 mainService.login({
                     'username': $scope.username,
@@ -15,19 +16,28 @@ define([
                     if (data.code == 0) {
                         // alert('登录成功！');
                         $sessionStorage.username = JSON.parse(data.data).userName;
+                        $sessionStorage.sessionId = JSON.parse(data.data).sessionId;
                         $scope.jump();
                     }else{
-                        alert(data.message);
+                        alert("用户名密码错误");
                     }
-                },function(data){
-                    //console.log(data);
                 });
             };
+
+            // logout
             $scope.logout = function(){
-                delete $sessionStorage.username;
-                // alert('退出成功！');
-                $state.go('login');
+                mainService.logout({
+                    'username':  $sessionStorage.username,
+                    'sessionId': $sessionStorage.sessionId
+                }, function(data) {
+                    if (data.code == 0) {
+                        $sessionStorage.$reset();
+                        // alert("退出成功~");
+                        $state.go('login');
+                    }
+                });
             }
+
             $scope.jump = function(){
                 $state.go('main.dashboard');
                 $scope.data = {

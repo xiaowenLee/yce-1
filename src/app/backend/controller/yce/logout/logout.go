@@ -2,19 +2,21 @@ package logout
 
 import (
 	"log"
-	// "fmt"
-	// "strconv"
 	"github.com/kataras/iris"
 	mysession "app/backend/common/util/session"
-	// myerror "app/backend/common/error"
+	myerror "app/backend/common/error"
 )
 
 type LogoutController struct {
 	*iris.Context
 }
 
-// Check is logined
+type LogoutParams struct {
+	Username string `json:"username"`
+	SessionId string `json:"sessionId"`
+}
 
+// Check is logined
 func (lc *LogoutController) checkLogin(sessionId string) (*mysession.Session, error) {
 
 	ss := mysession.SessionStoreInstance()
@@ -31,7 +33,7 @@ func (lc *LogoutController) checkLogin(sessionId string) (*mysession.Session, er
 		return nil, nil
 	}
 
-	return session, true
+	return session, nil
 }
 
 func (lc *LogoutController) logout(sessionId string) error {
@@ -48,34 +50,43 @@ func (lc *LogoutController) logout(sessionId string) error {
 	return nil
 }
 
-// POST /api/v1/users/{email}/login
-func (lc *LogoutController) Post() {
-	email := lc.Param("email")
-	sessionId := string(lc.FormValue("sessionId"))
+// POST /api/v1/users/logout
+func (lc LogoutController) Post() {
 
-	log.Printf("Logout: username=%s, sessionId=%s\n", email, sessionId)
+	logoutParams := new(LogoutParams)
+	lc.ReadJSON(logoutParams)
 
-	session, err := lc.checkLogin(sessionId)
+	log.Printf("User Logout: username=%s, sessionId=%s\n", logoutParams.Username, logoutParams.SessionId)
+
+	session, err := lc.checkLogin(logoutParams.SessionId)
 
 	if err != nil {
 		log.Printf("CheckLogin error: sessionId=%s, err=%s\n")
-		// lc.Write("")
+		ye := myerror.NewYceError(1101, err.Error(), "")
+		json, _ := ye.EncodeJson()
+		lc.Write(json)
 		return
 	}
 
 	if session != nil {
-		err = lc.logout(sessionId)
+		err = lc.logout(logoutParams.SessionId)
 		if err != nil {
 			log.Println("Logout error: sessionId=%s, userName=%s, orgId=%s, err=%s\n",
-				sessionId, session.UserName, session.OrgId, err)
-			// lc.Write("")
+				logoutParams.SessionId, session.UserName, session.OrgId, err)
+			ye := myerror.NewYceError(1102, err.Error(), "")
+			json, _ := ye.EncodeJson()
+			lc.Write(json)
 			return
 		}
 	}
 
+	ye := myerror.NewYceError(0, "OK", "")
+	json, _ := ye.EncodeJson()
+
 	log.Printf("Logout successfully: sessionId=%s, userName=%s, orgId=%s\n",
-		sessionId, session.UserName, session.OrgId)
+		logoutParams.SessionId, session.UserName, session.OrgId)
+
+	lc.Write(json)
 	return
-	// lc.Write("UserName: " + email + ", SessionID: " + sessionId)
 
 }

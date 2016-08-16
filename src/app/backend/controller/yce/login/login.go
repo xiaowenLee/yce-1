@@ -2,7 +2,6 @@ package login
 
 import (
 	"log"
-	"fmt"
 	"strconv"
 	"github.com/kataras/iris"
 	"app/backend/common/util/encrypt"
@@ -54,7 +53,7 @@ func (lc *LoginController) session(user *myuser.User) (*mysession.Session, *myer
 
 	err := ss.Set(session)
 
-	fmt.Printf("Session: sessionId=%s, userId=%s, userName=%s, orgId=%s\n", session.SessionId, session.UserId, session.UserName, session.OrgId)
+	log.Printf("Session: sessionId=%s, userId=%s, userName=%s, orgId=%s\n", session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	if err != nil {
 		log.Fatal("Set session error: sessionId=%s, err=%s\n", session.SessionId, err)
@@ -69,16 +68,11 @@ func (lc *LoginController) session(user *myuser.User) (*mysession.Session, *myer
 // POST /api/v1/users/login
 func (lc LoginController) Post() {
 
-	// email := lc.Param("email")
-	/*
-	email := string(lc.FormValue("username"))
-	password := string(lc.FormValue("password"))
-	*/
 	loginParams := new(LoginParams)
 
 	lc.ReadJSON(loginParams)
 
-	fmt.Printf("LoginParam: %v\n", loginParams)
+	log.Printf("LoginParam: %v\n", loginParams)
 
 	user, ye := lc.check(loginParams.Username, loginParams.Password)
 	if ye != nil {
@@ -108,4 +102,6 @@ func (lc LoginController) Post() {
 		session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	lc.Write(json)
+
+	return
 }
