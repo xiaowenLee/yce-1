@@ -101,6 +101,7 @@ func (lc LoginController) Post() {
 	log.Printf("User Login: sessionId=%s, userId=%s, userName=%s, orgId=%s\n",
 		session.SessionId, session.UserId, session.UserName, session.OrgId)
 
+	lc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	lc.Write(json)
 
 	return

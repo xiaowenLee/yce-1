@@ -39,11 +39,11 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 ### 点击应用发布(左侧菜单)时请求后台数据:
 
-请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/new
+请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/new
 
-请求头中包含: Authorization: ${x-auth-token}
+请求头中包含: Authorization: ${sessionId}
 
-其中: uid, orgId, x-auth-token在登录成功后从后台返回给浏览器, 前端存储在LocalStorage里面
+其中: uid, orgId, sessionId在登录成功后从后台返回给浏览器, 前端存储在LocalStorage里面
 
 返回值:
 

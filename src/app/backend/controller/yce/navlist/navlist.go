@@ -40,5 +40,6 @@ var navList = `
 `
 
 func (nlc NavListController) Get() {
+	nlc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	nlc.Write(navList)
 }
