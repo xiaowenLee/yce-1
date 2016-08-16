@@ -5,6 +5,7 @@ import (
 	deploy "app/backend/model/yce/deploy"
 	"fmt"
 	"github.com/kataras/iris"
+
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
@@ -17,30 +18,32 @@ const (
 	SERVER string = "http://172.21.1.11:8080"
 )
 
-var instance *ListDeployController
+var instance *DescribeDeployController
 
-type ListDeployController struct {
+type DescribeDeployController struct {
 	cli *client.Client
 }
 
-func NewListDeployController(server string) *ListDeployController {
+func NewDescribeDeployController(server string) *NewDescribeDeployController {
 	config := &restclient.Config{
 		Host: server,
 	}
 	cli, err := client.New(config)
 	if err != nil {
-		log.Printf("Get ListDeployController error. SessionID=%s, error=%s\n", sessionID, err)
+		log.Printf("Get DescribeDeployController error. SessionID=%s, error=%s\n", sessionID, err)
 	}
 
-	instance = &ListDeployController{cli: cli}
+	instance = &DescribeDeployController{cli: cli}
 	return instance
 }
 
-func (lc *ListDeployController) List(ctx *iris.Context) {
-	//TODO: ValidateSession()
+func (dec *DescribeDeployController) Describe(ctx *iris.Context) {
+	//TODO: ValidateSession
 	oid := ctx.Param("oid")
+	id := ctx.Param("id")
 
-	//TODO: get Datacenter Host from MySQL
+	//TODO: get Datacenter Host from MySQL ? or url ?
+	//NOTE: Datacenter only takes one value when describing.
 	//e.g.
 	dc := make([]deploy.AppDc, 1)
 	dc[0].DcID = 1
@@ -64,12 +67,12 @@ func (lc *ListDeployController) List(ctx *iris.Context) {
 			log.Printf("Get new restclient error. SessionID=%s, error=%s\n", sessionID, err)
 		}
 
-		podlist, err := newCli.Pods(oid).List(api.ListOptions{})
+		poddetail, err := newCli.Pods(oid).Get(id)
 		if err != nil {
-			log.Printf("Get podlist error. DataCenter=%s, Organization=%s, SessionID=%s, error=%s\n", v.DcID, oid, sessionID, err)
+			log.Printf("Get poddetails error. DataCenter=%s, Organization=%s, SessionID=%s, error=%s\n", v.DcID, oid, sessionID, err)
 		}
 
-		//TODO: make response podlist struct
+		//TODO: make response poddetails struct
 		//NOTE: time convertion, dc Chinese convertion
 	}
 
