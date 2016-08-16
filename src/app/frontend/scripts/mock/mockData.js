@@ -40,7 +40,7 @@ Mock.mock('http://10.69.40.36.com/api/main/navlist', {
     ]
 });
 
-Mock.mock('http://10.69.40.36.com/api/appManage/appList', {
+Mock.mock('http://192.168.0.102:8080/api/appManage/appList', {
     list: [
         {id: 1, name: 'Dashboard1',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
         {id: 2, name: 'Dashboard2',labels:'标签组合',dataCenter:'数据中心',replicas:'20',time:'20h'},
@@ -54,7 +54,7 @@ Mock.mock('http://10.69.40.36.com/api/appManage/appList', {
     ]
 });
 
-Mock.mock('http://10.69.40.36.com/api/v1/organizations/1/users/1/deployments/new', {
+Mock.mock('http://192.168.0.102:8080/api/v1/organizations/1/users/2/deployments/new', {
     "code": 0,
     "message": "",
     "data": {
@@ -75,6 +75,17 @@ Mock.mock('http://10.69.40.36.com/api/v1/organizations/1/users/1/deployments/new
             "name": "电子城机房",
             "budget": 10000000,
             "balance": 10000000
+        }],
+        resourceSpec : [{
+            quotaId : '1',
+            name : '2X',
+            cpu : '2 Core',
+            memory : '2G'
+        },{
+            quotaId : '2',
+            name : '4X',
+            cpu : '4 Core',
+            memory : '8G'
         }],
         "dcQuotas": {
             "dcId": "1",

@@ -8,7 +8,7 @@ define([], function(){
 			controller: 'mainController'
 		},
 		main: {
-			url: '/main',
+			url: '/:orgId/:userId/main',
 			templateUrl: 'views/main/main.html',
 			controller: 'mainController'
 		}		
