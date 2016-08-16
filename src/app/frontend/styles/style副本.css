@@ -108,7 +108,7 @@ html.boxed{
 body {
     background-color: #eeeeee;
     color: rgba(118, 118, 118, 1.0);
-    font-family: 'Microsoft YaHei', 'Open Sans', Arial, Helvetica, sans-serif;
+    font-family: 'Open Sans', Arial, Helvetica, sans-serif;
     font-size: 14px;
     padding: 0px !important;
     margin: 0px !important;
@@ -136,7 +136,6 @@ body.boxed .page-topbar {
     width: 90%;
     margin-left: 5% !important;
 }
-.main{ min-height: 100%;}
 /*body *{  vertical-align: top; }*/
 
 .paddingLeft0 {
@@ -212,7 +211,7 @@ section.box.marginBottom0,
     font-weight: 400;
     padding: 0;
     text-transform: uppercase;
-    font-family: "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
     color: rgba(118, 118, 118, 1.0);
     margin-bottom: 15px;
 }
@@ -1126,7 +1125,7 @@ section header {
 }
 section header .title {
     margin-top: 10px;
-    font-family: 'Microsoft YaHei', 'Roboto', Arial, Helvetica, sans-serif;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
     font-size: 19px;
     padding-left: 30px;
     padding-top: 15px;
@@ -1346,7 +1345,7 @@ input[type=checkbox], input[type=color], input[type=date], input[type=datetime-l
     margin: 5px 0;
 }
 .form-label {
-    font-weight: 600;
+    font-weight: 400;
     color: #555555;
 }
 .form-group .desc {
@@ -1479,7 +1478,7 @@ input[type=checkbox], input[type=color], input[type=date], input[type=datetime-l
     -moz-border-radius: 0px;
     -webkit-border-radius: 0px;
     border: 0px;
-    font-family: 'Microsoft YaHei', Roboto, Helvetica, Arial, sans-serif;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
     font-weight: 400;
     text-shadow: none;
 }
@@ -2734,11 +2733,12 @@ ul.states li {
     margin-left: -1px;
     z-index: 1;
     width: 100%;
+    height: 100%;
 }
 .tab-content.vertical.left-aligned .tab-pane {
     padding-left: 15px;
     padding-right: 15px;
-
+    height: 100%;
 }
 .nav-tabs.vertical.left-aligned>li.active>a, .nav-tabs.vertical.left-aligned>li.active>a:hover, .nav-tabs.vertical.left-aligned>li.active>a:focus {
     color: #555555;
@@ -4355,7 +4355,6 @@ a.cke_button_off:hover, .cke_hc a.cke_button_off:focus, .cke_hc a.cke_button_off
 .loginpage {
     padding: 0 50px;
 }
-
 @media (min-width: 992px) and (max-width: 1199px) {
     .loginpage {
         padding: 0 90px;
@@ -4376,17 +4375,21 @@ a.cke_button_off:hover, .cke_hc a.cke_button_off:focus, .cke_hc a.cke_button_off
 }
 
 
-.loginpage h1 {
+.loginpage h1 a {
     height: 92px;
-    margin: 10% auto 0px auto;
-    font: normal 40px/92px 'Microsoft YaHei';
-    color: #fff;
-    text-align: center;
+    margin: 0px auto 0px auto;
     padding: 0;
+    text-decoration: none;
+    -moz-background-size: 345px 92px;
+    -o-background-size: 345px 92px;
+    background-size: 345px 92px;
+    background-color: transparent;
     min-height: 92px;
     width: auto;
+    background-image: url("../images/login-logo.png");
     background-position: center top;
     background-repeat: no-repeat;
+    text-indent: -9999px;
     outline: 0;
     overflow: hidden;
     display: block;
@@ -4441,7 +4444,10 @@ a.cke_button_off:hover, .cke_hc a.cke_button_off:focus, .cke_hc a.cke_button_off
     border: 1px solid transparent !important;
 }
 .loginpage form .input, .loginpage form input[type=checkbox], .loginpage input[type=text] {
-    color: #3e3e3e;
+    color: #E91E63
+    /*#E91E63*/
+    
+    ;
     background: #fbfbfb;
 }
 .loginpage #nav a, .loginpage a {
@@ -4494,15 +4500,15 @@ a.cke_button_off:hover, .cke_hc a.cke_button_off:focus, .cke_hc a.cke_button_off
 .register-social a {
     margin: 5px 5px 5px 5px;
 }
-.login_page {
+body.login_page {
     background-color: #3F51B5;
     background-image: url('../images/login-bg.png');
     background-attachment: fixed;
-    position: fixed;
-    top: 0;
-    bottom: 0;
+    /*height: 100%;*/
+    /*max-height: 100%;*/
+    min-height: 100%;
+    /*overflow: hidden;*/
     width: 100%;
-    overflow-y: auto;
 }
 .register-wrapper {
     height: 100%;
@@ -8073,11 +8079,9 @@ table.dataTable{
     /*background: #fafafa !important;*/
 }
 
-table.dataTable tr.odd td, table.dataTable tr.even td,
+table.dataTable tr.even td,
 table.dataTable.display tbody tr.even > .sorting_1, 
-table.dataTable.order-column.stripe tbody tr.even > .sorting_1,
-table.dataTable.display tbody tr.odd > .sorting_1, 
-table.dataTable.order-column.stripe tbody tr.odd > .sorting_1{
+table.dataTable.order-column.stripe tbody tr.even > .sorting_1{
     background-color: #ffffff;
     border-color: #eeeeee;
 }
@@ -8088,6 +8092,7 @@ table.dataTable.order-column.stripe tbody tr.even:hover > .sorting_1,
 table.dataTable.display tbody tr.odd:hover > .sorting_1, 
 table.dataTable.order-column.stripe tbody tr.odd:hover > .sorting_1{
     background-color: #f5f5f5;
+    /*   eff1fe*/
 }
 
 table.dataTable thead th, table.dataTable thead td{
@@ -8180,17 +8185,196 @@ table.dataTable tfoot th select, table.dataTable tfoot td select{
 table.dataTable.display tbody tr:first-child td {
     border-top: 1px solid #eeeeee;
 }
-.main_bdck{
-    margin: 30px 0 30px 0;
+
+
+.btn-show{
+    display: block;
+    position: absolute;
+    width: 100px;
+    box-shadow: 0px 0px 4px #ccc;
+    border-radius: 3px;
+    margin-left: 1.2%;
+    background: #fff;
 }
-.text-left{
-    margin: 70px 0 70px 0;
+.btn-show a{
+    display: block;
+    width: 100px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    color: #666;
 }
-.pull-center-b{
+.btn-show a:hover{
+    background: #f5f5f5;
+}
+
+
+
+.apply-leave{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.apply-box1{
+    width: 100%;
+    height: 100%;
+    background: red;
+}
+
+
+
+.post-checkbox span{
+    width: 120px;height: 75px;
+    border: 1px solid #ccc;
     display: inline-block;
-    margin-top: 100px;
+    line-height: 75px;
+    text-align: center;
+    margin-left: 10px;
 }
-.btn-primary{
-    width: 120px;
-    height: 37px;
+.post-radios-p span{
+    width: 150px;height: 100px;
+    border: 1px solid #ccc;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    margin-left: 10px;
 }
+.post-checkbox span input,.post-radios-p span input{
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+
+.text-left{
+    margin-top: 20px;
+}
+
+
+
+.del-9{
+    width: 100%;
+}
+
+
+
+.label{
+    float: right;
+    margin-right: 10px;
+}
+.user-checkboxs label{
+    width: 100%;
+    height: 100%;
+}
+.user-checkboxs input:checked + label{
+    background: #3F51B5;
+    box-shadow: 1px 4px 8px #ccc;
+    border-style: none;
+    color: #fff;
+}
+
+.user-radios + label{
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.user-radios:checked + label{
+    box-shadow: 1px 4px 5px #ccc;
+    border-style: none;
+    color: #fff;
+}
+.user-radios:checked + label .post-spans1{
+    background: #3F51B5;
+}
+
+.user-radios:checked + label .post-spans2{
+    color: #666;
+}
+.post-spans1{
+    width: 100%;
+    height: 35%;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    font-weight:normal;
+    background: #f1f1f1;
+}
+.post-spans2{
+    width: 80%;
+    height: 45%;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 10%;
+    font-weight:normal;
+}
+
+/*
+.post-btn{
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    line-height: 15px;
+    border-radius: 15px;
+    display: inline-block;
+}*/
+
+.cancel-box{
+    width: 100%;
+}
+
+
+.post-btn{
+    width: 26px;
+    height: 26px;
+    background: #3F51B5;
+    border: none;
+    border-radius: 18px;
+    line-height: 26px;
+    text-align: center;
+    color: #fff;
+    font-size: 20px;
+    display: inline-block;
+    font-weight: normal;
+}
+
+#post-addtext{
+    margin-top: 5px;
+}
+
+#cbox1,#cbox2,#cbox3,#cbox4{
+    margin-bottom: 20px;
+}
+
+
+.post-rs p span{
+    width: 60px;
+    display: inline-block;
+}
+
+.post-rs,.post-taps{
+    margin-left: 55px;
+}
+
+.post-time{
+    margin-left: 70px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
