@@ -86,6 +86,7 @@ func (lc LogoutController) Post() {
 	log.Printf("Logout successfully: sessionId=%s, userName=%s, orgId=%s\n",
 		logoutParams.SessionId, session.UserName, session.OrgId)
 
+	lc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	lc.Write(json)
 	return
 

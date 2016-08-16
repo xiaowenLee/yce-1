@@ -67,7 +67,7 @@ func (r *Registry) GetImageList() (string, error) {
 		log.Printf("GetImageList marshal error: err=%s\n", err)
 		return "", err
 	}
-	return images, nil
+	return string(images), nil
 }
 
 func (r *Registry) DecodeJson(data string) error {
