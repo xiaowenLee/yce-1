@@ -4,7 +4,6 @@ import (
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -55,8 +54,8 @@ func (u *User) QueryUserByNameAndPassword(name, password string) error {
 	// Preaper user-paswrod statement
 	stmt, err := db.Prepare(USER_PASSWORD)
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("QueryUserByNameAndPassword Error: err=%s\n", err)
+		return nil
 	}
 	defer stmt.Close()
 
@@ -65,9 +64,10 @@ func (u *User) QueryUserByNameAndPassword(name, password string) error {
 		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 
 	if err != nil {
-		log.Println(err)
+		log.Printf("QueryUserByNameAndPassword Error: err=%s\n", err)
 		return err
 	}
+
 	return nil
 }
 
@@ -77,8 +77,8 @@ func (u *User) QueryUserById(id int32) error {
 	// Prepare select-statement
 	stmt, err := db.Prepare(USER_SELECT)
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("QueryUserById Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -86,12 +86,9 @@ func (u *User) QueryUserById(id int32) error {
 	err = stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
 		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("QueryUserById Error: err=%s\n", err)
 		return err
 	}
-
-	fmt.Printf("%v\n", u)
 
 	return nil
 }
@@ -102,7 +99,7 @@ func (u *User) InsertUser(op int32) error {
 	// Prepare insert-statement
 	stmt, err := db.Prepare(USER_INSERT)
 	if err != nil {
-		log.Println(err)
+		log.Printf("InsertUser Error: err=%s\n", err)
 		// panic(err.Error())
 	}
 	defer stmt.Close()
@@ -117,8 +114,7 @@ func (u *User) InsertUser(op int32) error {
 		u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment)
 
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("InsertUser Error: err=%s\n", err)
 		return nil
 	}
 
@@ -132,8 +128,7 @@ func (u *User) UpdateUser(op int32) error {
 	// Prepare update-statement
 	stmt, err := db.Prepare(USER_UPDATE)
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("UpdateUser Error: err=%s\n", err)
 		return err
 	}
 	defer stmt.Close()
@@ -145,8 +140,7 @@ func (u *User) UpdateUser(op int32) error {
 	// Update a user: password or orgId
 	_, err = stmt.Exec(u.Password, u.OrgId, u.ModifiedAt, u.ModifiedOp, u.Id)
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("UpdateUser Error: err=%s\n", err)
 		return err
 	}
 
@@ -159,8 +153,7 @@ func (u *User) DeleteUser(op int32) error {
 	// Prepare delete-statement
 	stmt, err := db.Prepare(USER_DELETE)
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("DeleteUser Error: err=%s\n", err)
 		return err
 	}
 
@@ -174,8 +167,7 @@ func (u *User) DeleteUser(op int32) error {
 	u.Status = INVALID
 	_, err = stmt.Exec(u.Status, u.ModifiedAt, u.ModifiedOp, u.Id)
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("DeleteUser Error: err=%s\n", err)
 		return err
 	}
 
@@ -186,8 +178,7 @@ func (u *User) DecodeJson(data string) error {
 	err := json.Unmarshal([]byte(data), u)
 
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("DecodeJson Error: err=%s\n", err)
 		return err
 	}
 
@@ -197,8 +188,7 @@ func (u *User) DecodeJson(data string) error {
 func (u *User) EncodeJson() (string, error) {
 	data, err := json.MarshalIndent(u, "", " ")
 	if err != nil {
-		log.Println(err)
-		// panic(err.Error())
+		log.Printf("EncodeJson Error: err=%s\n", err)
 		return "", err
 	}
 	return string(data), nil

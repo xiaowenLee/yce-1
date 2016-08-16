@@ -15,6 +15,12 @@ type LoginController struct {
 	*iris.Context
 }
 
+type LoginParams struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+
 // Check username && password
 func (lc *LoginController) check(name, password string) (*myuser.User, *myerror.YceError) {
 
@@ -60,14 +66,21 @@ func (lc *LoginController) session(user *myuser.User) (*mysession.Session, *myer
 
 }
 
-// POST /api/v1/users/{email}/login
-func (lc *LoginController) Post() {
+// POST /api/v1/users/login
+func (lc LoginController) Post() {
 
 	// email := lc.Param("email")
+	/*
 	email := string(lc.FormValue("username"))
 	password := string(lc.FormValue("password"))
+	*/
+	loginParams := new(LoginParams)
 
-	user, ye := lc.check(email, password)
+	lc.ReadJSON(loginParams)
+
+	fmt.Printf("LoginParam: %v\n", loginParams)
+
+	user, ye := lc.check(loginParams.Username, loginParams.Password)
 	if ye != nil {
 		json, _ := ye.EncodeJson()
 		lc.Write(json)
@@ -91,7 +104,7 @@ func (lc *LoginController) Post() {
 
 	json, _ := ye.EncodeJson()
 
-	log.Printf("User Login: userId=%s, userName=%s, orgId=%s\n",
+	log.Printf("User Login: sessionId=%s, userId=%s, userName=%s, orgId=%s\n",
 		session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	lc.Write(json)

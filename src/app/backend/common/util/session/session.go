@@ -50,7 +50,7 @@ func (s *Session) DecodeJson(data string) error {
 }
 
 func (s *Session) EncodeJson() (string, error) {
-	data, err := json.MarshalIndent(s, "", " ")
+	data, err := json.Marshal(s)
 	if err != nil {
 		log.Println(err)
 		return "", err

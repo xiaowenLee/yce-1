@@ -4,7 +4,6 @@ import (
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -55,37 +54,45 @@ func NewDataCenter(name, host, secret, comment string, port, modifiedOp int32) *
 	}
 }
 
-func (dc *DataCenter) QueryDataCenterById(id int32) {
+func (dc *DataCenter) QueryDataCenterById(id int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
 	stmt, err := db.Prepare(DC_SELECT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("QueryDataCenterById Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
+	var secret []byte
+	var comment []byte
 	// Query idc by id
-	err = stmt.QueryRow(id).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &dc.Secret, &dc.Status,
-		&dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &dc.Comment)
+	err = stmt.QueryRow(id).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status,
+		&dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &comment)
+
+	dc.Secret = string(secret)
+	dc.Comment = string(comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("QueryDataCenterById Error: err=%s\n", err)
+		return err
 	}
 
-	fmt.Printf("%v\n", dc)
+	log.Printf("QureyDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+
+	return nil
 }
 
-func (dc *DataCenter) InsertDataCenter(op int32) {
+func (dc *DataCenter) InsertDataCenter(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
 	stmt, err := db.Prepare(DC_INSERT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertDataCenter Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -99,19 +106,23 @@ func (dc *DataCenter) InsertDataCenter(op int32) {
 		dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp, dc.Comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertDataCenter Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("InsertDataCenterById: id=%d, name=%s, host=%d, port=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp\n",
+		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+	return nil
 }
 
-func (dc *DataCenter) UpdateDataCenter(op int32) {
+func (dc *DataCenter) UpdateDataCenter(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare update-statement
 	stmt, err := db.Prepare(DC_UPDATE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -124,20 +135,24 @@ func (dc *DataCenter) UpdateDataCenter(op int32) {
 		dc.ModifiedAt, dc.ModifiedOp, dc.Comment, dc.Id)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Println(err)
+		return err
 	}
+
+	log.Printf("UpdateDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+	return nil
 
 }
 
-func (dc *DataCenter) DeleteDataCenter(op int32) {
+func (dc *DataCenter) DeleteDataCenter(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare delete-statement
 	stmt, err := db.Prepare(DC_DELETE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DeleteDatCenter Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -149,25 +164,28 @@ func (dc *DataCenter) DeleteDataCenter(op int32) {
 	dc.Status = INVALID
 	_, err = stmt.Exec(dc.Status, dc.ModifiedAt, dc.ModifiedOp, dc.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DeleteDataCenter Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("DeleteDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+	return nil
 }
 
 func (dc *DataCenter) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), dc)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DecodeJson Error: err=%s\n", err)
 	}
 }
 
 func (dc *DataCenter) EncodeJson() string {
 	data, err := json.MarshalIndent(dc, "", " ")
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("EncdoeJson Error: err=%s\n", err)
+		return ""
 	}
 	return string(data)
 }

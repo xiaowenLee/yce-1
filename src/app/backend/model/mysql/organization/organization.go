@@ -1,12 +1,11 @@
 package organization
 
 import (
+	"log"
+	"encoding/json"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-	"encoding/json"
-	"fmt"
 	"github.com/shopspring/decimal"
-	"log"
 )
 
 const (
@@ -58,47 +57,55 @@ func NewOrganization(name, budget, balance, comment string, cpuQuota, memQuota, 
 	}
 }
 
-func (o *Organization) QueryOrganizationById(id int32) {
+func (o *Organization) QueryOrganizationById(id int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
 	stmt, err := db.Prepare(ORG_SELECT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("QueryOrganizationById Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
 	// Query organization by id
 	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &o.Comment)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("QureyOrganizationById Error: err=%s\n", err)
+		return err
 	}
 
-	fmt.Printf("%v\n", o)
+	log.Printf("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	return nil
 }
 
 func (o *Organization) QueryBudgetById(id int32) (budget decimal.Decimal, err error) {
 	o.QueryOrganizationById(id)
 	budget, err = decimal.NewFromString(o.Budget)
+
+	log.Printf("QueryBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return budget, err
 }
 
 func (o *Organization) QueryBalanceById(id int32) (balance decimal.Decimal, err error) {
 	o.QueryOrganizationById(id)
 	balance, err = decimal.NewFromString(o.Balance)
+
+	log.Printf("QueryBalanceById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return balance, err
 }
 
-func (o *Organization) InsertOrganization(op int32) {
+func (o *Organization) InsertOrganization(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
 	stmt, err := db.Prepare(ORG_INSERT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertOrganization Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -110,19 +117,23 @@ func (o *Organization) InsertOrganization(op int32) {
 	// Insert a organization
 	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp, o.Comment)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("InsertOrganization Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("InsertOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	return nil
 }
 
-func (o *Organization) UpdateOrganization(op int32) {
+func (o *Organization) UpdateOrganization(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare update-statement
 	stmt, err := db.Prepare(ORG_UPDATE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateOrganization Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -134,30 +145,40 @@ func (o *Organization) UpdateOrganization(op int32) {
 	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.ModifiedAt, o.ModifiedOp, o.Comment, o.Id)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("UpdateOrganization Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("UpdateOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+
+	return nil
 }
 
 func (o *Organization) UpdateBudgetById(budget string, op int32) {
 	o.Budget = budget
-	o.UpdateOrganization(op)
 
+	log.Printf("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	o.UpdateOrganization(op)
 }
 
 func (o *Organization) UpdateBalanceById(balance string, op int32) {
 	o.Balance = balance
+
+	log.Printf("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	o.UpdateOrganization(op)
 }
 
-func (o *Organization) DeleteOrganization(op int32) {
+func (o *Organization) DeleteOrganization(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepared delete-statement
 	stmt, err := db.Prepare(ORG_DELETE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DeleteOrganization Error: err=%s\n", err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -169,25 +190,28 @@ func (o *Organization) DeleteOrganization(op int32) {
 	// Delete a org
 	_, err = stmt.Exec(o.Status, o.ModifiedAt, o.ModifiedOp, o.Id)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DeleteOrganization Error: err=%s\n", err)
+		return err
 	}
+
+	log.Printf("DeleteBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	return nil
 }
 
 func (o *Organization) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), o)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DecodeJson Error: err=%s\n", err)
 	}
 }
 
 func (o *Organization) EncodeJson() string {
 	data, err := json.MarshalIndent(o, "", " ")
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Printf("DecodeJson Erro: err=%s\n", err)
+		return ""
 	}
 	return string(data)
 }
