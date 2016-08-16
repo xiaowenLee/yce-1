@@ -58,11 +58,11 @@
 
                                     <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in appList">
                                         <td>{{$index+1}}</td>
-                                        <td class="sorting_1">{{app.Name}}</td>
-                                        <td>app:{{app.Label["app"]}} <p>···</p></td>
-                                        <td>{{app.Datacenter[0]}}</td>
-                                        <td>{{app.Replicas}}</td>
-                                        <td>{{app.Worktime}}</td>
+                                        <td class="sorting_1">{{app.name}}</td>
+                                        <td>app:{{app.labels}}</td>
+                                        <td>{{app.dataCenter}}</td>
+                                        <td>{{app.replicas}}</td>
+                                        <td>{{app.time}}</td>
                                         <td>
                                             <span class="apply-leave" ng-mouseleave="overs($index)">
                                                 <p ng-click="more($index)">更多</p>

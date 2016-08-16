@@ -1,3 +1,37 @@
+/*数据中心*/
 .deployment .data-center label{ height: 100px; width: 150px; line-height: 100px; text-align: center; display: inline-block; color: #868686; margin-right: 10px; border: 1px solid #e1e1e1; cursor: pointer;}
 .deployment .data-center label.checked{ color: #3F51B5; border-color: #3F51B5;}
-.deployment .data-center input{ display: none;}
+.deployment .data-center input,.deployment .resource-spec input{ display: none;}
+/*规格*/
+.deployment .resource-spec label{ height: 100px; width: 150px; line-height: 20px; text-align: center; display: inline-block; color: #868686; margin-right: 10px; border: 1px solid #e1e1e1; cursor: pointer;}
+.deployment .resource-spec label.checked{ color: #3F51B5; border-color: #3F51B5;}
+.deployment .resource-spec-title{ height: 26px; line-height: 26px; width: 100%; text-align: center; background: #e1e1e1; color: #868686; display: block;}
+.deployment label.checked .resource-spec-title{ background: #3F51B5; color: #fff;}
+.deployment .resource-spec label p{ font-weight: normal; margin:20px auto; display: inline-block; text-align: left;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

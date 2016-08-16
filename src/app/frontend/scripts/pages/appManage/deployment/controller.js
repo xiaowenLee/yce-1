@@ -6,18 +6,22 @@ define([
     ], function(Base64){
         'use strict';
 
-        var ctrl = ['$scope', 'deploymentService', function($scope, deploymentService){
+        var ctrl = ['$scope', 'deploymentService','$stateParams', function($scope, deploymentService, $stateParams){
             $scope.param = {
                 dataCenter : []
-            }
+            };
+            $scope.stepNum = 1;
 
-            deploymentService.getDeploymentIint(null,function(data){
+            deploymentService.getDeploymentIint({
+                orgId : $stateParams.orgId,
+                userId :$stateParams.userId
+            },function(data){
                 if(data.code == 0){
                     $scope.initData = data.data;
                 }
-                $scope.nextStep = function(){
-                    console.log($scope.param);
-                }
+                $scope.nextStep = function(stepNum){
+                    $scope.stepNum = stepNum;
+                };
             });
         }];
 

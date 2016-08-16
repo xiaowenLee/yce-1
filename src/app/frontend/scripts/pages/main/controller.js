@@ -6,7 +6,7 @@ define([
     ], function(Base64){
         'use strict';
 
-        var ctrl = ['$scope','$state','mainService', '$sessionStorage', function($scope, $state,mainService, $sessionStorage){
+        var ctrl = ['$scope','$state','mainService', '$sessionStorage', '$stateParams', function($scope, $state,mainService, $sessionStorage, $stateParams){
             // login
             $scope.login = function () {
                 mainService.login({
@@ -14,9 +14,10 @@ define([
                     'password': $scope.pwd
                 }, function (data) {
                     if (data.code == 0) {
-                        // alert('登录成功！');
-                        $sessionStorage.username = JSON.parse(data.data).userName;
-                        $sessionStorage.sessionId = JSON.parse(data.data).sessionId;
+                        $scope.loginData = JSON.parse(data.data);
+                        $sessionStorage.username =  $scope.loginData.userName;
+                        $sessionStorage.sessionId =  $scope.loginData.sessionId;
+                        $sessionStorage.orgId = $scope.loginData.orgId;
                         $scope.jump();
                     }else{
                         alert("用户名密码错误");
@@ -45,7 +46,6 @@ define([
                     showSubnav: [],
                     toggleNav : false
                 };
-
                 mainService.getNavlist(null, function (data) {
                     $scope.navList = data.list;
                 });

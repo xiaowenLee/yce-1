@@ -6,7 +6,7 @@ define([
 	var getApis = function($http){
 		var apis = {};
 		apis.getDeploymentIint = function(param, success, error){
-			return utils.http($http, 'get', '/api/v1/organizations/1/users/1/deployments/new', param, success, error);
+			return utils.http($http, 'get', '/api/v1/organizations/' + param.orgId + '/users/' + param.userId + '/deployments/new', param, success, error);
 		};
 
 		return apis;
