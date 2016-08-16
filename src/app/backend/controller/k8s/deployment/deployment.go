@@ -37,6 +37,6 @@ func (dc *DeploymentController) EncodeJson(v interface{}) ([]byte, error) {
 	return json.MarshalIndent(v, prefix, indent)
 }
 
-func (dc *DeploymentController) DecodeJson(data []byte, v interface) (v interface{}, error) {
+func (dc *DeploymentController) DecodeJson(data []byte, v interface{}) (v interface{}, error) {
 
 }
