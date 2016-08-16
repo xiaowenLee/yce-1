@@ -25,7 +25,7 @@ func main() {
 
 	iris.API("/api/v1/users/login", *login)
 	iris.API("/api/v1/navlist", *nav)
-	iris.API("/api/v1/users/:username/logout", *logout)
+	iris.API("/api/v1/users/logout", *logout)
 
 	iris.Listen(":8080")
 

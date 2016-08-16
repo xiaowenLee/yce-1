@@ -26,17 +26,14 @@ define([
 
             // logout
             $scope.logout = function(){
-                console.log("logout")
-                main.Service.logout({
+                mainService.logout({
                     'username':  $sessionStorage.username,
                     'sessionId': $sessionStorage.sessionId
                 }, function(data) {
                     if (data.code == 0) {
-                        delete $sessionStorage;
-                        alert("退出成功~");
+                        $sessionStorage.$reset();
+                        // alert("退出成功~");
                         $state.go('login');
-                    } else {
-                        alert("退出出现问题");
                     }
                 });
             }

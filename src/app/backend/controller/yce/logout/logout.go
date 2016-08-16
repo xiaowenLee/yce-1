@@ -13,7 +13,7 @@ type LogoutController struct {
 
 type LogoutParams struct {
 	Username string `json:"username"`
-	SessionId string `json:"username"`
+	SessionId string `json:"sessionId"`
 }
 
 // Check is logined
@@ -56,7 +56,7 @@ func (lc LogoutController) Post() {
 	logoutParams := new(LogoutParams)
 	lc.ReadJSON(logoutParams)
 
-	log.Printf("Logout: username=%s, sessionId=%s\n", logoutParams.Username, logoutParams.SessionId)
+	log.Printf("User Logout: username=%s, sessionId=%s\n", logoutParams.Username, logoutParams.SessionId)
 
 	session, err := lc.checkLogin(logoutParams.SessionId)
 
