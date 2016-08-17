@@ -8,7 +8,7 @@ import (
 
 	myhttps "app/backend/common/util/https"
 	myregistry "app/backend/model/yce/registry"
-	myerror "app/backend/common/error"
+	myerror "app/backend/common/yce/error"
 )
 
 type ListRegistryController struct {

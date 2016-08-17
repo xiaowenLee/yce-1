@@ -7,7 +7,7 @@ import (
 	"app/backend/common/util/encrypt"
 	myuser "app/backend/model/mysql/user"
 	mysession "app/backend/common/util/session"
-	myerror "app/backend/common/error"
+	myerror "app/backend/common/yce/error"
 )
 
 type LoginController struct {
