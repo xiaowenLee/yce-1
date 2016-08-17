@@ -80,9 +80,14 @@ func NewSessionStore() *SessionStore {
 }
 
 func (ss *SessionStore) ValidateOrgId(sessionIdClient string, OrgIdClient string) (bool, error) {
-	session, err := Get(sessionIdClient)
+	session, err := ss.Get(sessionIdClient)
 	if err != nil {
 		log.Printf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s\n", sessionIdClient, err)
+		return false, err
+	}
+
+	// sessionId invalid
+	if session == nil && err == nil {
 		return false, errors.New("Validate sessionIdClient failed: invalid sessionIdClient")
 	}
 
@@ -96,13 +101,17 @@ func (ss *SessionStore) ValidateOrgId(sessionIdClient string, OrgIdClient string
 
 func (ss *SessionStore) ValidateUserId(sessionIdClient string, UserIdClient string) (bool, error) {
 
-	session, err := Get(sessionIdClient)
+	session, err := ss.Get(sessionIdClient)
 	if err != nil {
 		log.Printf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s\n", sessionIdClient, err)
-		return false, errors.New("Validate sessionIdClient failed: invalid sessionIdClient")
+		return false, err
 	}
 
-	if session.Id == UserIdClient {
+	// sessionId invalid
+	if session == nil && err == nil {
+		return false, errors.New("Validate sessionIdClient failed: invalid sessionIdClient")
+	}
+	if session.UserId == UserIdClient {
 		return true, nil
 	} else {
 		return false, errors.New("Validate sessionId failed: OrgId doesn't match")
