@@ -25,7 +25,7 @@ func NewListDeployController(server string) *ListDeployController {
 	}
 	cli, err := client.New(config)
 	if err != nil {
-		log.Printf("Get ListDeployController error. SessionID=%s, error=%s\n", sessionID, err)
+		log.Printf("Get ListDeployController error: SessionId=%s, error=%s\n", sessionId, err)
 	}
 
 	instance = &ListDeployController{cli: cli}
@@ -63,12 +63,12 @@ func (lc *ListDeployController) getPodList() {
 		}
 		newCli, err := client.New(newconfig)
 		if err != nil {
-			log.Printf("Get new restclient error. SessionID=%s, error=%s\n", sessionID, err)
+			log.Printf("Get new restclient error: SessionId=%s, error=%s\n", sessionId, err)
 		}
 
 		podlist, err := newCli.Pods(oid).List(api.ListOptions{})
 		if err != nil {
-			log.Printf("Get podlist error. DataCenter=%s, Organization=%s, SessionID=%s, error=%s\n", v.DcID, oid, sessionID, err)
+			log.Printf("Get podlist error: DataCenter=%s, Organization=%s, SessionId=%s, error=%s\n", v.DcID, oid, sessionId, err)
 		}
 
 		//TODO: make response podlist struct
@@ -76,15 +76,15 @@ func (lc *ListDeployController) getPodList() {
 	}
 }
 
-func (lc *ListDeployController) List() {
+func (lc ListDeployController) Get() {
 
 	sessionIdfromClient := ctx.RequestHeader("sessionId")
 	oid := ctx.Param("oid")
-	if ok, err := validateSession(sessionIdFromClient, uid); ok {
+	if ok, err := session.ValidateUId(sessionIdFromClient, uid); ok {
 		getDcHost()
 		getPodList()
 	} else {
-		log.Printf("Validate Session error. sessionID=%s, error=%s\n", sessionID, err)
+		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionId, err)
 	}
 
 	//TODO: write response json
