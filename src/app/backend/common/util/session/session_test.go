@@ -95,7 +95,7 @@ func Test_SessionStore(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	if ok, err := ss.ValidateUserId("adfadfadfa", s.OrgId); ok {
+	if ok, err := ss.ValidateUserId("adfadfadfa", s.UserId); ok {
 		fmt.Printf("sessionId=%s, userId=%s\n", s.SessionId, s.UserId)
 	} else {
 		fmt.Println(err)
