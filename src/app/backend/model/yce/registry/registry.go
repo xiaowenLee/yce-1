@@ -9,12 +9,12 @@ const (
 
 	REGISTRY_HOST = "registry.docker"
 	REGISTRY_PORT = "5000"
-	REGISTRY_CERT = "domain.cert"
+	REGISTRY_CERT = "domain.crt"
 )
 
 type Image struct {
 	Name string   `json:"name"`
-	Tags []string `json:"list"`
+	Tags []string `json:"tags"`
 }
 
 type Repository struct {
@@ -38,7 +38,7 @@ func NewRegistry(host, port, cert string) *Registry {
 }
 
 func (r *Registry) GetImagesList() (string, error) {
-	images, err := json.MarshalIndent(r.Images, "", " ")
+	images, err := json.Marshal(r.Images)
 
 	if err != nil {
 		log.Printf("GetImageList Error: err=%s\n", err)
@@ -60,7 +60,7 @@ func (r *Registry) DecodeJson(data string) error {
 }
 
 func (r *Registry) EncodeJson() (string, error) {
-	data, err := json.MarshalIndent(r, "", " ")
+	data, err := json.Marshal(r)
 	if err != nil {
 		log.Printf("EncodeJson Error: err=%s\n", err)
 		return "", err
