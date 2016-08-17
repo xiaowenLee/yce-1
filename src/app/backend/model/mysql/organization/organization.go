@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcList" +
+	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM organization WHERE id=?"
 
@@ -212,7 +212,7 @@ func (o *Organization) DecodeJson(data string) {
 func (o *Organization) EncodeJson() string {
 	data, err := json.MarshalIndent(o, "", " ")
 	if err != nil {
-		log.Printf("DecodeJson Erro: err=%s\n", err)
+		log.Printf("EncodeJson Erro: err=%s\n", err)
 		return ""
 	}
 	return string(data)
