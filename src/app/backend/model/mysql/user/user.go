@@ -186,7 +186,7 @@ func (u *User) DecodeJson(data string) error {
 }
 
 func (u *User) EncodeJson() (string, error) {
-	data, err := json.MarshalIndent(u, "", " ")
+	data, err := json.Marshal(u)
 	if err != nil {
 		log.Printf("EncodeJson Error: err=%s\n", err)
 		return "", err

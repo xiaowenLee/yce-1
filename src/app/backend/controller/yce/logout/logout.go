@@ -1,10 +1,10 @@
 package logout
 
 import (
-	"log"
-	"github.com/kataras/iris"
 	mysession "app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
+	"github.com/kataras/iris"
+	"log"
 )
 
 type LogoutController struct {
@@ -12,7 +12,7 @@ type LogoutController struct {
 }
 
 type LogoutParams struct {
-	Username string `json:"username"`
+	Username  string `json:"username"`
 	SessionId string `json:"sessionId"`
 }
 

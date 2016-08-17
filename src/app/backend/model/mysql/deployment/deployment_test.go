@@ -52,5 +52,3 @@ func Test_InsertDeployment(*testing.T) {
 	fmt.Printf("%v\n", dp)
 }
 */
-
-

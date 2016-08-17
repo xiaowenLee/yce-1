@@ -170,7 +170,7 @@ func (r *Rbd) DecodeJson(data string) {
 }
 
 func (r *Rbd) EncodeJson() string {
-	data, err := json.MarshalIndent(r, "", " ")
+	data, err := json.Marshal(r)
 	if err != nil {
 		log.Fatal(err)
 	}

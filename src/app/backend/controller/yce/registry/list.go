@@ -1,36 +1,21 @@
 package registry
 
 import (
-	"log"
-	"io/ioutil"
 	"encoding/json"
 	"github.com/kataras/iris"
+	"io/ioutil"
+	"log"
 
 	myhttps "app/backend/common/util/https"
-	myregistry "app/backend/model/yce/registry"
 	myerror "app/backend/common/yce/error"
+	myregistry "app/backend/model/yce/registry"
 )
 
 type ListRegistryController struct {
 	*iris.Context
-	c *myhttps.HttpsClient
-	BaseUrl string
+	c        *myhttps.HttpsClient
+	BaseUrl  string
 	Registry *myregistry.Registry
-}
-
-func NewListRegistryController() *ListRegistryController {
-
-	lrc := new(ListRegistryController)
-
-	r := myregistry.NewRegistry(myregistry.REGISTRY_HOST, myregistry.REGISTRY_PORT, myregistry.REGISTRY_CERT)
-
-	lrc.c = myhttps.NewHttpsClient(r.Host, r.Port, r.Cert)
-
-	lrc.BaseUrl = "http://" + r.Host + ":" + r.Port
-
-	lrc.Registry = r
-
-	return lrc
 }
 
 // curl --cacert /etc/docker/certs.d/registry.test.com\:5000/domain.crt
@@ -38,9 +23,6 @@ func NewListRegistryController() *ListRegistryController {
 // {
 //   "repositories": [
 //   "busybox",
-//   "capttofu/mysql_master_kubernetes",
-// 	 "capttofu/mysql_slave_kubernetes",
-//   "ceph/daemon",
 //   "ceph/mds"
 //   ]
 // }
@@ -66,6 +48,8 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 		return []string{}, nil
 	}
 
+	// log.Printf("repositories: %s\n", repository.Repositories)
+
 	return repository.Repositories, nil
 
 }
@@ -76,7 +60,8 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, error) {
 
 	// foreech repositories
-	url := lrc.BaseUrl + name + "/tags/list"
+	url := lrc.BaseUrl + "/v2/" + name + "/tags/list"
+	log.Printf("getTagList URL: name=%s, url=%s\n", name, url)
 
 	client := lrc.c.Client
 	resp, err := client.Get(url)
@@ -95,6 +80,8 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 
 	image := new(myregistry.Image)
 
+	// log.Printf("Image: %s\n", string(body))
+
 	err = json.Unmarshal(body, image)
 	if err != nil {
 		log.Printf("ListRegistryController getTagsList json.Unmarshal Error: err=%s\n", err)
@@ -107,7 +94,11 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 // GET /api/v1/registry/images
 func (lrc ListRegistryController) Get() {
 
-	log.Printf("ListRegistryController Get: baseUrl=%s\n", lrc.BaseUrl)
+	// init
+	r := myregistry.NewRegistry(myregistry.REGISTRY_HOST, myregistry.REGISTRY_PORT, myregistry.REGISTRY_CERT)
+	lrc.c = myhttps.NewHttpsClient(r.Host, r.Port, r.Cert)
+	lrc.BaseUrl = "https://" + r.Host + ":" + r.Port
+	lrc.Registry = r
 
 	var ye *myerror.YceError
 
@@ -156,7 +147,5 @@ func (lrc ListRegistryController) Get() {
 	js, _ := ye.EncodeJson()
 	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 
-	log.Printf("%v\n", js)
 	lrc.Write(js)
-
 }

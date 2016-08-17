@@ -7,7 +7,6 @@ import (
 	"fmt"
 )
 
-
 func Test_QueryQuotaById(*testing.T) {
 	fmt.Println("Test_QueryQuotaById")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)

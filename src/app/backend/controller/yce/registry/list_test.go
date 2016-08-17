@@ -11,5 +11,5 @@ func Test_ListRegistryController_Get(*testing.T) {
 
 	fmt.Printf("%v\n", lrc)
 	// fmt.Printf("%s\n", lrc.Get())
-	lrc.Get()
+	// lrc.Get()
 }

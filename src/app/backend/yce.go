@@ -2,13 +2,13 @@ package main
 
 import (
 	"app/backend/common/util/mysql"
+	mysession "app/backend/common/util/session"
 	mylogin "app/backend/controller/yce/login"
 	"github.com/kataras/iris"
-	// mylogout "app/backend/controller/yce/logout"
-	mysession "app/backend/common/util/session"
-	mydeploy "app/backend/controller/yce/deploy"
+	// mydeploy "app/backend/controller/yce/deploy"
 	mylogout "app/backend/controller/yce/logout"
 	mynavList "app/backend/controller/yce/navlist"
+	myregistry "app/backend/controller/yce/registry"
 )
 
 func main() {
@@ -21,21 +21,16 @@ func main() {
 	login := new(mylogin.LoginController)
 	logout := new(mylogout.LogoutController)
 	nav := new(mynavList.NavListController)
-	listdeploy := new(mydeploy.ListDeployController)
-
-	iris.StaticServe("../frontend", "/static")
+	// listdeploy := new(mydeploy.ListDeployController)
+	registry := new(myregistry.ListRegistryController)
 
 	iris.API("/api/v1/users/login", *login)
 	iris.API("/api/v1/navlist", *nav)
-	iris.API("/api/v1/organization/:id/deployments", *listdeploy)
-
-	// iris.Get("/api/v1/organization/:oid/deployments/:id", deploy.Describe)
-	// iris.Get("/api/v1/organization/:oid/deployments", deploy.List)
-	// iris.Post("/api/v1/deployments", deploy.Create)
-
-	// iris.API("/api/v1/users/:email/logout", *logout)
+	// iris.API("/api/v1/organization/:id/deployments", *listdeploy)
 	iris.API("/api/v1/users/logout", *logout)
+	iris.API("/api/v1/registry/images", *registry)
 
+	iris.StaticServe("../frontend", "/static")
 	iris.Listen(":8080")
 
 }

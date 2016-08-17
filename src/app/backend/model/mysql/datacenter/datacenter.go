@@ -182,7 +182,7 @@ func (dc *DataCenter) DecodeJson(data string) {
 }
 
 func (dc *DataCenter) EncodeJson() string {
-	data, err := json.MarshalIndent(dc, "", " ")
+	data, err := json.Marshal(dc)
 	if err != nil {
 		log.Printf("EncdoeJson Error: err=%s\n", err)
 		return ""

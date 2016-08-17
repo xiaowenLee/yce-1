@@ -11,7 +11,6 @@ func Test_NewDataCenter(*testing.T) {
 	fmt.Printf("%v\n", dc)
 }
 
-
 func Test_QueryDataCenterById(*testing.T) {
 	fmt.Println("Test_QueryDataCenter")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
@@ -69,4 +68,4 @@ func Test_InsertDataCenter(t *testing.T) {
 	dc := NewDataCenter("dianxin", "10.149.149.3", "", "add dianxin", 8080, 2)
 	dc.InsertDataCenter(2)
 }
- */
+*/

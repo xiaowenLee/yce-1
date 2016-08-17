@@ -1,8 +1,8 @@
 package error
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func Test_NewYceError(*testing.T) {
@@ -19,7 +19,7 @@ func Test_EncodeJson_DecodeJson(t *testing.T) {
 
 	// Decode
 	e := new(YceError)
-	err :=  e.DecodeJson(json)
+	err := e.DecodeJson(json)
 
 	if err != nil {
 		t.Error(err)

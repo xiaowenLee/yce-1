@@ -31,7 +31,7 @@ func (ye *YceError) DecodeJson(data string) error {
 }
 
 func (ye *YceError) EncodeJson() (string, error) {
-	data, err := json.MarshalIndent(ye, "", " ")
+	data, err := json.Marshal(ye)
 
 	if err != nil {
 		log.Fatal(err)
