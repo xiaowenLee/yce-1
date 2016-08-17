@@ -5,22 +5,26 @@ import (
 	"crypto/x509"
 	// "log"
 	"net/http"
+	"fmt"
 )
 
 type HttpsClient struct {
 	Host   string `json:"host"`
-	Port   int32  `json:"port"`
-	pool   x509.CertPool
-	client *http.Client
+	Port   string  `json:"port"`
+	pool   *x509.CertPool
+	Client *http.Client
 }
 
-func NewHttpsClient(host string, port int32, cert string) *HttpsClient {
+func NewHttpsClient(host, port, cert string) *HttpsClient {
 
 	https := &HttpsClient{
 		Host: host,
 		Port: port,
+		pool: x509.NewCertPool(),
 	}
 
+	fmt.Printf("%v\n", https.pool)
+	// https.pool = new(x509.CertPool)
 	https.pool.AppendCertsFromPEM([]byte(cert))
 
 
@@ -29,7 +33,7 @@ func NewHttpsClient(host string, port int32, cert string) *HttpsClient {
 		DisableCompression: true,
 	}
 
-	https.client = &http.Client{Transport: tr}
+	https.Client = &http.Client{Transport: tr}
 
 	return https
 }

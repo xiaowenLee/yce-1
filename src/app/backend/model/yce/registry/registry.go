@@ -50,6 +50,10 @@ type Image struct {
 	Tags []string `json:"list"`
 }
 
+type Repository struct {
+	Repositories []string `json:"repositories"`
+}
+
 type Registry struct {
 	Host   string `json:"host"`
 	Port   string `json:"port"`
