@@ -6,7 +6,6 @@ import (
 )
 
 const (
-
 	REGISTRY_HOST = "registry.docker"
 	REGISTRY_PORT = "5000"
 	REGISTRY_CERT = "domain.crt"
@@ -22,15 +21,15 @@ type Repository struct {
 }
 
 type Registry struct {
-	Host   string `json:"host"`
-	Port   string `json:"port"`
-	Cert   string `json:"cert"`
+	Host   string  `json:"host"`
+	Port   string  `json:"port"`
+	Cert   string  `json:"cert"`
 	Images []Image `json:"images"`
 }
 
 func NewRegistry(host, port, cert string) *Registry {
 
-	return &Registry {
+	return &Registry{
 		Host: host,
 		Port: port,
 		Cert: cert,

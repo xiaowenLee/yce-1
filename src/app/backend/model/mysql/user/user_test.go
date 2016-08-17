@@ -1,10 +1,10 @@
 package user
 
 import (
-	"testing"
-	mysql "app/backend/common/util/mysql"
 	encrypt "app/backend/common/util/encrypt"
+	mysql "app/backend/common/util/mysql"
 	"fmt"
+	"testing"
 )
 
 func Test_NewUser(*testing.T) {
@@ -14,7 +14,6 @@ func Test_NewUser(*testing.T) {
 	fmt.Printf("User CreateAt: %s\n", user.CreatedAt)
 	fmt.Printf("User ModifiedAt: %s\n", user.ModifiedAt)
 }
-
 
 func Test_GetUserByNameAndPassword(t *testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
@@ -29,15 +28,15 @@ func Test_GetUserByNameAndPassword(t *testing.T) {
 	fmt.Printf("%v\n", user)
 
 	/*
-	// not exists
-	u := new(User)
-	err := user.QueryUserByNameAndPassword("jingru.zhang", "123456")
+		// not exists
+		u := new(User)
+		err := user.QueryUserByNameAndPassword("jingru.zhang", "123456")
 
-	if err != nil {
-		t.Error(err)
-	}
+		if err != nil {
+			t.Error(err)
+		}
 
-	fmt.Printf("%v\n", u)
+		fmt.Printf("%v\n", u)
 	*/
 
 }
@@ -103,5 +102,3 @@ func Test_UpdateUser(*testing.T) {
 	u.UpdateUser(2)
 }
 */
-
-

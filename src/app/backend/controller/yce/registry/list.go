@@ -1,20 +1,20 @@
 package registry
 
 import (
-	"log"
-	"io/ioutil"
 	"encoding/json"
 	"github.com/kataras/iris"
+	"io/ioutil"
+	"log"
 
 	myhttps "app/backend/common/util/https"
-	myregistry "app/backend/model/yce/registry"
 	myerror "app/backend/common/yce/error"
+	myregistry "app/backend/model/yce/registry"
 )
 
 type ListRegistryController struct {
 	*iris.Context
-	c *myhttps.HttpsClient
-	BaseUrl string
+	c        *myhttps.HttpsClient
+	BaseUrl  string
 	Registry *myregistry.Registry
 }
 

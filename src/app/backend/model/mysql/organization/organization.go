@@ -210,7 +210,7 @@ func (o *Organization) DecodeJson(data string) {
 }
 
 func (o *Organization) EncodeJson() string {
-	data, err := json.MarshalIndent(o, "", " ")
+	data, err := json.Marshal(o)
 	if err != nil {
 		log.Printf("DecodeJson Erro: err=%s\n", err)
 		return ""

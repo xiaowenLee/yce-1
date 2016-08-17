@@ -1,13 +1,13 @@
 package login
 
 import (
-	"log"
-	"strconv"
-	"github.com/kataras/iris"
 	"app/backend/common/util/encrypt"
-	myuser "app/backend/model/mysql/user"
 	mysession "app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
+	myuser "app/backend/model/mysql/user"
+	"github.com/kataras/iris"
+	"log"
+	"strconv"
 )
 
 type LoginController struct {
@@ -18,7 +18,6 @@ type LoginParams struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
-
 
 // Check username && password
 func (lc *LoginController) check(name, password string) (*myuser.User, *myerror.YceError) {
@@ -92,7 +91,7 @@ func (lc LoginController) Post() {
 	// lc.SetCookieKV("sessionId", session.SessionId)
 
 	// Auth pass
-	sessionStr, _:= session.EncodeJson()
+	sessionStr, _ := session.EncodeJson()
 
 	ye = myerror.NewYceError(0, "OK", sessionStr)
 

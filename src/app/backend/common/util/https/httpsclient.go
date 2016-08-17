@@ -3,14 +3,14 @@ package https
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"net/http"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 )
 
 type HttpsClient struct {
 	Host   string `json:"host"`
-	Port   string  `json:"port"`
+	Port   string `json:"port"`
 	pool   *x509.CertPool
 	Client *http.Client
 }
@@ -32,7 +32,7 @@ func NewHttpsClient(host, port, cert string) *HttpsClient {
 	https.pool.AppendCertsFromPEM(caCrt)
 
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{RootCAs: https.pool},
+		TLSClientConfig:    &tls.Config{RootCAs: https.pool},
 		DisableCompression: true,
 	}
 

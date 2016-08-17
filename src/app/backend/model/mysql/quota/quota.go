@@ -181,7 +181,7 @@ func (q *Quota) DecodeJson(data string) {
 }
 
 func (q *Quota) EncodeJson() string {
-	data, err := json.MarshalIndent(q, "", " ")
+	data, err := json.Marshal(q)
 	if err != nil {
 		log.Println("DecodeJson Error: err=%s\n", err)
 		return ""

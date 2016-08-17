@@ -1,9 +1,9 @@
 package redigo
 
 import (
-	"testing"
 	"fmt"
 	redis "github.com/garyburd/redigo/redis"
+	"testing"
 )
 
 func Test_NewRedisClient(*testing.T) {

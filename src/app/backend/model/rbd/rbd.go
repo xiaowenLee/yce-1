@@ -245,7 +245,7 @@ func (rb *RbdBlock) DecodeJson(data string) {
 }
 
 func (rb *RbdBlock) EncodeJson() string {
-	data, err := json.MarshalIndent(rb, "", " ")
+	data, err := json.Marshal(rb)
 	if err != nil {
 		log.Fatal(err)
 		panic(err.Error())
