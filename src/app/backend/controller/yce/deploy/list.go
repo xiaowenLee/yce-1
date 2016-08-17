@@ -3,7 +3,7 @@ package deploy
 import (
 	hc "app/backend/common/util/http/httpclient"
 	session "app/backend/common/util/session"
-	organization "app/backend/model/mysql/organization"
+	organization "app/backend/common/yce/organization"
 	deploy "app/backend/model/yce/deploy"
 	"fmt"
 	"github.com/kataras/iris"
@@ -34,18 +34,18 @@ func NewListDeployController(server string) *ListDeployController {
 }
 
 func (lc *ListDeployController) getDcHost(orgId string) ([]string, error) {
-	//TODO: get Datacenter Host from MySQL
+	dcList, err := organization.DcList(orgId)
+	if err != nil {
+		log.Printf("Get dcList error: orgId=%s, error=%s\n", orgId, err)
+		return nil, err
+	}
 
-	// example below
-	server := make([]string, 1)
-	server[0] = "http://172.21.1.11:8080"
-
-	return server, nil
+	return dcList, nil
 }
 
-func (lc *ListDeployController) getPodList(server []string, orgId string) (api.PodList, error) {
+func (lc *ListDeployController) getPodList(dcList []string, orgId string) (api.PodList, error) {
 
-	for _, v := range server {
+	for _, v := range dcList {
 		newconfig := &restclient.Config{
 			Host: Server,
 		}

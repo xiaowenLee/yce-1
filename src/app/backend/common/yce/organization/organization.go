@@ -2,6 +2,7 @@ package organization
 
 import (
 	mysql "app/backend/common/util/mysql"
+	"app/backend/model/mysql/datacenter"
 	"app/backend/model/mysql/organization"
 	"encoding/json"
 	"log"
@@ -12,7 +13,7 @@ type dcList struct {
 	DcList []string `json:"dcList"`
 }
 
-func DcList(OrgId string) ([]string, error) {
+func DcHost(OrgId string) ([]string, error) {
 	mysqlclient := mysql.MysqlInstance()
 	mysqlclient.Open()
 
@@ -35,7 +36,22 @@ func DcList(OrgId string) ([]string, error) {
 		return nil, err
 	}
 
-	log.Printf("DcList: dclist=%s\n", dclist)
+	mydatacenter := new(datacenter.DataCenter)
 
-	return dclist.DcList, nil
+	num := len(dclist.DcList)
+	server := make([]string, num)
+
+	for i := 0; i < num; i++ {
+		id, err := strconv.Atoi(dclist.DcList[i])
+		if err != nil {
+			log.Printf("Strconv.Atoi dcList error: OrgId=%s, error=%s\n", OrgId, err)
+		}
+		err = mydatacenter.QueryDataCenterById(int32(id))
+		if err != nil {
+			log.Printf("Get dcHost error: OrgID=%s, error=%s\n", OrgId, err)
+		}
+		server[i] = mydatacenter.Host + ":" + strconv.Itoa(int(mydatacenter.Port))
+	}
+
+	return server, nil
 }
