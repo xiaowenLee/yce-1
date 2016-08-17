@@ -2,6 +2,7 @@ package deploy
 
 import (
 	hc "app/backend/common/util/http/httpclient"
+	session "app/backend/common/util/session"
 	deploy "app/backend/model/yce/deploy"
 	"fmt"
 	"github.com/kataras/iris"
@@ -13,14 +14,9 @@ import (
 	"strings"
 )
 
-const (
-	SERVER string = "http://172.21.1.11:8080"
-)
-
-var instance *ListDeployController
-
 type ListDeployController struct {
-	cli *client.Client
+	cli  *client.Client
+	iris *iris.Context
 }
 
 func NewListDeployController(server string) *ListDeployController {
@@ -36,14 +32,20 @@ func NewListDeployController(server string) *ListDeployController {
 	return instance
 }
 
-func (lc *ListDeployController) List(ctx *iris.Context) {
-	//TODO: ValidateSession()
-	oid := ctx.Param("oid")
+func validateSession(client, uid) (ok bool, err error) {
+	//sessionIdfromClient := ctx.RequestHeader("sessionId")
+	//get sessionId from Redis refer to uid
+	sessionId := Redis.Get(uid)
+}
 
+func (lc *ListDeployController) getDcHost() {
 	//TODO: get Datacenter Host from MySQL
 	//e.g.
 	dc := make([]deploy.AppDc, 1)
 	dc[0].DcID = 1
+}
+
+func (lc *ListDeployController) getPodList() {
 
 	var Server string
 	for _, v := range dc {
@@ -71,6 +73,18 @@ func (lc *ListDeployController) List(ctx *iris.Context) {
 
 		//TODO: make response podlist struct
 		//NOTE: time convertion, dc Chinese convertion
+	}
+}
+
+func (lc *ListDeployController) List() {
+
+	sessionIdfromClient := ctx.RequestHeader("sessionId")
+	oid := ctx.Param("oid")
+	if ok, err := validateSession(sessionIdFromClient, uid); ok {
+		getDcHost()
+		getPodList()
+	} else {
+		log.Printf("Validate Session error. sessionID=%s, error=%s\n", sessionID, err)
 	}
 
 	//TODO: write response json
