@@ -71,12 +71,51 @@ func SessionStoreInstance() *SessionStore {
 }
 
 func NewSessionStore() *SessionStore {
-	once.Do(func(){
+	once.Do(func() {
 		instance = &SessionStore{
 			pool: redigo.NewRedisClient(),
 		}
 	})
 	return instance
+}
+
+func (ss *SessionStore) ValidateOrgId(sessionIdClient string, OrgIdClient string) (bool, error) {
+	session, err := ss.Get(sessionIdClient)
+	if err != nil {
+		log.Printf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s\n", sessionIdClient, err)
+		return false, err
+	}
+
+	// sessionId invalid
+	if session == nil && err == nil {
+		return false, errors.New("Validate sessionIdClient failed: invalid sessionIdClient")
+	}
+
+	if session.OrgId == OrgIdClient {
+		return true, nil
+	} else {
+		return false, errors.New("Validate sessionId failed: OrgId doesn't match")
+	}
+
+}
+
+func (ss *SessionStore) ValidateUserId(sessionIdClient string, UserIdClient string) (bool, error) {
+
+	session, err := ss.Get(sessionIdClient)
+	if err != nil {
+		log.Printf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s\n", sessionIdClient, err)
+		return false, err
+	}
+
+	// sessionId invalid
+	if session == nil && err == nil {
+		return false, errors.New("Validate sessionIdClient failed: invalid sessionIdClient")
+	}
+	if session.UserId == UserIdClient {
+		return true, nil
+	} else {
+		return false, errors.New("Validate sessionId failed: OrgId doesn't match")
+	}
 }
 
 func (ss *SessionStore) Get(sessionId string) (*Session, error) {

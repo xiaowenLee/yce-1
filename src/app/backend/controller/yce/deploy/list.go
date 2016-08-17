@@ -2,6 +2,7 @@ package deploy
 
 import (
 	hc "app/backend/common/util/http/httpclient"
+	session "app/backend/common/util/session"
 	deploy "app/backend/model/yce/deploy"
 	"fmt"
 	"github.com/kataras/iris"
@@ -13,14 +14,9 @@ import (
 	"strings"
 )
 
-const (
-	SERVER string = "http://172.21.1.11:8080"
-)
-
-var instance *ListDeployController
-
 type ListDeployController struct {
-	cli *client.Client
+	cli  *client.Client
+	iris *iris.Context
 }
 
 func NewListDeployController(server string) *ListDeployController {
@@ -29,21 +25,27 @@ func NewListDeployController(server string) *ListDeployController {
 	}
 	cli, err := client.New(config)
 	if err != nil {
-		log.Printf("Get ListDeployController error. SessionID=%s, error=%s\n", sessionID, err)
+		log.Printf("Get ListDeployController error: SessionId=%s, error=%s\n", sessionId, err)
 	}
 
 	instance = &ListDeployController{cli: cli}
 	return instance
 }
 
-func (lc *ListDeployController) List(ctx *iris.Context) {
-	//TODO: ValidateSession()
-	oid := ctx.Param("oid")
+func validateSession(client, uid) (ok bool, err error) {
+	//sessionIdfromClient := ctx.RequestHeader("sessionId")
+	//get sessionId from Redis refer to uid
+	sessionId := Redis.Get(uid)
+}
 
+func (lc *ListDeployController) getDcHost() {
 	//TODO: get Datacenter Host from MySQL
 	//e.g.
 	dc := make([]deploy.AppDc, 1)
 	dc[0].DcID = 1
+}
+
+func (lc *ListDeployController) getPodList() {
 
 	var Server string
 	for _, v := range dc {
@@ -61,16 +63,28 @@ func (lc *ListDeployController) List(ctx *iris.Context) {
 		}
 		newCli, err := client.New(newconfig)
 		if err != nil {
-			log.Printf("Get new restclient error. SessionID=%s, error=%s\n", sessionID, err)
+			log.Printf("Get new restclient error: SessionId=%s, error=%s\n", sessionId, err)
 		}
 
 		podlist, err := newCli.Pods(oid).List(api.ListOptions{})
 		if err != nil {
-			log.Printf("Get podlist error. DataCenter=%s, Organization=%s, SessionID=%s, error=%s\n", v.DcID, oid, sessionID, err)
+			log.Printf("Get podlist error: DataCenter=%s, Organization=%s, SessionId=%s, error=%s\n", v.DcID, oid, sessionId, err)
 		}
 
 		//TODO: make response podlist struct
 		//NOTE: time convertion, dc Chinese convertion
+	}
+}
+
+func (lc ListDeployController) Get() {
+
+	sessionIdfromClient := ctx.RequestHeader("sessionId")
+	oid := ctx.Param("oid")
+	if ok, err := session.ValidateUId(sessionIdFromClient, uid); ok {
+		getDcHost()
+		getPodList()
+	} else {
+		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionId, err)
 	}
 
 	//TODO: write response json

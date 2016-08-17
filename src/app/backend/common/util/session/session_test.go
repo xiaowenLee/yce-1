@@ -1,8 +1,8 @@
 package session
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func Test_NewSession(*testing.T) {
@@ -46,12 +46,64 @@ func Test_SessionStore(t *testing.T) {
 	}
 
 	/*
-	// Delete
-	err = ss.Delete(s.SessionId)
+		// Delete
+		err = ss.Delete(s.SessionId)
 
-	if err != nil {
-		t.Error(err)
-	}
+		if err != nil {
+			t.Error(err)
+		}
 	*/
 
+	//ValidateOrgId
+	if ok, err := ss.ValidateOrgId(s.SessionId, s.OrgId); ok {
+		fmt.Printf("sessionId=%s, orgId=%s\n", s.SessionId, s.OrgId)
+	} else {
+		fmt.Println(err)
+		t.Errorf("Error: sessionId=%s, orgId=%s\n", s.SessionId, s.OrgId)
+	}
+
+	if ok, err := ss.ValidateOrgId(s.SessionId, "456"); ok {
+		fmt.Printf("sessionId=%s, orgId=%s\n", s.SessionId, s.OrgId)
+	} else {
+		fmt.Println(err)
+	}
+
+	if ok, err := ss.ValidateOrgId("adfadfadfa", s.OrgId); ok {
+		fmt.Printf("sessionId=%s, orgId=%s\n", s.SessionId, s.OrgId)
+	} else {
+		fmt.Println(err)
+	}
+
+	if ok, err := ss.ValidateOrgId("adfadfad", "456"); ok {
+		fmt.Printf("sessionId=%s, orgId=%s\n", s.SessionId, s.OrgId)
+	} else {
+		fmt.Println(err)
+	}
+
+	// ValidateUserId
+
+	if ok, err := ss.ValidateUserId(s.SessionId, s.UserId); ok {
+		fmt.Printf("sessionId=%s, userId=%s\n", s.SessionId, s.UserId)
+	} else {
+		fmt.Println(err)
+		t.Errorf("Error: sessionId=%s, userId=%s\n", s.SessionId, s.UserId)
+	}
+
+	if ok, err := ss.ValidateUserId(s.SessionId, "456"); ok {
+		fmt.Printf("sessionId=%s, userId=%s\n", s.SessionId, s.UserId)
+	} else {
+		fmt.Println(err)
+	}
+
+	if ok, err := ss.ValidateUserId("adfadfadfa", s.OrgId); ok {
+		fmt.Printf("sessionId=%s, userId=%s\n", s.SessionId, s.UserId)
+	} else {
+		fmt.Println(err)
+	}
+
+	if ok, err := ss.ValidateUserId("adfadfad", "456"); ok {
+		fmt.Printf("sessionId=%s, userId=%s\n", s.SessionId, s.UserId)
+	} else {
+		fmt.Println(err)
+	}
 }
