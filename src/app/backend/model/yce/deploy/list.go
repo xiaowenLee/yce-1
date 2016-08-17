@@ -4,8 +4,15 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 )
 
-type AppList struct {
-	code    float64                `json:"code"`
-	message []string               `json:"message"`
-	data    map[string]api.PodList `json:"data"`
+/*
+type DeployList struct {
+	Code    float64          `json:"code"`
+	Message []string         `json:"message"`
+	Data    []DeployListData `json:"data"`
 }
+
+type DeployListData struct {
+	DcId    string      `json:"dcId"`
+	PodList api.PodList `json:"podList"`
+}
+*/
