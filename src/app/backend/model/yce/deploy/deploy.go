@@ -21,6 +21,7 @@ type DcList struct {
 
 
 type Data struct {
-	DataCenter string      `json:"dataCenter"`
+	DcId int32 `json:"dcId"`
+	DcName string      `json:"dcName"`
 	PodList    api.PodList `json:"podList"`
 }

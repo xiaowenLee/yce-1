@@ -39,7 +39,7 @@ func (ldc *ListDeployController)getDcName() (name []string, err error) {
 	return name, nil
 }
 
-func (ldc *ListDeployController) getPodList(dcName []string, dcHost []string, orgId string) (list string, err error) {
+func (ldc *ListDeployController) getPodList(dcId []int32, dcName []string, dcHost []string, orgId string) (list string, err error) {
 
 	tmpdata := make([]deploy.Data, len(dcHost))
 
@@ -59,7 +59,8 @@ func (ldc *ListDeployController) getPodList(dcName []string, dcHost []string, or
 			return "", err
 		}
 
-		tmpdata[i].DataCenter = dcName[i]
+		tmpdata[i].DcName = dcName[i]
+		tmpdata[i].DcId = dcId[i]
 		tmpdata[i].PodList = *podlist
 	}
 
@@ -112,11 +113,11 @@ func (ldc ListDeployController) Get() {
 	}
 
 	orgName := ldc.org.Name
+
 	ss := session.SessionStoreInstance()
 
 	if ok, err := ss.ValidateOrgId(sessionIdClient, orgId); ok {
 		server, err := ldc.getDcHost()
-		//TODO: get datacenter host
 		if err != nil {
 			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
 			ye := myerror.NewYceError(1, "ERR", "请求失败")
@@ -126,7 +127,6 @@ func (ldc ListDeployController) Get() {
 			return
 		}
 
-		//TODO: get datacenter name
 		name, err := ldc.getDcName()
 		if err != nil {
 			log.Printf("Get Datacenter Name error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
@@ -137,7 +137,13 @@ func (ldc ListDeployController) Get() {
 			return
 		}
 
-		podlist, err := ldc.getPodList(name, server, orgName)
+		id := make([]int32, len(ldc.dclist))
+		for i := 0; i < len(ldc.dclist); i++ {
+			id[i] = ldc.dclist[i].Id
+		}
+
+
+		podlist, err := ldc.getPodList(id, name, server, orgName)
 		if err != nil {
 			log.Printf("Get Podlist error: sessionId=%s, orgId=%s, error=%s\n", sessionIdClient, orgId, err)
 			ye := myerror.NewYceError(1, "ERR", "请求失败")
