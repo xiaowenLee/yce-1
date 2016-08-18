@@ -1,10 +1,9 @@
 package organization
 
 import (
-	mysql "app/backend/common/util/mysql"
-	"app/backend/model/mysql/datacenter"
+	// mysql "app/backend/common/util/mysql"
+	// "app/backend/model/mysql/datacenter"
 	"app/backend/model/mysql/organization"
-	"encoding/json"
 	"log"
 	"strconv"
 )

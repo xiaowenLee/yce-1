@@ -50,21 +50,21 @@
                                         <th class="sorting_asc" tabindex="0" aria-controls="example" rowspan="1" colspan="1">应用名称</th>
                                         <th class="sorting" tabindex="0" aria-controls="example" rowspan="1" colspan="1">标签组合</th>
                                         <th class="sorting" tabindex="0" aria-controls="example" rowspan="1" colspan="1">数据中心</th>
-                                        <th class="sorting" tabindex="0" aria-controls="example" rowspan="1" colspan="1">副本个数</th>
-                                        <th class="sorting" tabindex="0" aria-controls="example" rowspan="1" colspan="1">运行时长</th>
+                                        <th class="sorting" tabindex="0" aria-controls="example" rowspan="1" colspan="1">运行状态</th>
+                                        <th class="sorting" tabindex="0" aria-controls="example" rowspan="1" colspan="1">创建时间</th>
                                         <th class="sorting" tabindex="0" aria-controls="example" rowspan="1" colspan="1">操作</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
 
-                                    <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in appList">
-                                        <td>{{$index+1}}</td>
-                                        <td class="sorting_1">{{app.name}}</td>
-                                        <td>app:{{app.labels}}</td>
-                                        <td>{{app.dataCenter}}</td>
-                                        <td>{{app.replicas}}</td>
-                                        <td>{{app.time}}</td>
+                                    <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in a">
+                            td>{{$index+1}}</td>
+                                        <td class="sorting_1">{{app.podList.items.metadata.name}}</td>
+                                        <td>app:{{app.podList.items.metadata.labels}}</td>
+                                        <td>{{app.dcName}}</td>
+                                        <td>{{app.podList.items.status.phase}}</td>
+                                        <td>{{app.podList.items.metadata.creationTimestamp}}</td>
                                         <td>
                                             <span class="apply-leave" ng-mouseleave="overs($index)">
                                                 <p ng-click="more($index)">更多</p>
