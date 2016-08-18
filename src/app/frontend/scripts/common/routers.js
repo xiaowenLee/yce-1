@@ -15,10 +15,13 @@ define([
 			app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
 				$urlRouterProvider.otherwise("/login");
 
+				$httpProvider.defaults.headers.get = {'sessionId': $sessionId}
+				$httpProvider.defaults.headers.post = {'sessionId': $sessionId}
+				$httpProvider.defaults.headers.delete = {'sessionId': $sessionId}
+
 				$stateProvider
 					.state('login', mainRouter.login)
 					.state('main', mainRouter.main)
-              //      .state('cancel', mainRouter.cancel)
 					.state('main.dashboard', dashboardRouter.dashboard)
 					.state('main.appManage', appManageRouter.appManage)
 					.state('main.appManageDeployment', deploymentRouter.deployment)

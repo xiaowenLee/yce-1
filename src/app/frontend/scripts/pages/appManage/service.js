@@ -9,8 +9,9 @@ define([
 		apis.getAppList = function(param, success, error, $sessionStorage){
 		    var orgId = param.orgId
 		    var userId = param.userId
-            // console.log("appManage service: userId=" + userId + ", orgId=" + orgId)
-			// return utils.http($http, 'get', '/api/v1/organizations/' + orgId + '/users/' + userId + '/deployments', param, success, error);
+		    var sessionId = param.sessionId
+            console.log("appManage service: userId=" + userId + ", orgId=" + orgId + ", sessionId: " + sessionId)
+			return utils.http($http, 'get', '/api/v1/organizations/' + orgId + '/users/' + userId + '/deployments', param, success, error);
 		};
 		return apis;
 	};	

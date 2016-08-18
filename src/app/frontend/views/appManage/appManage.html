@@ -58,8 +58,8 @@
 
                                 <tbody>
 
-                                    <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in a">
-                            td>{{$index+1}}</td>
+                                    <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in appList">
+                                        <td>{{$index+1}}</td>
                                         <td class="sorting_1">{{app.podList.items.metadata.name}}</td>
                                         <td>app:{{app.podList.items.metadata.labels}}</td>
                                         <td>{{app.dcName}}</td>
