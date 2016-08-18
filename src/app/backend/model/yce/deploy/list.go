@@ -1,6 +1,8 @@
 package deploy
 
-import ()
+import (
+	"k8s.io/kubernetes/pkg/api"
+)
 
 /*
 type DeployList struct {
@@ -14,3 +16,8 @@ type DeployListData struct {
 	PodList api.PodList `json:"podList"`
 }
 */
+
+type Data struct {
+	DataCenter string      `json:"dataCenter"`
+	PodList    api.PodList `json:"podList"`
+}

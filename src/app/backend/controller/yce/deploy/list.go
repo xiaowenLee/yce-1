@@ -4,6 +4,7 @@ import (
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	organization "app/backend/common/yce/organization"
+	deploy "app/backend/model/yce/deploy"
 	"encoding/json"
 	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/api"
@@ -31,20 +32,32 @@ func NewListDeployController(server string) *ListDeployController {
 }
 
 func (ldc *ListDeployController) getDcHost(orgId string) ([]string, error) {
+
 	dcHost, err := organization.DcHost(orgId)
 	if err != nil {
-		log.Printf("Get dcList error: orgId=%s, error=%s\n", orgId, err)
+		log.Printf("Get dcHost error: orgId=%s, error=%s\n", orgId, err)
 		return nil, err
 	}
 
 	return dcHost, nil
 }
 
-func (ldc *ListDeployController) getPodList(dcHost []string, orgId string) (list string, err error) {
+func (ldc *ListDeployController) getDcName(orgId string) ([]string, error) {
+	dcName, err := organization.DcName(orgId)
+	if err != nil {
+		log.Printf("Get dcName error: orgId=%s, error=%s\n", orgId, err)
+		return nil, err
+	}
+	return dcName, nil
+}
 
-	for _, v := range dcHost {
+func (ldc *ListDeployController) getPodList(dcName []string, dcHost []string, orgId string) (list string, err error) {
+
+	tmpdata := make([]deploy.Data, len(dcHost))
+
+	for i := 0; i < len(dcHost); i++ {
 		newconfig := &restclient.Config{
-			Host: v,
+			Host: dcHost[i],
 		}
 		newCli, err := client.New(newconfig)
 		if err != nil {
@@ -54,17 +67,20 @@ func (ldc *ListDeployController) getPodList(dcHost []string, orgId string) (list
 
 		podlist, err := newCli.Pods(orgId).List(api.ListOptions{})
 		if err != nil {
-			log.Printf("Get podlist error: server=%s, orgId=%s, error=%s\n", v, orgId, err)
+			log.Printf("Get podlist error: server=%s, orgId=%s, error=%s\n", dcHost[i], orgId, err)
 			return "", err
 		}
 
-		podListJson, err := json.Marshal(podlist)
-		if err != nil {
-			log.Printf("Get podListJson error: server=%s, orgId=%s, error=%s\n", v, orgId, err)
-		}
-
-		list += string(podListJson)
+		tmpdata[i].DataCenter = dcName[i]
+		tmpdata[i].PodList = *podlist
 	}
+
+	podListJson, err := json.Marshal(tmpdata)
+	if err != nil {
+		log.Printf("Get podListJson error: orgId=%s, error=%s\n", orgId, err)
+	}
+
+	list = string(podListJson)
 	return list, nil
 }
 
@@ -85,10 +101,16 @@ func (ldc ListDeployController) Get() {
 			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
 		}
 
-		podlist, err := ldc.getPodList(server, orgName)
+		name, err := ldc.getDcName(orgId)
+		if err != nil {
+			log.Printf("Get Datacenter Name error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
+		}
+
+		podlist, err := ldc.getPodList(name, server, orgName)
 		if err != nil {
 			log.Printf("Get Podlist error: sessionId=%s, orgId=%s, error=%s\n", sessionIdClient, orgId, err)
 		}
+
 		ye := myerror.NewYceError(0, "OK", podlist)
 		json, _ := ye.EncodeJson()
 

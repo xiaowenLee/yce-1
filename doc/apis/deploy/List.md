@@ -4,13 +4,11 @@
 用户点击应用列表时请求后台数据:
 
 
-*请求的方法及URL: GET /api/v1/organizations/{orgName}/users/{uid}/deployments*
+*之前设计为：请求的方法及URL: GET /api/v1/organizations/{orgName}/users/{uid}/deployments*
 
 暂时先用GET /api/v1/organizations/{orgName}/deployments
 
-请求头中包含: Authorization: ${sessionId}
-
-其中: uid, orgId, sessionId从LocalStorage里面获取后
+请求头中包含: Authorization: ${sessionId}, 以及： uid, orgId, 均从LocalStorage里面获取
 
 返回值:
 
