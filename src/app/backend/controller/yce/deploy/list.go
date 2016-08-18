@@ -4,6 +4,8 @@ import (
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	organization "app/backend/common/yce/organization"
+	datacenter "app/backend/common/yce/datacenter"
+	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
 	deploy "app/backend/model/yce/deploy"
 	"encoding/json"
@@ -12,31 +14,29 @@ import (
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
+	"strconv"
 )
 
 type ListDeployController struct {
 	*iris.Context
 	org *myorganization.Organization
+	dclist []mydatacenter.DataCenter
 }
 
-func (ldc *ListDeployController) getDcHost(orgId string) ([]string, error) {
-
-	dcHost, err := organization.DcHost(orgId)
-	if err != nil {
-		log.Printf("Get dcHost error: orgId=%s, error=%s\n", orgId, err)
-		return nil, err
+func (ldc *ListDeployController)getDcHost() (server []string, err error)  {
+	server = make([]string, len(ldc.dclist))
+	for i := 0; i < len(server); i++ {
+		server[i] = ldc.dclist[i].Host + ":" + strconv.Itoa(int(ldc.dclist[i].Port))
 	}
-
-	return dcHost, nil
+	return server, nil
 }
 
-func (ldc *ListDeployController) getDcName(orgId string) ([]string, error) {
-	dcName, err := organization.DcName(orgId)
-	if err != nil {
-		log.Printf("Get dcName error: orgId=%s, error=%s\n", orgId, err)
-		return nil, err
+func (ldc *ListDeployController)getDcName() (name []string, err error) {
+	name = make([]string, len(ldc.dclist))
+	for i := 0; i < len(name); i++ {
+		name[i] = ldc.dclist[i].Name
 	}
-	return dcName, nil
+	return name, nil
 }
 
 func (ldc *ListDeployController) getPodList(dcName []string, dcHost []string, orgId string) (list string, err error) {
@@ -88,12 +88,34 @@ func (ldc ListDeployController) Get() {
 	}
 
 	ldc.org = tmpOrg
-	orgName := ldc.org.Name
 
+	var dclist deploy.DcList
+	log.Printf("%s\n", ldc.org.DcList)
+	err = json.Unmarshal([]byte(ldc.org.DcList), &dclist)
+	if err != nil {
+		log.Printf("dclist=%s error=%s\n", dclist, err)
+	}
+	log.Printf("%s\n", dclist.Dclist)
+
+	ldc.dclist = make([]mydatacenter.DataCenter, len(dclist.Dclist))
+	for i := 0; i < len(dclist.Dclist); i++ {
+		tmpDc, err := datacenter.GetDataCenterById(dclist.Dclist[i])
+		if err != nil {
+			log.Printf("Get Organization By orgId error: orgId=%s, error=%s\n", orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			json, _ := ye.EncodeJson()
+			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ldc.Write(json)
+			return
+		}
+		ldc.dclist[i] = *tmpDc
+	}
+
+	orgName := ldc.org.Name
 	ss := session.SessionStoreInstance()
 
 	if ok, err := ss.ValidateOrgId(sessionIdClient, orgId); ok {
-		//server, err := ldc.getDcHost(orgId)
+		server, err := ldc.getDcHost()
 		//TODO: get datacenter host
 		if err != nil {
 			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
@@ -105,7 +127,7 @@ func (ldc ListDeployController) Get() {
 		}
 
 		//TODO: get datacenter name
-		//name, err := ldc.getDcName(orgId)
+		name, err := ldc.getDcName()
 		if err != nil {
 			log.Printf("Get Datacenter Name error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
 			ye := myerror.NewYceError(1, "ERR", "请求失败")

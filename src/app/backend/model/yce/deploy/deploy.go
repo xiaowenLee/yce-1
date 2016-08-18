@@ -15,6 +15,10 @@ type AppDc struct {
 	DcID float64 `json:"dcID,omitempty"`
 }
 
+type DcList struct {
+	Dclist []string `json:"dcList"`
+}
+
 
 type Data struct {
 	DataCenter string      `json:"dataCenter"`
