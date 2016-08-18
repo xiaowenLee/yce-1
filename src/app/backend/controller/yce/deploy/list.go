@@ -93,7 +93,8 @@ func (ldc ListDeployController) Get() {
 	ss := session.SessionStoreInstance()
 
 	if ok, err := ss.ValidateOrgId(sessionIdClient, orgId); ok {
-		server, err := ldc.getDcHost(orgId)
+		//server, err := ldc.getDcHost(orgId)
+		//TODO: get datacenter host
 		if err != nil {
 			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
 			ye := myerror.NewYceError(1, "ERR", "请求失败")
@@ -103,7 +104,8 @@ func (ldc ListDeployController) Get() {
 			return
 		}
 
-		name, err := ldc.getDcName(orgId)
+		//TODO: get datacenter name
+		//name, err := ldc.getDcName(orgId)
 		if err != nil {
 			log.Printf("Get Datacenter Name error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
 			ye := myerror.NewYceError(1, "ERR", "请求失败")

@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
@@ -12,4 +13,10 @@ type AppDeployment struct {
 
 type AppDc struct {
 	DcID float64 `json:"dcID,omitempty"`
+}
+
+
+type Data struct {
+	DataCenter string      `json:"dataCenter"`
+	PodList    api.PodList `json:"podList"`
 }

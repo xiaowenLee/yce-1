@@ -32,5 +32,4 @@ func main() {
 
 	iris.StaticServe("../frontend", "/static")
 	iris.Listen(":8080")
-
 }
