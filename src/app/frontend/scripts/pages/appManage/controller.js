@@ -12,14 +12,15 @@ define([
 
             appManageService.getAppList($scope.param,function(data){
                  if (data.code == 0) {
-                    console.log(data.data);
-                    $scope.appList = data.data;
-                 } else if (data.code == 1 ) {
-                    console.log("Data: " + JSON.stringify(data))
+                    $scope.appList = JSON.parse(data.data);
+                    console.log($scope.appList);
                  }
             });
 
-            console.log(appList);
+            $scope.showContainerDetail = function(item){
+                alert(JSON.stringify(item));
+            };
+
         }];
 
 

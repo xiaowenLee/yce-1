@@ -47,7 +47,7 @@ define([
                     showSubnav: [],
                     toggleNav : false
                 };
-                mainService.getNavlist(null, function (data) {
+                mainService.getNavlist({"sessionId": $sessionStorage.sessionId}, function (data) {
                     $scope.navList = data.list;
                 });
 

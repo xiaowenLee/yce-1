@@ -24,25 +24,29 @@
     <div class="clearfix"></div>
     <div class="col-lg-12">
         <section class="box ">
+            <!--
             <header class="panel_header">
                 <h2 class="title pull-left">应用管理</h2>
-
-                
             </header>
+            -->
             <div class="content-body">
                 <div class="row">
                     <div class="col-xs-12">
                         <div id="example_wrapper" class="dataTables_wrapper form-inline no-footer">
                             <div class="row">
-                                <div class="col-md-3 pull-right">
-                                    <div id="example_filter" class="dataTables_filter">
+                                    <!--<div id="example_filter" class="dataTables_filter pull-right">
                                         <label>
                                             搜索:<input type="search" class="form-control input-sm input-medium" placeholder="" aria-controls="example">
                                         </label>
-                                    </div>
-                                </div>
+                                    </div>-->
+                                        <div class="col-xs-3 input-group primary pull-right appManageSearch">
+                                            <input type="text" value="" ng-model="data.search" placeholder="输入应用名称..." class="form-control search-page-input">                                  <span class="input-group-addon">
+                                            <span class="arrow"></span>
+                                                <i class="fa fa-search"></i>
+                                            </span>
+                                        </div>
                             </div>
-                            <table id="appList" class="display table table-hover table-condensed dataTable no-footer appList-table"
+                            <table id="appList" class="display table table-hover table-condensed dataTable no-footer appList-table appManageTable"
                                    role="grid" aria-describedby="example_info">
                                 <thead>
                                     <tr role="row">
@@ -58,16 +62,24 @@
 
                                 <tbody>
 
-                                    <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in appList">
+                                    <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in appList | filter:data.search">
                                         <td>{{$index+1}}</td>
-                                        <td class="sorting_1">{{app.podList.items.metadata.name}}</td>
-                                        <td>app:{{app.podList.items.metadata.labels}}</td>
-                                        <td>{{app.dcName}}</td>
-                                        <td>{{app.podList.items.status.phase}}</td>
-                                        <td>{{app.podList.items.metadata.creationTimestamp}}</td>
+                                        <td class="sorting_1">
+                                            <p ng-repeat="item in app.podList.items" ng-click="showContainerDetail(item)">{{item.metadata.name}}</p>
+                                        </td>
                                         <td>
-                                            <span class="apply-leave" ng-mouseleave="overs($index)">
-                                                <p ng-click="more($index)">更多</p>
+                                            <p ng-repeat="item in app.podList.items">{{item.metadata.labels}}</p>
+                                        </td>
+                                        <td>{{app.dcName}}</td>
+                                        <td>
+                                            <p ng-repeat="item in app.podList.items">{{item.status.phase}}</p>
+                                        </td>
+                                        <td>
+                                            <p ng-repeat="item in app.podList.items">{{item.metadata.creationTimestamp}}</p>
+                                        </td>
+                                        <td>
+                                            <span class="apply-leave" ng-mouseleave="showBox[$index]=false">
+                                                <p ng-click="showBox[$index]=true">更多</p>
                                                 <span class="btn-show" ng-show="showBox[$index]">
                                                     <a>滚动升级</a>
                                                     <a>回滚</a>
