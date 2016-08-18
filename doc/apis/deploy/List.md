@@ -21,7 +21,8 @@
         "OK"
     ],
     "data": [{
-            "dcId": "bangongwang",
+            "dcId": 1,
+            "dcName": "bangongwang",
             "podlist": {
                 //该数据中心下的应用列列表，json为k8s原生[PodList](https://godoc.org/k8s.io/kubernetes/pkg/api#PodList)
             }
