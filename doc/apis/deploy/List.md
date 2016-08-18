@@ -4,7 +4,7 @@
 用户点击应用列表时请求后台数据:
 
 
-之前设计为：请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments*
+请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments*
 
 请求头中包含: Authorization: ${sessionId} *暂时在Session Storage里*
 
@@ -128,12 +128,12 @@ podList的json结构：
 
 根据应用列表页面的设计，要显示的信息及相关说明如下：
 
-    |信息：      |  说明：|
-    |:------------:|:--------------:|
-    |ID          |  数字，为页面显示ID|
-    |应用名称    |  data[].podList.items[].metadata.name |
-    |标签组合    |  data[].podList.items[].metadata.labels |
-    |数据中心    |  data[].dataCenter, 需要为中文 |
-    |副本个数    |  data[].podList.items[] 的元素个数 |
-    |运行时长    |  data[].podList.items[].metadata.creationTimestamp，需要转化为天、分、时、秒 |
+|信息：      |  说明：|
+|:------------:|:--------------:|
+|ID          |  数字，为页面显示ID|
+|应用名称    |  data[].podList.items[].metadata.name |
+|标签组合    |  data[].podList.items[].metadata.labels |
+|数据中心    |  data[].dataCenter, 需要为中文 |
+|副本个数    |  data[].podList.items[] 的元素个数 |
+|运行时长    |  data[].podList.items[].metadata.creationTimestamp，需要转化为天、分、时、秒 |
 
