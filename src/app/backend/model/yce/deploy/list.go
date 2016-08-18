@@ -1,8 +1,6 @@
 package deploy
 
-import (
-	"k8s.io/kubernetes/pkg/api"
-)
+import ()
 
 /*
 type DeployList struct {

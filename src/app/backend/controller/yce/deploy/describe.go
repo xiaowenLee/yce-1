@@ -1,42 +1,31 @@
 package deploy
 
 import (
-	hc "app/backend/common/util/http/httpclient"
-	deploy "app/backend/model/yce/deploy"
-	"fmt"
-	"github.com/kataras/iris"
-
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
-	"strings"
 )
 
-const (
-	SERVER string = "http://172.21.1.11:8080"
-)
-
-var instance *DescribeDeployController
+//var instance *DescribeDeployController
 
 type DescribeDeployController struct {
 	cli *client.Client
 }
 
-func NewDescribeDeployController(server string) *NewDescribeDeployController {
+func NewDescribeDeployController(server string) *DescribeDeployController {
 	config := &restclient.Config{
 		Host: server,
 	}
 	cli, err := client.New(config)
 	if err != nil {
-		log.Printf("Get DescribeDeployController error. SessionID=%s, error=%s\n", sessionID, err)
+		log.Printf("Get DescribeDeployController error: error=%s\n", err)
 	}
 
-	instance = &DescribeDeployController{cli: cli}
+	instance := &DescribeDeployController{cli: cli}
 	return instance
 }
 
+/*
 func (dec *DescribeDeployController) Describe(ctx *iris.Context) {
 	//TODO: ValidateSession
 	oid := ctx.Param("oid")
@@ -78,3 +67,4 @@ func (dec *DescribeDeployController) Describe(ctx *iris.Context) {
 
 	//TODO: write response json
 }
+*/

@@ -1,23 +1,20 @@
 package deploy
 
 import (
-	hc "app/backend/common/util/http/httpclient"
-	session "app/backend/common/util/session"
+	"app/backend/common/util/session"
+	myerror "app/backend/common/yce/error"
 	organization "app/backend/common/yce/organization"
-	deploy "app/backend/model/yce/deploy"
-	"fmt"
+	"encoding/json"
 	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
-	"strings"
 )
 
 type ListDeployController struct {
-	cli  *client.Client
-	iris *iris.Context
+	cli *client.Client
+	*iris.Context
 }
 
 func NewListDeployController(server string) *ListDeployController {
@@ -26,63 +23,77 @@ func NewListDeployController(server string) *ListDeployController {
 	}
 	cli, err := client.New(config)
 	if err != nil {
-		log.Printf("Get ListDeployController error: SessionId=%s, error=%s\n", sessionId, err)
+		log.Printf("Get ListDeployController error: error=%s\n", err)
 	}
 
-	instance = &ListDeployController{cli: cli}
+	instance := &ListDeployController{cli: cli}
 	return instance
 }
 
-func (lc *ListDeployController) getDcHost(orgId string) ([]string, error) {
-	dcList, err := organization.DcList(orgId)
+func (ldc *ListDeployController) getDcHost(orgId string) ([]string, error) {
+	dcHost, err := organization.DcHost(orgId)
 	if err != nil {
 		log.Printf("Get dcList error: orgId=%s, error=%s\n", orgId, err)
 		return nil, err
 	}
 
-	return dcList, nil
+	return dcHost, nil
 }
 
-func (lc *ListDeployController) getPodList(dcList []string, orgId string) (api.PodList, error) {
+func (ldc *ListDeployController) getPodList(dcHost []string, orgId string) (list string, err error) {
 
-	for _, v := range dcList {
+	for _, v := range dcHost {
 		newconfig := &restclient.Config{
-			Host: Server,
+			Host: v,
 		}
 		newCli, err := client.New(newconfig)
 		if err != nil {
-			log.Printf("Get new restclient error: sessionId=%s, error=%s\n", sessionId, err)
-			return nil, err
+			log.Printf("Get new restclient error: error=%s\n", err)
+			return "", err
 		}
 
 		podlist, err := newCli.Pods(orgId).List(api.ListOptions{})
 		if err != nil {
 			log.Printf("Get podlist error: server=%s, orgId=%s, error=%s\n", v, orgId, err)
-			return nil, err
+			return "", err
 		}
-		return podlist, nil
+
+		podListJson, err := json.Marshal(podlist)
+		if err != nil {
+			log.Printf("Get podListJson error: server=%s, orgId=%s, error=%s\n", v, orgId, err)
+		}
+
+		list += string(podListJson)
 	}
+	return list, nil
 }
 
-func (lc ListDeployController) Get() {
+func (ldc ListDeployController) Get() {
 
-	sessionIdClient := ctx.RequestHeader("sessionId")
-	orgId := ctx.Param("orgId")
-	userId := ctx.Param("uid")
-	if ok, err := session.ValidateUserId(sessionIdClient, userId); ok {
-		server, err := lc.getDcHost(orgId)
+	sessionIdClient := ldc.RequestHeader("sessionId")
+	orgId := ldc.RequestHeader("orgId")
+	orgName := ldc.Param("name")
+	userId := ldc.RequestHeader("uid")
+
+	log.Printf("sessionIdClient=%s, orgId=%s, orgName=%s, userId=%s\n", sessionIdClient, orgId, orgName, userId)
+
+	ss := session.SessionStoreInstance()
+
+	if ok, err := ss.ValidateOrgId(sessionIdClient, orgId); ok {
+		server, err := ldc.getDcHost(orgId)
 		if err != nil {
 			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
 		}
 
-		podlist, err := lc.getPodList(server, orgId)
+		podlist, err := ldc.getPodList(server, orgName)
 		if err != nil {
 			log.Printf("Get Podlist error: sessionId=%s, orgId=%s, error=%s\n", sessionIdClient, orgId, err)
 		}
+		ye := myerror.NewYceError(0, "OK", podlist)
+		json, _ := ye.EncodeJson()
 
-		//TODO: write response json
-		deployList := make()
-
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(json)
 	} else {
 		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionIdClient, err)
 	}

@@ -3,12 +3,12 @@ package main
 import (
 	"app/backend/common/util/mysql"
 	mysession "app/backend/common/util/session"
+	mydeploy "app/backend/controller/yce/deploy"
 	mylogin "app/backend/controller/yce/login"
-	"github.com/kataras/iris"
-	// mydeploy "app/backend/controller/yce/deploy"
 	mylogout "app/backend/controller/yce/logout"
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
+	"github.com/kataras/iris"
 )
 
 func main() {
@@ -21,12 +21,12 @@ func main() {
 	login := new(mylogin.LoginController)
 	logout := new(mylogout.LogoutController)
 	nav := new(mynavList.NavListController)
-	// listdeploy := new(mydeploy.ListDeployController)
+	listdeploy := new(mydeploy.ListDeployController)
 	registry := new(myregistry.ListRegistryController)
 
 	iris.API("/api/v1/users/login", *login)
 	iris.API("/api/v1/navlist", *nav)
-	// iris.API("/api/v1/organization/:id/deployments", *listdeploy)
+	iris.API("/api/v1/organization/:name/deployments", *listdeploy)
 	iris.API("/api/v1/users/logout", *logout)
 	iris.API("/api/v1/registry/images", *registry)
 
