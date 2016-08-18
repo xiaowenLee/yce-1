@@ -40,7 +40,7 @@ func (ddc DescribeDeployController) Get() {
 	var dc deploy.DcList
 	err = json.Unmarshal([]byte(ddc.list.org.DcList), &dc)
 	if err != nil {
-		log.Printf("dc=%s error=%s\n", dc, err)
+		log.Printf("DecodeJSON error: dc=%s error=%s\n", dc, err)
 	}
 
 	ddc.list.dclist = make([]mydatacenter.DataCenter, len(dc.DataCenter))

@@ -95,7 +95,7 @@ func (ldc ListDeployController) Get() {
 	var dc deploy.DcList
 	err = json.Unmarshal([]byte(ldc.org.DcList), &dc)
 	if err != nil {
-		log.Printf("dc=%s error=%s\n", dc, err)
+		log.Printf("DecodeJSON error: dc=%s error=%s\n", dc, err)
 	}
 
 	ldc.dclist = make([]mydatacenter.DataCenter, len(dc.DataCenter))
