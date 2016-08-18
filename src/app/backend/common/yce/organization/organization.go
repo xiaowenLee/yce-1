@@ -13,6 +13,47 @@ type dcList struct {
 	DcList []string `json:"dcList"`
 }
 
+func GetOrganizationById(orgId string) (*organization.Organization, error) {
+	//mysqlclient := mysql.MysqlInstance()
+	//mysqlclient.Open()
+
+	myorganization := new(organization.Organization)
+	oid, err := strconv.Atoi(orgId)
+	if err != nil {
+		log.Printf("GetOrganizationById error: orgId=%s, error=%s\n", orgId, err)
+		return nil, err
+	}
+
+	err = myorganization.QueryOrganizationById(int32(oid))
+	if err != nil {
+		log.Printf("GetOrganizationById error: orgId=%s, error=%s\n", orgId, err)
+		return nil, err
+	}
+
+	return myorganization, nil
+
+}
+
+func IdToName(orgId string) (string, error) {
+
+	mysqlclient := mysql.MysqlInstance()
+	mysqlclient.Open()
+
+	myorganization := new(organization.Organization)
+	oid, err := strconv.Atoi(orgId)
+	if err != nil {
+		log.Printf("Get orgName error: orgId=%s, error=%s\n", orgId, err)
+	}
+
+	err = myorganization.QueryOrganizationById(int32(oid))
+	if err != nil {
+		log.Printf("Get orgName error: orgId=%s, error=%s\n", orgId, err)
+		return "", err
+	}
+
+	return myorganization.Name, nil
+}
+
 func DcName(orgId string) ([]string, error) {
 
 	mysqlclient := mysql.MysqlInstance()
