@@ -3,7 +3,7 @@
 
 用户点击应用名时弹窗显示应用详情:
 
-请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments
+请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/{podId}
 
 请求头中包含: Authorization: ${sessionId} *暂时在Session Storage里*
 
