@@ -16,3 +16,8 @@ type DeployListData struct {
 	PodList api.PodList `json:"podList"`
 }
 */
+
+type Data struct {
+	DataCenter string      `json:"dataCenter"`
+	PodList    api.PodList `json:"podList"`
+}

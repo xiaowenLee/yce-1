@@ -1,16 +1,9 @@
 package deploy
 
 import (
-	hc "app/backend/common/util/http/httpclient"
-	dp "app/backend/model/yce/deploy"
-	"fmt"
-	"github.com/kataras/iris"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
-	"strings"
 )
 
 const (
@@ -27,13 +20,14 @@ func NewCreateDeployController(server string) *CreateDeployController {
 	}
 	cli, err := client.New(config)
 	if err != nil {
-		log.Printf("Get CreateDeployController error. SessionID=%s, error=%s\n", sessionID, err)
+		log.Printf("Get CreateDeployController error: error=%s\n", err)
 	}
 
-	instance = &CreateDeployController{cli: cli}
+	instance := &CreateDeployController{cli: cli}
 	return instance
 }
 
+/*
 func (cc *CreateDeployController) Create(ctx *iris.Context) {
 	//TODO: ValidateSession
 	//TODO: unmarshal resquest json
@@ -41,14 +35,14 @@ func (cc *CreateDeployController) Create(ctx *iris.Context) {
 	myAppDeploy := new(dp.AppDeployment)
 	err := ctx.ReadJSON(myAppDeploy)
 	if err != nil {
-		log.Printf("Read JSON error. SessionID=%s error=%s\n", sessionID, err)
+		log.Printf("Read JSON error: error=%s\n", err)
 	}
 	//TODO: get OrgID, and DcHost refer to UserID
 	//e.g.
 	oid := api.NamespaceDefault
-	dclen := len(myAppDeploy.Datacenters)
-	dc := make([]deploy.AppDc, dclen)
-	dc = myAppDeploy.Datacenters
+	//dclen := len(myAppDeploy.Datacenters)
+	//dc := make([]deploy.AppDc, dclen)
+	//dc = myAppDeploy.Datacenters
 
 	var Server string
 	for _, v := range dc {
@@ -66,7 +60,7 @@ func (cc *CreateDeployController) Create(ctx *iris.Context) {
 		}
 		newCli, err := client.New(newconfig)
 		if err != nil {
-			log.Printf("Create restclient error. SessionID=%s, error=%s\n", sessionID, err)
+			log.Printf("Create restclient error. SessionID=%s, error=%s\n", sessionId, err)
 		}
 		deployment := new(extensions.Deployment)
 		deployment = &myAppDeploy.Deployment
@@ -81,3 +75,4 @@ func (cc *CreateDeployController) Create(ctx *iris.Context) {
 	//TODO: according to create status write to MySQL deploy log
 	//TODO: write back response json
 }
+*/

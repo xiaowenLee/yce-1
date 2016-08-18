@@ -3,11 +3,15 @@
 
 Controller定义在src/backend/controller/yce/deploy里面，例如：
 
-应用管理（列表）：CreateDeployController的定义在src/backend/controller/yce/deploy/create.go里
+应用管理（列表）：ListDeployController的定义在src/backend/controller/yce/deploy/list.go里
 
 Model定义在src/backend/model/yce/deploy里面，例如：
 
-应用管理（列表）：AppDeployment的定义在src/backend/model/yce/deploy/create.go里
+应用管理（列表）：相关定义在src/backend/model/yce/deploy/list.go里
+
+使用说明在当前目录，例如：
+
+应用管理（列表）：使用说明在List.md里
 
 下同：
 
@@ -93,38 +97,6 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 }
 ```
 
-### 点击应用列表时请求后台数据:
-
-请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments
-
-请求头中包含: Authorization: ${sessionId}
-
-其中: uid, orgId, x-auth-token在登录成功后从后台返回给浏览器, 前端存储在LocalStorage里面
-
-返回值:
-
-* 该组织下数据中心里的应用列表
-
-大概数据结构：
-
-```
-{
-    "code":{},
-    "message":[
-        ""
-    ],
-    "data": [{
-            "dcId": "",
-            "podlist": {
-                //该数据中心下的应用列列表，json为k8s原生[PodList](https://godoc.org/k8s.io/kubernetes/pkg/api#PodList)
-            }
-    }]
-}
-```
-
-### 点击应用详情时请求后台数据:
-
-应用详情是在应用列表的基础上，对里面的应用信息进一步筛选
 
 
 ### 在应用发布页面中,点击镜像输入框后,弹出选择镜像的窗口

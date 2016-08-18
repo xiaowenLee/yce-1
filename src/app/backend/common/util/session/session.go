@@ -114,7 +114,7 @@ func (ss *SessionStore) ValidateUserId(sessionIdClient string, UserIdClient stri
 	if session.UserId == UserIdClient {
 		return true, nil
 	} else {
-		return false, errors.New("Validate sessionId failed: OrgId doesn't match")
+		return false, errors.New("Validate sessionId failed: UserId doesn't match")
 	}
 }
 
