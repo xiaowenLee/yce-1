@@ -1,16 +1,10 @@
 package organization
 
 import (
-	// mysql "app/backend/common/util/mysql"
-	// "app/backend/model/mysql/datacenter"
-	"app/backend/model/mysql/organization"
 	"log"
 	"strconv"
+	"app/backend/model/mysql/organization"
 )
-
-type dcList struct {
-	DcList []string `json:"dcList"`
-}
 
 func GetOrganizationById(orgId string) (*organization.Organization, error) {
 	//mysqlclient := mysql.MysqlInstance()
