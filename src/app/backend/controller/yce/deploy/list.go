@@ -4,6 +4,7 @@ import (
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	organization "app/backend/common/yce/organization"
+	myorganization "app/backend/model/mysql/organization"
 	deploy "app/backend/model/yce/deploy"
 	"encoding/json"
 	"github.com/kataras/iris"
@@ -14,21 +15,8 @@ import (
 )
 
 type ListDeployController struct {
-	cli *client.Client
 	*iris.Context
-}
-
-func NewListDeployController(server string) *ListDeployController {
-	config := &restclient.Config{
-		Host: server,
-	}
-	cli, err := client.New(config)
-	if err != nil {
-		log.Printf("Get ListDeployController error: error=%s\n", err)
-	}
-
-	instance := &ListDeployController{cli: cli}
-	return instance
+	org *myorganization.Organization
 }
 
 func (ldc *ListDeployController) getDcHost(orgId string) ([]string, error) {
@@ -83,15 +71,24 @@ func (ldc *ListDeployController) getPodList(dcName []string, dcHost []string, or
 	list = string(podListJson)
 	return list, nil
 }
-
 func (ldc ListDeployController) Get() {
 
 	sessionIdClient := ldc.RequestHeader("sessionId")
-	orgId := ldc.RequestHeader("orgId")
-	orgName := ldc.Param("orgName")
-	userId := ldc.RequestHeader("uid")
+	orgId := ldc.Param("orgId")
+	//userId := ldc.Param("userId")
 
-	log.Printf("sessionIdClient=%s, orgId=%s, orgName=%s, userId=%s\n", sessionIdClient, orgId, orgName, userId)
+	tmpOrg, err := organization.GetOrganizationById(orgId)
+	if err != nil {
+		log.Printf("Get Organization By orgId error: orgId=%s, error=%s\n", orgId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		json, _ := ye.EncodeJson()
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(json)
+		return
+	}
+
+	ldc.org = tmpOrg
+	orgName := ldc.org.Name
 
 	ss := session.SessionStoreInstance()
 
@@ -99,16 +96,31 @@ func (ldc ListDeployController) Get() {
 		server, err := ldc.getDcHost(orgId)
 		if err != nil {
 			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			json, _ := ye.EncodeJson()
+			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ldc.Write(json)
+			return
 		}
 
 		name, err := ldc.getDcName(orgId)
 		if err != nil {
 			log.Printf("Get Datacenter Name error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			json, _ := ye.EncodeJson()
+			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ldc.Write(json)
+			return
 		}
 
 		podlist, err := ldc.getPodList(name, server, orgName)
 		if err != nil {
 			log.Printf("Get Podlist error: sessionId=%s, orgId=%s, error=%s\n", sessionIdClient, orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			json, _ := ye.EncodeJson()
+			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ldc.Write(json)
+			return
 		}
 
 		ye := myerror.NewYceError(0, "OK", podlist)
@@ -116,8 +128,14 @@ func (ldc ListDeployController) Get() {
 
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		ldc.Write(json)
+		return
 	} else {
 		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionIdClient, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		json, _ := ye.EncodeJson()
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(json)
+		return
 	}
 
 }
