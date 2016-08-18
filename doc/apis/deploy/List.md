@@ -4,7 +4,7 @@
 用户点击应用列表时请求后台数据:
 
 
-请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments*
+请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments
 
 请求头中包含: Authorization: ${sessionId} *暂时在Session Storage里*
 
@@ -135,6 +135,6 @@ podList的json结构：
 |应用名称    |  data[].podList.items[].metadata.name |
 |标签组合    |  data[].podList.items[].metadata.labels |
 |数据中心    |  data[].dataCenter, 需要为中文 |
-|当前状态    |  data[].podList.status.phase, 需要为中文 |
+|当前状态    |  data[].podList.items[].status.phase, 需要为中文 |
 |运行时长    |  data[].podList.items[].metadata.creationTimestamp，需要转化为天、分、时、秒（一级） |
 
