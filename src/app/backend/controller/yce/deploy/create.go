@@ -17,8 +17,6 @@ const (
 	SERVER string = "http://172.21.1.11:8080"
 )
 
-var instance *CreateDeployController
-
 type CreateDeployController struct {
 	cli *client.Client
 }
