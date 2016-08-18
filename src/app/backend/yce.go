@@ -26,7 +26,7 @@ func main() {
 
 	iris.API("/api/v1/users/login", *login)
 	iris.API("/api/v1/navlist", *nav)
-	iris.API("/api/v1/organization/:name/deployments", *listdeploy)
+	iris.API("/api/v1/organizations/:orgName/deployments", *listdeploy)
 	iris.API("/api/v1/users/logout", *logout)
 	iris.API("/api/v1/registry/images", *registry)
 

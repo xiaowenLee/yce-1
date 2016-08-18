@@ -72,7 +72,7 @@ func (ldc ListDeployController) Get() {
 
 	sessionIdClient := ldc.RequestHeader("sessionId")
 	orgId := ldc.RequestHeader("orgId")
-	orgName := ldc.Param("name")
+	orgName := ldc.Param("orgName")
 	userId := ldc.RequestHeader("uid")
 
 	log.Printf("sessionIdClient=%s, orgId=%s, orgName=%s, userId=%s\n", sessionIdClient, orgId, orgName, userId)
