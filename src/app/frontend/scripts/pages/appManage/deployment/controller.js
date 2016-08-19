@@ -60,8 +60,32 @@ define([
                 .success(function(data) {
                     var dataObject = JSON.parse(data.data);
 
+
                     $scope.imageList=dataObject;
-                    console.log("getImages success")
+                    console.log("getImages success");
+                    console.log(dataObject[0].name);
+                    console.log(dataObject[0].tags);
+                    var list = dataObject[0].tags
+                    for (var i in list) {
+                        console.log("list: ", list[i])
+                    }
+
+                    /*
+                    dataObject.forEach(function(v){
+                        for(var i in v) {
+                            console.log("images: " + v[i]);
+                            var t = v[i].tags;
+                            t.forEach(function(w) {
+                                for(var j in w) {
+                                    console.log("tags: " + w[i]);
+                                }
+
+
+                            })
+
+                        }
+                    })
+                    */
                     console.log(data.data)
                 })
                 .error(function() {
