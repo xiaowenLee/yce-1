@@ -50,6 +50,7 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 
 	// log.Printf("repositories: %s\n", repository.Repositories)
 
+	log.Printf("ListRegistryController getRepositories over")
 	return repository.Repositories, nil
 
 }
@@ -88,12 +89,15 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 		return nil, err
 	}
 
+
+	log.Printf("ListRegistryController getTagList over")
+
 	return image, nil
 }
 
 // GET /api/v1/registry/images
 func (lrc ListRegistryController) Get() {
-
+	//TODO: Validate Session ?
 	// init
 	r := myregistry.NewRegistry(myregistry.REGISTRY_HOST, myregistry.REGISTRY_PORT, myregistry.REGISTRY_CERT)
 	lrc.c = myhttps.NewHttpsClient(r.Host, r.Port, r.Cert)
@@ -148,4 +152,6 @@ func (lrc ListRegistryController) Get() {
 	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 
 	lrc.Write(js)
+
+	log.Printf("ListRegistryController Get over!")
 }
