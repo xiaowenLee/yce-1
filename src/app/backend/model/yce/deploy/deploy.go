@@ -16,12 +16,11 @@ type AppDc struct {
 }
 
 type DcList struct {
-	Dclist []string `json:"dcList"`
+	DataCenter []string `json:"dcList"`
 }
 
-
 type Data struct {
-	DcId int32 `json:"dcId"`
-	DcName string      `json:"dcName"`
-	PodList    api.PodList `json:"podList"`
+	DcId    int32       `json:"dcId"`
+	DcName  string      `json:"dcName"`
+	PodList api.PodList `json:"podList"`
 }
