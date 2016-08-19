@@ -65,7 +65,7 @@ func (ldc *ListDeployController) getAppDisplayDeployment(dcHostList []string) (l
 			return "", err
 		}
 
-		podList, err := newCli.Pods(orgId).List(api.ListOptions{})
+		podList, err := newCli.Pods(ldc.org.Name).List(api.ListOptions{})
 		if err != nil {
 			log.Printf("Get podlist error: server=%s, orgId=%s, error=%s\n", dcHostList[i], orgId, err)
 			return "", err

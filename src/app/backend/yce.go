@@ -9,10 +9,12 @@ import (
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
 	"github.com/kataras/iris"
+	"log"
 )
 
 func main() {
 
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
 
