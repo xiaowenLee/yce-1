@@ -6,7 +6,7 @@ define([
     ], function(Base64){
         'use strict';
 
-        var ctrl = ['$scope', 'deploymentService','$stateParams', function($scope, deploymentService, $stateParams){
+        var ctrl = ['$scope','$http','deploymentService','$stateParams', function($scope,$http, deploymentService, $stateParams){
             $scope.param = {
                 dataCenter : []
             };
@@ -27,6 +27,7 @@ define([
             // Image
             $scope.shows=false;
             //  模拟
+            /*
             $scope.names = [
                 {"name":"name"},
                 {"name":"number"},
@@ -49,6 +50,20 @@ define([
                 {"name":"sex4"},
                 {"name":"del4"}
             ];
+            */
+            $scope.getImages = function() {
+                $http({
+                    method: 'GET',
+                    url: '/api/v1/registry/images'
+                })
+                .success(function(data) {
+                    $scope.images=data.data;
+                    console.log("getImages success")
+                })
+                .error(function() {
+                    console.log("getImages error")
+                })
+            }
         }];
 
 

@@ -97,7 +97,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 
 // GET /api/v1/registry/images
 func (lrc ListRegistryController) Get() {
-
+	//TODO: Validate Session ?
 	// init
 	r := myregistry.NewRegistry(myregistry.REGISTRY_HOST, myregistry.REGISTRY_PORT, myregistry.REGISTRY_CERT)
 	lrc.c = myhttps.NewHttpsClient(r.Host, r.Port, r.Cert)
