@@ -4,7 +4,7 @@
 用户点击应用列表时请求后台数据:
 
 
-请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments
+请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{userId}/deployments
 
 请求头中包含: Authorization: ${sessionId} *暂时在Session Storage里*
 

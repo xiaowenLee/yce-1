@@ -6,7 +6,7 @@ import (
 )
 
 // AppDeployment for Frontend fulfillment
-type AppDeployment struct {
+type AppCreateDeployment struct {
 	Datacenters []AppDc               `json:"dataCenters"`
 	Deployment  extensions.Deployment `json:"deployment"`
 }
@@ -15,11 +15,7 @@ type AppDc struct {
 	DcID float64 `json:"dcID,omitempty"`
 }
 
-type DcList struct {
-	DataCenter []string `json:"dcList"`
-}
-
-type Data struct {
+type AppDisplayDeployment struct {
 	DcId    int32       `json:"dcId"`
 	DcName  string      `json:"dcName"`
 	PodList api.PodList `json:"podList"`
