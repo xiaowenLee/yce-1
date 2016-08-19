@@ -1,70 +1,115 @@
 package deploy
 
 import (
-	"k8s.io/kubernetes/pkg/client/restclient"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
+	"app/backend/common/util/session"
+	"app/backend/common/yce/datacenter"
+	myerror "app/backend/common/yce/error"
+	"app/backend/common/yce/organization"
+	mydatacenter "app/backend/model/mysql/datacenter"
+	"app/backend/model/yce/deploy"
+	"encoding/json"
+	"github.com/kataras/iris"
 	"log"
 )
 
-//var instance *DescribeDeployController
-
 type DescribeDeployController struct {
-	cli *client.Client
+	*iris.Context
+	list *ListDeployController
+	//TODO: 可能会有ReplicaSet、Service等的成员
 }
 
-func NewDescribeDeployController(server string) *DescribeDeployController {
-	config := &restclient.Config{
-		Host: server,
-	}
-	cli, err := client.New(config)
+func (ddc DescribeDeployController) Get() {
+
+	ddc.list = new(ListDeployController)
+
+	sessionIdClient := ddc.RequestHeader("sessionId")
+	orgId := ddc.Param("orgId")
+	//userId := ldc.Param("userId")
+
+	tmpOrg, err := organization.GetOrganizationById(orgId)
 	if err != nil {
-		log.Printf("Get DescribeDeployController error: error=%s\n", err)
+		log.Printf("Get Organization By orgId error: orgId=%s, error=%s\n", orgId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		errJson, _ := ye.EncodeJson()
+		ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ddc.Write(errJson)
+		return
+	}
+	ddc.list.org = tmpOrg
+
+	var dc deploy.DcList
+	err = json.Unmarshal([]byte(ddc.list.org.DcList), &dc)
+	if err != nil {
+		log.Printf("DecodeJSON error: dc=%s error=%s\n", dc, err)
 	}
 
-	instance := &DescribeDeployController{cli: cli}
-	return instance
-}
-
-/*
-func (dec *DescribeDeployController) Describe(ctx *iris.Context) {
-	//TODO: ValidateSession
-	oid := ctx.Param("oid")
-	id := ctx.Param("id")
-
-	//TODO: get Datacenter Host from MySQL ? or url ?
-	//NOTE: Datacenter only takes one value when describing.
-	//e.g.
-	dc := make([]deploy.AppDc, 1)
-	dc[0].DcID = 1
-
-	var Server string
-	for _, v := range dc {
-		switch v.DcID {
-		case 1:
-			Server = "http://172.21.1.11:8080"
-		case 2:
-			Server = "http://172.21.1.11:8080"
-		case 3:
-			Server = "http://172.21.1.11:8080"
-		}
-
-		newconfig := &restclient.Config{
-			Host: Server,
-		}
-		newCli, err := client.New(newconfig)
+	ddc.list.dclist = make([]mydatacenter.DataCenter, len(dc.DataCenter))
+	for i := 0; i < len(dc.DataCenter); i++ {
+		tmpDc, err := datacenter.GetDataCenterById(dc.DataCenter[i])
 		if err != nil {
-			log.Printf("Get new restclient error. SessionID=%s, error=%s\n", sessionID, err)
+			log.Printf("Get Organization By orgId error: orgId=%s, error=%s\n", orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			errJson, _ := ye.EncodeJson()
+			ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ddc.Write(errJson)
+			return
 		}
-
-		poddetail, err := newCli.Pods(oid).Get(id)
-		if err != nil {
-			log.Printf("Get poddetails error. DataCenter=%s, Organization=%s, SessionID=%s, error=%s\n", v.DcID, oid, sessionID, err)
-		}
-
-		//TODO: make response poddetails struct
-		//NOTE: time convertion, dc Chinese convertion
+		ddc.list.dclist[i] = *tmpDc
 	}
 
-	//TODO: write response json
+	orgName := ddc.list.org.Name
+
+	ss := session.SessionStoreInstance()
+
+	if ok, err := ss.ValidateOrgId(sessionIdClient, orgId); ok {
+		server, err := ddc.list.getDcHost()
+		if err != nil {
+			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			errJson, _ := ye.EncodeJson()
+			ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ddc.Write(errJson)
+			return
+		}
+
+		name, err := ddc.list.getDcName()
+		if err != nil {
+			log.Printf("Get Datacenter Name error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			errJson, _ := ye.EncodeJson()
+			ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ddc.Write(errJson)
+			return
+		}
+
+		id := make([]int32, len(ddc.list.dclist))
+		for i := 0; i < len(ddc.list.dclist); i++ {
+			id[i] = ddc.list.dclist[i].Id
+		}
+
+		podlist, err := ddc.list.getPodList(id, name, server, orgName)
+		if err != nil {
+			log.Printf("Get Podlist error: sessionId=%s, orgId=%s, error=%s\n", sessionIdClient, orgId, err)
+			ye := myerror.NewYceError(1, "ERR", "请求失败")
+			errJson, _ := ye.EncodeJson()
+			ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ddc.Write(errJson)
+			return
+		}
+
+		ye := myerror.NewYceError(0, "OK", podlist)
+		errJson, _ := ye.EncodeJson()
+
+		ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ddc.Write(errJson)
+		return
+	} else {
+		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionIdClient, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		errJson, _ := ye.EncodeJson()
+		ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ddc.Write(errJson)
+		return
+	}
+
 }
-*/

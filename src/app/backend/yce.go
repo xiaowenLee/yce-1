@@ -22,11 +22,13 @@ func main() {
 	logout := new(mylogout.LogoutController)
 	nav := new(mynavList.NavListController)
 	listdeploy := new(mydeploy.ListDeployController)
+	describedeploy := new(mydeploy.DescribeDeployController)
 	registry := new(myregistry.ListRegistryController)
 
 	iris.API("/api/v1/users/login", *login)
 	iris.API("/api/v1/navlist", *nav)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *listdeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/:podId", *describedeploy)
 	iris.API("/api/v1/users/logout", *logout)
 	iris.API("/api/v1/registry/images", *registry)
 
