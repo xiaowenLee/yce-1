@@ -1,5 +1,6 @@
 package deploy
 
+/*
 import (
 	"app/backend/common/util/session"
 	"app/backend/common/yce/datacenter"
@@ -113,3 +114,4 @@ func (ddc DescribeDeployController) Get() {
 	}
 
 }
+*/

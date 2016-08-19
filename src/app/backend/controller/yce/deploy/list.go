@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"app/backend/common/util/session"
-	"app/backend/common/yce/datacenter"
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
@@ -22,32 +21,43 @@ import (
 type ListDeployController struct {
 	*iris.Context
 	org    *myorganization.Organization
-	dclist []mydatacenter.DataCenter
+	dcList []mydatacenter.DataCenter
 }
 
+// Return: [ dcHost1, dcHost2, ...] eg. ["172.21.1.11:8080", "10.149.149.3:8080", ...]
 func (ldc *ListDeployController) getDcHost() ([]string, error) {
-	server := make([]string, len(ldc.dclist))
+	server := make([]string, len(ldc.dcList))
+
 	for i := 0; i < len(server); i++ {
-		server[i] = ldc.dclist[i].Host + ":" + strconv.Itoa(int(ldc.dclist[i].Port))
+		server[i] = ldc.dcList[i].Host + ":" + strconv.Itoa(int(ldc.dcList[i].Port))
 	}
+
+	log.Printf("ListDeployController getDcHost: server=%v\n", server)
 	return server, nil
 }
 
+// Return: [ dcName1, dcName2, ...] eg. ["电信机房", "世纪互联", ...]
 func (ldc *ListDeployController) getDcName() ([]string, error) {
-	name := make([]string, len(ldc.dclist))
+	name := make([]string, len(ldc.dcList))
+
 	for i := 0; i < len(name); i++ {
-		name[i] = ldc.dclist[i].Name
+		name[i] = ldc.dcList[i].Name
 	}
+
+	log.Printf("ListDeployController getDcName: name=%v\n", name)
 	return name, nil
 }
 
-func (ldc *ListDeployController) getPodList(dcId []int32, dcName []string, dcHost []string, orgId string) (list string, err error) {
+// Args: dcHostList <- ldc.getDcHost()
+// Return: {"dcId": dcId, "dcName": dcName, "podList": json.Marshal(api.PodList)}
+func (ldc *ListDeployController) getAppDisplayDeployment(dcHostList []string) (list string, err error) {
+	deployData := make([]deploy.AppDisplayDeployment, len(dcHostList))
 
-	tmpdata := make([]deploy.Data, len(dcHost))
+	orgId := strconv.Itoa(int(ldc.org.Id))
 
-	for i := 0; i < len(dcHost); i++ {
+	for i := 0; i < len(dcHostList); i++ {
 		newconfig := &restclient.Config{
-			Host: dcHost[i],
+			Host: dcHostList[i],
 		}
 		newCli, err := client.New(newconfig)
 		if err != nil {
@@ -55,111 +65,87 @@ func (ldc *ListDeployController) getPodList(dcId []int32, dcName []string, dcHos
 			return "", err
 		}
 
-		podlist, err := newCli.Pods(orgId).List(api.ListOptions{})
+		podList, err := newCli.Pods(orgId).List(api.ListOptions{})
 		if err != nil {
-			log.Printf("Get podlist error: server=%s, orgId=%s, error=%s\n", dcHost[i], orgId, err)
+			log.Printf("Get podlist error: server=%s, orgId=%s, error=%s\n", dcHostList[i], orgId, err)
 			return "", err
 		}
 
-		tmpdata[i].DcName = dcName[i]
-		tmpdata[i].DcId = dcId[i]
-		tmpdata[i].PodList = *podlist
+		dcNameList, err := ldc.getDcName()
+		if err != nil {
+			log.Printf("Get DcName error: server=%s, orgId=%s, error=%s\n", dcHostList[i], orgId, err)
+			return "", err
+		}
+
+		deployData[i].DcName = dcNameList[i]
+		deployData[i].DcId = ldc.dcList[i].Id
+		deployData[i].PodList = *podList
+
+		log.Printf("ListDeployController getAppDisplayDeployment: dcId=%d, dcName=%s, podList=%p, len(podList.Items)=%d\n",
+			ldc.dcList[i].Id, dcNameList[i], podList, len(podList.Items))
 	}
 
-	podListJson, err := json.Marshal(tmpdata)
+	podListJson, err := json.Marshal(deployData)
 	if err != nil {
 		log.Printf("Get podListJson error: orgId=%s, error=%s\n", orgId, err)
+		return "", err
 	}
 
 	list = string(podListJson)
+
+	// log.Printf("ListDeployController appDisplayDeployment Marshal over!")
 	return list, nil
 }
-func (ldc ListDeployController) Get() {
 
-	sessionIdClient := ldc.RequestHeader("Authorization")
-	orgId := ldc.Param("orgId")
-	//userId := ldc.Param("userId")
-
-	tmpOrg, err := organization.GetOrganizationById(orgId)
-	if err != nil {
-		log.Printf("Get Organization By orgId error: orgId=%s, error=%s\n", orgId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
-		errJson, _ := ye.EncodeJson()
-		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		ldc.Write(errJson)
-		return
-	}
-
-	ldc.org = tmpOrg
-
-	var dc deploy.DcList
-	err = json.Unmarshal([]byte(ldc.org.DcList), &dc)
-	if err != nil {
-		log.Printf("DecodeJSON error: dc=%s error=%s\n", dc, err)
-	}
-
-	ldc.dclist = make([]mydatacenter.DataCenter, len(dc.DataCenter))
-	for i := 0; i < len(dc.DataCenter); i++ {
-		tmpDc, err := datacenter.GetDataCenterById(dc.DataCenter[i])
-		if err != nil {
-			log.Printf("Get Organization By orgId error: orgId=%s, error=%s\n", orgId, err)
-			ye := myerror.NewYceError(1, "ERR", "请求失败")
-			errJson, _ := ye.EncodeJson()
-			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-			ldc.Write(errJson)
-			return
-		}
-		ldc.dclist[i] = *tmpDc
-	}
-
-	orgName := ldc.org.Name
-
+func (ldc *ListDeployController) valideSession(sessionId, orgId string) (*myerror.YceError, error){
+	// Validate the session
 	ss := session.SessionStoreInstance()
 
-	if ok, err := ss.ValidateOrgId(sessionIdClient, orgId); ok {
-		server, err := ldc.getDcHost()
-		if err != nil {
-			log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
-			ye := myerror.NewYceError(1, "ERR", "请求失败")
-			errJson, _ := ye.EncodeJson()
-			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-			ldc.Write(errJson)
-			return
-		}
-
-		name, err := ldc.getDcName()
-		if err != nil {
-			log.Printf("Get Datacenter Name error: sessionId=%s, orgId=%s, err=%s\n", sessionIdClient, orgId, err)
-			ye := myerror.NewYceError(1, "ERR", "请求失败")
-			errJson, _ := ye.EncodeJson()
-			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-			ldc.Write(errJson)
-			return
-		}
-
-		id := make([]int32, len(ldc.dclist))
-		for i := 0; i < len(ldc.dclist); i++ {
-			id[i] = ldc.dclist[i].Id
-		}
-
-		podlist, err := ldc.getPodList(id, name, server, orgName)
-		if err != nil {
-			log.Printf("Get Podlist error: sessionId=%s, orgId=%s, error=%s\n", sessionIdClient, orgId, err)
-			ye := myerror.NewYceError(1, "ERR", "请求失败")
-			errJson, _ := ye.EncodeJson()
-			ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-			ldc.Write(errJson)
-			return
-		}
-
-		ye := myerror.NewYceError(0, "OK", podlist)
+	ok, err := ss.ValidateOrgId(sessionId, orgId)
+	if err != nil {
+		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(errJson)
+		return ye, err
+	}
 
+	// Session invalide
+	if !ok {
+		// relogin
+		log.Printf("Validate Session failed: sessionId=%s, error=%s\n", sessionId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		errJson, _ := ye.EncodeJson()
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(errJson)
+		return ye, err
+	}
+
+	return nil, nil
+}
+
+// GET /api/v1/organizations/{orgId}/users/{userId}/deployments
+func (ldc ListDeployController) Get() {
+	sessionIdFromClient := ldc.RequestHeader("Authorization")
+	orgId := ldc.Param("orgId")
+
+	// Validate OrgId error
+	ye, err := ldc.valideSession(sessionIdFromClient, orgId)
+
+	if ye != nil || err != nil {
+		log.Printf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
+		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		ldc.Write(errJson)
 		return
-	} else {
-		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionIdClient, err)
+	}
+
+	// Valid session
+	ldc.org, err = organization.GetOrganizationById(orgId)
+
+	if err != nil {
+		log.Printf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -167,4 +153,45 @@ func (ldc ListDeployController) Get() {
 		return
 	}
 
+	// Get Datacenters by a organization
+	ldc.dcList, err = organization.GetDataCentersByOrganization(ldc.org)
+	if err != nil {
+		log.Printf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		errJson, _ := ye.EncodeJson()
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(errJson)
+		return
+	}
+
+
+	// Get ApiServer for every datacenter
+	server, err := ldc.getDcHost()
+	if err != nil {
+		log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s\n", sessionIdFromClient, orgId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		errJson, _ := ye.EncodeJson()
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(errJson)
+		return
+	}
+
+	// Get App DisplayDeployment
+	appDisplayDeployment, err := ldc.getAppDisplayDeployment(server)
+	if err != nil {
+		log.Printf("Get Podlist error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		errJson, _ := ye.EncodeJson()
+		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ldc.Write(errJson)
+		return
+	}
+
+	ye = myerror.NewYceError(0, "OK", appDisplayDeployment)
+	errJson, _ := ye.EncodeJson()
+	ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	ldc.Write(errJson)
+
+	log.Printf("ListDeploymentController Get over!")
+	return
 }
