@@ -17,6 +17,7 @@ define([
                         $scope.loginData = JSON.parse(data.data);
                         $sessionStorage.username =  $scope.loginData.userName;
                         $sessionStorage.sessionId =  $scope.loginData.sessionId;
+                        $sessionStorage.userId = $scope.loginData.userId;
                         $sessionStorage.orgId = $scope.loginData.orgId;
                         $scope.jump();
                     }else{
@@ -46,7 +47,7 @@ define([
                     showSubnav: [],
                     toggleNav : false
                 };
-                mainService.getNavlist(null, function (data) {
+                mainService.getNavlist({"sessionId": $sessionStorage.sessionId}, function (data) {
                     $scope.navList = data.list;
                 });
 

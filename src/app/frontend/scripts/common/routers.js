@@ -12,8 +12,8 @@ define([
 		'use strict';
 
 		var init = function(app){
-			app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
-				$urlRouterProvider.otherwise("/login");
+			app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', function($stateProvider, $urlRouterProvider, $httpProvider){
+				//$urlRouterProvider.otherwise("/login");
 
 				$stateProvider
 					.state('login', mainRouter.login)

@@ -76,7 +76,7 @@ func (ldc *ListDeployController) getPodList(dcId []int32, dcName []string, dcHos
 }
 func (ldc ListDeployController) Get() {
 
-	sessionIdClient := ldc.RequestHeader("sessionId")
+	sessionIdClient := ldc.RequestHeader("Authorization")
 	orgId := ldc.Param("orgId")
 	//userId := ldc.Param("userId")
 

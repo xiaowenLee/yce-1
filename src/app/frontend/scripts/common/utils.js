@@ -3,7 +3,9 @@ define([], function(){
 	yce.preUrl = '';
 
 	yce.http = function($http, method, url, param, success, error){
-		$http[method](yce.preUrl + url, param, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+		$http.defaults.headers.common['Authorization'] = param.sessionId || '';
+
+		$http[method](yce.preUrl + url, param)
 		.success(function(data){
 			success(data);
 		})
