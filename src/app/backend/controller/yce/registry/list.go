@@ -50,6 +50,7 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 
 	// log.Printf("repositories: %s\n", repository.Repositories)
 
+	log.Printf("ListRegistryController getRepositories over")
 	return repository.Repositories, nil
 
 }
@@ -87,6 +88,9 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 		log.Printf("ListRegistryController getTagsList json.Unmarshal Error: err=%s\n", err)
 		return nil, err
 	}
+
+
+	log.Printf("ListRegistryController getTagList over")
 
 	return image, nil
 }
@@ -148,4 +152,6 @@ func (lrc ListRegistryController) Get() {
 	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 
 	lrc.Write(js)
+
+	log.Printf("ListRegistryController Get over!")
 }
