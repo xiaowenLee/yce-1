@@ -6,7 +6,7 @@ define([
     ], function(Base64){
         'use strict';
 
-        var ctrl = ['$scope','$state','mainService', '$sessionStorage', '$stateParams', function($scope, $state,mainService, $sessionStorage, $stateParams){
+        var ctrl = ['$scope', '$rootScope', '$state', 'mainService', '$sessionStorage', '$stateParams', function($scope, $rootScope, $state, mainService, $sessionStorage, $stateParams){
             // login
             $scope.login = function () {
                 mainService.login({
@@ -42,6 +42,7 @@ define([
 
             $scope.jump = function(){
                 $state.go('main.dashboard');
+                $rootScope.widget = {};
                 $scope.data = {
                     username : $sessionStorage.username,
                     showSubnav: [],

@@ -6,7 +6,7 @@ define([
     ], function(Base64){
         'use strict';
 
-        var ctrl = ['$scope', 'appManageService', '$sessionStorage', function($scope,appManageService, $sessionStorage){
+        var ctrl = ['$scope', '$rootScope', 'appManageService', '$sessionStorage', function($scope, $rootScope, appManageService, $sessionStorage){
 
             $scope.param = {"orgId": $sessionStorage.orgId, "userId": $sessionStorage.userId, "sessionId": $sessionStorage.sessionId}
 
@@ -17,8 +17,16 @@ define([
                  }
             });
 
-            $scope.showContainerDetail = function(item){
-                alert(JSON.stringify(item));
+            $scope.showAppDetail = function(item){
+                $scope.appDetailConf = {
+                    widgetId : 'widgetAppDetail',
+                    widgetTitle : '应用详情',
+                    isAppDetail : true,
+                    data : item
+                };
+                $rootScope.widget = {
+                    showAppDetail : true
+                };
             };
 
         }];

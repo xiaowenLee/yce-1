@@ -65,7 +65,7 @@
                                     <tr role="row" class="apply-tr" ng-class="{odd:$odd,even:$even}" ng-repeat="app in appList | filter:data.search">
                                         <td>{{$index+1}}</td>
                                         <td class="sorting_1">
-                                            <p ng-repeat="item in app.podList.items" ng-click="showContainerDetail(item)">{{item.metadata.name}}</p>
+                                            <p ng-repeat="item in app.podList.items" ng-click="showAppDetail(item)">{{item.metadata.name}}</p>
                                         </td>
                                         <td>
                                             <p ng-repeat="item in app.podList.items">{{item.metadata.labels}}</p>
@@ -123,4 +123,4 @@
 
 </section>
 
-<div class="apply-box1"></div>
+<ui-widget ng-if="widget.showAppDetail" config="appDetailConf"></ui-widget>
