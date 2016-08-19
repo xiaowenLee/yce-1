@@ -51,19 +51,23 @@ define([
                 {"name":"del4"}
             ];
             */
-            $scope.getImages = function() {
+            //$scope.getImages = function() {
+                console.log("getImages test")
                 $http({
                     method: 'GET',
                     url: '/api/v1/registry/images'
                 })
                 .success(function(data) {
-                    $scope.images=data.data;
+                    var dataObject = JSON.parse(data.data);
+
+                    $scope.imageList=dataObject;
                     console.log("getImages success")
+                    console.log(data.data)
                 })
                 .error(function() {
                     console.log("getImages error")
                 })
-            }
+            //}
         }];
 
 

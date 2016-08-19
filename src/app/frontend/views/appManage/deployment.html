@@ -55,7 +55,7 @@
                                 <span class="desc">镜像是您创建应用的根据</span>
 
                                 <div class="controls">
-                                    <input type="text" value="color" class="form-control" id="field-image" ng-model="param.image" ng-focus=" changeName = !shows " ng-click="getImages()">
+                                    <input type="text" value="color" class="form-control" id="field-image" ng-model="param.image" ng-focus=" changeName = !shows ">
                                 </div>
                             </div>
 
@@ -114,7 +114,7 @@
                                 </span>
 
                                 <div class="replica_content" ng-click="changeName = shows">
-                                    <p ng-repeat=" x in images | filter:test" ng-show="test"> &nbsp {{ x.name }} </p>
+                                    <p ng-repeat=" x in imageList | filter:test" ng-show="test"> &nbsp {{ x.name }} </p>
                                 </div>
                             </div>
                         </div>
