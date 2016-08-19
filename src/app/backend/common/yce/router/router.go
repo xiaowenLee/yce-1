@@ -10,20 +10,31 @@ import (
 )
 
 type Router struct {
+	Login *mylogin.LoginController
+	Logout *mylogout.LogoutController
+	Nav *mynavList.NavListController
+	Listdeploy *mydeploy.ListDeployController
+	Registry *myregistry.ListRegistryController
+}
+
+func NewRouter() *Router {
+	r := new(Router)
+	r.Login = new(mylogin.LoginController)
+	r.Logout = new(mylogout.LogoutController)
+	r.Nav = new(mynavList.NavListController)
+	r.Listdeploy = new(mydeploy.ListDeployController)
+	r.Registry = new(myregistry.ListRegistryController)
+
+	return r
 }
 
 func (r *Router) Registe() {
-	login := new(mylogin.LoginController)
-	logout := new(mylogout.LogoutController)
-	nav := new(mynavList.NavListController)
-	listdeploy := new(mydeploy.ListDeployController)
-	registry := new(myregistry.ListRegistryController)
 
-	iris.API("/api/v1/users/login", *login)
-	iris.API("/api/v1/navlist", *nav)
-	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *listdeploy)
-	iris.API("/api/v1/users/logout", *logout)
-	iris.API("/api/v1/registry/images", *registry)
+	iris.API("/api/v1/users/login", *r.Login)
+	iris.API("/api/v1/users/logout", *r.Logout)
+	iris.API("/api/v1/navlist", *r.Nav)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.Listdeploy)
+	iris.API("/api/v1/registry/images", *r.Registry)
 
 	iris.StaticServe("../frontend", "/static")
 }

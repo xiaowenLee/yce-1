@@ -17,7 +17,7 @@ func init() {
 
 func main() {
 
-	r := new(myrouter.Router)
+	r := myrouter.NewRouter()
 	r.Registe()
 
 	iris.Listen(":8080")
