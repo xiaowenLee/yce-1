@@ -23,6 +23,32 @@ define([
                     $scope.stepNum = stepNum;
                 };
             });
+
+            // Image
+            $scope.shows=false;
+            //  模拟
+            $scope.names = [
+                {"name":"name"},
+                {"name":"number"},
+                {"name":"sex"},
+                {"name":"del"},
+                {"name":"name1"},
+                {"name":"number1"},
+                {"name":"sex1"},
+                {"name":"del1"},
+                {"name":"name2"},
+                {"name":"number2"},
+                {"name":"sex2"},
+                {"name":"del2"},
+                {"name":"name3"},
+                {"name":"number3"},
+                {"name":"sex3"},
+                {"name":"del3"},
+                {"name":"name4"},
+                {"name":"number4"},
+                {"name":"sex4"},
+                {"name":"del4"}
+            ];
         }];
 
 
