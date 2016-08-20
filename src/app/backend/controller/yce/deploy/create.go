@@ -2,13 +2,13 @@ package deploy
 
 import (
 	"github.com/kataras/iris"
-	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	myoption "app/backend/model/mysql/option"
+	myerror "app/backend/common/yce/error"
 	"log"
 	"app/backend/common/util/session"
 	"app/backend/model/yce/deploy"
@@ -39,8 +39,8 @@ func (cdc *CreateDeployController) validateSession(sessionId, orgId string) (*my
 		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
+		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		cdc.Write(errJson)
 		return ye, err
 	}
 
@@ -50,8 +50,8 @@ func (cdc *CreateDeployController) validateSession(sessionId, orgId string) (*my
 		log.Printf("Validate Session failed: sessionId=%s, error=%s\n", sessionId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
+		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		cdc.Write(errJson)
 		return ye, err
 	}
 
@@ -71,7 +71,7 @@ func (cdc *CreateDeployController) getApiServerByDcId(dcId string) (string, erro
 	err = dc.QueryDataCenterById(int32(id))
 	if err != nil {
 		log.Printf("getApiServerById QueryDataCenterById Error: err=%s\n", err)
-		return err
+		return "", err
 	}
 
 	host := dc.Host

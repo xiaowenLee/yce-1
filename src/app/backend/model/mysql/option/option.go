@@ -1,9 +1,5 @@
 package option
 
-import (
-	"time"
-)
-
 type OptionType int32 //操作类型
 
 const (
