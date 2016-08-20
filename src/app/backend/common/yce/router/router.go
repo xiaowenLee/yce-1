@@ -16,6 +16,7 @@ type Router struct {
 	ListDeploy *mydeploy.ListDeployController
 	Registry *myregistry.ListRegistryController
 	InitDeploy *mydeploy.InitDeployController
+	CreateDeploy *mydeploy.CreateDeployController
 }
 
 func NewRouter() *Router {
@@ -26,6 +27,7 @@ func NewRouter() *Router {
 	r.ListDeploy = new(mydeploy.ListDeployController)
 	r.Registry = new(myregistry.ListRegistryController)
 	r.InitDeploy = new(mydeploy.InitDeployController)
+	r.CreateDeploy = new(mydeploy.CreateDeployController)
 
 	return r
 }
@@ -37,6 +39,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/navlist", *r.Nav)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.ListDeploy)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/init", *r.InitDeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.CreateDeploy)
 	iris.API("/api/v1/registry/images", *r.Registry)
 
 	iris.StaticServe("../frontend", "/static")
