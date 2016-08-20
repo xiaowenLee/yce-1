@@ -26,7 +26,7 @@
                         <dd><span>{{orginalData.metadata.namespace}}</span></dd>
                     </dl>
                     <dl class="col-sm-6 col-sm-offset-0 col-xs-10 col-xs-offset-1">
-                        <dt>镜像 : </dt>
+                        <dt>镜像名称 : </dt>
                         <dd><span>{{orginalData.spec.containers[0].image}}</span></dd>
                     </dl>
                 </div>
@@ -46,13 +46,13 @@
                         <dd><span>{{orginalData.status.phase}}</span></dd>
                     </dl>
                    <dl class="col-sm-6 col-sm-offset-0 col-xs-10 col-xs-offset-1">
-                        <dt>IP : </dt>
+                        <dt>容器地址 : </dt>
                         <dd><span>{{orginalData.status.podIP}}</span></dd>
                     </dl>
                 </div>
                 <div class="row">
                     <dl class="col-sm-6 col-sm-offset-0 col-xs-10 col-xs-offset-1">
-                        <dt>Port : </dt>
+                        <dt>容器端口 : </dt>
                         <dd><span>{{orginalData.spec.containers[0].ports[0].containerPort}}</span></dd>
                     </dl>
                     <dl class="col-sm-6 col-sm-offset-0 col-xs-10 col-xs-offset-1">

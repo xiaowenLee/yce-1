@@ -179,17 +179,7 @@ POST数据格式(data里面的是实例,用于讲解跟页面的输入框的关�
 
 ```json
 {
-    "dataCenters": [
-        {
-            "dcId": 1
-        },
-        {
-            "dcId": 3
-        },
-        {
-            "dcId": 5
-        }
-    ]
+    "dcIdList": [1, 2],
     "deployment": {
         "spec": {
         "template": {

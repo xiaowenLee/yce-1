@@ -29,3 +29,8 @@ type InitDeployment struct {
 	DataCenters []mydatacenter.DataCenter `json:"dataCenters"`
 	Quotas []myqouta.Quota `json:"quotas"`
 }
+
+type PostDeployment struct {
+	DcIdList []string `json:"dcIdList"`
+	Deployment extensions.Deployment `json:"deployment`
+}
