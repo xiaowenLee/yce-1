@@ -8204,19 +8204,18 @@ table.dataTable.display tbody tr:first-child td {
     background: rgba(0,0,0,0.5);
 }
 .replica_wrap .replica_box1{
-    width: 78%;
-    height: 74%;
+    width: 59%;
+    height: 70%;
     margin: 0 auto;
     margin-top: 7%;
     background: #fff;
 }
+
 .replica_wrap .replica_box1 .replica_inp{
-    width: 40%;
+    width: 36%;
     height: 35px;
-    /* margin-left: 25%; */
-    /* margin-top: 8%; */
-    left: 30%;
-    top: 14%;
+    left: 32%;
+    top: 15%;
     position: absolute;
     border-color: #3F51B5;
     color: #3F51B5;
@@ -8233,7 +8232,7 @@ table.dataTable.display tbody tr:first-child td {
     text-align: center;
     color: #3F51B5;
     position: absolute;
-    left: 86%;
+    left: 76%;
     top: 16%;
     cursor: pointer;
 }
@@ -8241,10 +8240,10 @@ table.dataTable.display tbody tr:first-child td {
 
 
 .replica_wrap .replica_box1 .replica_content{
-    width: 38.6%;
+    width: 34.6%;
     height: 41.6%;
     position: absolute;
-    left: 31.4%;
+    left: 33.4%;
     top: 32.8%;
     overflow: scroll;
     display: block;

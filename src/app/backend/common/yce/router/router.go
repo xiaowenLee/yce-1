@@ -6,6 +6,7 @@ import (
 	mylogout "app/backend/controller/yce/logout"
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
+	myservice "app/backend/controller/yce/service"
 	"github.com/kataras/iris"
 )
 
@@ -15,6 +16,7 @@ type Router struct {
 	Nav *mynavList.NavListController
 	Listdeploy *mydeploy.ListDeployController
 	Registry *myregistry.ListRegistryController
+	Service *myservice.ListServiceController
 }
 
 func NewRouter() *Router {
@@ -24,6 +26,7 @@ func NewRouter() *Router {
 	r.Nav = new(mynavList.NavListController)
 	r.Listdeploy = new(mydeploy.ListDeployController)
 	r.Registry = new(myregistry.ListRegistryController)
+	r.Service = new(myservice.ListServiceController)
 
 	return r
 }
@@ -35,6 +38,8 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/navlist", *r.Nav)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.Listdeploy)
 	iris.API("/api/v1/registry/images", *r.Registry)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.Service)
+
 
 	iris.StaticServe("../frontend", "/static")
 }
