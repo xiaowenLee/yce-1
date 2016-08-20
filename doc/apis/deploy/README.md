@@ -43,7 +43,7 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 ### 点击应用发布(左侧菜单)时请求后台数据:
 
-请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/new
+请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
 
 请求头中包含: Authorization: ${sessionId}
 
@@ -66,33 +66,54 @@ Model定义在src/backend/model/yce/deploy里面，例如：
     "code": 0,
     "message": "....",
     "data": {
-        "orgId":  "1",
+        "orgId": 1,
         "orgName": "Ops",
         "dataCenters": [
-        {
-            "dcId": "1",
-            "name": "世纪互联",
-            "budget": 10000000,
-            "balance": 10000000
-        },
-        {
-            "dcId": "2",
-            "name": "电信机房",
-            "budget": 10000000,
-            "balance": 10000000
-        },
-        {
-            "dcId": "3",
-            "name": "电子城机房",
-            "budget": 10000000,
-            "balance": 10000000
-        }
+            {
+                "id": "1",
+                "name": "世纪互联",
+                "budget": 10000000,
+                "balance": 10000000
+            },
+            {
+                "id": "2",
+                "name": "电信机房",
+                "budget": 10000000,
+                "balance": 10000000
+            },
+            {
+                "id": "3",
+                "name": "电子城机房",
+                "budget": 10000000,
+                "balance": 10000000
+            }
         ],
-        "dcQuotas": {
-            "dcId": "1"
-            "PodMax": 1 
-            // 第一版用不到...
-        }
+        "quotas": [
+            {
+                "id": 1,
+                "name": "2C4G50G",
+                "cpu": 2,
+                "mem": 4,
+                "rbd": 50,
+                "price": 1000
+            },
+            {
+                "id": 2,
+                "name": "4C8G100G",
+                "cpu": 4,
+                "mem": 8,
+                "rbd": 100,
+                "price": 18000
+            },
+            {
+                "id": 3,
+                "name": "4C16G200G",
+                "cpu": 4,
+                "mem": 16,
+                "rbd": 200,
+                "price": 2860
+            }
+        ]
     }
 }
 ```

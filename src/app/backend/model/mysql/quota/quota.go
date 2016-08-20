@@ -12,6 +12,9 @@ const (
 		"status, createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM quota WHERE id=?"
 
+	QUOTA_SELECT_ALL = "SELECT id, name, cpu, mem, rbd, price, " +
+		"status, createdAt, modifiedAt, modifiedOp, comment "
+
 	QUOTA_INSERT = "INSERT INTO " +
 		"quota(name, cpu, mem, rbd, price, status, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -172,6 +175,48 @@ func (q *Quota) DeleteQuota(op int32) error {
 	return nil
 }
 
+func QueryAllQuotas() (*[]*Quota, error) {
+	// New quotas pint array
+	quotas := new([]*Quota)
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-statement
+	stmt, err := db.Prepare(QUOTA_SELECT_ALL)
+	if err != nil {
+		log.Printf("QueryQuota Error: err=%s\n", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Printf("QueryAllQuotas Error: err=%s\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		// Query quota by id
+		var comment []byte
+		err = rows.Scan(&q.Id, &q.Name, &q.Cpu, &q.Mem, &q.Rbd,
+			&q.Price, &q.Status, &q.CreatedAt, &q.ModifiedAt, &q.ModifiedOp, &comment)
+
+		q.Comment = string(comment)
+
+		if err != nil {
+			log.Printf("QueryAllQuotas rows.Next() Error: err=%s\n", err)
+			return err
+		}
+
+		*quotas = append(*quotas, q)
+		log.Printf("QueryAllQuotas row.Next(): id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+			q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
+	}
+
+	return quotas, nil
+}
+
 func (q *Quota) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), q)
 
@@ -188,3 +233,4 @@ func (q *Quota) EncodeJson() string {
 	}
 	return string(data)
 }
+
