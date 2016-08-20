@@ -171,15 +171,16 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 ### 应用发布请求提交
 
-请求的URL: POST /api/v1/organization/{orgId}/deployments
+请求的URL: POST /api/v1/organization/{orgId}/users/{userId}/deployments
 
-请求头包含: Authorization: ${x-auth-token}
+请求头包含: Authorization: ${sessionId}
 
 POST数据格式(data里面的是实例,用于讲解跟页面的输入框的关系,更严谨的定义看后面)
 
 ```json
 {
     "dcIdList": [1, 2],
+    "appName": "nginx-elb",
     "deployment": {
         "spec": {
         "template": {
