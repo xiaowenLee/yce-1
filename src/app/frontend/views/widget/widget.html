@@ -1,0 +1,9 @@
+<div class="widget-bg" id="{{config.widgetId}}">
+    <div class="widget">
+        <div class="widget-header">{{config.widgetTitle}}</div>
+        <div class="widget-content">
+            <div ui-app-detail ng-if="config.isAppDetail" orginal-data="config.data"></div>
+        </div>
+        <div class="widget-close" ng-click="closeWidget()">×</div>
+    </div>
+</div>
