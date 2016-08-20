@@ -86,7 +86,11 @@ define([
                         }
                     }
 
-                    $scope.imageList=imageArr
+                    $scope.imageList=imageArr;
+
+                    $scope.getImages = function($index) {
+                        $scope.param.image=imageArr[$index];
+                    }
 
                 })
                 .error(function() {
