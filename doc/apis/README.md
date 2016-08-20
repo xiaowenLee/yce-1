@@ -20,25 +20,25 @@ GET /api/v1/organizations/
 
 查询具体某个组织的细节
 ```bash
-GET /api/v1/organizations/{id}
+GET /api/v1/organizations/{orgId}
 ```
 
 #### 修改某个组织
 
 ```bash
-POST /api/v1/organizations/{id}
+POST /api/v1/organizations/{orgId}
 
 ```
 
 #### 查询某个组织下有关联的数据中心
 ```bash
-GET /api/v1/organizations/{id}/datacenters
+GET /api/v1/organizations/{orgId}/datacenters
 ```
 
 #### 删除某个组织
 
 ```bash
-DELETE /api/v1/organizations/{id}
+DELETE /api/v1/organizations/{orgId}
 ```
 
 ### 用户
@@ -47,7 +47,7 @@ DELETE /api/v1/organizations/{id}
 #### 新建用户
 
 ```bash
-POST /api/v1/organizations/{id}/users
+POST /api/v1/organizations/{orgId}/users
 ```
 
 #### 查询用户: 用户名使用email, 不允许重复
@@ -55,25 +55,25 @@ POST /api/v1/organizations/{id}/users
 查询用户列表
 
 ```bash
-GET /api/v1/organizations/{id}/users
+GET /api/v1/organizations/{orgId}/users
 ```
 
 查询某个用户的信息
 
 ```bash
-GET /api/v1/organizations/{id}/users/{id}
+GET /api/v1/organizations/{orgId}/users/{userId}
 ```
 
 #### 修改某个用户
 
 ```bash
-POST /api/v1/organizations/{id}/users/{id}
+POST /api/v1/organizations/{orgId}/users/{userId}
 ```
 
 #### 删除某个用户
 
 ```bash
-DELETE /api/v1/organizations/{id}/users/{id}
+DELETE /api/v1/organizations/{orgId}/users/{userId}
 ```
 
 登录
@@ -85,13 +85,13 @@ POST /api/v1/users/login
 登出
 
 ```bash
-POST /api/v1/users/{id}/logout
+POST /api/v1/users/{userId}/logout
 ```
 
 修改密码
 
 ```bash
-POST /api/v1/user/{id}/password
+POST /api/v1/user/{userId}/password
 ```
 
 ### 数据中心表
@@ -114,19 +114,19 @@ GET /api/v1/datacenters/
 查询某个数据中心细节
 
 ```bash
-GET /api/v1/datacenters/{id}
+GET /api/v1/datacenters/{dcId}
 ```
 
 #### 修改某个数据中心
 
 ```bash
-POST /api/v1/datacenters/{id}
+POST /api/v1/datacenters/{dcId}
 ```
 
 #### 删除某个数据中心
 
 ```bash
-DELETE /api/v1/datacenters/{id}
+DELETE /api/v1/datacenters/{dcId}
 ```
 
 
@@ -171,31 +171,31 @@ DELETE /api/v1/quotas/{id}
 #### 新建数据中心配额
 
 ```bash
-POST /api/v1/organizations/{id}/dcquotas/
+POST /api/v1/organizations/{orgId}/dcquotas/
 ```
 
 #### 查询某个组织下的配额列表(包括所关联的数据中心)
 
 ```bash
-GET /api/v1/organizations/{id}/dcquotas/
+GET /api/v1/organizations/{orgId}/dcquotas/
 ```
 
 #### 查询某个组织下的配额的详细信息
 
 ```bash
-GET /api/v1/organizations/{id}/dcquotas/{id}
+GET /api/v1/organizations/{orgId}/dcquotas/{id}
 ```
 
 #### 修改某个组织下的某个配额的信息
 
 ```bash
-POST /api/v1/organizations/{id}/dcquotas/{id}
+POST /api/v1/organizations/{orgId}/dcquotas/{id}
 ```
 
 #### 删除某个组织下的某个配额
 
 ```bash
-DELETE /api/v1/organizations/{id}/dcquotas/{id}
+DELETE /api/v1/organizations/{orgId}/dcquotas/{id}
 ```
 
 ### 云盘
@@ -204,7 +204,7 @@ DELETE /api/v1/organizations/{id}/dcquotas/{id}
 #### 新建云盘
 
 ```bash
-POST /api/v1/organizations/{id}/rbds/
+POST /api/v1/organizations/{orgId}/rbds/
 ```
 
 #### 查看云盘
@@ -212,25 +212,25 @@ POST /api/v1/organizations/{id}/rbds/
 查询列表:
 
 ```bash
-GET /api/v1/organizations/{id}/rbds/
+GET /api/v1/organizations/{orgId}/rbds/
 ```
 
 查询某个云盘的细节
 
 ```bash
-GET /api/v1/organizations/{id}/rbds/{id}
+GET /api/v1/organizations/{orgId}/rbds/{id}
 ```
 
 #### 修改某个云盘的细节
 
 ```bash
-POST /api/v1/organizations/{id}/rbds/{id}  //主要应用场景是云盘的扩容
+POST /api/v1/organizations/{orgId}/rbds/{id}  //主要应用场景是云盘的扩容
 ```
 
 #### 删除某个云盘
 
 ```bash
-DELETE /api/v1/organizations/{id}/rbds/{id}
+DELETE /api/v1/organizations/{orgId}/rbds/{id}
 ```
 
 ### 发布操作记录
@@ -239,7 +239,7 @@ DELETE /api/v1/organizations/{id}/rbds/{id}
 #### 新建发布操作
 
 ```bash
-POST /api/v1/deployments
+POST /api/v1/organizations/{orgId}/users/{userId}/deployments
 ```
 
 #### 查询过去的发布操作(倒序)
@@ -247,14 +247,27 @@ POST /api/v1/deployments
 查询列表:
 
 ```bash
-GET /api/v1/organizations/{id}/deployments
+GET /api/v1/organizations/{id}/users/{userId}/deployments
 ```
 
 查询详细信息
 
 ```bash
-GET /api/v1/organizations/{id}/deployments/{id}
+GET /api/v1/organizations/{id}/users/{userId}/deployments
 ```
 
 
 **发布操作表没有删除和修改操作,只能读取和追加.**
+
+
+### 镜像
+----------------------------------------------------------
+
+#### 查询仓库里的镜像
+
+查询列表：
+
+```bash
+GET /api/v1/registry/images
+```
+*暂时不按组织做租户*
