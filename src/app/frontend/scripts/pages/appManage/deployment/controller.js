@@ -59,34 +59,36 @@ define([
                 })
                 .success(function(data) {
                     var dataObject = JSON.parse(data.data);
-
-
-                    $scope.imageList=dataObject;
                     console.log("getImages success");
-                    console.log(dataObject[0].name);
-                    console.log(dataObject[0].tags);
-                    var list = dataObject[0].tags
-                    for (var i in list) {
-                        console.log("list: ", list[i])
+
+
+                    // cycle print images name and tags
+                    /*
+                    $scope.imageList=dataObject;
+                    for (var i in dataObject) {
+                        console.log("images: " + dataObject[i].name);
+                        var list = dataObject[i].tags;
+                        $scope.tagList=list;
+                        for (var j in list) {
+                            console.log("tags: " + list[j]);
+                        }
+                    }
+                    */
+
+                    // make new images:tags
+                    var imageArr = new Array();
+                    var k = 0
+                    for (var i in dataObject) {
+                        var list = dataObject[i].tags;
+                        for (var j in list) {
+                            imageArr[k] = dataObject[i].name + ":" + list[j]
+                            console.log("image: ", imageArr[k])
+                            k=k+1
+                        }
                     }
 
-                    /*
-                    dataObject.forEach(function(v){
-                        for(var i in v) {
-                            console.log("images: " + v[i]);
-                            var t = v[i].tags;
-                            t.forEach(function(w) {
-                                for(var j in w) {
-                                    console.log("tags: " + w[i]);
-                                }
+                    $scope.imageList=imageArr
 
-
-                            })
-
-                        }
-                    })
-                    */
-                    console.log(data.data)
                 })
                 .error(function() {
                     console.log("getImages error")
