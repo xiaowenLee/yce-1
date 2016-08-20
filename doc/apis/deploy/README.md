@@ -63,61 +63,77 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 ```json
 {
-    "code": 0,
-    "message": "....",
-    "data": {
-        "orgId": 1,
-        "orgName": "Ops",
-        "dataCenters": [
-            {
-                "id": "1",
-                "name": "世纪互联",
-                "budget": 10000000,
-                "balance": 10000000
-            },
-            {
-                "id": "2",
-                "name": "电信机房",
-                "budget": 10000000,
-                "balance": 10000000
-            },
-            {
-                "id": "3",
-                "name": "电子城机房",
-                "budget": 10000000,
-                "balance": 10000000
-            }
-        ],
-        "quotas": [
-            {
-                "id": 1,
-                "name": "2C4G50G",
-                "cpu": 2,
-                "mem": 4,
-                "rbd": 50,
-                "price": 1000
-            },
-            {
-                "id": 2,
-                "name": "4C8G100G",
-                "cpu": 4,
-                "mem": 8,
-                "rbd": 100,
-                "price": 18000
-            },
-            {
-                "id": 3,
-                "name": "4C16G200G",
-                "cpu": 4,
-                "mem": 16,
-                "rbd": 200,
-                "price": 2860
-            }
-        ]
+  "quotas": [
+    {
+      "comment": "",
+      "modifiedOp": 3,
+      "modifiedAt": "2016-08-15T20:58:16+08:00",
+      "id": 1,
+      "name": "2C4G50G",
+      "cpu": 2,
+      "mem": 4,
+      "rbd": 50,
+      "price": "1000",
+      "status": 1,
+      "createdAt": "2016-08-15T16:32:32Z"
+    },
+    {
+      "comment": "",
+      "modifiedOp": 1,
+      "modifiedAt": "2016-08-15T16:32:32Z",
+      "id": 2,
+      "name": "4C8G100G",
+      "cpu": 4,
+      "mem": 8,
+      "rbd": 100,
+      "price": "1800",
+      "status": 1,
+      "createdAt": "2016-08-15T16:32:32Z"
+    },
+    {
+      "comment": "",
+      "modifiedOp": 1,
+      "modifiedAt": "2016-08-15T16:32:32Z",
+      "id": 3,
+      "name": "4C16G200G",
+      "cpu": 4,
+      "mem": 16,
+      "rbd": 200,
+      "price": "2860",
+      "status": 1,
+      "createdAt": "2016-08-15T16:32:32Z"
     }
+  ],
+  "dataCenters": [
+    {
+      "comment": "",
+      "modifiedOp": 1,
+      "id": 1,
+      "name": "办公网",
+      "host": "172.21.1.11",
+      "port": 8080,
+      "secret": "",
+      "status": 1,
+      "createdAt": "2016-08-15T16:27:30Z",
+      "modifiedAt": "2016-08-15T16:27:30Z"
+    },
+    {
+      "comment": "",
+      "modifiedOp": 2,
+      "id": 2,
+      "name": "电信机房",
+      "host": "10.149.149.3",
+      "port": 8080,
+      "secret": "",
+      "status": 0,
+      "createdAt": "2016-08-15T17:46:42+08:00",
+      "modifiedAt": "2016-08-15T20:36:45+08:00"
+    }
+  ],
+  "orgName": "ops",
+  "orgId": "1"
 }
 ```
-
 
 
 ### 在应用发布页面中,点击镜像输入框后,弹出选择镜像的窗口

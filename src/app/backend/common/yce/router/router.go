@@ -13,8 +13,9 @@ type Router struct {
 	Login *mylogin.LoginController
 	Logout *mylogout.LogoutController
 	Nav *mynavList.NavListController
-	Listdeploy *mydeploy.ListDeployController
+	ListDeploy *mydeploy.ListDeployController
 	Registry *myregistry.ListRegistryController
+	InitDeploy *mydeploy.InitDeployController
 }
 
 func NewRouter() *Router {
@@ -22,8 +23,9 @@ func NewRouter() *Router {
 	r.Login = new(mylogin.LoginController)
 	r.Logout = new(mylogout.LogoutController)
 	r.Nav = new(mynavList.NavListController)
-	r.Listdeploy = new(mydeploy.ListDeployController)
+	r.ListDeploy = new(mydeploy.ListDeployController)
 	r.Registry = new(myregistry.ListRegistryController)
+	r.InitDeploy = new(mydeploy.InitDeployController)
 
 	return r
 }
@@ -33,7 +35,8 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/users/login", *r.Login)
 	iris.API("/api/v1/users/logout", *r.Logout)
 	iris.API("/api/v1/navlist", *r.Nav)
-	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.Listdeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.ListDeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/init", *r.InitDeploy)
 	iris.API("/api/v1/registry/images", *r.Registry)
 
 	iris.StaticServe("../frontend", "/static")

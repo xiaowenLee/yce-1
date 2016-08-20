@@ -2,24 +2,34 @@ package deploy
 
 import (
 	"github.com/kataras/iris"
+	"app/backend/common/yce/organization"
 	myqouta "app/backend/model/mysql/quota"
-	mydatacenter "app/backend/model/mysql/datacenter"
+	myerror "app/backend/common/yce/error"
 	myorganization "app/backend/model/mysql/organization"
+	"app/backend/common/util/session"
+	"app/backend/model/yce/deploy"
 	"log"
+	"encoding/json"
 )
 
 
 
-type InitDeploymentController struct {
+type InitDeployController struct {
 	*iris.Context
 	org    *myorganization.Organization
-	OrgId string `json:"orgId"`
-	OrgName string `json:"orgName"`
-	DataCenters []mydatacenter.DataCenter `json:"dataCenters"`
-	Quotas []myqouta.Quota `json:"quotas"`
+	Init deploy.InitDeployment
 }
 
-func (idc *InitDeploymentController) validateSession(sesionId, orgId string) (*myerror.YceError, error) {
+func (idc *InitDeployController) String() string {
+	data, err := json.Marshal(idc.Init)
+	if err != nil {
+		log.Printf("InitDeployController String() Marshal Error: err=%s\n", err)
+		return ""
+	}
+	return string(data)
+}
+
+func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myerror.YceError, error) {
 	// Validate the session
 	ss := session.SessionStoreInstance()
 
@@ -48,12 +58,12 @@ func (idc *InitDeploymentController) validateSession(sesionId, orgId string) (*m
 }
 
 // GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
-func (idc InitDeploymentController) Get(){
+func (idc InitDeployController) Get(){
 	sessionIdFromClient := idc.RequestHeader("Authorization")
 	orgId := idc.Param("orgId")
 
 	// Validate OrgId error
-	ye, err := idc.valideSession(sessionIdFromClient, orgId)
+	ye, err := idc.validateSession(sessionIdFromClient, orgId)
 
 	if ye != nil || err != nil {
 		log.Printf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
@@ -65,6 +75,8 @@ func (idc InitDeploymentController) Get(){
 
 	// Valid session
 	idc.org, err = organization.GetOrganizationById(orgId)
+	idc.Init.OrgId = orgId
+	idc.Init.OrgName = idc.org.Name
 
 	if err != nil {
 		log.Printf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
@@ -76,7 +88,7 @@ func (idc InitDeploymentController) Get(){
 	}
 
 	// Get Datacenters by a organization
-	idc.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)
+	idc.Init.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)
 	if err != nil {
 		log.Printf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
@@ -87,6 +99,24 @@ func (idc InitDeploymentController) Get(){
 	}
 
 	// Get all quotas
+	idc.Init.Quotas, err = myqouta.QueryAllQuotas()
+	if err != nil {
+		log.Printf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
+		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		errJson, _ := ye.EncodeJson()
+		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		idc.Write(errJson)
+		return
+	}
+
+	ye = myerror.NewYceError(0, "OK", idc.String())
+	errJson, _ := ye.EncodeJson()
+	idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	idc.Write(errJson)
+
+	log.Printf("InitDeployController Get over!")
+	return
+
 }
 
 /*

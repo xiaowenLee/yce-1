@@ -7,6 +7,20 @@ import (
 	"fmt"
 )
 
+func Test_QueryAllQuotas(*testing.T) {
+	fmt.Println("Test_QueryAllQuotas")
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	quotas, _ := QueryAllQuotas()
+
+	for index, quota := range quotas {
+		fmt.Printf("Index=%d, name=%s\n", index, quota.Name)
+	}
+
+}
+
+/*
 func Test_QueryQuotaById(*testing.T) {
 	fmt.Println("Test_QueryQuotaById")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
@@ -17,7 +31,6 @@ func Test_QueryQuotaById(*testing.T) {
 	fmt.Printf("%v\n", q)
 }
 
-/*
 func Test_InsertQuota(*testing.T) {
 	fmt.Println("Test_InsertQuota")
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)

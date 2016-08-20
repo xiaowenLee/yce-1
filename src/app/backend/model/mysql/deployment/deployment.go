@@ -114,9 +114,9 @@ func (d *Deployment) InsertDeployment(op int32) error {
 	return nil
 }
 
-func QueryDeploymentByAppName(name string) (*[]*Deployment, error) {
+func QueryDeploymentByAppName(name string) ([]Deployment, error) {
 	// New deployment point array
-	deployments := new([]*Deployment)
+	deployments := make([]Deployment, 0)
 
 	db := mysql.MysqlInstance().Conn()
 
@@ -146,7 +146,7 @@ func QueryDeploymentByAppName(name string) (*[]*Deployment, error) {
 			log.Printf("QueryDeploymentByAppName Error: err=%s\n", err)
 			return nil, err
 		}
-		*deployments = append(*deployments, d)
+		deployments = append(deployments, d)
 
 		log.Printf("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s\n",
 			d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
