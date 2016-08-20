@@ -86,7 +86,7 @@ func (d *Deployment) QueryDeploymentById(id int32) error {
 	return nil
 }
 
-func (d *Deployment) InsertDeployment(op int32) error {
+func (d *Deployment) InsertDeployment() error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
@@ -99,7 +99,6 @@ func (d *Deployment) InsertDeployment(op int32) error {
 
 	// Update ActionAt
 	d.ActionAt = localtime.NewLocalTime().String()
-	d.ActionOp = op
 
 	// Insert a deployment
 	_, err = stmt.Exec(d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)

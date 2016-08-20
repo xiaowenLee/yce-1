@@ -12,8 +12,6 @@ import (
 	"encoding/json"
 )
 
-
-
 type InitDeployController struct {
 	*iris.Context
 	org    *myorganization.Organization
@@ -29,6 +27,7 @@ func (idc *InitDeployController) String() string {
 	return string(data)
 }
 
+// Validate Session
 func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myerror.YceError, error) {
 	// Validate the session
 	ss := session.SessionStoreInstance()

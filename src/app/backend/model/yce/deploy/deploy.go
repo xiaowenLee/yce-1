@@ -30,7 +30,8 @@ type InitDeployment struct {
 	Quotas []myqouta.Quota `json:"quotas"`
 }
 
-type PostDeployment struct {
-	DcIdList []string `json:"dcIdList"`
+type CreateDeployment struct {
+	AppName  string `json: "appName"`
+	DcIdList []int32 `json:"dcIdList"`
 	Deployment extensions.Deployment `json:"deployment`
 }
