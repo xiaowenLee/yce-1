@@ -82,7 +82,6 @@ define([
                         var list = dataObject[i].tags;
                         for (var j in list) {
                             imageArr[k] = dataObject[i].name + ":" + list[j]
-                            console.log("image: ", imageArr[k])
                             k=k+1
                         }
                     }
