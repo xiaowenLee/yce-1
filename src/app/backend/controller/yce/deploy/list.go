@@ -97,7 +97,7 @@ func (ldc *ListDeployController) getAppDisplayDeployment(dcHostList []string) (l
 	return list, nil
 }
 
-func (ldc *ListDeployController) valideSession(sessionId, orgId string) (*myerror.YceError, error){
+func (ldc *ListDeployController) validateSession(sessionId, orgId string) (*myerror.YceError, error){
 	// Validate the session
 	ss := session.SessionStoreInstance()
 
@@ -131,7 +131,7 @@ func (ldc ListDeployController) Get() {
 	orgId := ldc.Param("orgId")
 
 	// Validate OrgId error
-	ye, err := ldc.valideSession(sessionIdFromClient, orgId)
+	ye, err := ldc.validateSession(sessionIdFromClient, orgId)
 
 	if ye != nil || err != nil {
 		log.Printf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)

@@ -43,7 +43,7 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 ### 点击应用发布(左侧菜单)时请求后台数据:
 
-请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/new
+请求的URL: GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
 
 请求头中包含: Authorization: ${sessionId}
 
@@ -63,40 +63,77 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 ```json
 {
-    "code": 0,
-    "message": "....",
-    "data": {
-        "orgId":  "1",
-        "orgName": "Ops",
-        "dataCenters": [
-        {
-            "dcId": "1",
-            "name": "世纪互联",
-            "budget": 10000000,
-            "balance": 10000000
-        },
-        {
-            "dcId": "2",
-            "name": "电信机房",
-            "budget": 10000000,
-            "balance": 10000000
-        },
-        {
-            "dcId": "3",
-            "name": "电子城机房",
-            "budget": 10000000,
-            "balance": 10000000
-        }
-        ],
-        "dcQuotas": {
-            "dcId": "1"
-            "PodMax": 1 
-            // 第一版用不到...
-        }
+  "quotas": [
+    {
+      "comment": "",
+      "modifiedOp": 3,
+      "modifiedAt": "2016-08-15T20:58:16+08:00",
+      "id": 1,
+      "name": "2C4G50G",
+      "cpu": 2,
+      "mem": 4,
+      "rbd": 50,
+      "price": "1000",
+      "status": 1,
+      "createdAt": "2016-08-15T16:32:32Z"
+    },
+    {
+      "comment": "",
+      "modifiedOp": 1,
+      "modifiedAt": "2016-08-15T16:32:32Z",
+      "id": 2,
+      "name": "4C8G100G",
+      "cpu": 4,
+      "mem": 8,
+      "rbd": 100,
+      "price": "1800",
+      "status": 1,
+      "createdAt": "2016-08-15T16:32:32Z"
+    },
+    {
+      "comment": "",
+      "modifiedOp": 1,
+      "modifiedAt": "2016-08-15T16:32:32Z",
+      "id": 3,
+      "name": "4C16G200G",
+      "cpu": 4,
+      "mem": 16,
+      "rbd": 200,
+      "price": "2860",
+      "status": 1,
+      "createdAt": "2016-08-15T16:32:32Z"
     }
+  ],
+  "dataCenters": [
+    {
+      "comment": "",
+      "modifiedOp": 1,
+      "id": 1,
+      "name": "办公网",
+      "host": "172.21.1.11",
+      "port": 8080,
+      "secret": "",
+      "status": 1,
+      "createdAt": "2016-08-15T16:27:30Z",
+      "modifiedAt": "2016-08-15T16:27:30Z"
+    },
+    {
+      "comment": "",
+      "modifiedOp": 2,
+      "id": 2,
+      "name": "电信机房",
+      "host": "10.149.149.3",
+      "port": 8080,
+      "secret": "",
+      "status": 0,
+      "createdAt": "2016-08-15T17:46:42+08:00",
+      "modifiedAt": "2016-08-15T20:36:45+08:00"
+    }
+  ],
+  "orgName": "ops",
+  "orgId": "1"
 }
 ```
-
 
 
 ### 在应用发布页面中,点击镜像输入框后,弹出选择镜像的窗口
@@ -134,25 +171,16 @@ Model定义在src/backend/model/yce/deploy里面，例如：
 
 ### 应用发布请求提交
 
-请求的URL: POST /api/v1/organization/{orgId}/deployments
+请求的URL: POST /api/v1/organization/{orgId}/users/{userId}/deployments
 
-请求头包含: Authorization: ${x-auth-token}
+请求头包含: Authorization: ${sessionId}
 
 POST数据格式(data里面的是实例,用于讲解跟页面的输入框的关系,更严谨的定义看后面)
 
 ```json
 {
-    "dataCenters": [
-        {
-            "dcId": 1
-        },
-        {
-            "dcId": 3
-        },
-        {
-            "dcId": 5
-        }
-    ]
+    "dcIdList": [1, 2],
+    "appName": "nginx-elb",
     "deployment": {
         "spec": {
         "template": {

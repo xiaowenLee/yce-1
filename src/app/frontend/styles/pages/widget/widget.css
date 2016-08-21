@@ -12,7 +12,6 @@
 #widgetAppDetail .app-detail dl{ font-size:14px; margin-top:20px; margin-bottom:0;}
 #widgetAppDetail .app-detail dt{ float:left; line-height:25px; font-weight:bold; text-align:right; width:70px;}
 #widgetAppDetail .app-detail dd{ margin-left:80px; line-height:25px; font-weight:normal;}
-#widgetAppDetail .app-detail dd span{ border-bottom:2px solid #d4d4d4;}
 #widgetAppDetail .labels-table{ margin-top:20px;}
 #widgetAppDetail .labels-table table{ border:none;}
 #widgetAppDetail .labels-table th{ text-align:left; border:none !important;}

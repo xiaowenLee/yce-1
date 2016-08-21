@@ -11,12 +11,14 @@ import (
 )
 
 type Router struct {
-	Login *mylogin.LoginController
-	Logout *mylogout.LogoutController
-	Nav *mynavList.NavListController
-	Listdeploy *mydeploy.ListDeployController
-	Registry *myregistry.ListRegistryController
-	Service *myservice.ListServiceController
+	Login        *mylogin.LoginController
+	Logout       *mylogout.LogoutController
+	Nav          *mynavList.NavListController
+	ListDeploy   *mydeploy.ListDeployController
+	Registry     *myregistry.ListRegistryController
+	Service      *myservice.ListServiceController
+	InitDeploy   *mydeploy.InitDeployController
+	CreateDeploy *mydeploy.CreateDeployController
 }
 
 func NewRouter() *Router {
@@ -24,9 +26,11 @@ func NewRouter() *Router {
 	r.Login = new(mylogin.LoginController)
 	r.Logout = new(mylogout.LogoutController)
 	r.Nav = new(mynavList.NavListController)
-	r.Listdeploy = new(mydeploy.ListDeployController)
+	r.ListDeploy = new(mydeploy.ListDeployController)
 	r.Registry = new(myregistry.ListRegistryController)
 	r.Service = new(myservice.ListServiceController)
+	r.InitDeploy = new(mydeploy.InitDeployController)
+	r.CreateDeploy = new(mydeploy.CreateDeployController)
 
 	return r
 }
@@ -36,10 +40,11 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/users/login", *r.Login)
 	iris.API("/api/v1/users/logout", *r.Logout)
 	iris.API("/api/v1/navlist", *r.Nav)
-	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.Listdeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.ListDeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/init", *r.InitDeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.CreateDeploy)
 	iris.API("/api/v1/registry/images", *r.Registry)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.Service)
-
 
 	iris.StaticServe("../frontend", "/static")
 }
