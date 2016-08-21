@@ -7,7 +7,6 @@ import (
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	myoption "app/backend/model/mysql/option"
 	myerror "app/backend/common/yce/error"
 	"log"
 	"app/backend/common/util/session"
@@ -15,10 +14,11 @@ import (
 	"strconv"
 	"app/backend/common/util/placeholder"
 	"encoding/json"
+	myoption "app/backend/model/mysql/option"
 )
 
 const (
-	ACTION_TYPE = myoption.ONLINE // ONLINE
+	ACTION_TYPE = myoption.ONLINE
 	ACTION_VERBE = "POST"
 	ACTION_URL = "/api/v1/organization/<orgId>/users/<userId>/deployments"
 )
@@ -60,15 +60,9 @@ func (cdc *CreateDeployController) validateSession(sessionId, orgId string) (*my
 
 
 // Get ApiServer by dcId
-func (cdc *CreateDeployController) getApiServerByDcId(dcId string) (string, error) {
-	id, err := strconv.Atoi(dcId)
-	if err != nil {
-		log.Printf("getApiServerByDcId strconv.Atoi Error: err=%s\n", err)
-		return "", nil
-	}
-
+func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) (string, error) {
 	dc := new(mydatacenter.DataCenter)
-	err = dc.QueryDataCenterById(int32(id))
+	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
 		log.Printf("getApiServerById QueryDataCenterById Error: err=%s\n", err)
 		return "", err
@@ -78,12 +72,12 @@ func (cdc *CreateDeployController) getApiServerByDcId(dcId string) (string, erro
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	log.Printf("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%s\n", apiServer, dcId)
+	log.Printf("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d\n", apiServer, dcId)
 	return apiServer, nil
 }
 
 // Get ApiServer List for dcIdList
-func (cdc *CreateDeployController) getApiServerList(dcIdList []string) (error) {
+func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) (error) {
 	// Foreach dcIdList
 	for _, dcId := range dcIdList {
 		// Get ApiServer
@@ -92,18 +86,18 @@ func (cdc *CreateDeployController) getApiServerList(dcIdList []string) (error) {
 			log.Printf("getApiServerList error: err=%s", err)
 			return err
 		}
-		cdc.apiServers = append(apiServers, apiServer)
+		cdc.apiServers = append(cdc.apiServers, apiServer)
 	}
 	return nil
 }
 
 // Create k8sClients for every ApiServer
-func (cdc *CreateDeployController) createK8sClients(apiList []string) error {
+func (cdc *CreateDeployController) createK8sClients() error {
 
 	// Foreach every ApiServer to create it's k8sClient
 	cdc.k8sClients = make([]*client.Client, 0)
 
-	for _, server := range apiList {
+	for _, server := range cdc.apiServers {
 		config := &restclient.Config {
 			Host: server,
 		}
@@ -143,10 +137,10 @@ func (cdc *CreateDeployController)createDeployment(namespace string, deployment 
 // Create Deployment(mysql) and insert it into db
 func (cdc *CreateDeployController)createMysqlDeployment(success bool, name, orgId, userId, json, reason, dcList string) error {
 
-	uph := placeholder.NewPlaceHolader(ACTION_URL)
+	uph := placeholder.NewPlaceHolder(ACTION_URL)
 	actionUrl := uph.Replace("<orgId>", orgId, "<userId>", userId)
 	actionOp, _ := strconv.Atoi(userId)
-	dp := mydeployment.NewDeployment(name, ACTION_TYPE, actionUrl, actionOp, dcList, success, reason, json, "Create a Deployment")
+	dp := mydeployment.NewDeployment(name, ACTION_VERBE, actionUrl, dcList, reason, json, "Create a Deployment", ACTION_TYPE, int32(actionOp), int32(1))
 	err := dp.InsertDeployment()
 	if err != nil {
 		log.Printf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s\n",
@@ -178,7 +172,7 @@ func (cdc *CreateDeployController) Post() {
 
 	// Parse data: deploy.CreateDeployment
 	cd := new(deploy.CreateDeployment)
-	cdc.ReadJson(createDeployment)
+	cdc.ReadJSON(cd)
 
 	// Get DcIdList
 	err = cdc.getApiServerList(cd.DcIdList)
@@ -192,7 +186,7 @@ func (cdc *CreateDeployController) Post() {
 	}
 
 	// Create k8s clients
-	err = cdc.createK8sClients(apiList)
+	err = cdc.createK8sClients()
 	if err != nil {
 		log.Printf("CreateDeployController createK8sClients: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1402, "ERR", "create K8s Client Error")
@@ -203,7 +197,7 @@ func (cdc *CreateDeployController) Post() {
 	}
 
 	// Publish deployment to every datacenter
-	err = cdc.createDeployment(orgId, cd.Deployment)
+	err = cdc.createDeployment(orgId, &cd.Deployment)
 	if err != nil {
 		log.Printf("CreateDeployController createDeployment: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1403, "ERR", "Publish K8s Deployment Error")
@@ -214,7 +208,7 @@ func (cdc *CreateDeployController) Post() {
 	}
 
 	// Encode cd.DcIdList to json
-	dcl, _ := json.Marshal(cd.DcList)
+	dcl, _ := json.Marshal(cd.DcIdList)
 
 	// Encode k8s.deployment to json
 	kd, _ := json.Marshal(cd.Deployment)
