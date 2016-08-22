@@ -62,7 +62,6 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 
 	// foreech repositories
 	url := lrc.BaseUrl + "/v2/" + name + "/tags/list"
-	log.Printf("getTagList URL: name=%s, url=%s\n", name, url)
 
 	client := lrc.c.Client
 	resp, err := client.Get(url)
@@ -89,8 +88,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 		return nil, err
 	}
 
-
-	log.Printf("ListRegistryController getTagList over")
+	// log.Printf("ListRegistryController getTagList over")
 
 	return image, nil
 }

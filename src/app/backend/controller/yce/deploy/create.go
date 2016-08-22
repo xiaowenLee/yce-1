@@ -1,26 +1,26 @@
 package deploy
 
 import (
+	"app/backend/common/util/placeholder"
+	"app/backend/common/util/session"
+	myerror "app/backend/common/yce/error"
+	mydatacenter "app/backend/model/mysql/datacenter"
+	mydeployment "app/backend/model/mysql/deployment"
+	myoption "app/backend/model/mysql/option"
+	"app/backend/model/yce/deploy"
+	"encoding/json"
 	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
-	mydatacenter "app/backend/model/mysql/datacenter"
-	mydeployment "app/backend/model/mysql/deployment"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	myerror "app/backend/common/yce/error"
 	"log"
-	"app/backend/common/util/session"
-	"app/backend/model/yce/deploy"
 	"strconv"
-	"app/backend/common/util/placeholder"
-	"encoding/json"
-	myoption "app/backend/model/mysql/option"
 )
 
 const (
-	ACTION_TYPE = myoption.ONLINE
+	ACTION_TYPE  = myoption.ONLINE
 	ACTION_VERBE = "POST"
-	ACTION_URL = "/api/v1/organization/<orgId>/users/<userId>/deployments"
+	ACTION_URL   = "/api/v1/organization/<orgId>/users/<userId>/deployments"
 )
 
 type CreateDeployController struct {
@@ -58,7 +58,6 @@ func (cdc *CreateDeployController) validateSession(sessionId, orgId string) (*my
 	return nil, nil
 }
 
-
 // Get ApiServer by dcId
 func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) (string, error) {
 	dc := new(mydatacenter.DataCenter)
@@ -77,7 +76,7 @@ func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) (string, error
 }
 
 // Get ApiServer List for dcIdList
-func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) (error) {
+func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) error {
 	// Foreach dcIdList
 	for _, dcId := range dcIdList {
 		// Get ApiServer
@@ -98,7 +97,7 @@ func (cdc *CreateDeployController) createK8sClients() error {
 	cdc.k8sClients = make([]*client.Client, 0)
 
 	for _, server := range cdc.apiServers {
-		config := &restclient.Config {
+		config := &restclient.Config{
 			Host: server,
 		}
 
@@ -111,13 +110,14 @@ func (cdc *CreateDeployController) createK8sClients() error {
 
 		cdc.k8sClients = append(cdc.k8sClients, c)
 		cdc.apiServers = append(cdc.apiServers, server)
+		log.Printf("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s\n", c, server)
 	}
 
 	return nil
 }
 
 // Publish k8s.Deployment to every datacenter which in dcIdList
-func (cdc *CreateDeployController)createDeployment(namespace string, deployment *extensions.Deployment) error {
+func (cdc *CreateDeployController) createDeployment(namespace string, deployment *extensions.Deployment) error {
 
 	// Foreach every k8sClient to create deployment
 	for index, cli := range cdc.k8sClients {
@@ -128,14 +128,14 @@ func (cdc *CreateDeployController)createDeployment(namespace string, deployment 
 			return err
 		}
 
-		log.Printf("Create deployment successfully: namespace=%s, apiserver=%s\n")
+		log.Printf("Create deployment successfully: namespace=%s, apiserver=%s\n", namespace, cdc.apiServers[index])
 	}
 
 	return nil
 }
 
 // Create Deployment(mysql) and insert it into db
-func (cdc *CreateDeployController)createMysqlDeployment(success bool, name, orgId, userId, json, reason, dcList string) error {
+func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, orgId, userId, json, reason, dcList string) error {
 
 	uph := placeholder.NewPlaceHolder(ACTION_URL)
 	actionUrl := uph.Replace("<orgId>", orgId, "<userId>", userId)
@@ -148,7 +148,7 @@ func (cdc *CreateDeployController)createMysqlDeployment(success bool, name, orgI
 		return err
 	}
 
-	log.Printf("CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s, err=%s\n",
+	log.Printf("CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s\n",
 		actionUrl, actionOp, dcList)
 	return nil
 }
@@ -232,4 +232,3 @@ func (cdc CreateDeployController) Post() {
 	log.Printf("CreateDeploymentController over!")
 
 }
-
