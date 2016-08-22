@@ -32,6 +32,7 @@ type InitDeployment struct {
 
 type CreateDeployment struct {
 	AppName  string `json: "appName"`
+	OrgName  string `json: "orgName"`
 	DcIdList []int32 `json:"dcIdList"`
 	Deployment extensions.Deployment `json:"deployment`
 }
