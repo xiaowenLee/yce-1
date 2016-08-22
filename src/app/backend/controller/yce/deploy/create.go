@@ -153,8 +153,8 @@ func (cdc *CreateDeployController)createMysqlDeployment(success bool, name, orgI
 	return nil
 }
 
-// POST /api/v1/organization/{orgId}/users/{userId}/deployments
-func (cdc *CreateDeployController) Post() {
+// POST /api/v1/organizations/{orgId}/users/{userId}/deployments
+func (cdc CreateDeployController) Post() {
 	sessionIdFromClient := cdc.RequestHeader("Authorization")
 	orgId := cdc.Param("orgId")
 	userId := cdc.Param("userId")
@@ -197,7 +197,8 @@ func (cdc *CreateDeployController) Post() {
 	}
 
 	// Publish deployment to every datacenter
-	err = cdc.createDeployment(orgId, &cd.Deployment)
+	orgName := cd.OrgName
+	err = cdc.createDeployment(orgName, &cd.Deployment)
 	if err != nil {
 		log.Printf("CreateDeployController createDeployment: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1403, "ERR", "Publish K8s Deployment Error")
