@@ -85,8 +85,8 @@ func (y *YceLogger) Fatalf() {
 ### 示例:
 
 ```
-2016-08-23 17:19:48 [DEBUG] yce-log1.go:46: main(): main debug log
-2016-08-23 17:19:48 [FATAL] yce-log1.go:51: main(): main fatal error
+2016-08-23 17:19:48.026 [DEBUG] yce-log1.go:46: main(): main debug log
+2016-08-23 17:19:48.026 [FATAL] yce-log1.go:51: main(): main fatal error
 
 ```
 
