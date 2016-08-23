@@ -76,7 +76,6 @@ func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) (string, error
 }
 
 // Get ApiServer List for dcIdList
-
 func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) error {
 	// Foreach dcIdList
 	for _, dcId := range dcIdList {
@@ -112,6 +111,7 @@ func (cdc *CreateDeployController) createK8sClients() error {
 
 		cdc.k8sClients = append(cdc.k8sClients, c)
 		cdc.apiServers = append(cdc.apiServers, server)
+		log.Printf("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s\n", c, server)
 	}
 
 	return nil
@@ -129,7 +129,7 @@ func (cdc *CreateDeployController) createDeployment(namespace string, deployment
 			return err
 		}
 
-		log.Printf("Create deployment successfully: namespace=%s, apiserver=%s\n")
+		log.Printf("Create deployment successfully: namespace=%s, apiserver=%s\n", namespace, cdc.apiServers[index])
 	}
 
 	return nil
@@ -149,7 +149,7 @@ func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, org
 		return err
 	}
 
-	log.Printf("CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s, err=%s\n",
+	log.Printf("CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s\n",
 		actionUrl, actionOp, dcList)
 	return nil
 }

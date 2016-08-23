@@ -1,20 +1,20 @@
 package deploy
 
 import (
-	"github.com/kataras/iris"
-	"app/backend/common/yce/organization"
-	myqouta "app/backend/model/mysql/quota"
-	myerror "app/backend/common/yce/error"
-	myorganization "app/backend/model/mysql/organization"
 	"app/backend/common/util/session"
+	myerror "app/backend/common/yce/error"
+	"app/backend/common/yce/organization"
+	myorganization "app/backend/model/mysql/organization"
+	myqouta "app/backend/model/mysql/quota"
 	"app/backend/model/yce/deploy"
-	"log"
 	"encoding/json"
+	"github.com/kataras/iris"
+	"log"
 )
 
 type InitDeployController struct {
 	*iris.Context
-	org    *myorganization.Organization
+	org  *myorganization.Organization
 	Init deploy.InitDeployment
 }
 
@@ -57,7 +57,7 @@ func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myer
 }
 
 // GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
-func (idc InitDeployController) Get(){
+func (idc InitDeployController) Get() {
 	sessionIdFromClient := idc.RequestHeader("Authorization")
 	orgId := idc.Param("orgId")
 
@@ -177,4 +177,3 @@ response example:
 	}
 }
 */
-
