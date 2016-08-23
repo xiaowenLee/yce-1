@@ -7,6 +7,8 @@ src/app/node_modules/
 
 # ignore dist directory
 src/app/dist/
+src/app/frontend/
+
 
 # ignore composer vendor directory
 /vendor
@@ -38,6 +40,7 @@ Thumbs.db
 *.exe
 *.o
 *.so
+/src/app/backend/yce
 
 # ignore packaged files
 *.7z

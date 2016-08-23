@@ -8,7 +8,7 @@
 
 请求的URL:
 
-GET /api/v1/organizations/{orgId}/users/{userId}/deployments
+GET /api/v1/organizations/{orgId}/users/{userId}/deployments/init
 
 请求头中包含: Authorization: ${sessionId}
 
