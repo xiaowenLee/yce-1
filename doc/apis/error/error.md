@@ -1,4 +1,4 @@
-日志规范
+错误
 ============
 
 ### 日志格式
@@ -13,7 +13,7 @@ TIME: [LOG_LEVEL] [WHERE] [WHO] [Context]
 
 #### 时间格式
 
-日期采用 yyyy-mm-dd hh:mm:ss.ms 的格式, 精确到毫秒
+日期采用 yyyy-mm-dd hh-mm-ss.ms 的格式, 精确到毫秒
 
 
 #### 日志等级
