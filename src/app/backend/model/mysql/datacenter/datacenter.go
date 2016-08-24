@@ -1,13 +1,13 @@
 package datacenter
 
 import (
+	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-	mylog "app/backend/common/util/log"
 	"encoding/json"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment " +
@@ -170,7 +170,7 @@ func (dc *DataCenter) DeleteDataCenter(op int32) error {
 		return err
 	}
 
-	log.Info("DeleteDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+	log.Infof("DeleteDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }

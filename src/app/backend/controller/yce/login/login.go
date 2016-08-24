@@ -2,15 +2,15 @@ package login
 
 import (
 	"app/backend/common/util/encrypt"
+	mylog "app/backend/common/util/log"
 	mysession "app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	myuser "app/backend/model/mysql/user"
 	"github.com/kataras/iris"
-	mylog "app/backend/common/util/log"
 	"strconv"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 type LoginController struct {
 	*iris.Context
@@ -57,7 +57,7 @@ func (lc *LoginController) session(user *myuser.User) (*mysession.Session, *myer
 	log.Infof("Session: sessionId=%s, userId=%s, userName=%s, orgId=%s", session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	if err != nil {
-		log.Fatal("Set session error: sessionId=%s, err=%s", session.SessionId, err)
+		log.Fatalf("Set session error: sessionId=%s, err=%s", session.SessionId, err)
 		ye := myerror.NewYceError(2001, err.Error(), "")
 		return nil, ye
 	}

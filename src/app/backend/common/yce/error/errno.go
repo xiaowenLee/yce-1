@@ -14,7 +14,7 @@ const (
 	EYCE	int32 = 1400
 )
 
-var Errors = map[int32] Error {
+const Errors = map[int32] *Error {
 
 	// 1000~1099 MySQL错误
 	EMYSQL: &Error{
