@@ -2,8 +2,10 @@ package registry
 
 import (
 	"encoding/json"
-	"log"
+	mylog "app/backend/common/util/log"
 )
+
+var log =  mylog.Log
 
 const (
 	REGISTRY_HOST = "registry.docker"
@@ -40,7 +42,7 @@ func (r *Registry) GetImagesList() (string, error) {
 	images, err := json.Marshal(r.Images)
 
 	if err != nil {
-		log.Printf("GetImageList Error: err=%s\n", err)
+		log.Errorf("GetImageList Error: err=%s\n", err)
 		return "", err
 	}
 
@@ -51,7 +53,7 @@ func (r *Registry) DecodeJson(data string) error {
 	err := json.Unmarshal([]byte(data), r)
 
 	if err != nil {
-		log.Printf("DecodeJson Error: err=%s\n", err)
+		log.Errorf("DecodeJson Error: err=%s\n", err)
 		return err
 	}
 
@@ -61,7 +63,7 @@ func (r *Registry) DecodeJson(data string) error {
 func (r *Registry) EncodeJson() (string, error) {
 	data, err := json.Marshal(r)
 	if err != nil {
-		log.Printf("EncodeJson Error: err=%s\n", err)
+		log.Errorf("EncodeJson Error: err=%s\n", err)
 		return "", err
 	}
 	return string(data), nil

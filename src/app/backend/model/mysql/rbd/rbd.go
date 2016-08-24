@@ -4,8 +4,10 @@ import (
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	"log"
+	mylog "app/backend/common/util/log"
 )
+
+var log =  mylog.Log
 
 const (
 	RBD_SELECT = "SELECT id, name, pool, size, filesystem, " +
@@ -65,8 +67,7 @@ func (r *Rbd) QueryRbdById(id int32) {
 	// Prepare select-statement
 	stmt, err := db.Prepare(RBD_SELECT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Fatalf("Rbd QureyRbdById Error: err=%s", err)
 	}
 	defer stmt.Close()
 
@@ -75,8 +76,7 @@ func (r *Rbd) QueryRbdById(id int32) {
 		&r.OrgId, &r.DcID, &r.Status, &r.CreatedAt, &r.ModifiedAt, &r.ModifiedOp, &r.Comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Errorf("Rbd QureyRbdById Error: err=%s", err)
 	}
 
 }
@@ -87,8 +87,7 @@ func (r *Rbd) InsertRbd(op int32) {
 	// Prepared insert-statement
 	stmt, err := db.Prepare(RBD_INSERT)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Fatalf("Rbd InsertRbd Error: err=%s", err)
 	}
 	defer stmt.Close()
 
@@ -102,8 +101,7 @@ func (r *Rbd) InsertRbd(op int32) {
 		r.DcID, r.Status, r.CreatedAt, r.ModifiedAt, r.ModifiedOp, r.Comment)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Errorf("Rbd InsertRbd Error: err=%s", err)
 	}
 
 }
@@ -115,8 +113,7 @@ func (r *Rbd) UpdateRbd(op int32) {
 	// Prepared update-statement
 	stmt, err := db.Prepare(RBD_UPDATE)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Fatalf("Rbd UpdateRbd Error: err=%s", err)
 	}
 	defer stmt.Close()
 
@@ -129,8 +126,7 @@ func (r *Rbd) UpdateRbd(op int32) {
 		r.Status, r.CreatedAt, r.ModifiedAt, r.ModifiedOp, r.Comment, r.Id)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Errorf("Rbd UpdateRbd Error: err=%s", err)
 	}
 
 }
@@ -143,7 +139,6 @@ func (r *Rbd) DeleteRbd(op int32) {
 	stmt, err := db.Prepare(RBD_DELETE)
 	if err != nil {
 		log.Fatal(err)
-		panic(err.Error())
 	}
 	defer stmt.Close()
 
@@ -156,7 +151,6 @@ func (r *Rbd) DeleteRbd(op int32) {
 	_, err = stmt.Exec(r.Status, r.ModifiedAt, r.ModifiedOp, r.Id)
 	if err != nil {
 		log.Fatal(err)
-		panic(err.Error())
 	}
 
 }

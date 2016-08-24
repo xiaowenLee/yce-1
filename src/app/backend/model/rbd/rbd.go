@@ -5,12 +5,14 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"log"
+	mylog "app/backend/common/util/log"
 	"os/exec"
 	"strconv"
 	"strings"
+	"log"
 )
+
+var log =  mylog.Log
 
 const (
 	RBD_CREATE         = "rbd create <image> -s <size> -p <pool>"
@@ -64,15 +66,14 @@ func (rb *RbdBlock) Create() error {
 	parts = parts[1:len(parts)]
 
 	// Exec shell command
-	out, err := exec.Command(head, parts...).Output()
+	_, err := exec.Command(head, parts...).Output()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("RbdBlock Create Error: err=%s", err)
 		return err
 
 	}
 
-	fmt.Printf("%s\n", out)
 	return err
 
 }
@@ -89,7 +90,7 @@ func (rb *RbdBlock) GetMappedDevice(output []byte, image string) (pool, device s
 	for {
 		str, err := reader.ReadString('\n')
 		if err != nil {
-			// log.Fatal(err)
+			log.Fatal("RbdBlock GetMappedDevice Error: err=%s", err)
 			break
 		}
 
@@ -124,7 +125,7 @@ func (rb *RbdBlock) ShowMapped() error {
 	out, err := exec.Command(head, parts...).Output()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("RbdBlock ShowMapped Command Error: err=%s", err)
 		return err
 	}
 
@@ -133,7 +134,6 @@ func (rb *RbdBlock) ShowMapped() error {
 	// if pool != rb.pool, big problem!
 	if !strings.EqualFold(pool, rb.Pool) {
 		log.Fatalf("RBD Problem: pool name mismatch! GetMappedDevice.pool=%s, rb.pool=%s\n", pool, rb.Pool)
-		panic("RBD Problem: pool name mismatch! GetMappedDevice.pool=%s, rb.pool=%s\n")
 	}
 
 	rb.Device = device
@@ -148,8 +148,6 @@ func (rb *RbdBlock) Map() error {
 
 	cmd := ph.Replace("<image>", rb.Image)
 
-	fmt.Printf("CMD: %s\n", cmd)
-
 	// Exec unmap command
 	parts := strings.Fields(cmd)
 	head := parts[0]
@@ -157,12 +155,9 @@ func (rb *RbdBlock) Map() error {
 
 	out, err := exec.Command(head, parts...).Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("RbdBlock Map Command Error: err=%s", err)
 		return err
 	}
-
-	log.Println(string(out))
-	fmt.Println(string(out))
 
 	return nil
 }
@@ -181,11 +176,9 @@ func (rb *RbdBlock) UnMap() error {
 
 	out, err := exec.Command(head, parts...).Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("RbdBlock UnMap Error: err=%s", err)
 		return err
 	}
-
-	log.Println(string(out))
 
 	return nil
 }
@@ -204,11 +197,9 @@ func (rb *RbdBlock) MakeFileSystem() error {
 
 	out, err := exec.Command(head, parts...).Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("RbdBlock MakeFileSystem Error: err=%s", err)
 		return err
 	}
-
-	log.Println(string(out))
 
 	return nil
 }
@@ -225,13 +216,12 @@ func (rb *RbdBlock) Remove() error {
 	head := parts[0]
 	parts = parts[1:len(parts)]
 
-	out, err := exec.Command(head, parts...).Output()
+	_, err := exec.Command(head, parts...).Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("RbdBlock Remove Error: err=%s", err)
 		return err
 	}
 
-	log.Println(string(out))
 	return nil
 }
 
@@ -239,16 +229,14 @@ func (rb *RbdBlock) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), rb)
 
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Fatal("DecodeJson Error: err=%s", err)
 	}
 }
 
 func (rb *RbdBlock) EncodeJson() string {
 	data, err := json.Marshal(rb)
 	if err != nil {
-		log.Fatal(err)
-		panic(err.Error())
+		log.Fatal("EncodeJson Error: err=%s", err)
 	}
 	return string(data)
 }

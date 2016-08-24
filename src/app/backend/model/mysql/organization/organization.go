@@ -2,11 +2,13 @@ package organization
 
 import (
 	mysql "app/backend/common/util/mysql"
+	mylog "app/backend/common/util/log"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
 	"github.com/shopspring/decimal"
-	"log"
 )
+
+var log =  mylog.Log
 
 const (
 	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcList," +
@@ -65,7 +67,7 @@ func (o *Organization) QueryOrganizationById(id int32) error {
 	// Prepare select-statement
 	stmt, err := db.Prepare(ORG_SELECT)
 	if err != nil {
-		log.Printf("QueryOrganizationById Error: err=%s\n", err)
+		log.Errorf("QueryOrganizationById Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -73,11 +75,11 @@ func (o *Organization) QueryOrganizationById(id int32) error {
 	// Query organization by id
 	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &o.Comment)
 	if err != nil {
-		log.Printf("QureyOrganizationById Error: err=%s\n", err)
+		log.Errorf("QureyOrganizationById Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
@@ -86,7 +88,7 @@ func (o *Organization) QueryBudgetById(id int32) (budget decimal.Decimal, err er
 	o.QueryOrganizationById(id)
 	budget, err = decimal.NewFromString(o.Budget)
 
-	log.Printf("QueryBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("QueryBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return budget, err
 }
@@ -95,7 +97,7 @@ func (o *Organization) QueryBalanceById(id int32) (balance decimal.Decimal, err 
 	o.QueryOrganizationById(id)
 	balance, err = decimal.NewFromString(o.Balance)
 
-	log.Printf("QueryBalanceById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("QueryBalanceById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return balance, err
 }
@@ -106,7 +108,7 @@ func (o *Organization) InsertOrganization(op int32) error {
 	// Prepare insert-statement
 	stmt, err := db.Prepare(ORG_INSERT)
 	if err != nil {
-		log.Printf("InsertOrganization Error: err=%s\n", err)
+		log.Errorf("InsertOrganization Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -119,11 +121,11 @@ func (o *Organization) InsertOrganization(op int32) error {
 	// Insert a organization
 	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp, o.Comment)
 	if err != nil {
-		log.Printf("InsertOrganization Error: err=%s\n", err)
+		log.Errorf("InsertOrganization Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("InsertOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("InsertOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
@@ -134,7 +136,7 @@ func (o *Organization) UpdateOrganization(op int32) error {
 	// Prepare update-statement
 	stmt, err := db.Prepare(ORG_UPDATE)
 	if err != nil {
-		log.Printf("UpdateOrganization Error: err=%s\n", err)
+		log.Errorf("UpdateOrganization Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -147,11 +149,11 @@ func (o *Organization) UpdateOrganization(op int32) error {
 	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.ModifiedAt, o.ModifiedOp, o.Comment, o.Id)
 
 	if err != nil {
-		log.Printf("UpdateOrganization Error: err=%s\n", err)
+		log.Errorf("UpdateOrganization Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("UpdateOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("UpdateOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 
 	return nil
@@ -160,7 +162,7 @@ func (o *Organization) UpdateOrganization(op int32) error {
 func (o *Organization) UpdateBudgetById(budget string, op int32) {
 	o.Budget = budget
 
-	log.Printf("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	o.UpdateOrganization(op)
 }
@@ -168,7 +170,7 @@ func (o *Organization) UpdateBudgetById(budget string, op int32) {
 func (o *Organization) UpdateBalanceById(balance string, op int32) {
 	o.Balance = balance
 
-	log.Printf("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	o.UpdateOrganization(op)
 }
@@ -179,7 +181,7 @@ func (o *Organization) DeleteOrganization(op int32) error {
 	// Prepared delete-statement
 	stmt, err := db.Prepare(ORG_DELETE)
 	if err != nil {
-		log.Printf("DeleteOrganization Error: err=%s\n", err)
+		log.Errorf("DeleteOrganization Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -192,11 +194,11 @@ func (o *Organization) DeleteOrganization(op int32) error {
 	// Delete a org
 	_, err = stmt.Exec(o.Status, o.ModifiedAt, o.ModifiedOp, o.Id)
 	if err != nil {
-		log.Printf("DeleteOrganization Error: err=%s\n", err)
+		log.Errorf("DeleteOrganization Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("DeleteBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("DeleteBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
@@ -205,14 +207,14 @@ func (o *Organization) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), o)
 
 	if err != nil {
-		log.Printf("DecodeJson Error: err=%s\n", err)
+		log.Errorf("DecodeJson Error: err=%s", err)
 	}
 }
 
 func (o *Organization) EncodeJson() string {
 	data, err := json.Marshal(o)
 	if err != nil {
-		log.Printf("EncodeJson Erro: err=%s\n", err)
+		log.Errorf("EncodeJson Erro: err=%s", err)
 		return ""
 	}
 	return string(data)

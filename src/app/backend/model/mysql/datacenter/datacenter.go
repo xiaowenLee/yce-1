@@ -3,9 +3,11 @@ package datacenter
 import (
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
+	mylog "app/backend/common/util/log"
 	"encoding/json"
-	"log"
 )
+
+var log =  mylog.Log
 
 const (
 	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment " +
@@ -60,7 +62,7 @@ func (dc *DataCenter) QueryDataCenterById(id int32) error {
 	// Prepare select-statement
 	stmt, err := db.Prepare(DC_SELECT)
 	if err != nil {
-		log.Printf("QueryDataCenterById Error: err=%s\n", err)
+		log.Errorf("QueryDataCenterById Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -75,11 +77,11 @@ func (dc *DataCenter) QueryDataCenterById(id int32) error {
 	dc.Comment = string(comment)
 
 	if err != nil {
-		log.Printf("QueryDataCenterById Error: err=%s\n", err)
+		log.Errorf("QueryDataCenterById Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("QureyDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("QureyDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 
 	return nil
@@ -91,7 +93,7 @@ func (dc *DataCenter) InsertDataCenter(op int32) error {
 	// Prepare insert-statement
 	stmt, err := db.Prepare(DC_INSERT)
 	if err != nil {
-		log.Printf("InsertDataCenter Error: err=%s\n", err)
+		log.Errorf("InsertDataCenter Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -106,11 +108,11 @@ func (dc *DataCenter) InsertDataCenter(op int32) error {
 		dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp, dc.Comment)
 
 	if err != nil {
-		log.Printf("InsertDataCenter Error: err=%s\n", err)
+		log.Errorf("InsertDataCenter Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("InsertDataCenterById: id=%d, name=%s, host=%d, port=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp\n",
+	log.Infof("InsertDataCenterById: id=%d, name=%s, host=%d, port=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }
@@ -121,7 +123,7 @@ func (dc *DataCenter) UpdateDataCenter(op int32) error {
 	// Prepare update-statement
 	stmt, err := db.Prepare(DC_UPDATE)
 	if err != nil {
-		log.Println(err)
+		log.Errorf("DataCenter UpdateDataCenter Prepare Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -135,11 +137,11 @@ func (dc *DataCenter) UpdateDataCenter(op int32) error {
 		dc.ModifiedAt, dc.ModifiedOp, dc.Comment, dc.Id)
 
 	if err != nil {
-		log.Println(err)
+		log.Errorf("DataCenter UpdateDataCenter Exec Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("UpdateDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("UpdateDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 
@@ -151,7 +153,7 @@ func (dc *DataCenter) DeleteDataCenter(op int32) error {
 	// Prepare delete-statement
 	stmt, err := db.Prepare(DC_DELETE)
 	if err != nil {
-		log.Printf("DeleteDatCenter Error: err=%s\n", err)
+		log.Errorf("DeleteDatCenter Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -164,11 +166,11 @@ func (dc *DataCenter) DeleteDataCenter(op int32) error {
 	dc.Status = INVALID
 	_, err = stmt.Exec(dc.Status, dc.ModifiedAt, dc.ModifiedOp, dc.Id)
 	if err != nil {
-		log.Printf("DeleteDataCenter Error: err=%s\n", err)
+		log.Errorf("DeleteDataCenter Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("DeleteDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Info("DeleteDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }
@@ -177,14 +179,14 @@ func (dc *DataCenter) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), dc)
 
 	if err != nil {
-		log.Printf("DecodeJson Error: err=%s\n", err)
+		log.Errorf("DecodeJson Error: err=%s", err)
 	}
 }
 
 func (dc *DataCenter) EncodeJson() string {
 	data, err := json.Marshal(dc)
 	if err != nil {
-		log.Printf("EncdoeJson Error: err=%s\n", err)
+		log.Errorf("EncdoeJson Error: err=%s", err)
 		return ""
 	}
 	return string(data)

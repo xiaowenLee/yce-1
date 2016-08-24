@@ -1,14 +1,16 @@
 package organization
 
 import (
-	"log"
 	"strconv"
 	"app/backend/model/mysql/organization"
 	"app/backend/common/yce/datacenter"
+	mylog "app/backend/common/util/log"
 	mydatacenter "app/backend/model/mysql/datacenter"
 
 	"encoding/json"
 )
+
+var log =  mylog.Log
 
 type DcList struct {
 	DataCenter []string `json:"dcList"`
@@ -21,13 +23,13 @@ func GetOrganizationById(orgId string) (*organization.Organization, error) {
 	myorganization := new(organization.Organization)
 	oid, err := strconv.Atoi(orgId)
 	if err != nil {
-		log.Printf("GetOrganizationById error: orgId=%s, error=%s\n", orgId, err)
+		log.Errorf("GetOrganizationById error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
 
 	err = myorganization.QueryOrganizationById(int32(oid))
 	if err != nil {
-		log.Printf("GetOrganizationById error: orgId=%s, error=%s\n", orgId, err)
+		log.Errorf("GetOrganizationById error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
 
@@ -41,7 +43,7 @@ func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacente
 
 	err := json.Unmarshal([]byte(org.DcList), &dcList)
 	if err != nil {
-		log.Printf("DecodeJSON error: dc=%s error=%s\n", dcList, err)
+		log.Errorf("DecodeJSON error: dc=%s error=%s", dcList, err)
 		return nil, err
 	}
 
@@ -52,7 +54,7 @@ func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacente
 	for i := 0; i < len(dcList.DataCenter); i++ {
 		dc, err := datacenter.GetDataCenterById(dcList.DataCenter[i])
 		if err != nil {
-			log.Printf("Get Organization By orgId error: orgId=%s, error=%s\n", orgId, err)
+			log.Errorf("Get Organization By orgId error: orgId=%s, error=%s", orgId, err)
 			return nil, err
 		}
 		dataCenters[i] = *dc

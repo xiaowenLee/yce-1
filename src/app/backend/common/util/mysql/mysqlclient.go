@@ -3,10 +3,13 @@ package mysql
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
+	// "log"
+	mylog "app/backend/common/util/log"
 	"sync"
 	"time"
 )
+
+var log =  mylog.Log
 
 const (
 	MAX_POOL_SIZE        = 10
@@ -49,7 +52,7 @@ func (c *MysqlClient) Open() {
 	db, err := sql.Open(DATABASE_DRIVER, endpoint)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("MysqlClient Open Error: err=%s", err)
 		return
 	}
 
@@ -75,7 +78,7 @@ func (c *MysqlClient) Ping() {
 	case <-time.After(time.Millisecond * time.Duration(DELAY_MILLISECONDS)):
 		err := c.DB.Ping()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("MysqlClient Ping Error: err=%s", err)
 			c.Open()
 		}
 	}

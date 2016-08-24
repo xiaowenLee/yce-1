@@ -4,8 +4,10 @@ import (
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	"log"
+	mylog "app/backend/common/util/log"
 )
+
+var log =  mylog.Log
 
 const (
 	QUOTA_SELECT = "SELECT id, name, cpu, mem, rbd, price, " +
@@ -67,7 +69,7 @@ func (q *Quota) QueryQuotaById(id int32) error {
 	// Prepare select-statement
 	stmt, err := db.Prepare(QUOTA_SELECT)
 	if err != nil {
-		log.Printf("QueryQuotaById Error: err=%s\n", err)
+		log.Errorf("QueryQuotaById Error: err=%s\n", err)
 		return err
 	}
 	defer stmt.Close()
@@ -80,11 +82,11 @@ func (q *Quota) QueryQuotaById(id int32) error {
 	q.Comment = string(comment)
 
 	if err != nil {
-		log.Printf("QueryQuotaById Error: err=%s\n", err)
+		log.Errorf("QueryQuotaById Error: err=%s\n", err)
 		return err
 	}
 
-	log.Printf("QueryQuotaById: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("QueryQuotaById: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
 		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
 	return nil
 }
@@ -95,7 +97,7 @@ func (q *Quota) InsertQuota(op int32) error {
 	// Prepared insert-statement
 	stmt, err := db.Prepare(QUOTA_INSERT)
 	if err != nil {
-		log.Printf("InsertQuota Error: err=%s\n", err)
+		log.Errorf("InsertQuota Error: err=%s\n", err)
 		return err
 	}
 	defer stmt.Close()
@@ -110,11 +112,11 @@ func (q *Quota) InsertQuota(op int32) error {
 		q.CreatedAt, q.ModifiedAt, q.ModifiedOp, q.Comment)
 
 	if err != nil {
-		log.Printf("InsertQuota Error: err=%s\n", err)
+		log.Errorf("InsertQuota Error: err=%s\n", err)
 		return err
 	}
 
-	log.Printf("QueryQuotaById: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("QueryQuotaById: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
 		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
 	return nil
 }
@@ -126,7 +128,7 @@ func (q *Quota) UpdateQuota(op int32) error {
 	// Prepared update-statement
 	stmt, err := db.Prepare(QUOTA_UPDATE)
 	if err != nil {
-		log.Printf("UpdateQuota Error: err=%s\n", err)
+		log.Errorf("UpdateQuota Error: err=%s\n", err)
 		return err
 	}
 	defer stmt.Close()
@@ -138,11 +140,11 @@ func (q *Quota) UpdateQuota(op int32) error {
 	// Update a quota
 	_, err = stmt.Exec(q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.ModifiedAt, q.ModifiedOp, q.Comment, q.Id)
 	if err != nil {
-		log.Printf("UpdateQuota Error: err=%s\n", err)
+		log.Errorf("UpdateQuota Error: err=%s\n", err)
 		return nil
 	}
 
-	log.Printf("UpdateQuota: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("UpdateQuota: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
 		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
 	return nil
 }
@@ -154,7 +156,7 @@ func (q *Quota) DeleteQuota(op int32) error {
 	// Prepared delete-statement
 	stmt, err := db.Prepare(QUOTA_DELETE)
 	if err != nil {
-		log.Printf("UpdateQuota Error: err=%s\n", err)
+		log.Errorf("UpdateQuota Error: err=%s\n", err)
 		return err
 	}
 	defer stmt.Close()
@@ -167,11 +169,11 @@ func (q *Quota) DeleteQuota(op int32) error {
 	// Update a quota
 	_, err = stmt.Exec(q.Status, q.ModifiedAt, q.ModifiedOp, q.Id)
 	if err != nil {
-		log.Printf("UpdateQuota Error: err=%s\n", err)
+		log.Errorf("UpdateQuota Error: err=%s\n", err)
 		return err
 	}
 
-	log.Printf("UpdateQuota: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("UpdateQuota: id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
 		q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
 	return nil
 }
@@ -185,14 +187,14 @@ func QueryAllQuotas() ([]Quota, error) {
 	// Prepare select-statement
 	stmt, err := db.Prepare(QUOTA_SELECT_ALL)
 	if err != nil {
-		log.Printf("QueryQuota Error: err=%s\n", err)
+		log.Errorf("QueryQuota Error: err=%s\n", err)
 		return nil, err
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query()
 	if err != nil {
-		log.Printf("QueryAllQuotas Error: err=%s\n", err)
+		log.Errorf("QueryAllQuotas Error: err=%s\n", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -207,12 +209,12 @@ func QueryAllQuotas() ([]Quota, error) {
 		q.Comment = string(comment)
 
 		if err != nil {
-			log.Printf("QueryAllQuotas rows.Next() Error: err=%s\n", err)
+			log.Errorf("QueryAllQuotas rows.Next() Error: err=%s\n", err)
 			return nil, err
 		}
 
 		quotas = append(quotas, *q)
-		log.Printf("QueryAllQuotas row.Next(): id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+		log.Infof("QueryAllQuotas row.Next(): id=%d, name=%s, cpu=%d, mem=%d, rbd=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
 			q.Id, q.Name, q.Cpu, q.Mem, q.Rbd, q.Price, q.Status, q.CreatedAt, q.ModifiedAt, q.ModifiedOp)
 	}
 
@@ -223,14 +225,14 @@ func (q *Quota) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), q)
 
 	if err != nil {
-		log.Printf("DecodeJson Error: err=%s\n", err)
+		log.Errorf("DecodeJson Error: err=%s\n", err)
 	}
 }
 
 func (q *Quota) EncodeJson() string {
 	data, err := json.Marshal(q)
 	if err != nil {
-		log.Println("DecodeJson Error: err=%s\n", err)
+		log.Errorf("DecodeJson Error: err=%s\n", err)
 		return ""
 	}
 	return string(data)

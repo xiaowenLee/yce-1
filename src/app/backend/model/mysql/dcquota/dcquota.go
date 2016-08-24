@@ -4,8 +4,10 @@ import (
 	"app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	"log"
+	mylog "app/backend/common/util/log"
 )
+
+var log =  mylog.Log
 
 const (
 	DCQUOTA_SELECT = "SELECT id, dcId, orgId, podNumLimit, podCpuMax, podMemMax, podCpuMin, " +
@@ -75,7 +77,7 @@ func (dc *DcQuota) QueryDcQuotaById(id int32) error {
 	// Prepare select-statement
 	stmt, err := db.Prepare(DCQUOTA_SELECT)
 	if err != nil {
-		log.Fatal("QueryDcQuotaById Error: err=%s\n", err)
+		log.Fatalf("QueryDcQuotaById Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -89,11 +91,11 @@ func (dc *DcQuota) QueryDcQuotaById(id int32) error {
 	dc.Comment = string(comment)
 
 	if err != nil {
-		log.Printf("QueryDcQuotaById Error: err=%s\n", err)
+		log.Errorf("QueryDcQuotaById Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("QueryDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("QueryDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }
@@ -104,7 +106,7 @@ func (dc *DcQuota) InsertDcQuota(op int32) error {
 	// Prepare insert-statement
 	stmt, err := db.Prepare(DCQUOTA_INSERT)
 	if err != nil {
-		log.Printf("InsertDcQuota Error: err=%s\n", err)
+		log.Errorf("InsertDcQuota Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -118,11 +120,11 @@ func (dc *DcQuota) InsertDcQuota(op int32) error {
 	_, err = stmt.Exec(dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.RbdQuota, dc.PodRbdMax, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp, dc.Comment)
 
 	if err != nil {
-		log.Printf("InsertDcQuota Error: err=%s\n", err)
+		log.Errorf("InsertDcQuota Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("InsertDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("InsertDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }
@@ -133,7 +135,7 @@ func (dc *DcQuota) UpdateDcQuota(op int32) error {
 	// Prepared update-statement
 	stmt, err := db.Prepare(DCQUOTA_UPDATE)
 	if err != nil {
-		log.Printf("UpdateDcQuota Error: err=%s\n", err)
+		log.Errorf("UpdateDcQuota Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -145,11 +147,11 @@ func (dc *DcQuota) UpdateDcQuota(op int32) error {
 	// Update a dcQuota
 	_, err = stmt.Exec(dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.RbdQuota, dc.PodRbdMax, dc.PodRbdMin, dc.Price, dc.Status, dc.ModifiedAt, dc.ModifiedOp, dc.Comment, dc.Id)
 	if err != nil {
-		log.Printf("UpdateDcQuota Error: err=%s\n", err)
+		log.Errorf("UpdateDcQuota Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("UpdateDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("UpdateDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }
@@ -160,7 +162,7 @@ func (dc *DcQuota) DeleteDcQuota(op int32) error {
 	// Prepared delet-statement
 	stmt, err := db.Prepare(DCQUOTA_DELETE)
 	if err != nil {
-		log.Printf("DeleteDcQuota Error: err=%s\n", err)
+		log.Errorf("DeleteDcQuota Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -173,11 +175,11 @@ func (dc *DcQuota) DeleteDcQuota(op int32) error {
 	dc.Status = INVALID
 	_, err = stmt.Exec(dc.Status, dc.ModifiedAt, dc.ModifiedOp, dc.Id)
 	if err != nil {
-		log.Printf("DeleteDcQuota Error: err=%s\n", err)
+		log.Errorf("DeleteDcQuota Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("DeleteDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d\n",
+	log.Infof("DeleteDcQuotaById: id=%d, dcId=%d, orgId=%d, podNumLimit=%d, podCpuMax=%d, podMemMax=%d, podCpuMin=%d, podMemMin=%d, rbdQuota=%d, podRbdMax=%d, podRbdMin=%d, price=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.DcId, dc.OrgId, dc.PodNumLimit, dc.PodCpuMax, dc.PodMemMax, dc.PodCpuMin, dc.PodMemMin, dc.PodRbdMax, dc.RbdQuota, dc.PodRbdMin, dc.Price, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }
@@ -186,14 +188,15 @@ func (dc *DcQuota) DecodeJson(data string) {
 	err := json.Unmarshal([]byte(data), dc)
 
 	if err != nil {
-		log.Println("DecodeJson Error: err=%s\n", err)
+		log.Errorf("DecodeJson Error: err=%s", err)
+		return
 	}
 }
 
 func (dc *DcQuota) EncodeJson() string {
 	data, err := json.Marshal(dc)
 	if err != nil {
-		log.Println("EncodeJson Error: err=%s\n", err)
+		log.Errorf("EncodeJson Error: err=%s", err)
 		return ""
 	}
 	return string(data)

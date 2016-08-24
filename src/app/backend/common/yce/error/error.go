@@ -2,8 +2,10 @@ package error
 
 import (
 	"encoding/json"
-	"log"
+	mylog "app/backend/common/util/log"
 )
+
+var log =  mylog.Log
 
 type YceError struct {
 	Code    int32  `json:"code"`
@@ -23,7 +25,7 @@ func (ye *YceError) DecodeJson(data string) error {
 	err := json.Unmarshal([]byte(data), ye)
 
 	if err != nil {
-		log.Println(err)
+		log.Errorf("YceError DecodeJson Error: err=%s", err)
 		return err
 	}
 
@@ -34,7 +36,7 @@ func (ye *YceError) EncodeJson() (string, error) {
 	data, err := json.Marshal(ye)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Errorf("YceError EncodeJson Error: err=%s", err)
 		return "", err
 	}
 	return string(data), nil

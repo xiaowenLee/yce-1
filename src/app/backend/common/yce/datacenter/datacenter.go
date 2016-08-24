@@ -1,10 +1,12 @@
 package datacenter
 
 import (
-	"log"
 	"strconv"
+	mylog "app/backend/common/util/log"
 	"app/backend/model/mysql/datacenter"
 )
+
+var log =  mylog.Log
 
 func GetDataCenterById(dcId string) (*datacenter.DataCenter, error) {
 	//mysqlclient := mysql.MysqlInstance()
@@ -13,13 +15,13 @@ func GetDataCenterById(dcId string) (*datacenter.DataCenter, error) {
 	mydatacenter := new(datacenter.DataCenter)
 	dcid, err := strconv.Atoi(dcId)
 	if err != nil {
-		log.Printf("GetDataCenterById error: dcId=%s, error=%s\n", dcId, err)
+		log.Errorf("GetDataCenterById error: dcId=%s, error=%s", dcId, err)
 		return nil, err
 	}
 
 	err = mydatacenter.QueryDataCenterById(int32(dcid))
 	if err != nil {
-		log.Printf("GetDataCenterById error: dcId=%s, error=%s\n", dcId, err)
+		log.Errorf("GetDataCenterById error: dcId=%s, error=%s", dcId, err)
 		return nil, err
 	}
 
