@@ -21,7 +21,7 @@ func (e Errno) Error() string {
     if 0 <= int(e) && int(e) < len(errors) {
         return errors[e] 
     }
-    New("err code not found")
+    New("error code not found").Error()
 }
 
 
@@ -30,7 +30,9 @@ type yerror interface{
 }
 
 type YceError struct {
-    errmsg string 
+    Code int32 `json:"code"`
+    Message string `json:"message"`
+    Data []byte `json:"data"`
 }
 
 func New(text string) *YceError {
@@ -42,15 +44,35 @@ func (e *YceError) Error() string {
 }
 
 func (e *YceError) EncodeSelf() []byte {
-    errJSON, _ := json.Marshal(e.errmsg)
+    errJSON, _ := json.Marshal(e)
     return errJSON
 }
 
+```
 
-func (x xxxController) LogAndResponse() {
-    x.YceLogger.Logger.Printf()
-    x.Write(string(e.EncodeSelf()))
+使用方法:
+
+在每个controller里定义成员如下:
+
+```golang
+type abcController struct {
+    *iris.Context
+    Logger *YceLogger
+    //...
+}
+```
+
+同时打印日志和返回错误:
+
+```golang
+func (a *abcController) LogAndResponse(level LogLevel, code int32, msg string) {
+    a.Logger := New(level)
+    a.Logger.Printf(msg)
+    e := New(code, msg)
+    a.Write(string(e.EncodeSelf()))
 }
 
-
 ```
+
+如果是定义了的错误码及错误说明,调用LogAndResponse(ERR, ETIMEOUT, ETIMEOUT.Error())
+未定义的直接填
