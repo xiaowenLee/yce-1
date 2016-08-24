@@ -2,15 +2,15 @@ package login
 
 import (
 	"app/backend/common/util/encrypt"
+	mylog "app/backend/common/util/log"
 	mysession "app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	myuser "app/backend/model/mysql/user"
 	"github.com/kataras/iris"
-	mylog "app/backend/common/util/log"
 	"strconv"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 type LoginController struct {
 	*iris.Context

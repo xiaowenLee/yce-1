@@ -23,7 +23,7 @@ func (ddc DescribeDeployController) Get() {
 
 	ddc.list = new(ListDeployController)
 
-	sessionIdClient := ddc.RequestHeader("sessionId")
+	sessionIdClient := ddc.RequestHeader("Authorization")
 	orgId := ddc.Param("orgId")
 	//userId := ldc.Param("userId")
 

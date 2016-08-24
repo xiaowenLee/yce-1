@@ -1,13 +1,13 @@
 package datacenter
 
 import (
+	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-	mylog "app/backend/common/util/log"
 	"encoding/json"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment " +

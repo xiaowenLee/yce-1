@@ -84,6 +84,7 @@ func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) error {
 			mylog.Log.Errorf("getApiServerList error: err=%s", err)
 			return err
 		}
+
 		cdc.apiServers = append(cdc.apiServers, apiServer)
 	}
 	return nil

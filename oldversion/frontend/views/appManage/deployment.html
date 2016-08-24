@@ -55,7 +55,8 @@
                                 <span class="desc">镜像是您创建应用的根据</span>
 
                                 <div class="controls">
-                                    <input type="text" value="color" class="form-control" id="field-image" ng-model="param.image" ng-focus=" changeName = !shows " ng-click="getImages()">
+                                    <input type="text" value="color" class="form-control" id="field-image" ng-model="param.image" ng-focus=" changeName = !shows ">
+                                    <!--<input type="text" value="{{ myImages }}" class="form-control" id="field-image" ng-model=" myImages" ng-focus=" changeName = !shows ">-->
                                 </div>
                             </div>
 
@@ -103,6 +104,7 @@
 
                         <!-- Image -->
                         <div class="replica_wrap" ng-show="changeName">
+
                             <div class="replica_box1">
                                 <span class="replica_close" ng-click="changeName = shows">×</span>
 
@@ -113,9 +115,14 @@
                                     </label>
                                 </span>
 
-                                <div class="replica_content" ng-click="changeName = shows">
-                                    <p ng-repeat=" x in images | filter:test" ng-show="test"> &nbsp {{ x.name }} </p>
-                                </div>
+                                    <!--<p ng-repeat=" x in imageList | filter:test" ng-show="test"> &nbsp {{ x.name }} : {{x.tags[0]}} </p>-->
+                                    <!--<p ng-repeat=" x in imageList | filter:test" ng-show="test"> &nbsp {{ x }} </p>-->
+                                    <div class="replica_content" ng-click="changeName = shows">
+                                        <p class="images_list" ng-repeat=" x in imageList | filter:test" ng-click="getImages(x)">
+                                            <span ng-bind="$index+1"></span>
+                                            <span>{{ x }}</span>
+                                        </p>
+                                    </div>
                             </div>
                         </div>
                     </form>

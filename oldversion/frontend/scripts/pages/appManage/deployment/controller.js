@@ -44,19 +44,56 @@ define([
                 {"name":"del4"}
             ];
             */
-            $scope.getImages = function() {
+            //$scope.getImages = function() {
+                console.log("getImages test")
                 $http({
                     method: 'GET',
                     url: '/api/v1/registry/images'
                 })
                 .success(function(data) {
-                    $scope.images=data.data;
-                    console.log("getImages success")
+                    var dataObject = JSON.parse(data.data);
+                    console.log("getImages success");
+
+
+                    // cycle print images name and tags
+                    /*
+                    $scope.imageList=dataObject;
+                    for (var i in dataObject) {
+                        console.log("images: " + dataObject[i].name);
+                        var list = dataObject[i].tags;
+                        $scope.tagList=list;
+                        for (var j in list) {
+                            console.log("tags: " + list[j]);
+                        }
+                    }
+                    */
+
+                    // make new images:tags
+                    var imageArr = new Array();
+                    var k = 0
+                    for (var i in dataObject) {
+                        var list = dataObject[i].tags;
+                        for (var j in list) {
+                            imageArr[k] = dataObject[i].name + ":" + list[j]
+                            k=k+1
+                        }
+                    }
+
+                    $scope.imageList=imageArr;
+                    $scope.getImages = function(x) {
+                        $scope.param.image=x;
+                    }
+                    /*
+                    $scope.getImages = function($index) {
+                        $scope.param.image=imageArr[$index];
+                    }
+                    */
+
                 })
                 .error(function() {
                     console.log("getImages error")
                 })
-            }
+            //}
         }];
 
 

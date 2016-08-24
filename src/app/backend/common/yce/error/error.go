@@ -10,7 +10,7 @@ var log =  mylog.Log
 type YceError struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
-	Data    string `json:"data"`
+	Data    string `json:"data,omitempty"`
 }
 
 func NewYceError(code int32, message, data string) *YceError {
@@ -41,3 +41,15 @@ func (ye *YceError) EncodeJson() (string, error) {
 	}
 	return string(data), nil
 }
+
+func (ye *YceError) EncodeSelf() []byte {
+	errJSON, _ := json.Marshal(ye)
+	return errJSON
+}
+
+
+func (ye *YceError) SetError() {
+
+
+}
+
