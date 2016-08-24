@@ -2,13 +2,13 @@ package error
 
 import (
 	"encoding/json"
-	"log"
+	//"log"
 )
 
 type YceError struct {
 	Code    int32  `json:"code"`
 	Message string `json:"message"`
-	Data    string `json:"data"`
+	Data    string `json:"data,omitempty"`
 }
 
 func NewYceError(code int32, message, data string) *YceError {
@@ -23,7 +23,7 @@ func (ye *YceError) DecodeJson(data string) error {
 	err := json.Unmarshal([]byte(data), ye)
 
 	if err != nil {
-		log.Println(err)
+		log.Errorf(err)
 		return err
 	}
 
@@ -34,8 +34,20 @@ func (ye *YceError) EncodeJson() (string, error) {
 	data, err := json.Marshal(ye)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Errorf(err)
 		return "", err
 	}
 	return string(data), nil
 }
+
+func (ye *YceError) EncodeSelf() []byte {
+	errJSON, _ := json.Marshal(ye)
+	return errJSON
+}
+
+
+func (ye *YceError) SetError() {
+
+
+}
+
