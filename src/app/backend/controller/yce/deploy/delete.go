@@ -7,8 +7,6 @@ import (
 	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
-
 type DeleteDeployController struct {
 	cli *client.Client
 }
@@ -19,7 +17,7 @@ func NewDeleteDeployController(server string) *DeleteDeployController {
 	}
 	cli, err := client.New(config)
 	if err != nil {
-		log.Errorf("Get DeleteDeployController error: error=%s", err)
+		mylog.Log.Errorf("Get DeleteDeployController error: error=%s", err)
 	}
 
 	instance := &DeleteDeployController{cli: cli}

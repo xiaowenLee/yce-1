@@ -73,8 +73,6 @@ func (lc LoginController) Post() {
 
 	lc.ReadJSON(loginParams)
 
-	log.Printf("LoginParam: %v", loginParams)
-
 	user, ye := lc.check(loginParams.Username, loginParams.Password)
 	if ye != nil {
 		json, _ := ye.EncodeJson()
