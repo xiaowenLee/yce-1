@@ -37,7 +37,7 @@ func (cdc *CreateDeployController) validateSession(sessionId, orgId string) (*my
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
 		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		cdc.Write(errJson)
@@ -47,7 +47,7 @@ func (cdc *CreateDeployController) validateSession(sessionId, orgId string) (*my
 	// Session invalide
 	if !ok {
 		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		cdc.Write(errJson)
@@ -178,7 +178,7 @@ func (cdc CreateDeployController) Post() {
 	err = cdc.getApiServerList(cd.DcIdList)
 	if err != nil {
 		mylog.Log.Errorf("CreateDeployController getApiServerList: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1401, "ERR", "Get Api Server List Error")
+		ye := myerror.NewYceError(1401, "Get Api Server List Error")
 		errJson, _ := ye.EncodeJson()
 		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		cdc.Write(errJson)
@@ -189,7 +189,7 @@ func (cdc CreateDeployController) Post() {
 	err = cdc.createK8sClients()
 	if err != nil {
 		mylog.Log.Errorf("CreateDeployController createK8sClients: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1402, "ERR", "create K8s Client Error")
+		ye := myerror.NewYceError(1402, "Create K8s Client Error")
 		errJson, _ := ye.EncodeJson()
 		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		cdc.Write(errJson)
@@ -201,7 +201,7 @@ func (cdc CreateDeployController) Post() {
 	err = cdc.createDeployment(orgName, &cd.Deployment)
 	if err != nil {
 		mylog.Log.Errorf("CreateDeployController createDeployment: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1403, "ERR", "Publish K8s Deployment Error")
+		ye := myerror.NewYceError(1403, "Publish K8s Deployment Error")
 		errJson, _ := ye.EncodeJson()
 		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		cdc.Write(errJson)
@@ -219,7 +219,7 @@ func (cdc CreateDeployController) Post() {
 
 	if err != nil {
 		mylog.Log.Errorf("CreateDeployController createDeployment: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1404, "ERR", "Insert into MySQL Error")
+		ye := myerror.NewYceError(1404, "Insert into MySQL Error")
 		errJson, _ := ye.EncodeJson()
 		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		cdc.Write(errJson)

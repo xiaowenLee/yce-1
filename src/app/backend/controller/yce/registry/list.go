@@ -103,7 +103,8 @@ func (lrc ListRegistryController) Get() {
 	list, err := lrc.getRepositories()
 	if err != nil {
 		mylog.Log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
-		ye = myerror.NewYceError(1301, "ListRegistryController getRepositories Error!", "")
+		// ye = myerror.NewYceError(1301, "ListRegistryController getRepositories Error!", "")
+		ye = myerror.NewYceError(1301, "")
 		js, _ := ye.EncodeJson()
 		lrc.Write(js)
 		return
@@ -111,7 +112,8 @@ func (lrc ListRegistryController) Get() {
 
 	if 0 == len(list) {
 		mylog.Log.Errorf("ListRegistryController Repositories is empty!")
-		ye = myerror.NewYceError(1302, "ListRegistryController Repositories is empty!", "")
+		// ye = myerror.NewYceError(1302, "ListRegistryController Repositories is empty!", "")
+		ye = myerror.NewYceError(1302, "")
 		js, _ := ye.EncodeJson()
 		lrc.Write(js)
 		return
@@ -132,7 +134,8 @@ func (lrc ListRegistryController) Get() {
 	if 0 == len(lrc.Registry.Images) {
 		mylog.Log.Errorf("ListRegistryController Images is empty!")
 
-		ye = myerror.NewYceError(1303, "ListRegistryController Images is empty!", "")
+		// ye = myerror.NewYceError(1303, "ListRegistryController Images is empty!", "")
+		ye = myerror.NewYceError(1303, "")
 		js, _ := ye.EncodeJson()
 		lrc.Write(js)
 		return
@@ -140,7 +143,7 @@ func (lrc ListRegistryController) Get() {
 
 	images, _ := lrc.Registry.GetImagesList()
 
-	ye = myerror.NewYceError(0, "OK", images)
+	ye = myerror.NewYceError(0, images)
 	js, _ := ye.EncodeJson()
 	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 

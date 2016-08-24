@@ -11,6 +11,7 @@ var log =  mylog.Log
 
 type LogoutController struct {
 	*iris.Context
+	Ye *myerror.YceError
 }
 
 type LogoutParams struct {
@@ -18,38 +19,46 @@ type LogoutParams struct {
 	SessionId string `json:"sessionId"`
 }
 
+func (lc *LogoutController) WriteBack() {
+	lc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	mylog.Log.Infof("LoginController Response YceError: controller=%p, code=%d, note=%s", lc, lc.Ye.Code, myerror.Errors[lc.Ye.Code].LogMsg)
+	lc.Write(lc.Ye.String())
+}
+
 // Check is logined
-func (lc *LogoutController) checkLogin(sessionId string) (*mysession.Session, error) {
+func (lc *LogoutController) checkLogin(sessionId string) (*mysession.Session) {
 
 	ss := mysession.SessionStoreInstance()
 
 	session, err := ss.Get(sessionId)
-
 	if err != nil {
-		log.Errorf("Get session by sessionId error: sessionId=%s, err=%s\n", sessionId, err)
-		return nil, err
+		log.Errorf("Get session by sessionId error: sessionId=%s, err=%s", sessionId, err)
+		lc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return nil
 	}
 
 	if err == nil && session == nil {
-		log.Errorf("Not Login or Expirated: sessionId=%s\n", sessionId)
-		return nil, nil
+		log.Errorf("Not Login or Expirated: sessionId=%s", sessionId)
+		lc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return nil
 	}
 
-	return session, nil
+	return session
 }
 
-func (lc *LogoutController) logout(sessionId string) error {
+func (lc *LogoutController) logout(sessionId string) {
 
 	ss := mysession.SessionStoreInstance()
 	err := ss.Delete(sessionId)
 
 	if err != nil {
-		log.Errorf("Delete session by sessionId error: sessionId=%s, err=%s\n", sessionId, err)
-		return err
+		log.Errorf("Delete session by sessionId error: sessionId=%s, err=%s", sessionId, err)
+		lc.Ye = myerror.NewYceError(myerror.EYCE_SESSION_DEL, "")
+		return
 	}
 
-	log.Infof("Delete session successfully: sessionId=%s", sessionId)
-	return nil
+	log.Infof("Delete session successfully: lc=%p, sessionId=%s", lc, sessionId)
+	return
 }
 
 // POST /api/v1/users/logout
@@ -58,38 +67,30 @@ func (lc LogoutController) Post() {
 	logoutParams := new(LogoutParams)
 	lc.ReadJSON(logoutParams)
 
-	log.Infof("User Logout: username=%s, sessionId=%s\n", logoutParams.Username, logoutParams.SessionId)
+	log.Infof("User Logout: username=%s, sessionId=%s", logoutParams.Username, logoutParams.SessionId)
 
-	session, err := lc.checkLogin(logoutParams.SessionId)
+	session := lc.checkLogin(logoutParams.SessionId)
 
-	if err != nil {
-		log.Errorf("CheckLogin error: sessionId=%s, err=%s\n")
-		ye := myerror.NewYceError(1101, err.Error(), "")
-		json, _ := ye.EncodeJson()
-		lc.Write(json)
+	if lc.Ye != nil {
+		lc.WriteBack()
 		return
 	}
 
 	if session != nil {
-		err = lc.logout(logoutParams.SessionId)
-		if err != nil {
-			log.Errorf("Logout error: sessionId=%s, userName=%s, orgId=%s, err=%s\n",
-				logoutParams.SessionId, session.UserName, session.OrgId, err)
-			ye := myerror.NewYceError(1102, err.Error(), "")
-			json, _ := ye.EncodeJson()
-			lc.Write(json)
+		lc.logout(logoutParams.SessionId)
+		if lc.Ye != nil {
+			log.Errorf("Logout error: sessionId=%s, userName=%s, orgId=%s",
+				logoutParams.SessionId, session.UserName, session.OrgId)
+			lc.WriteBack()
 			return
 		}
 	}
 
-	ye := myerror.NewYceError(0, "OK", "")
-	json, _ := ye.EncodeJson()
-
-	log.Infof("Logout successfully: sessionId=%s, userName=%s, orgId=%s\n",
+	lc.Ye = myerror.NewYceError(myerror.EOK, "")
+	log.Infof("Logout successfully: sessionId=%s, userName=%s, orgId=%s",
 		logoutParams.SessionId, session.UserName, session.OrgId)
 
-	lc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	lc.Write(json)
+	lc.WriteBack()
 	return
 
 }

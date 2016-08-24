@@ -30,7 +30,7 @@ func (lsc *ListServiceController) validateSession(sessionId, orgId string) (*mye
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
 		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		lsc.Write(errJson)
@@ -41,7 +41,7 @@ func (lsc *ListServiceController) validateSession(sessionId, orgId string) (*mye
 	if !ok {
 		// relogin
 		log.Printf("Validate Session failed: sessionId=%s, error=%s\n", sessionId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		lsc.Write(errJson)
@@ -126,7 +126,7 @@ func (lsc ListServiceController) Get() {
 
 	if err != nil {
 		log.Printf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		lsc.Write(errJson)
@@ -137,7 +137,7 @@ func (lsc ListServiceController) Get() {
 	lsc.dcList, err = organization.GetDataCentersByOrganization(lsc.org)
 	if err != nil {
 		log.Printf("Get Datacenters By Organization error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		lsc.Write(errJson)
@@ -148,7 +148,7 @@ func (lsc ListServiceController) Get() {
 	server, err := lsc.getDcHost()
 	if err != nil {
 		log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s\n", sessionIdFromClient, orgId)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		lsc.Write(errJson)
@@ -159,14 +159,14 @@ func (lsc ListServiceController) Get() {
 	displayServices, err := lsc.getDisplayServices(server)
 	if err != nil {
 		log.Printf("Get ServiceList error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		lsc.Write(errJson)
 		return
 	}
 
-	ye = myerror.NewYceError(0, "OK", displayServices)
+	ye = myerror.NewYceError(0, displayServices)
 	errJson, _ :=ye.EncodeJson()
 	lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	lsc.Write(errJson)

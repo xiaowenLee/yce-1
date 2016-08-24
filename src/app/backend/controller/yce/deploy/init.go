@@ -35,7 +35,7 @@ func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myer
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
 		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		idc.Write(errJson)
@@ -46,7 +46,7 @@ func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myer
 	if !ok {
 		// relogin
 		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		idc.Write(errJson)
@@ -79,7 +79,7 @@ func (idc InitDeployController) Get() {
 
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		idc.Write(errJson)
@@ -90,7 +90,7 @@ func (idc InitDeployController) Get() {
 	idc.Init.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		idc.Write(errJson)
@@ -101,14 +101,14 @@ func (idc InitDeployController) Get() {
 	idc.Init.Quotas, err = myqouta.QueryAllQuotas()
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "ERR", "请求失败")
+		ye := myerror.NewYceError(1, "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		idc.Write(errJson)
 		return
 	}
 
-	ye = myerror.NewYceError(0, "OK", idc.String())
+	ye = myerror.NewYceError(0, idc.String())
 	errJson, _ := ye.EncodeJson()
 	idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	idc.Write(errJson)

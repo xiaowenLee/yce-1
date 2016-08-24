@@ -72,12 +72,15 @@ func (o *Organization) QueryOrganizationById(id int32) error {
 	}
 	defer stmt.Close()
 
+	var comment []byte
 	// Query organization by id
-	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &o.Comment)
+	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
 	if err != nil {
 		log.Errorf("QureyOrganizationById Error: err=%s", err)
 		return err
 	}
+
+	o.Comment = string(comment)
 
 	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)

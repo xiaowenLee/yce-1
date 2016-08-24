@@ -13,10 +13,10 @@ type YceError struct {
 	Data    string `json:"data,omitempty"`
 }
 
-func NewYceError(code int32, message, data string) *YceError {
+func NewYceError(code int32, data string) *YceError {
 	return &YceError{
 		Code:    code,
-		Message: message,
+		Message: Errors[code].ErrMsg,
 		Data:    data,
 	}
 }
@@ -42,14 +42,15 @@ func (ye *YceError) EncodeJson() (string, error) {
 	return string(data), nil
 }
 
-func (ye *YceError) EncodeSelf() []byte {
+func (ye *YceError) String() string {
 	errJSON, _ := json.Marshal(ye)
-	return errJSON
+	return string(errJSON)
 }
 
 
-func (ye *YceError) SetError() {
-
-
+func (ye *YceError) SetError(code int32, message, data string ) {
+	ye.Code = code
+	ye.Message = message
+	ye.Data = data
 }
 

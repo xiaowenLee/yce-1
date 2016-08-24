@@ -1,20 +1,28 @@
 package error
 
-
 type Error struct {
 	LogMsg string
 	ErrMsg string
 }
 
 const (
+	EOK    int32 = 0
 	EMYSQL int32 = 1000
 	EREDIS int32 = 1100
-	EKUBE	int32 = 1200
-	EIRIS	int32 = 1300
-	EYCE	int32 = 1400
+	EKUBE  int32 = 1200
+	EIRIS  int32 = 1300
+	EYCE   int32 = 1400
+	EYCE_LOGIN int32 = 1401
+	EYCE_SESSION int32 = 1402
+	EYCE_SESSION_DEL int32 = 1403
 )
 
-const Errors = map[int32] *Error {
+var Errors = map[int32]*Error{
+
+	EOK: &Error{
+		LogMsg: "OK",
+		ErrMsg: "操作成功",
+	},
 
 	// 1000~1099 MySQL错误
 	EMYSQL: &Error{
@@ -29,26 +37,35 @@ const Errors = map[int32] *Error {
 	},
 
 	// 1200~1299 K8s错误
-	EKUBE:  &Error{
+	EKUBE: &Error{
 		LogMsg: "Kubernetes Error",
 		ErrMsg: "Kubernetes错误",
 	},
 
 	// 1300~1399 Iris错误
-	EIRIS:  &Error{
+	EIRIS: &Error{
 		LogMsg: "Iris Error",
 		ErrMsg: "Iris服务器错误",
 	},
 
 	// 1400~1499 YCE错误
-	EYCE:  &Error{
+	EYCE: &Error{
 		LogMsg: "YCE Internal Error",
 		ErrMsg: "YCE内部错误",
 	},
 
+	EYCE_LOGIN: &Error{
+		LogMsg: "Can't Find the User",
+		ErrMsg: "用户名密码错误",
+	},
+
+	EYCE_SESSION: &Error{
+		LogMsg: "Can't Find the Session",
+		ErrMsg: "请重新登录",
+	},
+
+	EYCE_SESSION_DEL: &Error{
+		LogMsg: "Delete Session Error",
+		ErrMsg: "退出遇到问题",
+	},
 }
-
-
-
-
-
