@@ -3,7 +3,7 @@ package session
 import (
 	"encoding/json"
 	"errors"
-	"log"
+	mylog "app/backend/common/util/log"
 
 	localtime "app/backend/common/util/time"
 	"github.com/pborman/uuid"
@@ -12,6 +12,8 @@ import (
 	redis "github.com/garyburd/redigo/redis"
 	"sync"
 )
+
+var log =  mylog.Log
 
 const (
 	DEFAULT_EXPIRATION = "604800" // 7*24*60*60s
@@ -42,7 +44,7 @@ func (s *Session) DecodeJson(data string) error {
 	err := json.Unmarshal([]byte(data), s)
 
 	if err != nil {
-		log.Println(err)
+		log.Errorf("Session DecodeJson Error: err=%s", err)
 		return err
 	}
 
@@ -52,7 +54,7 @@ func (s *Session) DecodeJson(data string) error {
 func (s *Session) EncodeJson() (string, error) {
 	data, err := json.Marshal(s)
 	if err != nil {
-		log.Println(err)
+		log.Errorf("Session EncodeJson Error: err=%s", err)
 		return "", err
 	}
 	return string(data), nil
@@ -82,7 +84,7 @@ func NewSessionStore() *SessionStore {
 func (ss *SessionStore) ValidateOrgId(sessionIdClient string, OrgIdClient string) (bool, error) {
 	session, err := ss.Get(sessionIdClient)
 	if err != nil {
-		log.Printf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s\n", sessionIdClient, err)
+		log.Errorf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s", sessionIdClient, err)
 		return false, err
 	}
 
@@ -103,7 +105,7 @@ func (ss *SessionStore) ValidateUserId(sessionIdClient string, UserIdClient stri
 
 	session, err := ss.Get(sessionIdClient)
 	if err != nil {
-		log.Printf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s\n", sessionIdClient, err)
+		log.Errorf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s", sessionIdClient, err)
 		return false, err
 	}
 
@@ -123,7 +125,7 @@ func (ss *SessionStore) Get(sessionId string) (*Session, error) {
 	conn := ss.pool.Get()
 
 	if conn == nil {
-		log.Fatal("The Connection is nil: conn := ss.pool.Get()")
+		log.Fatalln("The Connection is nil: conn := ss.pool.Get()")
 		return nil, errors.New("The Connection is nil: conn := ss.pool.Get()")
 	}
 
@@ -131,15 +133,14 @@ func (ss *SessionStore) Get(sessionId string) (*Session, error) {
 
 	// If exists
 	exists, err := ss.Exist(sessionId)
-
 	if err != nil {
-		log.Fatalf("SessionStore exist error: sessionId=%s, err=%s\n", sessionId, err)
+		log.Fatalf("SessionStore exist error: sessionId=%s, err=%s", sessionId, err)
 		return nil, err
 	}
 
 	// not exists
 	if !exists {
-		log.Printf("The Session not exists: sessionId=%s\n", sessionId)
+		log.Warnf("The Session not exists: sessionId=%s", sessionId)
 		return nil, nil
 	}
 
@@ -147,16 +148,15 @@ func (ss *SessionStore) Get(sessionId string) (*Session, error) {
 	session := &Session{}
 
 	data, err := redis.Bytes(conn.Do("GET", sessionId))
-
 	if err != nil {
-		log.Fatalf("Redis Get error: sessionId=%s, err=%s\n", sessionId, err)
+		log.Fatalf("Redis Get error: sessionId=%s, err=%s", sessionId, err)
 		return nil, err
 	}
 
 	err = json.Unmarshal(data, session)
 
 	if err != nil {
-		log.Fatalf("Json unmashal failed: data=%s, err=%s\n", string(data))
+		log.Fatalf("Json unmashal failed: data=%s, err=%s", string(data))
 		return nil, err
 	}
 
@@ -167,7 +167,7 @@ func (ss *SessionStore) Set(session *Session) error {
 	conn := ss.pool.Get()
 
 	if conn == nil {
-		log.Fatal("The Connection is nil: conn := ss.pool.Get()")
+		log.Fatalf("The Connection is nil: conn := ss.pool.Get()")
 		return errors.New("The Connection is nil: conn := ss.pool.Get()")
 	}
 
@@ -176,14 +176,14 @@ func (ss *SessionStore) Set(session *Session) error {
 	data, err := json.Marshal(session)
 
 	if err != nil {
-		log.Fatalf("Json marshal err: err=%s\n", err)
+		log.Fatalf("Json marshal err: err=%s", err)
 		return err
 	}
 
 	_, err = conn.Do("SET", session.SessionId, data, "EX", session.Expiration)
 
 	if err != nil {
-		log.Fatalf("Redis set error: sessionId=%s, err=%s\n", session.SessionId, err)
+		log.Errorf("Redis set error: sessionId=%s, err=%s", session.SessionId, err)
 		return err
 	}
 
@@ -195,7 +195,7 @@ func (ss *SessionStore) Delete(sessionId string) error {
 	conn := ss.pool.Get()
 
 	if conn == nil {
-		log.Fatal("The Connection is nil: conn := ss.pool.Get()")
+		log.Fatalln("The Connection is nil: conn := ss.pool.Get()")
 		return errors.New("The Connection is nil: conn := ss.pool.Get()")
 	}
 
@@ -203,7 +203,7 @@ func (ss *SessionStore) Delete(sessionId string) error {
 
 	_, err := conn.Do("DEL", sessionId)
 	if err != nil {
-		log.Fatalf("Redis delete error: sessionId=%s, err=%s", sessionId, err)
+		log.Errorf("Redis delete error: sessionId=%s, err=%s", sessionId, err)
 		return err
 	}
 
@@ -214,7 +214,7 @@ func (ss *SessionStore) Exist(sessionId string) (bool, error) {
 	conn := ss.pool.Get()
 
 	if conn == nil {
-		log.Fatal("The Connection is nil: conn := ss.pool.Get()")
+		log.Fatalln("The Connection is nil: conn := ss.pool.Get()")
 		return false, errors.New("The Connection is nil: conn := ss.pool.Get()")
 	}
 
@@ -228,5 +228,4 @@ func (ss *SessionStore) Exist(sessionId string) (bool, error) {
 	}
 
 	return exists, nil
-
 }

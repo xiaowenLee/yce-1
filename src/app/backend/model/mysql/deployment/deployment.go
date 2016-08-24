@@ -3,11 +3,10 @@ package deployment
 import (
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-	// "encoding/json"
-	// "fmt"
-	// "log
-	"log"
+	mylog "app/backend/common/util/log"
 )
+
+var log =  mylog.Log
 
 const (
 	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
@@ -62,7 +61,7 @@ func (d *Deployment) QueryDeploymentById(id int32) error {
 	//Prepare select-statement
 	stmt, err := db.Prepare(DEPLOYMENT_SELECT)
 	if err != nil {
-		log.Printf("QueryDeploymentById Error: err=%s\n", err)
+		log.Errorf("QueryDeploymentById Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -73,14 +72,14 @@ func (d *Deployment) QueryDeploymentById(id int32) error {
 
 	err = stmt.QueryRow(id).Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt, &d.ActionOp, &d.DcList, &d.Success, &d.Reason, &jsonFile, &comment)
 	if err != nil {
-		log.Printf("QueryDeploymentById Error: err=%s\n", err)
+		log.Errorf("QueryDeploymentById Error: err=%s", err)
 		return err
 	}
 
 	d.Json = string(jsonFile)
 	d.Comment = string(comment)
 
-	log.Printf("QueryDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s\n",
+	log.Infof("QueryDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s",
 		d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
 
 	return nil
@@ -92,7 +91,7 @@ func (d *Deployment) InsertDeployment() error {
 	// Prepare insert-statement
 	stmt, err := db.Prepare(DEPLOYMENT_INSERT)
 	if err != nil {
-		log.Printf("InsertDeployment Error: err=%s\n", err)
+		log.Errorf("InsertDeployment Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
@@ -103,11 +102,11 @@ func (d *Deployment) InsertDeployment() error {
 	// Insert a deployment
 	_, err = stmt.Exec(d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
 	if err != nil {
-		log.Printf("InsertDeployment Error: err=%s\n", err)
+		log.Errorf("InsertDeployment Error: err=%s", err)
 		return err
 	}
 
-	log.Printf("InsertDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s\n",
+	log.Infof("InsertDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s",
 		d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
 
 	return nil
@@ -122,14 +121,14 @@ func QueryDeploymentByAppName(name string) ([]Deployment, error) {
 	// Prepare select-by-name-statement
 	stmt, err := db.Prepare(DEPLOYMENT_BYNAME)
 	if err != nil {
-		log.Printf("QueryDeploymentByAppName Error: err=%s\n", err)
+		log.Errorf("QueryDeploymentByAppName Error: err=%s", err)
 		return nil, err
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(name)
 	if err != nil {
-		log.Printf("QueryDeploymentByAppName Error: err=%s\n", err)
+		log.Errorf("QueryDeploymentByAppName Error: err=%s", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -142,12 +141,12 @@ func QueryDeploymentByAppName(name string) ([]Deployment, error) {
 			&d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &comment)
 		d.Comment = string(comment)
 		if err != nil {
-			log.Printf("QueryDeploymentByAppName Error: err=%s\n", err)
+			log.Errorf("QueryDeploymentByAppName Error: err=%s", err)
 			return nil, err
 		}
 		deployments = append(deployments, *d)
 
-		log.Printf("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s\n",
+		log.Infof("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s",
 			d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
 	}
 

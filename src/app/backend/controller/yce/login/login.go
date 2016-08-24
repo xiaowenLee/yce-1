@@ -6,9 +6,11 @@ import (
 	myerror "app/backend/common/yce/error"
 	myuser "app/backend/model/mysql/user"
 	"github.com/kataras/iris"
-	"log"
+	mylog "app/backend/common/util/log"
 	"strconv"
 )
+
+var log =  mylog.Log
 
 type LoginController struct {
 	*iris.Context
@@ -30,7 +32,7 @@ func (lc *LoginController) check(name, password string) (*myuser.User, *myerror.
 	err := user.QueryUserByNameAndPassword(name, encryptPass)
 
 	if err != nil {
-		log.Printf("Can not find the user: username=%s, err=%s\n", name, err)
+		log.Errorf("Can not find the user: username=%s, err=%s", name, err)
 		ye := myerror.NewYceError(1001, err.Error(), "")
 		return nil, ye
 	}
@@ -52,10 +54,10 @@ func (lc *LoginController) session(user *myuser.User) (*mysession.Session, *myer
 
 	err := ss.Set(session)
 
-	log.Printf("Session: sessionId=%s, userId=%s, userName=%s, orgId=%s\n", session.SessionId, session.UserId, session.UserName, session.OrgId)
+	log.Infof("Session: sessionId=%s, userId=%s, userName=%s, orgId=%s", session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	if err != nil {
-		log.Fatal("Set session error: sessionId=%s, err=%s\n", session.SessionId, err)
+		log.Fatal("Set session error: sessionId=%s, err=%s", session.SessionId, err)
 		ye := myerror.NewYceError(2001, err.Error(), "")
 		return nil, ye
 	}
@@ -71,7 +73,7 @@ func (lc LoginController) Post() {
 
 	lc.ReadJSON(loginParams)
 
-	log.Printf("LoginParam: %v\n", loginParams)
+	log.Printf("LoginParam: %v", loginParams)
 
 	user, ye := lc.check(loginParams.Username, loginParams.Password)
 	if ye != nil {
@@ -97,7 +99,7 @@ func (lc LoginController) Post() {
 
 	json, _ := ye.EncodeJson()
 
-	log.Printf("User Login: sessionId=%s, userId=%s, userName=%s, orgId=%s\n",
+	log.Errorf("User Login: sessionId=%s, userId=%s, userName=%s, orgId=%s",
 		session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	lc.Response.Header.Set("Access-Control-Allow-Origin", "*")
