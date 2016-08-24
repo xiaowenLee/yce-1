@@ -57,7 +57,7 @@ func (lc *LoginController) session(user *myuser.User) (*mysession.Session, *myer
 	log.Infof("Session: sessionId=%s, userId=%s, userName=%s, orgId=%s", session.SessionId, session.UserId, session.UserName, session.OrgId)
 
 	if err != nil {
-		log.Fatal("Set session error: sessionId=%s, err=%s", session.SessionId, err)
+		log.Fatalf("Set session error: sessionId=%s, err=%s", session.SessionId, err)
 		ye := myerror.NewYceError(2001, err.Error(), "")
 		return nil, ye
 	}
@@ -72,8 +72,6 @@ func (lc LoginController) Post() {
 	loginParams := new(LoginParams)
 
 	lc.ReadJSON(loginParams)
-
-	log.Printf("LoginParam: %v", loginParams)
 
 	user, ye := lc.check(loginParams.Username, loginParams.Password)
 	if ye != nil {

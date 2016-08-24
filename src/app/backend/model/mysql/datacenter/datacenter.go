@@ -170,7 +170,7 @@ func (dc *DataCenter) DeleteDataCenter(op int32) error {
 		return err
 	}
 
-	log.Info("DeleteDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+	log.Infof("DeleteDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }

@@ -5,13 +5,12 @@ import (
 	"github.com/kataras/iris"
 	"io/ioutil"
 
-	mylog "app/backend/common/util/log"
 	myhttps "app/backend/common/util/https"
 	myerror "app/backend/common/yce/error"
 	myregistry "app/backend/model/yce/registry"
+	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
 
 type ListRegistryController struct {
 	*iris.Context
@@ -35,7 +34,7 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 	resp, err := client.Get(url)
 
 	if err != nil {
-		log.Errorf("ListRegistryController getRespositories Error: err=%s", err)
+		mylog.Log.Errorf("ListRegistryController getRespositories Error: err=%s", err)
 		return []string{}, nil
 	}
 
@@ -46,13 +45,11 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 	err = json.Unmarshal(body, repository)
 
 	if err != nil {
-		log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
+		mylog.Log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
 		return []string{}, nil
 	}
 
-	// log.Printf("repositories: %s", repository.Repositories)
-
-	log.Infoln("ListRegistryController getRepositories over")
+	mylog.Log.Infoln("ListRegistryController getRepositories over")
 	return repository.Repositories, nil
 
 }
@@ -69,28 +66,24 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 	resp, err := client.Get(url)
 
 	if err != nil {
-		log.Printf("ListRegistryController getTagsList client.Get Error: err=%s", err)
+		mylog.Log.Errorf("ListRegistryController getTagsList client.Get Error: err=%s", err)
 		return nil, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Printf("ListRegistryController getTagsList ioutil.ReadAll Error: err=%s", err)
+		mylog.Log.Errorf("ListRegistryController getTagsList ioutil.ReadAll Error: err=%s", err)
 		return nil, err
 	}
 
 	image := new(myregistry.Image)
 
-	// log.Printf("Image: %s", string(body))
-
 	err = json.Unmarshal(body, image)
 	if err != nil {
-		log.Printf("ListRegistryController getTagsList json.Unmarshal Error: err=%s", err)
+		mylog.Log.Errorf("ListRegistryController getTagsList json.Unmarshal Error: err=%s", err)
 		return nil, err
 	}
-
-	// log.Printf("ListRegistryController getTagList over")
 
 	return image, nil
 }
@@ -109,7 +102,7 @@ func (lrc ListRegistryController) Get() {
 	// Get repositories in the registry
 	list, err := lrc.getRepositories()
 	if err != nil {
-		log.Printf("ListRegistryController getRepositories Error: err=%s", err)
+		mylog.Log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
 		ye = myerror.NewYceError(1301, "ListRegistryController getRepositories Error!", "")
 		js, _ := ye.EncodeJson()
 		lrc.Write(js)
@@ -117,7 +110,7 @@ func (lrc ListRegistryController) Get() {
 	}
 
 	if 0 == len(list) {
-		log.Printf("ListRegistryController Repositories is empty!")
+		mylog.Log.Errorf("ListRegistryController Repositories is empty!")
 		ye = myerror.NewYceError(1302, "ListRegistryController Repositories is empty!", "")
 		js, _ := ye.EncodeJson()
 		lrc.Write(js)
@@ -129,7 +122,7 @@ func (lrc ListRegistryController) Get() {
 		image, err := lrc.getTagsList(repo)
 
 		if err != nil {
-			log.Printf("ListRegistryController getTagsList Error: err=%a", err)
+			mylog.Log.Errorf("ListRegistryController getTagsList Error: err=%a", err)
 			continue
 		}
 
@@ -137,7 +130,7 @@ func (lrc ListRegistryController) Get() {
 	}
 
 	if 0 == len(lrc.Registry.Images) {
-		log.Errorf("ListRegistryController Images is empty!")
+		mylog.Log.Errorf("ListRegistryController Images is empty!")
 
 		ye = myerror.NewYceError(1303, "ListRegistryController Images is empty!", "")
 		js, _ := ye.EncodeJson()
@@ -153,5 +146,5 @@ func (lrc ListRegistryController) Get() {
 
 	lrc.Write(js)
 
-	log.Infoln("ListRegistryController Get over!")
+	mylog.Log.Infoln("ListRegistryController Get over!")
 }

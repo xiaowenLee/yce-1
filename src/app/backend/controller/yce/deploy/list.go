@@ -16,8 +16,6 @@ import (
 	"strconv"
 )
 
-var log =  mylog.Log
-
 //TODO: 添加错误码
 type ListDeployController struct {
 	*iris.Context
@@ -33,7 +31,7 @@ func (ldc *ListDeployController) getDcHost() ([]string, error) {
 		server[i] = ldc.dcList[i].Host + ":" + strconv.Itoa(int(ldc.dcList[i].Port))
 	}
 
-	log.Infof("ListDeployController getDcHost: server=%v", server)
+	mylog.Log.Infof("ListDeployController getDcHost: server=%v", server)
 	return server, nil
 }
 
@@ -45,7 +43,7 @@ func (ldc *ListDeployController) getDcName() ([]string, error) {
 		name[i] = ldc.dcList[i].Name
 	}
 
-	log.Infof("ListDeployController getDcName: name=%v", name)
+	mylog.Log.Infof("ListDeployController getDcName: name=%v", name)
 	return name, nil
 }
 
@@ -62,19 +60,19 @@ func (ldc *ListDeployController) getAppDisplayDeployment(dcHostList []string) (l
 		}
 		newCli, err := client.New(newconfig)
 		if err != nil {
-			log.Errorf("Get new restclient error: error=%s", err)
+			mylog.Log.Errorf("Get new restclient error: error=%s", err)
 			return "", err
 		}
 
 		podList, err := newCli.Pods(ldc.org.Name).List(api.ListOptions{})
 		if err != nil {
-			log.Errorf("Get podlist error: server=%s, orgId=%s, error=%s", dcHostList[i], orgId, err)
+			mylog.Log.Errorf("Get podlist error: server=%s, orgId=%s, error=%s", dcHostList[i], orgId, err)
 			return "", err
 		}
 
 		dcNameList, err := ldc.getDcName()
 		if err != nil {
-			log.Errorf("Get DcName error: server=%s, orgId=%s, error=%s", dcHostList[i], orgId, err)
+			mylog.Log.Errorf("Get DcName error: server=%s, orgId=%s, error=%s", dcHostList[i], orgId, err)
 			return "", err
 		}
 
@@ -82,13 +80,13 @@ func (ldc *ListDeployController) getAppDisplayDeployment(dcHostList []string) (l
 		deployData[i].DcId = ldc.dcList[i].Id
 		deployData[i].PodList = *podList
 
-		log.Infof("ListDeployController getAppDisplayDeployment: dcId=%d, dcName=%s, podList=%p, len(podList.Items)=%d",
+		mylog.Log.Infof("ListDeployController getAppDisplayDeployment: dcId=%d, dcName=%s, podList=%p, len(podList.Items)=%d",
 			ldc.dcList[i].Id, dcNameList[i], podList, len(podList.Items))
 	}
 
 	podListJson, err := json.Marshal(deployData)
 	if err != nil {
-		log.Errorf("Get podListJson error: orgId=%s, error=%s", orgId, err)
+		mylog.Log.Errorf("Get podListJson error: orgId=%s, error=%s", orgId, err)
 		return "", err
 	}
 
@@ -103,7 +101,7 @@ func (ldc *ListDeployController) validateSession(sessionId, orgId string) (*myer
 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
-		log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
+		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -114,7 +112,7 @@ func (ldc *ListDeployController) validateSession(sessionId, orgId string) (*myer
 	// Session invalide
 	if !ok {
 		// relogin
-		log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
+		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -134,7 +132,7 @@ func (ldc ListDeployController) Get() {
 	ye, err := ldc.validateSession(sessionIdFromClient, orgId)
 
 	if ye != nil || err != nil {
-		log.Errorf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		ldc.Write(errJson)
@@ -145,7 +143,7 @@ func (ldc ListDeployController) Get() {
 	ldc.org, err = organization.GetOrganizationById(orgId)
 
 	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -156,7 +154,7 @@ func (ldc ListDeployController) Get() {
 	// Get Datacenters by a organization
 	ldc.dcList, err = organization.GetDataCentersByOrganization(ldc.org)
 	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -168,7 +166,7 @@ func (ldc ListDeployController) Get() {
 	// Get ApiServer for every datacenter
 	server, err := ldc.getDcHost()
 	if err != nil {
-		log.Errorf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("Get Datacenter Host error: sessionId=%s, orgId=%s, err=%s", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -179,7 +177,7 @@ func (ldc ListDeployController) Get() {
 	// Get App DisplayDeployment
 	appDisplayDeployment, err := ldc.getAppDisplayDeployment(server)
 	if err != nil {
-		log.Errorf("Get Podlist error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("Get Podlist error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -192,6 +190,6 @@ func (ldc ListDeployController) Get() {
 	ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	ldc.Write(errJson)
 
-	log.Infoln("ListDeploymentController Get over!")
+	mylog.Log.Infoln("ListDeploymentController Get over!")
 	return
 }

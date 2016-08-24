@@ -12,8 +12,6 @@ import (
 	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
-
 type InitDeployController struct {
 	*iris.Context
 	org  *myorganization.Organization
@@ -23,7 +21,7 @@ type InitDeployController struct {
 func (idc *InitDeployController) String() string {
 	data, err := json.Marshal(idc.Init)
 	if err != nil {
-		log.Errorf("InitDeployController String() Marshal Error: err=%s", err)
+		mylog.Log.Errorf("InitDeployController String() Marshal Error: err=%s", err)
 		return ""
 	}
 	return string(data)
@@ -36,7 +34,7 @@ func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myer
 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
-		log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
+		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -47,7 +45,7 @@ func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myer
 	// Session invalide
 	if !ok {
 		// relogin
-		log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
+		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -67,7 +65,7 @@ func (idc InitDeployController) Get() {
 	ye, err := idc.validateSession(sessionIdFromClient, orgId)
 
 	if ye != nil || err != nil {
-		log.Errorf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		idc.Write(errJson)
@@ -80,7 +78,7 @@ func (idc InitDeployController) Get() {
 	idc.Init.OrgName = idc.org.Name
 
 	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -91,7 +89,7 @@ func (idc InitDeployController) Get() {
 	// Get Datacenters by a organization
 	idc.Init.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)
 	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -102,7 +100,7 @@ func (idc InitDeployController) Get() {
 	// Get all quotas
 	idc.Init.Quotas, err = myqouta.QueryAllQuotas()
 	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		ye := myerror.NewYceError(1, "ERR", "请求失败")
 		errJson, _ := ye.EncodeJson()
 		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
@@ -115,7 +113,7 @@ func (idc InitDeployController) Get() {
 	idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	idc.Write(errJson)
 
-	log.Infoln("InitDeployController Get over!")
+	mylog.Log.Infoln("InitDeployController Get over!")
 	return
 
 }
