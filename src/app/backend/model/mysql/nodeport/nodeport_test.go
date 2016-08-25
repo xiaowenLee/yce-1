@@ -7,9 +7,62 @@ import (
 )
 
 func TestNewNodePort(t *testing.T) {
-	np := NewNodePort(30061, 1)
+	np := NewNodePort(30061, 1, 1, 1)
 	fmt.Printf("%p\n", np)
 }
+/*
+func TestNodePort_InsertNodePort(t *testing.T) {
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	np := &NodePort{
+		Port: 32380,
+		DcId: 1,
+		SvcId: 4,
+	}
+
+	err := np.InsertNodePort(1)
+	if err != nil {
+		fmt.Printf("Insert Failed: %s\n", err)
+	} else {
+		fmt.Printf("Insert Succeed")
+	}
+}
+*/
+func TestNodePort_UpdateNodePortByPortAndDcId(t *testing.T) {
+
+	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
+	mysql.MysqlInstance().Open()
+
+	np := &NodePort{
+		Port: 30061,
+		DcId: 1,
+		SvcId: 10,
+		Comment: "lb service",
+	}
+
+	err := np.UpdateNodePortByPortAndDcId(1)
+	if err != nil {
+		fmt.Printf("Update Failed: %s\n", err)
+	} else {
+		fmt.Printf("Update Succeed")
+	}
+}
+/*
+func TestNodePort_UpdateNodePortByPortAndDcId(t *testing.T) {
+
+}
+}
+
+func TestNodePort_QueryNodePortByPortAndDcId(t *testing.T) {
+
+}
+
+func TestNodePort_DeleteNodePortByPortAndDcId(t *testing.T) {
+
+}
+*/
+/*
 func TestNodePort_QueryNodePortByPort(t *testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)
 	mysql.MysqlInstance().Open()
@@ -108,7 +161,7 @@ func TestNodePort_All(t *testing.T) {
 	}
 
 }
-
+*/
 /*
 func TestNodePort_InsertNodePort(t *testing.T) {
 

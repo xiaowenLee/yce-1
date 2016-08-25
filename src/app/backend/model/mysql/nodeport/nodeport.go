@@ -3,7 +3,7 @@ package nodeport
 import (
 	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
-	"strconv"
+	localtime "app/backend/common/util/time"
 
 	//temporarily
 	"errors"
@@ -11,32 +11,44 @@ import (
 
 var log = mylog.Log
 
-
 //选择时需要同时满足dcId和port
 const (
-	NP_SELECT = "SELECT id, port, dcId, status " + "FROM nodeport WHERE port=? AND dcId=?"
+	NP_SELECT = "SELECT id, port, dcId, svcId, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE port=? AND dcId=?"
 
-	NP_INSERT = "INSERT INTO " + "nodeport(port, dcId, status) " + "VALUES(?, ?, ?)"
+	NP_INSERT = "INSERT INTO " + "nodeport(port, dcId, svcId, status, createdAt, modifiedAt, modifiedOp, comment) " + "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 
-	NP_UPDATE = "UPDATE nodeport " + "SET status=? " + "WHERE port=? AND dcID=?"
+	NP_UPDATE = "UPDATE nodeport " + "SET port=?, dcId=?, svcId=?, status=?, modifiedAt=?, modifiedOp=?, comment=? " + "WHERE port=? AND dcId=?"
 
 	NP_DELETE = "DELETE FROM nodeport " + "WHERE port=? AND dcId=?"
+
+	VALID = 1
+	INVALID = 0
 )
 
 type NodePort struct {
-	Id int32 `json:"id"`
-	Port int32 `json:"port"`
-	DcID int32 `json:"dcID"`
-	Status string `json:"status"`
+	Id         int32  `json:"id"`
+	Port       int32  `json:"port"`
+	DcId       int32  `json:"dcId"`
+	SvcId      int32  `json:"svcId"`
+	Status     int32  `json:"status"`
+	CreatedAt  string `json:"createdAt"`
+	ModifiedAt string `jsno:"modifiedAt"`
+	ModifiedOp int32  `json:"modifiedOp"`
+	Comment    string `json:"comment"`
 }
 
-func NewNodePort(port, dcId int32) *NodePort{
+func NewNodePort(port, dcId, svcId, modifiedOp int32) *NodePort {
 	return &NodePort{
 		Port: port,
-		DcID: dcId,
+		DcId: dcId,
+		SvcId: svcId,
+		Status: VALID,
+		CreatedAt: localtime.NewLocalTime().String(),
+		ModifiedAt: localtime.NewLocalTime().String(),
+		ModifiedOp: modifiedOp,
+		Comment: "",
 	}
 }
-
 
 // 查询是否存在该port和dcId组合, 如果存在,返回Nil, 如果不存在,返回err
 func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error {
@@ -50,7 +62,7 @@ func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(port, dcId).Scan(&np.Id, &np.Port, &np.DcID, &np.Status)
+	err = stmt.QueryRow(port, dcId).Scan(&np.Id, &np.Port, &np.DcId, &np.SvcId, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &np.Comment)
 	// port with dcId not exist
 	if err != nil {
 		log.Errorf("QuertNodePortByPortAndDcId Error: error=%s", err)
@@ -58,12 +70,12 @@ func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error {
 	}
 
 	// port with dcId exist
-	log.Infof("QueryNodePortByPortAndDcId: Id=%d, Port=%d, DcID=%d, Statu=%s", np.Id, np.Port, np.DcID, np.Status)
+	log.Debugf("QueryNodePortByPortAndDcId: Id=%d, Port=%d, DcId=%d, SvcId=%d, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%s, Comment=%s", np.Id, np.Port, np.DcId, np.SvcId, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	return nil
 }
 
 // 插入port, 如果已存在,应该返回err(但目前没有), 如果不存在,插入成功返回Nil, 插入失败返回err
-func (np *NodePort) InsertNodePort(port, dcId int32, status string) error {
+func (np *NodePort) InsertNodePort(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	stmt, err := db.Prepare(NP_INSERT)
@@ -75,11 +87,12 @@ func (np *NodePort) InsertNodePort(port, dcId int32, status string) error {
 
 	//TODO: ensure the dc is owned by the user
 	//TODO: check the bound of NodePort
-	np.Port = port
-	np.DcID = dcId
-	np.Status = status
+	np.Status = INVALID
+	np.CreatedAt = localtime.NewLocalTime().String()
+	np.ModifiedAt = localtime.NewLocalTime().String()
+	np.ModifiedOp = op
 
-	err = np.QueryNodePortByPortAndDcId(np.Port, np.DcID)
+	err = np.QueryNodePortByPortAndDcId(np.Port, np.DcId)
 	// if port with dcId exist
 	if err == nil {
 		log.Errorf("InserNodePort Error: error=%s", "Port exists")
@@ -88,19 +101,20 @@ func (np *NodePort) InsertNodePort(port, dcId int32, status string) error {
 	}
 
 	// if port with dcId not exist
-	_, err = stmt.Exec(np.Port, np.DcID, np.Status)
+	_, err = stmt.Exec(np.Port, np.DcId, np.SvcId, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 
 	// if insert failed
 	if err != nil {
 		log.Errorf("InsertNodePort Error: error=%s", err)
 		return err
 	}
-	log.Infof("InsertNodePort: port=%d, dcId=%d, status=%s", np.Port, np.DcID, np.Status)
+
+	log.Debugf("InsertNodePort: Id=%d, Port=%d, DcId=%d, SvcId=%d, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%s, Comment=%s", np.Id, np.Port, np.DcId, np.SvcId, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	return nil
 }
 
 // 更新port对应的信息, 该记录存在更新成功返回nil, 该记录不存在或更新失败返回err
-func (np *NodePort) UpdateNodePortByPortAndDcId(port, dcId int32, status string) error {
+func (np *NodePort) UpdateNodePortByPortAndDcId(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	stmt, err := db.Prepare(NP_UPDATE)
@@ -110,10 +124,11 @@ func (np *NodePort) UpdateNodePortByPortAndDcId(port, dcId int32, status string)
 	}
 	defer stmt.Close()
 
-	np.Port = port
-	np.DcID = dcId
-	np.Status = status
-	_, err = stmt.Exec(np.Status, np.Port, np.DcID)
+
+	np.ModifiedAt = localtime.NewLocalTime().String()
+	np.ModifiedOp = op
+
+	_, err = stmt.Exec(np.Port, np.DcId, np.SvcId, np.Status, np.ModifiedAt, np.ModifiedOp, np.Comment, np.Port, np.DcId)
 	// update error
 	if err != nil {
 		log.Errorf("UpdateNodePortByPortAndDcId Error: error=%s", err)
@@ -121,13 +136,12 @@ func (np *NodePort) UpdateNodePortByPortAndDcId(port, dcId int32, status string)
 	}
 
 	// update ok or even no updation
-	log.Infof("UpdateNodePortByPortAndDcId: Port=%d, DcID=%d, Status=%s", np.Port, np.DcID, np.Status)
+	log.Debugf("UpdateNodePortByPortAndDcId: Id=%d, Port=%d, DcId=%d, SvcId=%d, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%s, Comment=%s", np.Id, np.Port, np.DcId, np.SvcId, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	return nil
 }
 
-
 // 删除port对应的信息, 该记录存在删除成功返回nil, 该记录不存在或删除失败返回err
-func (np *NodePort) DeleteNodePortByPortAndDcId(port, dcId int32) error {
+func (np *NodePort) DeleteNodePortByPortAndDcId(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	stmt, err := db.Prepare(NP_DELETE)
@@ -137,9 +151,10 @@ func (np *NodePort) DeleteNodePortByPortAndDcId(port, dcId int32) error {
 	}
 	defer stmt.Close()
 
-	np.Port = port
-	np.DcID = dcId
-	_, err = stmt.Exec(strconv.Itoa(int(np.Port)), strconv.Itoa(int(np.DcID)))
+	np.ModifiedAt = localtime.NewLocalTime().String()
+	np.ModifiedOp = op
+
+	_, err = stmt.Exec(np.Port, np.DcId)
 	// delete error
 	if err != nil {
 		log.Errorf("DeleteNodePortByPortAndDcId Error: error=%s", err)
@@ -147,7 +162,6 @@ func (np *NodePort) DeleteNodePortByPortAndDcId(port, dcId int32) error {
 	}
 
 	// delete success or even no deletion
-	log.Infof("DeleteNodePortByPortAndDcId: Port=%d, dcId=%d", np.Port, np.DcID)
+	log.Debugf("DeleteNodePortByPortAndDcId: Id=%d, Port=%d, DcId=%d, SvcId=%d, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%s, Comment=%s", np.Id, np.Port, np.DcId, np.SvcId, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	return nil
-
 }

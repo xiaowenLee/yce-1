@@ -47,4 +47,7 @@ func (np *NodePort) UpdateNodePortByPortAndDcId(port, dcId int32, status string)
 // 删除port对应的信息, 该记录存在删除成功返回nil, 该记录不存在或删除失败返回err
 func (np *NodePort) DeleteNodePortByPortAndDcId(port, dcId int32) error 
 
+
+// 根据NodePort号来得到Service名称等,
+func (np *NodePort) QueryServiceByPortAndDcId() string 
 ```
