@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	mylog "app/backend/common/util/log"
 	"app/backend/common/util/placeholder"
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
@@ -13,7 +14,6 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	mylog "app/backend/common/util/log"
 	"strconv"
 	"strings"
 )
@@ -28,7 +28,7 @@ type CreateDeployController struct {
 	*iris.Context
 	k8sClients []*client.Client
 	apiServers []string
-	Ye *myerror.YceError
+	Ye         *myerror.YceError
 }
 
 func (cdc *CreateDeployController) WriteBack() {
@@ -167,7 +167,7 @@ func (cdc CreateDeployController) Post() {
 	// Validate OrgId error
 	cdc.validateSession(sessionIdFromClient, orgId)
 
-	if cdc.Ye!= nil {
+	if cdc.Ye != nil {
 		cdc.WriteBack()
 		return
 	}

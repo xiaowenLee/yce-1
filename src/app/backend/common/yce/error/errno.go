@@ -18,6 +18,7 @@ const (
 	EKUBE  int32 = 1200
 	EKUBE_CLIENT int32 = 1201
 	EKUBE_CREATE_DEPLOYMENT = 1202
+	EKUBE_LIST_PODS = 1203
 
 	EIRIS  int32 = 1300
 
@@ -73,6 +74,10 @@ var Errors = map[int32]*Error{
 	EKUBE_CREATE_DEPLOYMENT: &Error{
 		LogMsg: "Kubernetes Create Deployment Error",
 		ErrMsg: "创建Deployment出错",
+	},
+	EKUBE_LIST_PODS: &Error{
+		LogMsg: "Kubernetes List Pods Error",
+		ErrMsg: "获取Pod列表出错",
 	},
 
 	// 1300~1399 Iris错误

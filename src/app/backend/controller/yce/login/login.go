@@ -29,7 +29,7 @@ func (lc *LoginController) WriteBack() {
 }
 
 // Check username && password
-func (lc *LoginController) check(name, password string) (*myuser.User) {
+func (lc *LoginController) check(name, password string) *myuser.User {
 
 	encryptPass := encrypt.NewEncryption(password).String()
 
@@ -49,7 +49,7 @@ func (lc *LoginController) check(name, password string) (*myuser.User) {
 }
 
 // Store Session and Set cookie
-func (lc *LoginController) session(user *myuser.User) (*mysession.Session) {
+func (lc *LoginController) session(user *myuser.User) *mysession.Session {
 
 	// Store (id,orgId) in SessionStore
 	id := strconv.Itoa(int(user.Id))
