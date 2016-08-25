@@ -76,7 +76,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 	if err != nil {
 		mylog.Log.Errorf("ListRegistryController getTagsList client.Get Error: err=%s", err)
 		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY_GET, "")
-		return nil, err
+		return nil
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -92,10 +92,10 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 	err = json.Unmarshal(body, image)
 	if err != nil {
 		mylog.Log.Errorf("ListRegistryController getTagsList json.Unmarshal Error: err=%s", err)
-		return nil, err
+		return nil
 	}
 
-	return image, nil
+	return image
 }
 
 // GET /api/v1/registry/images
@@ -107,57 +107,35 @@ func (lrc ListRegistryController) Get() {
 	lrc.BaseUrl = "https://" + r.Host + ":" + r.Port
 	lrc.Registry = r
 
-	var ye *myerror.YceError
-
 	// Get repositories in the registry
-	list, err := lrc.getRepositories()
-	if err != nil {
-		mylog.Log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
-		// ye = myerror.NewYceError(1301, "ListRegistryController getRepositories Error!", "")
-		ye = myerror.NewYceError(1301, "")
-		js, _ := ye.EncodeJson()
-		lrc.Write(js)
+	list := lrc.getRepositories()
+	if lrc.Ye != nil {
+		lrc.WriteBack()
 		return
 	}
 
 	if 0 == len(list) {
-		mylog.Log.Errorf("ListRegistryController Repositories is empty!")
-		// ye = myerror.NewYceError(1302, "ListRegistryController Repositories is empty!", "")
-		ye = myerror.NewYceError(1302, "")
-		js, _ := ye.EncodeJson()
-		lrc.Write(js)
+		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY, "")
+		lrc.WriteBack()
 		return
 	}
 
 	// Get detail info for ervery repository
 	for _, repo := range list {
-		image, err := lrc.getTagsList(repo)
-
-		if err != nil {
-			mylog.Log.Errorf("ListRegistryController getTagsList Error: err=%a", err)
-			continue
-		}
-
+		image := lrc.getTagsList(repo)
 		lrc.Registry.Images = append(lrc.Registry.Images, *image)
 	}
 
 	if 0 == len(lrc.Registry.Images) {
-		mylog.Log.Errorf("ListRegistryController Images is empty!")
-
-		// ye = myerror.NewYceError(1303, "ListRegistryController Images is empty!", "")
-		ye = myerror.NewYceError(1303, "")
-		js, _ := ye.EncodeJson()
-		lrc.Write(js)
+		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY, "")
+		lrc.WriteBack()
 		return
 	}
 
 	images, _ := lrc.Registry.GetImagesList()
 
-	ye = myerror.NewYceError(0, images)
-	js, _ := ye.EncodeJson()
-	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-
-	lrc.Write(js)
+	lrc.Ye = myerror.NewYceError(myerror.EOK, images)
+	lrc.WriteBack()
 
 	mylog.Log.Infoln("ListRegistryController Get over!")
 }

@@ -82,6 +82,10 @@ var Errors = map[int32]*Error{
 	},
 
 	// 1500~1599 Registr错误
+	EREGISTRY: &Error{
+		LogMsg: "Registry is empty, no docker image",
+		ErrMsg: "私有镜像仓库为空",
+	},
 	EREGISTRY_GET: &Error{
 		LogMsg: "Can't Get value from redis",
 		ErrMsg: "不能检索镜像仓库",
