@@ -15,6 +15,7 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	mylog "app/backend/common/util/log"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -27,43 +28,45 @@ type CreateDeployController struct {
 	*iris.Context
 	k8sClients []*client.Client
 	apiServers []string
+	Ye *myerror.YceError
+}
+
+func (cdc *CreateDeployController) WriteBack() {
+	cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	mylog.Log.Infof("CreateDeployController Response YceError: controller=%p, code=%d, note=%s", cdc, cdc.Ye.Code, myerror.Errors[cdc.Ye.Code].LogMsg)
+	cdc.Write(cdc.Ye.String())
 }
 
 // Validate Session
-func (cdc *CreateDeployController) validateSession(sessionId, orgId string) (*myerror.YceError, error) {
+func (cdc *CreateDeployController) validateSession(sessionId, orgId string) {
 	// Validate the session
 	ss := session.SessionStoreInstance()
 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
 		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		cdc.Write(errJson)
-		return ye, err
+		cdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return
 	}
 
 	// Session invalide
 	if !ok {
 		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		cdc.Write(errJson)
-		return ye, err
+		cdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return
 	}
 
-	return nil, nil
+	return
 }
 
 // Get ApiServer by dcId
-func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) (string, error) {
+func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
 		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
-		return "", err
+		cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return ""
 	}
 
 	host := dc.Host
@@ -71,27 +74,27 @@ func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) (string, error
 	apiServer := host + ":" + port
 
 	mylog.Log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
-	return apiServer, nil
+	return apiServer
 }
 
 // Get ApiServer List for dcIdList
-func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) error {
+func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) {
 	// Foreach dcIdList
 	for _, dcId := range dcIdList {
 		// Get ApiServer
-		apiServer, err := cdc.getApiServerByDcId(dcId)
-		if err != nil {
-			mylog.Log.Errorf("getApiServerList error: err=%s", err)
-			return err
+		apiServer := cdc.getApiServerByDcId(dcId)
+		if strings.EqualFold(apiServer, "") {
+			mylog.Log.Errorf("CreateDeployController getApiServerList Error")
+			return
 		}
 
 		cdc.apiServers = append(cdc.apiServers, apiServer)
 	}
-	return nil
+	return
 }
 
 // Create k8sClients for every ApiServer
-func (cdc *CreateDeployController) createK8sClients() error {
+func (cdc *CreateDeployController) createK8sClients() {
 
 	// Foreach every ApiServer to create it's k8sClient
 	cdc.k8sClients = make([]*client.Client, 0)
@@ -102,10 +105,10 @@ func (cdc *CreateDeployController) createK8sClients() error {
 		}
 
 		c, err := client.New(config)
-
 		if err != nil {
 			mylog.Log.Errorf("createK8sClient Error: err=%s", err)
-			return err
+			cdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
+			return
 		}
 
 		cdc.k8sClients = append(cdc.k8sClients, c)
@@ -113,7 +116,7 @@ func (cdc *CreateDeployController) createK8sClients() error {
 		mylog.Log.Infof("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
-	return nil
+	return
 }
 
 // Publish k8s.Deployment to every datacenter which in dcIdList
@@ -125,6 +128,7 @@ func (cdc *CreateDeployController) createDeployment(namespace string, deployment
 		if err != nil {
 			mylog.Log.Errorf("createDeployment Error: apiServer=%s, namespace=%s, err=%s",
 				cdc.apiServers[index], namespace, err)
+			cdc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_DEPLOYMENT, "")
 			return err
 		}
 
@@ -145,6 +149,7 @@ func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, org
 	if err != nil {
 		mylog.Log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
 			actionUrl, actionOp, dcList, err)
+		cdc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
 		return err
 	}
 
@@ -160,13 +165,10 @@ func (cdc CreateDeployController) Post() {
 	userId := cdc.Param("userId")
 
 	// Validate OrgId error
-	ye, err := cdc.validateSession(sessionIdFromClient, orgId)
+	cdc.validateSession(sessionIdFromClient, orgId)
 
-	if ye != nil || err != nil {
-		mylog.Log.Warnf("CreateDeployController validateSession: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		errJson, _ := ye.EncodeJson()
-		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		cdc.Write(errJson)
+	if cdc.Ye!= nil {
+		cdc.WriteBack()
 		return
 	}
 
@@ -175,36 +177,24 @@ func (cdc CreateDeployController) Post() {
 	cdc.ReadJSON(cd)
 
 	// Get DcIdList
-	err = cdc.getApiServerList(cd.DcIdList)
-	if err != nil {
-		mylog.Log.Errorf("CreateDeployController getApiServerList: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1401, "Get Api Server List Error")
-		errJson, _ := ye.EncodeJson()
-		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		cdc.Write(errJson)
+	cdc.getApiServerList(cd.DcIdList)
+	if cdc.Ye != nil {
+		cdc.WriteBack()
 		return
 	}
 
 	// Create k8s clients
-	err = cdc.createK8sClients()
-	if err != nil {
-		mylog.Log.Errorf("CreateDeployController createK8sClients: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1402, "Create K8s Client Error")
-		errJson, _ := ye.EncodeJson()
-		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		cdc.Write(errJson)
+	cdc.createK8sClients()
+	if cdc.Ye != nil {
+		cdc.WriteBack()
 		return
 	}
 
 	// Publish deployment to every datacenter
 	orgName := cd.OrgName
-	err = cdc.createDeployment(orgName, &cd.Deployment)
-	if err != nil {
-		mylog.Log.Errorf("CreateDeployController createDeployment: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1403, "Publish K8s Deployment Error")
-		errJson, _ := ye.EncodeJson()
-		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		cdc.Write(errJson)
+	cdc.createDeployment(orgName, &cd.Deployment)
+	if cdc.Ye != nil {
+		cdc.WriteBack()
 		return
 	}
 
@@ -215,20 +205,16 @@ func (cdc CreateDeployController) Post() {
 	kd, _ := json.Marshal(cd.Deployment)
 
 	// Insert into mysql.Deployment
-	err = cdc.createMysqlDeployment(true, cd.AppName, orgId, userId, string(kd), "", string(dcl))
-
-	if err != nil {
-		mylog.Log.Errorf("CreateDeployController createDeployment: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1404, "Insert into MySQL Error")
-		errJson, _ := ye.EncodeJson()
-		cdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		cdc.Write(errJson)
+	cdc.createMysqlDeployment(true, cd.AppName, orgId, userId, string(kd), "", string(dcl))
+	if cdc.Ye != nil {
+		cdc.WriteBack()
 		return
 	}
 
 	// ToDo: 数据库中两个dcList的格式不一致,要改过来,统一叫DcIdList
 	// ToDo: 发布出错时也要插入数据库
 
+	cdc.Ye = myerror.NewYceError(myerror.EOK, "")
 	mylog.Log.Infoln("CreateDeploymentController over!")
-
+	return
 }

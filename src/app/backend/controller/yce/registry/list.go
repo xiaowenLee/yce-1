@@ -22,7 +22,7 @@ type ListRegistryController struct {
 
 func (lrc *ListRegistryController) WriteBack() {
 	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("LoginController Response YceError: controller=%p, code=%d, note=%s", lrc, lrc.Ye.Code, myerror.Errors[lrc.Ye.Code].LogMsg)
+	mylog.Log.Infof("ListRegistryController Response YceError: controller=%p, code=%d, note=%s", lrc, lrc.Ye.Code, myerror.Errors[lrc.Ye.Code].LogMsg)
 	lrc.Write(lrc.Ye.String())
 }
 
