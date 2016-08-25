@@ -1,13 +1,13 @@
 package logout
 
 import (
+	mylog "app/backend/common/util/log"
 	mysession "app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	"github.com/kataras/iris"
-	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 type LogoutController struct {
 	*iris.Context
@@ -26,7 +26,7 @@ func (lc *LogoutController) WriteBack() {
 }
 
 // Check is logined
-func (lc *LogoutController) checkLogin(sessionId string) (*mysession.Session) {
+func (lc *LogoutController) checkLogin(sessionId string) *mysession.Session {
 
 	ss := mysession.SessionStoreInstance()
 

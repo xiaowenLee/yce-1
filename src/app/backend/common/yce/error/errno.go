@@ -7,14 +7,26 @@ type Error struct {
 
 const (
 	EOK    int32 = 0
+
 	EMYSQL int32 = 1000
+
 	EREDIS int32 = 1100
+	EREDIS_GET int32 = 1101
+
 	EKUBE  int32 = 1200
+
 	EIRIS  int32 = 1300
+
 	EYCE   int32 = 1400
 	EYCE_LOGIN int32 = 1401
 	EYCE_SESSION int32 = 1402
 	EYCE_SESSION_DEL int32 = 1403
+
+	EREGISTRY int32 = 1500
+	EREGISTRY_GET int32 = 1501
+
+	EJSON int32 = 1600
+
 )
 
 var Errors = map[int32]*Error{
@@ -67,5 +79,17 @@ var Errors = map[int32]*Error{
 	EYCE_SESSION_DEL: &Error{
 		LogMsg: "Delete Session Error",
 		ErrMsg: "退出遇到问题",
+	},
+
+	// 1500~1599 Registr错误
+	EREGISTRY_GET: &Error{
+		LogMsg: "Can't Get value from redis",
+		ErrMsg: "不能检索镜像仓库",
+	},
+
+	// 1600 Json错误
+	EJSON: &Error{
+		LogMsg: "Json Marshal/Unmarshal Error",
+		ErrMsg: "Json序列化错误",
 	},
 }

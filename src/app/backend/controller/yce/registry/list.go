@@ -17,6 +17,13 @@ type ListRegistryController struct {
 	c        *myhttps.HttpsClient
 	BaseUrl  string
 	Registry *myregistry.Registry
+	Ye *myerror.YceError
+}
+
+func (lrc *ListRegistryController) WriteBack() {
+	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	mylog.Log.Infof("LoginController Response YceError: controller=%p, code=%d, note=%s", lrc, lrc.Ye.Code, myerror.Errors[lrc.Ye.Code].LogMsg)
+	lrc.Write(lrc.Ye.String())
 }
 
 // curl --cacert /etc/docker/certs.d/registry.test.com\:5000/domain.crt
@@ -27,7 +34,7 @@ type ListRegistryController struct {
 //   "ceph/mds"
 //   ]
 // }
-func (lrc *ListRegistryController) getRepositories() ([]string, error) {
+func (lrc *ListRegistryController) getRepositories() ([]string) {
 	url := lrc.BaseUrl + "/v2/_catalog"
 
 	client := lrc.c.Client
@@ -35,7 +42,8 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 
 	if err != nil {
 		mylog.Log.Errorf("ListRegistryController getRespositories Error: err=%s", err)
-		return []string{}, nil
+		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY_GET, "")
+		return []string{}
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -43,21 +51,21 @@ func (lrc *ListRegistryController) getRepositories() ([]string, error) {
 	repository := new(myregistry.Repository)
 
 	err = json.Unmarshal(body, repository)
-
 	if err != nil {
 		mylog.Log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
-		return []string{}, nil
+		lrc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return []string{}
 	}
 
 	mylog.Log.Infoln("ListRegistryController getRepositories over")
-	return repository.Repositories, nil
+	return repository.Repositories
 
 }
 
 // curl --cacert /etc/docker/certs.d/registry.test.com\:5000/domain.crt -X
 //	 GET https://registry.test.com:5000/v2/yeepay/nginx/tags/list
 // {"name":"yeepay/nginx","tags":["latest"]}
-func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, error) {
+func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) {
 
 	// foreech repositories
 	url := lrc.BaseUrl + "/v2/" + name + "/tags/list"
@@ -67,6 +75,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 
 	if err != nil {
 		mylog.Log.Errorf("ListRegistryController getTagsList client.Get Error: err=%s", err)
+		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY_GET, "")
 		return nil, err
 	}
 
@@ -74,7 +83,8 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image, 
 
 	if err != nil {
 		mylog.Log.Errorf("ListRegistryController getTagsList ioutil.ReadAll Error: err=%s", err)
-		return nil, err
+		lrc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return nil
 	}
 
 	image := new(myregistry.Image)
