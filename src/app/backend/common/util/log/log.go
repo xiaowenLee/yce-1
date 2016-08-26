@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"sync"
 	"time"
+	"strings"
 )
 
 const (
@@ -43,6 +44,11 @@ type Logger struct {
 
 var Log = NewLogger(os.Stdout, TRACE)
 
+func getShortFileName(file string) string {
+	index := strings.LastIndex(file, "/")
+	return file[index+1:]
+}
+
 func NewLogger(writer io.Writer, level int) *Logger {
 	return &Logger{
 		Writer: writer,
@@ -69,9 +75,8 @@ func (l *Logger) Log(level int, v ...interface{}) {
 	context := fmt.Sprint(v...)
 	pc, file, line, _ := runtime.Caller(CALL_PATH)
 	funcname := runtime.FuncForPC(pc).Name()
-	// fmt.Println(context)
+	file = getShortFileName(file)
 	log := fmt.Sprintf("%s [%s] %s [%s] [%s:%d]", timestamp, loglevel, context, funcname, file, line)
-	// fmt.Println(log)
 	fmt.Fprintln(l.Writer, log)
 }
 
@@ -83,6 +88,7 @@ func (l *Logger) Logf(level int, format string, v ...interface{}) {
 	context := fmt.Sprintf(format, v...)
 	pc, file, line, _ := runtime.Caller(CALL_PATH)
 	funcname := runtime.FuncForPC(pc).Name()
+	file = getShortFileName(file)
 	log := fmt.Sprintf("%s [%s] %s [%s] [%s:%d]", timestamp, loglevel, context, funcname, file, line)
 	fmt.Fprintln(l.Writer, log)
 }

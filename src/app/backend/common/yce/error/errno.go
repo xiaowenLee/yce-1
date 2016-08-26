@@ -9,11 +9,16 @@ const (
 	EOK    int32 = 0
 
 	EMYSQL int32 = 1000
+	EMYSQL_QUERY int32 = 1001
+	EMYSQL_INSERT int32 = 1002
 
 	EREDIS int32 = 1100
 	EREDIS_GET int32 = 1101
 
 	EKUBE  int32 = 1200
+	EKUBE_CLIENT int32 = 1201
+	EKUBE_CREATE_DEPLOYMENT = 1202
+	EKUBE_LIST_PODS = 1203
 
 	EIRIS  int32 = 1300
 
@@ -21,6 +26,7 @@ const (
 	EYCE_LOGIN int32 = 1401
 	EYCE_SESSION int32 = 1402
 	EYCE_SESSION_DEL int32 = 1403
+
 
 	EREGISTRY int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -41,6 +47,14 @@ var Errors = map[int32]*Error{
 		LogMsg: "MySQL Error",
 		ErrMsg: "MySQL数据库错误",
 	},
+	EMYSQL_QUERY: &Error{
+		LogMsg: "MySQL Query Error",
+		ErrMsg: "MySQL查询出错",
+	},
+	EMYSQL_INSERT: &Error{
+		LogMsg: "MySQL Insert Error",
+		ErrMsg: "MySQL插入出错",
+	},
 
 	// 1100~1199 Redis错误
 	EREDIS: &Error{
@@ -52,6 +66,18 @@ var Errors = map[int32]*Error{
 	EKUBE: &Error{
 		LogMsg: "Kubernetes Error",
 		ErrMsg: "Kubernetes错误",
+	},
+	EKUBE_CLIENT: &Error{
+		LogMsg: "Kubernetes Create Client Error",
+		ErrMsg: "创建K8s客户端出错",
+	},
+	EKUBE_CREATE_DEPLOYMENT: &Error{
+		LogMsg: "Kubernetes Create Deployment Error",
+		ErrMsg: "创建Deployment出错",
+	},
+	EKUBE_LIST_PODS: &Error{
+		LogMsg: "Kubernetes List Pods Error",
+		ErrMsg: "获取Pod列表出错",
 	},
 
 	// 1300~1399 Iris错误
@@ -82,6 +108,10 @@ var Errors = map[int32]*Error{
 	},
 
 	// 1500~1599 Registr错误
+	EREGISTRY: &Error{
+		LogMsg: "Registry is empty, no docker image",
+		ErrMsg: "私有镜像仓库为空",
+	},
 	EREGISTRY_GET: &Error{
 		LogMsg: "Can't Get value from redis",
 		ErrMsg: "不能检索镜像仓库",

@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	mylog "app/backend/common/util/log"
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
@@ -9,13 +10,19 @@ import (
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"github.com/kataras/iris"
-	mylog "app/backend/common/util/log"
 )
 
 type InitDeployController struct {
 	*iris.Context
 	org  *myorganization.Organization
 	Init deploy.InitDeployment
+	Ye *myerror.YceError
+}
+
+func (idc *InitDeployController) WriteBack() {
+	idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	mylog.Log.Infof("CreateDeployController Response YceError: controller=%p, code=%d, note=%s", idc, idc.Ye.Code, myerror.Errors[idc.Ye.Code].LogMsg)
+	idc.Write(idc.Ye.String())
 }
 
 func (idc *InitDeployController) String() string {
@@ -28,32 +35,26 @@ func (idc *InitDeployController) String() string {
 }
 
 // Validate Session
-func (idc *InitDeployController) validateSession(sessionId, orgId string) (*myerror.YceError, error) {
+func (idc *InitDeployController) validateSession(sessionId, orgId string) {
 	// Validate the session
 	ss := session.SessionStoreInstance()
 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
 		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
-		return ye, err
+		idc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return
 	}
 
 	// Session invalide
 	if !ok {
 		// relogin
 		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
-		return ye, err
+		idc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return
 	}
 
-	return nil, nil
+	return
 }
 
 // GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
@@ -62,27 +63,23 @@ func (idc InitDeployController) Get() {
 	orgId := idc.Param("orgId")
 
 	// Validate OrgId error
-	ye, err := idc.validateSession(sessionIdFromClient, orgId)
+	idc.validateSession(sessionIdFromClient, orgId)
 
-	if ye != nil || err != nil {
-		mylog.Log.Errorf("ListDeployController validateSession: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
+	if idc.Ye != nil {
+		idc.WriteBack()
 		return
 	}
 
 	// Valid session
-	idc.org, err = organization.GetOrganizationById(orgId)
+	org, err := organization.GetOrganizationById(orgId)
+	idc.org = org
 	idc.Init.OrgId = orgId
 	idc.Init.OrgName = idc.org.Name
 
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
+		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		idc.WriteBack()
 		return
 	}
 
@@ -90,10 +87,8 @@ func (idc InitDeployController) Get() {
 	idc.Init.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
+		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		idc.WriteBack()
 		return
 	}
 
@@ -101,18 +96,13 @@ func (idc InitDeployController) Get() {
 	idc.Init.Quotas, err = myqouta.QueryAllQuotas()
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		idc.Write(errJson)
+		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		idc.WriteBack()
 		return
 	}
 
-	ye = myerror.NewYceError(0, idc.String())
-	errJson, _ := ye.EncodeJson()
-	idc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	idc.Write(errJson)
-
+	idc.Ye = myerror.NewYceError(myerror.EOK, idc.String())
+	idc.WriteBack()
 	mylog.Log.Infoln("InitDeployController Get over!")
 	return
 
