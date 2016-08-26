@@ -75,6 +75,8 @@ func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error {
 	return nil
 }
 
+
+// 根据NodePort号和所属DcId号查找相应的serviceId, 存在返回ServiceId和Nil, 不存在返回-1和err
 func (np *NodePort) QueryServiceIdByPortAndDcId(port, dcId int32) (int32, error) {
 	err := np.QueryNodePortByPortAndDcId(port, dcId)
 	if err != nil {
@@ -86,7 +88,7 @@ func (np *NodePort) QueryServiceIdByPortAndDcId(port, dcId int32) (int32, error)
 	return np.SvcId, nil
 }
 
-// 插入port, 如果已存在,应该返回err(但目前没有), 如果不存在,插入成功返回Nil, 插入失败返回err
+// 插入port, 如果已存在,应该返回err, 如果不存在,插入成功返回Nil, 插入失败返回err
 func (np *NodePort) InsertNodePort(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
@@ -125,7 +127,7 @@ func (np *NodePort) InsertNodePort(op int32) error {
 	return nil
 }
 
-// 更新port对应的信息, 该记录存在更新成功返回nil, 该记录不存在或更新失败返回err
+// 更新port对应的信息, 该记录不存在或该记录存在更新成功返回nil, 更新失败返回err
 func (np *NodePort) UpdateNodePortByPortAndDcId(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
@@ -152,7 +154,7 @@ func (np *NodePort) UpdateNodePortByPortAndDcId(op int32) error {
 	return nil
 }
 
-// 删除port对应的信息, 该记录存在删除成功返回nil, 该记录不存在或删除失败返回err
+// 删除port对应的信息,  该记录不存在或该记录存在删除成功返回nil, 删除失败返回err
 func (np *NodePort) DeleteNodePortByPortAndDcId(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
