@@ -15,6 +15,10 @@ const (
 		"createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM organization WHERE id=?"
 
+	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcList," +
+		"createdAt, modifiedAt, modifiedOp, comment " +
+		"FROM organization WHERE name=?"
+
 	ORG_INSERT = "INSERT INTO organization(name, cpuQuota, memQuota, budget, " +
 		"balance, status, dcList, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -75,6 +79,32 @@ func (o *Organization) QueryOrganizationById(id int32) error {
 	var comment []byte
 	// Query organization by id
 	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
+	if err != nil {
+		log.Errorf("QureyOrganizationById Error: err=%s", err)
+		return err
+	}
+
+	o.Comment = string(comment)
+
+	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	return nil
+}
+
+func (o *Organization) QueryOrganizationByName(name string) error {
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-statement
+	stmt, err := db.Prepare(ORG_SELECT_NAME)
+	if err != nil {
+		log.Errorf("QueryOrganizationById Error: err=%s", err)
+		return err
+	}
+	defer stmt.Close()
+
+	var comment []byte
+	// Query organization by id
+	err = stmt.QueryRow(name).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
 	if err != nil {
 		log.Errorf("QureyOrganizationById Error: err=%s", err)
 		return err
