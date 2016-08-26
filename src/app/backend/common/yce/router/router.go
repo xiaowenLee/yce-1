@@ -7,6 +7,7 @@ import (
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
 	myservice "app/backend/controller/yce/service"
+	mynamespace "app/backend/controller/yce/namespace"
 	"github.com/kataras/iris"
 )
 
@@ -19,6 +20,7 @@ type Router struct {
 	Service      *myservice.ListServiceController
 	InitDeploy   *mydeploy.InitDeployController
 	CreateDeploy *mydeploy.CreateDeployController
+	InitNamespace *mynamespace.InitNamespaceController
 }
 
 func NewRouter() *Router {
@@ -31,6 +33,7 @@ func NewRouter() *Router {
 	r.Service = new(myservice.ListServiceController)
 	r.InitDeploy = new(mydeploy.InitDeployController)
 	r.CreateDeploy = new(mydeploy.CreateDeployController)
+	r.InitNamespace = new(mynamespace.InitNamespaceController)
 
 	return r
 }
@@ -45,6 +48,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/new", *r.CreateDeploy)
 	iris.API("/api/v1/registry/images", *r.Registry)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.Service)
+	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 
 	iris.StaticServe("../frontend", "/static")
 }

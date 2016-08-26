@@ -26,6 +26,7 @@ const (
 	EYCE_LOGIN int32 = 1401
 	EYCE_SESSION int32 = 1402
 	EYCE_SESSION_DEL int32 = 1403
+	EYCE_ORG_EXIST int32 = 1404
 
 
 	EREGISTRY int32 = 1500
@@ -105,6 +106,10 @@ var Errors = map[int32]*Error{
 	EYCE_SESSION_DEL: &Error{
 		LogMsg: "Delete Session Error",
 		ErrMsg: "退出遇到问题",
+	},
+	EYCE_ORG_EXIST: &Error{
+		LogMsg: "The organization exists",
+		ErrMsg: "组织已经存在",
 	},
 
 	// 1500~1599 Registr错误

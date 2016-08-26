@@ -7,6 +7,7 @@ import (
 	myerror "app/backend/common/yce/error"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	myorganization "app/backend/model/mysql/organization"
 )
 
 type InitNamespaceController struct {
@@ -53,4 +54,18 @@ func (inc *InitNamespaceController) Post() {
 	initNamespaceParams := new(InitNamespaceParams)
 	inc.ReadJSON(initNamespaceParams)
 
+	org := new(myorganization.Organization)
+	err := org.GetOrganizationByName(initNamespaceParams.Name)
+
+	// Exists
+	if err == nil {
+		inc.Ye = myerror.NewYceError(myerror.EYCE_ORG_EXIST, "")
+		inc.WriteBack()
+		return
+	}
+
+	// Not Exists
+	inc.Ye = myerror.NewYceError(myerror.EOK, "")
+	inc.WriteBack()
+	return
 }
