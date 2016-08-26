@@ -12,7 +12,7 @@
 
 请求头中包含: Authorization: ${sessionId}
 
-请求体重提交: {"name": "xxx"}
+请求体重提交: {"name": "xxx", "orgId": "xxx"}
 
 返回值:
 

@@ -38,6 +38,5 @@ func (cnc *CreateNamespaceController) validateSession(sessionId, orgId string) {
 		cnc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
-
 	return
 }
