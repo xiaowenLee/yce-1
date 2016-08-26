@@ -21,7 +21,7 @@ NodePort使得开发者可以自行设定负载均衡器,或者配置Kubernetes�
 
 为了简化操作, 可能需要推荐未使用的端口。数据范围在填表时进行检查,默认为30000 ~ 32767, 超出要求重填。
 
-建nodeport表,里面列有:Id, port, dcId, status 
+建nodeport表,里面列有:Id, port, dcId, svcId, status, createdAt, modifiedAt, modifiedOp, comment
 
 *将NodePort作为Datacenter的新字段,数据类型为VARCHAR(255),存储的值为{"nodePort": [""]}形式。处理不方便,不用*
 
@@ -37,17 +37,15 @@ NodePort使得开发者可以自行设定负载均衡器,或者配置Kubernetes�
 // 查询是否存在该port和dcId组合, 如果存在,返回Nil, 如果不存在,返回err
 func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error 
 
-// 插入port, 如果已存在,应该返回err(但目前没有), 如果不存在,插入成功返回Nil, 插入失败返回err
-func (np *NodePort) InsertNodePort(port, dcId int32, status string) error 
+// 插入port, 如果已存在,应该返回err, 如果不存在或插入成功返回Nil, 插入失败返回err
+func (np *NodePort) InsertNodePort(op int32) error 
 
+// 更新port对应的信息, 该记录不存在或存在更新成功返回nil, 该更新失败返回err
+func (np *NodePort) UpdateNodePortByPortAndDcId(op int32) error 
 
-// 更新port对应的信息, 该记录存在更新成功返回nil, 该记录不存在或更新失败返回err
-func (np *NodePort) UpdateNodePortByPortAndDcId(port, dcId int32, status string) error 
+// 删除port对应的信息, 该记录不存在或记录存在删除成功返回nil, 该删除失败返回err
+func (np *NodePort) DeleteNodePortByPortAndDcId(op int32) error 
 
-// 删除port对应的信息, 该记录存在删除成功返回nil, 该记录不存在或删除失败返回err
-func (np *NodePort) DeleteNodePortByPortAndDcId(port, dcId int32) error 
-
-
-// 根据NodePort号来得到Service名称等,
-func (np *NodePort) QueryServiceByPortAndDcId() string 
+// 根据NodePort号来得到Service名称等, 成功返回svcId和空错误,否则返回-1和错误
+func (np *NodePort) QueryServiceByPortAndDcId() (int32, error) 
 ```

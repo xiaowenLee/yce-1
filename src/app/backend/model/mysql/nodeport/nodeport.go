@@ -7,6 +7,7 @@ import (
 
 	//temporarily
 	"errors"
+
 )
 
 var log = mylog.Log
@@ -74,6 +75,17 @@ func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error {
 	return nil
 }
 
+func (np *NodePort) QueryServiceIdByPortAndDcId(port, dcId int32) (int32, error) {
+	err := np.QueryNodePortByPortAndDcId(port, dcId)
+	if err != nil {
+		log.Errorf("QueryServiceIdByPortAndDcId Error: error=%s", err)
+		return -1, err
+	}
+
+	log.Debugf("QueryServiceIdByPortAndDcId: Id=%d, Port=%d, DcId=%d, SvcId=%d, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%s, Comment=%s", np.Id, np.Port, np.DcId, np.SvcId, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
+	return np.SvcId, nil
+}
+
 // 插入port, 如果已存在,应该返回err(但目前没有), 如果不存在,插入成功返回Nil, 插入失败返回err
 func (np *NodePort) InsertNodePort(op int32) error {
 	db := mysql.MysqlInstance().Conn()
@@ -135,7 +147,7 @@ func (np *NodePort) UpdateNodePortByPortAndDcId(op int32) error {
 		return err
 	}
 
-	// update ok or even no updation
+	// update ok or even no updation(not exist)
 	log.Debugf("UpdateNodePortByPortAndDcId: Id=%d, Port=%d, DcId=%d, SvcId=%d, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%s, Comment=%s", np.Id, np.Port, np.DcId, np.SvcId, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	return nil
 }
