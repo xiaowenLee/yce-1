@@ -29,6 +29,12 @@ NodePort使得开发者可以自行设定负载均衡器,或者配置Kubernetes�
 
 *Enum最多可达65536个,值来自于创建表时显式指定的值, 不能用Enum*
 
+删除的时候采用更改status字段从INVALID变为VALID而不真正删除
+
+插入的时候采用 Insert On Duplicate Key Update。如果记录存在且为INVALID, 则返回错误。如果记录存在且为VALID, 则更新它的svcName, status, modifiedAt, modifiedOp字段,如果记录不存在,则插入新记录。
+
+表里采用了双主键(port 和 dcId)以唯一确定一条记录
+
 
 ### 方法
 
@@ -37,15 +43,19 @@ NodePort使得开发者可以自行设定负载均衡器,或者配置Kubernetes�
 // 查询是否存在该port和dcId组合, 如果存在,返回Nil, 如果不存在,返回err
 func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error 
 
-// 插入port, 如果已存在,应该返回err, 如果不存在或插入成功返回Nil, 插入失败返回err
+// 根据NodePort号和所属DcId号查找相应的serviceId, 存在返回ServiceId和Nil, 不存在返回""和err
+func (np *NodePort) QueryServiceNameByPortAndDcId(port, dcId int32) (string, error) 
+
+// 插入port, 如果已存在且INVALID,返回err; 如果存在且为VALID, 更新记录的svcName, status, modifiedAt, modifiedOp, 并返回Nil。如果不存在,插入新记录并返回Nil, 插入失败返回err
 func (np *NodePort) InsertNodePort(op int32) error 
 
-// 更新port对应的信息, 该记录不存在或存在更新成功返回nil, 该更新失败返回err
-func (np *NodePort) UpdateNodePortByPortAndDcId(op int32) error 
+//插入时,如果记录存在,就更新里面的一些字段,如果不存在则插入新记录。作用在具有唯一索引或主键。
+func (np *NodePort) InsertOnDuplicateKeyUpdateStatus(svcName string, status int32, op int32) error
 
-// 删除port对应的信息, 该记录不存在或记录存在删除成功返回nil, 该删除失败返回err
-func (np *NodePort) DeleteNodePortByPortAndDcId(op int32) error 
+// 更新port对应的信息, 该记录不存在或该记录存在更新成功返回nil, 更新失败返回err
+func (np *NodePort) UpdateNodePort(op int32) error
 
-// 根据NodePort号来得到Service名称等, 成功返回svcId和空错误,否则返回-1和错误
-func (np *NodePort) QueryServiceByPortAndDcId() (int32, error) 
+// 删除port对应的信息(修改status为VALID),  该记录不存在或该记录存在删除成功返回nil, 删除失败返回err
+func (np *NodePort) DeleteNodePort(op int32) error
+
 ```
