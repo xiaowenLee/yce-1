@@ -9,22 +9,25 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
+	"encoding/json"
 )
 
 
 type CreateNamespaceController struct {
 	*iris.Context
 	Ye *myerror.YceError
+	Param  *CreateNamespaceParam
 }
 
 
-type CreateNamespaceParams struct {
+type CreateNamespaceParam struct {
 	OrgId string `json:"orgId"`
+	UserId int32 `json:"userId"`
 	Name string `json:"name"`
 	CpuQuota int32 `json:"cpuQuota"`
 	MemQuota int32 `json:"memQuota"`
-	Budget int32 `json:"budget"`
-	Balance int32 `json:"balance"`
+	Budget string `json:"budget"`
+	Balance string `json:"balance"`
 	DcIdList []int32 `json:"dcIdList"`
 }
 
@@ -55,16 +58,34 @@ func (cnc *CreateNamespaceController) validateSession(sessionId, orgId string) {
 }
 
 // Parse Namespace struct, insert into MySQL
-func (cnc *CreateNamespaceController) CreateNamespaceDbItem(org *myorganization.Organization) {
+func (cnc *CreateNamespaceController) CreateNamespaceDbItem() {
 
+	dcIdList, err := json.Marshal(cnc.Param.DcIdList)
+	if err != nil {
+		cdc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return
+	}
+
+	// CreateNamespaceDbItem
+	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, "", string(dcIdList),
+		cnc.Param.CpuQuota, cnc.Param.MemQuota, cnc.Param.UserId)
+
+	err = org.InsertOrganization()
+	if err != nil {
+
+	}
 }
 
 
 // Post /api/v1/organizations
 func (cnc *CreateNamespaceController) Post() {
+	// Parse create organization params
+	cnc.Param = new(CreateNamespaceParam)
+	cnc.ReadJSON(cnc.Param)
+
+	// Validate Session
 	sessionIdFromClient := cdc.RequestHeader("Authorization")
-	// Validate OrgId error
-	cdc.validateSession(sessionIdFromClient, orgId)
+	cdc.validateSession(sessionIdFromClient, cnc.Param.OrgId)
 
 	if cdc.Ye != nil {
 		cdc.WriteBack()

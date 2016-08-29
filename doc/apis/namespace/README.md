@@ -53,6 +53,7 @@
 ```json
 {
     "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
+    "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串
     "name": "dev",        // 组织名称也是K8s里namespace的名称
     "cpuQuota": 100,      // CPU配额
     "memQuota": 200,      // 内存配额
