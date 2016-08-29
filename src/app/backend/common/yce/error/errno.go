@@ -19,6 +19,9 @@ const (
 	EKUBE_CLIENT int32 = 1201
 	EKUBE_CREATE_DEPLOYMENT = 1202
 	EKUBE_LIST_PODS = 1203
+	EKUBE_CREATE_NAMESPACE = 1204
+	EKUBE_CREATE_RESOURCEQUOTA = 1205
+
 
 	EIRIS  int32 = 1300
 
@@ -79,6 +82,14 @@ var Errors = map[int32]*Error{
 	EKUBE_LIST_PODS: &Error{
 		LogMsg: "Kubernetes List Pods Error",
 		ErrMsg: "获取Pod列表出错",
+	},
+	EKUBE_CREATE_NAMESPACE: &Error{
+		LogMsg: "Kubernetes create namespace error",
+		ErrMsg: "创建命名空间失败",
+	},
+	EKUBE_CREATE_RESOURCEQUOTA: &Error{
+		LogMsg: "Kubernetes create resourceQuota error",
+		ErrMsg: "创建资源配额失败",
 	},
 
 	// 1300~1399 Iris错误

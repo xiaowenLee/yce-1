@@ -81,22 +81,6 @@ func NewSessionStore() *SessionStore {
 	return instance
 }
 
-func (ss *SessionStore) ValidateSession(sessionId string) (bool, error) {
-
-	session, err := ss.Get(sessionIdClient)
-	if err != nil {
-		log.Errorf("Get session from sessionIdClient error: sessionIdClient: %s, err=%s", sessionIdClient, err)
-		return false, err
-	}
-
-	// sessionId invalid
-	if session == nil && err == nil {
-		return false, errors.New("Validate sessionIdClient failed: invalid sessionIdClient")
-	}
-
-	return true, nil
-}
-
 func (ss *SessionStore) ValidateOrgId(sessionIdClient string, OrgIdClient string) (bool, error) {
 	session, err := ss.Get(sessionIdClient)
 	if err != nil {

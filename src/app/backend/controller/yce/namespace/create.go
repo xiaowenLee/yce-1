@@ -9,14 +9,23 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
+	resource "k8s.io/kubernetes/pkg/api/resource"
 	"encoding/json"
+	"strconv"
+	"strings"
 )
 
+const (
+	CPU_MULTIPLIER int64 = 1024
+	MEM_MULTIPLIER int64 = 1024*1024*1024
+)
 
 type CreateNamespaceController struct {
 	*iris.Context
 	Ye *myerror.YceError
 	Param  *CreateNamespaceParam
+	k8sClients []*client.Client
+	apiServers []string
 }
 
 
@@ -58,24 +67,127 @@ func (cnc *CreateNamespaceController) validateSession(sessionId, orgId string) {
 }
 
 // Parse Namespace struct, insert into MySQL
-func (cnc *CreateNamespaceController) CreateNamespaceDbItem() {
+func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 
 	dcIdList, err := json.Marshal(cnc.Param.DcIdList)
 	if err != nil {
-		cdc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return
 	}
 
-	// CreateNamespaceDbItem
 	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, "", string(dcIdList),
 		cnc.Param.CpuQuota, cnc.Param.MemQuota, cnc.Param.UserId)
 
 	err = org.InsertOrganization()
 	if err != nil {
-
+		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
+		return
 	}
 }
 
+// Get ApiServer by dcId
+func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
+	dc := new(mydatacenter.DataCenter)
+	err := dc.QueryDataCenterById(dcId)
+	if err != nil {
+		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return ""
+	}
+
+	host := dc.Host
+	port := strconv.Itoa(int(dc.Port))
+	apiServer := host + ":" + port
+
+	mylog.Log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
+	return apiServer
+}
+
+// Get ApiServer List for dcIdList
+func (cnc *CreateNamespaceController) getApiServerList(dcIdList []int32) {
+	// Foreach dcIdList
+	for _, dcId := range cnc.Param.DcIdList {
+		// Get ApiServer
+		apiServer := cnc.getApiServerByDcId(dcId)
+		if strings.EqualFold(apiServer, "") {
+			mylog.Log.Errorf("CreateDeployController getApiServerList Error")
+			return
+		}
+
+		cnc.apiServers = append(cnc.apiServers, apiServer)
+	}
+	return
+}
+
+// Create k8sClients for every ApiServer
+func (cnc *CreateNamespaceController) createK8sClients() {
+
+	// Foreach every ApiServer to create it's k8sClient
+	cnc.k8sClients = make([]*client.Client, 0)
+
+	for _, server := range cnc.apiServers {
+		config := &restclient.Config{
+			Host: server,
+		}
+
+		c, err := client.New(config)
+		if err != nil {
+			mylog.Log.Errorf("createK8sClient Error: err=%s", err)
+			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
+			return
+		}
+
+		cnc.k8sClients = append(cnc.k8sClients, c)
+		cnc.apiServers = append(cnc.apiServers, server)
+		mylog.Log.Infof("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s", c, server)
+	}
+
+	return
+}
+
+// Create Namespace for every ApiServer
+func (cnc *CreateNamespaceController) createNamespace() {
+	namespace := new(api.Namespace)
+	namespace.ObjectMeta.Name = cnc.Param.Name
+
+	// Foreach every k8sClient to create namespace resource
+	for index, cli := range cnc.k8sClients {
+		_, err := cli.Namespaces().Create(namespace)
+		if err != nil {
+			mylog.Log.Errorf("createNamespace Error: apiServer=%s, namespace=%s, err=%s",
+				cnc.apiServers[index], namespace, err)
+			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
+			return err
+		}
+	}
+
+}
+
+// TODO: 由于数据中心配额表,它定义了每个数据中心有不同的配额,第一版本默认每个数据中心都是一样的配额,第二版本在实现资源增减的逻辑
+// Create ResourceQuota for every ApiServer
+func (cnc *CreateNamespaceController) createResourceQuota() {
+	resourceQuota := new(api.ResourceQuota)
+	resourceQuota.ObjectMeta.Name = cnc.Param.Name + "-quota"
+
+	// translate into "resource.Quantity"
+	cpuQuota := resource.NewQuantity(cnc.Param.CpuQuota * CPU_MULTIPLIER, resource.DecimalSI)
+	memQuota := resource.NewQuantity(cnc.Param.MemQuota * MEM_MULTIPLIER, resource.BinarySI)
+
+	resourceQuota.Spec.Hard[api.ResourceCPU] = cpuQuota
+	resourceQuota.Spec.Hard[api.ResourceMemory] = memQuota
+
+	// Foreach every k8sClient to create resourceQuota
+	for index, cli := range cnc.k8sClients {
+		_, err := cli.ResourceQuotas(cnc.Param.Name).Create(resourceQuota)
+		if err != nil {
+			mylog.Log.Errorf("createResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
+				cnc.apiServers[index], namespace, err)
+			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
+			return err
+		}
+	}
+
+}
 
 // Post /api/v1/organizations
 func (cnc *CreateNamespaceController) Post() {
@@ -84,13 +196,49 @@ func (cnc *CreateNamespaceController) Post() {
 	cnc.ReadJSON(cnc.Param)
 
 	// Validate Session
-	sessionIdFromClient := cdc.RequestHeader("Authorization")
-	cdc.validateSession(sessionIdFromClient, cnc.Param.OrgId)
-
-	if cdc.Ye != nil {
-		cdc.WriteBack()
+	sessionIdFromClient := cnc.RequestHeader("Authorization")
+	cnc.validateSession(sessionIdFromClient, cnc.Param.OrgId)
+	if cnc.Ye != nil {
+		cnc.WriteBack()
 		return
 	}
 
+	// Create Organization struct and insert it into MySQL
+	cnc.createNamespaceDbItem()
+	if cnc.Ye != nil {
+		cnc.WriteBack()
+		return
+	}
 
+	// Get DcIdList
+	cnc.getApiServerList(cnc.Param.DcIdList)
+	if cnc.Ye != nil {
+		cnc.WriteBack()
+		return
+	}
+
+	// Create k8s clients
+	cnc.createK8sClients()
+	if cnc.Ye != nil {
+		cnc.WriteBack()
+		return
+	}
+
+	// Create Namespace
+	cnc.createNamespace()
+	if cnc.Ye != nil {
+		cnc.WriteBack()
+		return
+	}
+
+	// Create ResourceQuota
+	cnc.createResourceQuota()
+	if cnc.Ye != nil {
+		cnc.WriteBack()
+		return
+	}
+
+	cdc.Ye = myerror.NewYceError(myerror.EOK, "")
+	mylog.Log.Infoln("CreateNamespaceController over!")
+	return
 }
