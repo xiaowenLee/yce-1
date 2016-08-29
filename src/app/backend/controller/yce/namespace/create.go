@@ -17,8 +17,15 @@ type CreateNamespaceController struct {
 	Ye *myerror.YceError
 }
 
-type CreateNamespaceParams struct {
 
+type CreateNamespaceParams struct {
+	OrgId string `json:"orgId"`
+	Name string `json:"name"`
+	CpuQuota int32 `json:"cpuQuota"`
+	MemQuota int32 `json:"memQuota"`
+	Budget int32 `json:"budget"`
+	Balance int32 `json:"balance"`
+	DcIdList []int32 `json:"dcIdList"`
 }
 
 func (cnc *CreateNamespaceController) WriteBack() {
