@@ -7,12 +7,18 @@ import (
 	myerror "app/backend/common/yce/error"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	mydatacenter "app/backend/model/mysql/datacenter"
+	myorganization "app/backend/model/mysql/organization"
 )
 
 
 type CreateNamespaceController struct {
 	*iris.Context
 	Ye *myerror.YceError
+}
+
+type CreateNamespaceParams struct {
+
 }
 
 func (cnc *CreateNamespaceController) WriteBack() {
@@ -39,4 +45,24 @@ func (cnc *CreateNamespaceController) validateSession(sessionId, orgId string) {
 		return
 	}
 	return
+}
+
+// Parse Namespace struct, insert into MySQL
+func (cnc *CreateNamespaceController) CreateNamespaceDbItem(org *myorganization.Organization) {
+
+}
+
+
+// Post /api/v1/organizations
+func (cnc *CreateNamespaceController) Post() {
+	sessionIdFromClient := cdc.RequestHeader("Authorization")
+	// Validate OrgId error
+	cdc.validateSession(sessionIdFromClient, orgId)
+
+	if cdc.Ye != nil {
+		cdc.WriteBack()
+		return
+	}
+
+
 }

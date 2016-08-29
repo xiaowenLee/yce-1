@@ -52,6 +52,7 @@
 请求体为Json格式:
 ```json
 {
+    "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
     "name": "dev",        // 组织名称也是K8s里namespace的名称
     "cpuQuota": 100,      // CPU配额
     "memQuota": 200,      // 内存配额
