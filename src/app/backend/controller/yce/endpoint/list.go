@@ -1,176 +1,226 @@
 package endpoint
 
 import (
-	"log"
 	"github.com/kataras/iris"
 	"app/backend/common/util/session"
 	"app/backend/common/yce/organization"
-	"app/backend/model/yce/service"
+	"app/backend/model/yce/endpoint"
 	myerror "app/backend/common/yce/error"
 	myorganization "app/backend/model/mysql/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
+	mylog "app/backend/common/util/log"
 	"encoding/json"
 	"strconv"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	"strings"
 )
 
-type ListServiceController struct {
+type ListEndpointController struct {
 	*iris.Context
-	org *myorganization.Organization
-	dcList []mydatacenter.DataCenter
+	apiServers []string
+	k8sClients []client.Client
+	Ye *myerror.YceError
 }
 
+func (lec *ListEndpointController) WriteBack() {
+	lec.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	mylog.Log.Infof("Create ListEndpointController Response Error: controller=%p, code=%d, note=%s", lec, lec.Ye.Code, myerror.Errors[lec.Ye.Code].LogMsg)
+	lec.Write(lec.Ye.String())
+}
 
-
-func (lsc *ListServiceController) validateSession(sessionId, orgId string) (*myerror.YceError, error) {
+func (lec *ListEndpointController) validateSessionId(sessionId, orgId string) {
 	ss := session.SessionStoreInstance()
 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
+	// validate error
 	if err != nil {
-		log.Printf("Validate Session error: sessionId=%s, error=%s\n", sessionId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		lsc.Write(errJson)
-		return ye, err
+		mylog.Log.Errorf("Create ListEndpointController Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
+		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return
 	}
 
-	// Session invalide
+	// invalid sessionId
 	if !ok {
-		// relogin
-		log.Printf("Validate Session failed: sessionId=%s, error=%s\n", sessionId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		lsc.Write(errJson)
-		return ye, err
+		mylog.Log.Errorf("Create ListEndpoint Controller Failed: sessionId=%s, orgId=%s", sessionId, orgId)
+		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return
 	}
 
-	log.Printf("ListServiceController validate sessionId with orgId ok: sessionId=%s, orgId=%s\n", sessionId, orgId)
-	return nil, nil
+	return
 }
 
-func (lsc *ListServiceController) getDcHost() ([]string, error) {
-	server := make([]string, len(lsc.dcList))
 
-	for i := 0; i < len(lsc.dcList); i++ {
-		server[i] = lsc.dcList[i].Host + ":" + strconv.Itoa(int(lsc.dcList[i].Port))
+func (lec *ListEndpointController) getDatacentersByOrgId(ed endpoint.ListEndpoints, orgId string) {
+	org, err := organization.GetOrganizationById(orgId)
+	ed.Organization = org
+	if err != nil {
+		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+		lec.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
+		return
+
 	}
 
-	log.Printf("ListServiceController getDcHost: server=%v\n", server)
-	return server, nil
+	dcList, err := organization.GetDataCentersByOrganization(ed.Organization)
+	if err != nil {
+		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+		lec.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
+		return
+	}
+
+	for index, dc := range dcList {
+		ed.DcIdList[index] = dc.Id
+		ed.DcName[index] = dc.Name
+	}
+
 }
 
-func (lsc *ListServiceController) getDisplayServices(dcHostList []string) (list string, err error) {
-	serviceData := make([]service.Service, len(dcHostList))
 
-	orgId := strconv.Itoa(int(lsc.org.Id))
+// Get ApiServer by dcId
+func (lec *ListEndpointController) getApiServerByDcId(dcId int32) string {
+	dc := new(mydatacenter.DataCenter)
+	err := dc.QueryDataCenterById(dcId)
+	if err != nil {
+		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		lec.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return ""
+	}
 
-	for i := 0; i < len(dcHostList); i++ {
-		newconfig := &restclient.Config{
-			Host: dcHostList[i],
+	host := dc.Host
+	port := strconv.Itoa(int(dc.Port))
+	apiServer := host + ":" + port
+
+	mylog.Log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
+
+	return apiServer
+
+
+}
+
+func (lec *ListEndpointController) getApiServerList(dcIdList []int32) {
+	for _, dcId := range dcIdList {
+		// Get ApiServer
+		apiServer := lec.getApiServerByDcId(dcId)
+		if strings.EqualFold(apiServer, "") {
+			mylog.Log.Errorf("ListEndpointController getApiServerList Error")
+			return
 		}
 
-		newCli, err := client.New(newconfig)
-		if err != nil  {
-			log.Printf("Get new restclient error: error=%s\n", err)
-			return "", err
+		lec.apiServers = append(lec.apiServers, apiServer)
+	}
+
+	return
+}
+
+
+func (lec *ListEndpointController) createK8sClients() {
+	// Foreach every ApiServer to create it's k8sClient
+	lec.k8sClients := make([]*client.Client, len(lec.apiServers))
+
+
+	for _, server := range lec.apiServers {
+		config := &restclient.Config{
+			Host: server,
 		}
 
-		svcList, err := newCli.Services(lsc.org.Name).List(api.ListOptions{})
+		c, err := client.New(config)
 		if err != nil {
-			log.Printf("Get serviceList error: error=%s\n", err)
-			return "", err
+			mylog.Log.Errorf("CreateK8sClient Error: error=%s", err)
+			lec.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
+			return
 		}
 
-		serviceData[i].DcId = lsc.dcList[i].Id
-		serviceData[i].DcName = lsc.dcList[i].Name
-		serviceData[i].ServiceList= *svcList
-
-		log.Printf("ListServiceController getDisplayService: dcId=%d, dcName=%s, serviceList=%p, len(serviceList)=%d\n", serviceData[i].DcId, serviceData[i].DcName, &serviceData, len(serviceData[i].ServiceList.Items))
+		lec.k8sClients = append(lec.k8sClients, c)
+		// why??
+		//lec.apiServers = append(lec.apiServers, server)
+		mylog.Log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server})
 	}
 
-	serviceListJson, err := json.Marshal(serviceData)
+	return
+}
 
+func (lec *ListEndpointController) listEndpoints(namespace string, ed endpoint.ListEndpoints) (epString string){
+	epList := make([]endpoint.Endpoints, len(lec.apiServers))
+	// Foreach every K8sClient to create service
+	for index, cli := range lec.k8sClients {
+		//_, err := cli.Services(namespace).Create(service)
+		eps, err := cli.Endpoints(namespace).List(api.ListOptions{})
+		if err != nil {
+			mylog.Log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
+			lec.Ye = myerror.NewYceError(myerror.EKUBE_LIST_ENDPOINTS, "")
+			return
+		}
+
+		//TODO: check consistency
+		epList[index].DcId = ed.DcIdList[index]
+		epList[index].DcName = ed.DcName[index]
+		epList[index].EndpointsList = eps
+
+		mylog.Log.Infof("listEndpoints successfully: namespace=%s, apiServer=%s", namespace, lec.apiServers[index])
+
+	}
+
+	epString, err := json.Marshal(epList)
 	if err != nil {
-		log.Printf("Get serviceListJson error: orgId=%s, error=%s\n", orgId, err)
-		return "", err
+		mylog.Log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
+		lec.Ye = myerror.NewYceError(myerror.EKUBE_LIST_ENDPOINTS, "")
+		return
 	}
 
-	log.Printf("ListServiceController Get serviceList ok: orgId=%s\n", orgId)
-	list = string(serviceListJson)
-	return list, nil
+	return
 }
 
 
-//GET /api/v1/organizations/{orgId}/users/{userId}/services
-func (lsc ListServiceController) Get() {
-	sessionIdFromClient := lsc.RequestHeader("Authorization")
-	orgId := lsc.Param("orgId")
+//GET /api/v1/organizations/{orgId}/users/{userId}/endpoints
+func (lec ListEndpointController) Get() {
+	sessionIdFromClient := lec.RequestHeader("Authorization")
+	orgId := lec.Param("orgId")
+	userId := lec.Params("userId")
 
-	// Validate orgId error
-	ye, err := lsc.validateSession(sessionIdFromClient, orgId)
-	if ye != nil || err != nil {
-		log.Printf("ListSerivceController validateSession error: sessionId=%s, error=%s\n", sessionIdFromClient, err)
-		errJson, _ := ye.EncodeJson()
-		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		lsc.Write(errJson)
+	// validateSessionId
+	lec.validateSessionId(sessionIdFromClient, orgId)
+	if lec.Ye != nil {
+		lec.WriteBack()
 		return
 	}
 
 
-	// Valid session
-	lsc.org, err = organization.GetOrganizationById(orgId)
-
-	if err != nil {
-		log.Printf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		lsc.Write(errJson)
+	// Get Datacenters by organizations
+	ed :=  new(endpoint.ListEndpoints)
+	lec.getDatacentersByOrgId(ed, orgId)
+	if lec.Ye != nil {
+		lec.WriteBack()
 		return
 	}
 
-	// Get Datacenters by a organization
-	lsc.dcList, err = organization.GetDataCentersByOrganization(lsc.org)
-	if err != nil {
-		log.Printf("Get Datacenters By Organization error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		lsc.Write(errJson)
+
+	// Get ApiServers by organizations
+	lec.getApiServerList(ed.DcIdList)
+	if lec.Ye != nil {
+		lec.WriteBack()
 		return
 	}
 
-	// Get ApiServer for every datacenter
-	server, err := lsc.getDcHost()
-	if err != nil {
-		log.Printf("Get Datacenter Host error: sessionId=%s, orgId=%s\n", sessionIdFromClient, orgId)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		lsc.Write(errJson)
+	// Get K8sClient
+	lec.createK8sClients()
+	if lec.Ye != nil {
+		lec.WriteBack()
 		return
 	}
 
-	// Get DisplayServices
-	displayServices, err := lsc.getDisplayServices(server)
-	if err != nil {
-		log.Printf("Get ServiceList error: sessionId=%s, orgId=%s, error=%s\n", sessionIdFromClient, orgId, err)
-		ye := myerror.NewYceError(1, "请求失败")
-		errJson, _ := ye.EncodeJson()
-		lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		lsc.Write(errJson)
+	// List Endpoints
+	orgName := ed.Organization.Name
+	epString := lec.listEndpoints(orgName, ed)
+	if lec.Ye != nil {
+		lec.WriteBack()
 		return
 	}
 
-	ye = myerror.NewYceError(0, displayServices)
-	errJson, _ :=ye.EncodeJson()
-	lsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	lsc.Write(errJson)
+	lec.Ye = myerror.NewYceError(myerror.EOK, "", epString)
+	lec.WriteBack()
 
-	log.Printf("ListServiceController Get over!")
+	mylog.Log.Infoln("ListEndpointController over!")
+
 	return
 }

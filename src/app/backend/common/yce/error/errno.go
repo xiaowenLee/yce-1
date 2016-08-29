@@ -20,6 +20,7 @@ const (
 	EKUBE_CREATE_DEPLOYMENT = 1202
 	EKUBE_LIST_PODS = 1203
 	EKUBE_CREATE_SERVICE = 1204
+	EKUBE_LIST_ENDPOINTS = 1205
 
 	EIRIS  int32 = 1300
 
@@ -29,6 +30,7 @@ const (
 	EYCE_SESSION_DEL int32 = 1403
 	EYCE_ORG_EXIST int32 = 1404
 	EYCE_NODEPORT_EXIST int32 = 1405
+	EYCE_ORGTODC int32 = 1406
 
 
 	EREGISTRY int32 = 1500
@@ -82,6 +84,14 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes List Pods Error",
 		ErrMsg: "获取Pod列表出错",
 	},
+	EKUBE_CREATE_SERVICE: &Error {
+		LogMsg: "Kubernetes Create Service Error",
+		ErrMsg: "创建Service出错",
+	},
+	EKUBE_LIST_ENDPOINTS: &Error {
+		LogMsg: "Kubernetes List Endpoints Error",
+		ErrMsg: "获取Endpoints出错",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{
@@ -112,6 +122,16 @@ var Errors = map[int32]*Error{
 	EYCE_ORG_EXIST: &Error{
 		LogMsg: "The organization exists",
 		ErrMsg: "组织已经存在",
+	},
+
+	EYCE_NODEPORT_EXIST: &Error {
+		LogMsg: "The NodePort exists",
+		ErrMsg: "NodePort已存在",
+	},
+
+	EYCE_ORGTODC: &Error {
+		LogMsg: "Get Datacenter by orgId Error",
+		ErrMsg: "获取数据中心错误",
 	},
 
 	// 1500~1599 Registr错误

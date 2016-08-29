@@ -203,4 +203,3 @@ func (csc *CreateServiceController) Post() {
 	mylog.Log.Infoln("CreateServiceController over!")
 	return
 
-}

@@ -6,11 +6,10 @@ import (
 	"app/backend/common/yce/datacenter"
 	mylog "app/backend/common/util/log"
 	mydatacenter "app/backend/model/mysql/datacenter"
-
+	myerror "app/backend/common/yce/error"
 	"encoding/json"
 )
 
-var log =  mylog.Log
 
 type DcList struct {
 	DataCenter []string `json:"dcList"`
@@ -23,13 +22,13 @@ func GetOrganizationById(orgId string) (*organization.Organization, error) {
 	myorganization := new(organization.Organization)
 	oid, err := strconv.Atoi(orgId)
 	if err != nil {
-		log.Errorf("GetOrganizationById error: orgId=%s, error=%s", orgId, err)
+		mylog.Log.Errorf("GetOrganizationByOrgID Error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
 
 	err = myorganization.QueryOrganizationById(int32(oid))
 	if err != nil {
-		log.Errorf("GetOrganizationById error: orgId=%s, error=%s", orgId, err)
+		mylog.Log.Errorf("GetOrganizationByOrgID Error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
 
@@ -37,24 +36,24 @@ func GetOrganizationById(orgId string) (*organization.Organization, error) {
 
 }
 
-func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacenter.DataCenter, error){
+func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacenter.DataCenter, error) {
 	// Get datacenter-id-list for a organization(orgId)
 	var dcList DcList
 
+	orgId := org.Id
 	err := json.Unmarshal([]byte(org.DcList), &dcList)
 	if err != nil {
-		log.Errorf("DecodeJSON error: dc=%s error=%s", dcList, err)
+		mylog.Log.Errorf("GetOrganizationByOrgID Error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
 
-	orgId := org.Id
 	// Get datacenters by dcId which in dcList
 	dataCenters := make([]mydatacenter.DataCenter, len(dcList.DataCenter))
 
 	for i := 0; i < len(dcList.DataCenter); i++ {
 		dc, err := datacenter.GetDataCenterById(dcList.DataCenter[i])
 		if err != nil {
-			log.Errorf("Get Organization By orgId error: orgId=%s, error=%s", orgId, err)
+			mylog.Log.Errorf("GetOrganizationByOrgID Error: orgId=%s, error=%s", orgId, err)
 			return nil, err
 		}
 		dataCenters[i] = *dc
