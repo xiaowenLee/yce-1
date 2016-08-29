@@ -9,6 +9,7 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
+	api "k8s.io/kubernetes/pkg/api"
 	resource "k8s.io/kubernetes/pkg/api/resource"
 	"encoding/json"
 	"strconv"
@@ -75,7 +76,7 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 		return
 	}
 
-	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, "", string(dcIdList),
+	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, cnc.Param.Balance, "", string(dcIdList),
 		cnc.Param.CpuQuota, cnc.Param.MemQuota, cnc.Param.UserId)
 
 	err = org.InsertOrganization()
@@ -91,7 +92,7 @@ func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
 		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
-		cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
 
@@ -139,7 +140,7 @@ func (cnc *CreateNamespaceController) createK8sClients() {
 
 		cnc.k8sClients = append(cnc.k8sClients, c)
 		cnc.apiServers = append(cnc.apiServers, server)
-		mylog.Log.Infof("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s", c, server)
+		mylog.Log.Infof("Append a new client to cnc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
 	return
@@ -157,7 +158,7 @@ func (cnc *CreateNamespaceController) createNamespace() {
 			mylog.Log.Errorf("createNamespace Error: apiServer=%s, namespace=%s, err=%s",
 				cnc.apiServers[index], namespace, err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
-			return err
+			return
 		}
 	}
 
@@ -170,20 +171,19 @@ func (cnc *CreateNamespaceController) createResourceQuota() {
 	resourceQuota.ObjectMeta.Name = cnc.Param.Name + "-quota"
 
 	// translate into "resource.Quantity"
-	cpuQuota := resource.NewQuantity(cnc.Param.CpuQuota * CPU_MULTIPLIER, resource.DecimalSI)
-	memQuota := resource.NewQuantity(cnc.Param.MemQuota * MEM_MULTIPLIER, resource.BinarySI)
+	cpuQuota := resource.NewQuantity(int64(cnc.Param.CpuQuota) * CPU_MULTIPLIER, resource.DecimalSI)
+	memQuota := resource.NewQuantity(int64(cnc.Param.MemQuota) * MEM_MULTIPLIER, resource.BinarySI)
 
-	resourceQuota.Spec.Hard[api.ResourceCPU] = cpuQuota
-	resourceQuota.Spec.Hard[api.ResourceMemory] = memQuota
+	resourceQuota.Spec.Hard[api.ResourceCPU] = *cpuQuota
+	resourceQuota.Spec.Hard[api.ResourceMemory] = *memQuota
 
 	// Foreach every k8sClient to create resourceQuota
 	for index, cli := range cnc.k8sClients {
 		_, err := cli.ResourceQuotas(cnc.Param.Name).Create(resourceQuota)
 		if err != nil {
 			mylog.Log.Errorf("createResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
-				cnc.apiServers[index], namespace, err)
+				cnc.apiServers[index], cnc.Param.Name, err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
-			return err
 		}
 	}
 
@@ -238,7 +238,7 @@ func (cnc *CreateNamespaceController) Post() {
 		return
 	}
 
-	cdc.Ye = myerror.NewYceError(myerror.EOK, "")
+	cnc.Ye = myerror.NewYceError(myerror.EOK, "")
 	mylog.Log.Infoln("CreateNamespaceController over!")
 	return
 }
