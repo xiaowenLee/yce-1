@@ -34,7 +34,7 @@ const (
 	EYCE_ORG_EXIST int32 = 1404
 	EYCE_NODEPORT_EXIST int32 = 1405
 	EYCE_ORGTODC int32 = 1406
-
+	EYCE_LIST_EXTENSIONS int32 = 1407
 
 	EREGISTRY int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -143,6 +143,11 @@ var Errors = map[int32]*Error{
 	EYCE_ORGTODC: &Error {
 		LogMsg: "Get Datacenter by orgId Error",
 		ErrMsg: "获取数据中心错误",
+	},
+
+	EYCE_LIST_EXTENSIONS: &Error {
+		LogMsg: "Get Service and Endpoint list error",
+		ErrMsg: "获取服务和访问点列表失败",
 	},
 
 	// 1500~1599 Registr错误
