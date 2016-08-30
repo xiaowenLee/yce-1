@@ -6,7 +6,6 @@ import (
 	"app/backend/common/yce/datacenter"
 	mylog "app/backend/common/util/log"
 	mydatacenter "app/backend/model/mysql/datacenter"
-	myerror "app/backend/common/yce/error"
 	"encoding/json"
 )
 

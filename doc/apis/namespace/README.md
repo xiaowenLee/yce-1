@@ -52,12 +52,14 @@
 请求体为Json格式:
 ```json
 {
+    "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
+    "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串
     "name": "dev",        // 组织名称也是K8s里namespace的名称
     "cpuQuota": 100,      // CPU配额
     "memQuota": 200,      // 内存配额
     "budget": 10000,      // 预算
     "balance": 10000,     // 余额
-    "dcList": [1, 2]      // 数据中心列表
+    "dcIdList": [1, 2]      // 数据中心列表
 }
 ```
 

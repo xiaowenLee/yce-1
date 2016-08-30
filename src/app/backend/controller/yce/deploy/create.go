@@ -120,7 +120,7 @@ func (cdc *CreateDeployController) createK8sClients() {
 }
 
 // Publish k8s.Deployment to every datacenter which in dcIdList
-func (cdc *CreateDeployController) createDeployment(namespace string, deployment *extensions.Deployment) error {
+func (cdc *CreateDeployController) createDeployment(namespace string, deployment *extensions.Deployment) {
 
 	// Foreach every k8sClient to create deployment
 	for index, cli := range cdc.k8sClients {
@@ -129,13 +129,11 @@ func (cdc *CreateDeployController) createDeployment(namespace string, deployment
 			mylog.Log.Errorf("createDeployment Error: apiServer=%s, namespace=%s, err=%s",
 				cdc.apiServers[index], namespace, err)
 			cdc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_DEPLOYMENT, "")
-			return err
+			return
 		}
 
 		mylog.Log.Infof("Create deployment successfully: namespace=%s, apiserver=%s", namespace, cdc.apiServers[index])
 	}
-
-	return nil
 }
 
 // Create Deployment(mysql) and insert it into db

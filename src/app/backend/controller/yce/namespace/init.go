@@ -5,8 +5,6 @@ import (
 	"app/backend/common/util/session"
 	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
-	"k8s.io/kubernetes/pkg/client/restclient"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
 	myorganization "app/backend/model/mysql/organization"
 )
 
@@ -55,7 +53,7 @@ func (inc *InitNamespaceController) Post() {
 	inc.ReadJSON(initNamespaceParams)
 
 	org := new(myorganization.Organization)
-	err := org.GetOrganizationByName(initNamespaceParams.Name)
+	err := org.QueryOrganizationByName(initNamespaceParams.Name)
 
 	// Exists
 	if err == nil {

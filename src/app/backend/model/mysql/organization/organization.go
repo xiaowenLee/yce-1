@@ -135,7 +135,7 @@ func (o *Organization) QueryBalanceById(id int32) (balance decimal.Decimal, err 
 	return balance, err
 }
 
-func (o *Organization) InsertOrganization(op int32) error {
+func (o *Organization) InsertOrganization() error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
@@ -149,7 +149,6 @@ func (o *Organization) InsertOrganization(op int32) error {
 	// Update createdAt, modifiedAt, modifiedOp
 	o.CreatedAt = localtime.NewLocalTime().String()
 	o.ModifiedAt = localtime.NewLocalTime().String()
-	o.ModifiedOp = op
 
 	// Insert a organization
 	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp, o.Comment)

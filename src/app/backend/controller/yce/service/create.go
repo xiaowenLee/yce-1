@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 	"github.com/kubernetes/kubernetes/pkg/client/restclient"
-	"github.com/kubernetes/kubernetes/pkg/apiserver"
 )
 
 type CreateServiceController struct {
