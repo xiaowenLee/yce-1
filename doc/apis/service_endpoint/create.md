@@ -61,26 +61,29 @@ GET /api/v1/organizations/{orgId}/users/{userId}/services/init
 用户需要确定:
 
 * 服务名:
-* 服务所属数据中心:
-* selector:
-* 服务部署方式:
-
-    1. withoutselector, 部署服务的时候自动创建Endpoint
-
-    2. withselector, 部署服务的时候还需指定或创建Endpoint
-
+* 服务所属数据中心: 依据GET请求的返回值确定。卡片式
 * 服务类型:
+    仅允许ClusterIP和NodePort两种类型，单选
 
-    1. ClusterIP
+    1. ClusterIP: 不允许用户填写NodePort
+    2. NodePort: 允许用户填写NodePort
 
-    2. NodePort
+* 选择器(selector): 
+  开关。如果打开,用户需要填写一条记录。如果关闭
+* 端口组:
+  多条:
+  
+	|名称  |协议  |类型  |端口号 |
+|:---:|:----:|:---:|:----:|
+|     | tcp  | port| 80|
+|  |          |targetPort| 8080|
+|  |            |*nodeport*| *80*|
 
-    3. LoadBalancer
-    
-    4. External Name
+* 标签组
+  多条:
+  
+  KEY:VALUE
 
-
-仅允许ClusterIP和NodePort两种类型
 
 
 

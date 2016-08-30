@@ -11,13 +11,14 @@ import (
 	"app/backend/model/yce/service"
 	"strconv"
 	"strings"
-	"github.com/kubernetes/kubernetes/pkg/client/restclient"
+	"k8s.io/kubernetes/pkg/client/restclient"
+	"k8s.io/kubernetes/pkg/api"
 )
 
 type CreateServiceController struct {
 	*iris.Context
 	Ye *myerror.YceError
-	k8sClients []client.Client
+	k8sClients []*client.Client
 	apiServers []string
 }
 
@@ -89,7 +90,7 @@ func (csc *CreateServiceController) getApiServerList(dcIdList []int32) {
 // Create k8sClient for every ApiServer
 func (csc *CreateServiceController) createK8sClients() {
 	// Foreach every ApiServer to create it's k8sClient
-	csc.k8sClients := make([]*client.Client, len(csc.apiServers))
+	csc.k8sClients = make([]*client.Client, len(csc.apiServers))
 
 
 	for _, server := range csc.apiServers {
@@ -107,7 +108,7 @@ func (csc *CreateServiceController) createK8sClients() {
 		csc.k8sClients = append(csc.k8sClients, c)
 		// why??
 		//csc.apiServers = append(csc.apiServers, server)
-		mylog.Log.Infof("Append a new client to csc.K8sClients array: c=%p, apiServer=%s", c, server})
+		mylog.Log.Infof("Append a new client to csc.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
 	return
@@ -115,7 +116,7 @@ func (csc *CreateServiceController) createK8sClients() {
 
 // why need return value?
 // Publish k8s.Service to every datacenter which in dcIdList
-func (csc *CreateServiceController) createService(namespace string, service *service.Service) {
+func (csc *CreateServiceController) createService(namespace string, service *api.Service) {
 	// Foreach every K8sClient to create service
 	for index, cli := range csc.k8sClients {
 		_, err := cli.Services(namespace).Create(service)
@@ -132,7 +133,7 @@ func (csc *CreateServiceController) createService(namespace string, service *ser
 }
 
 // create NodePort(mysql) and insert it into db
-func (csc *CreateServiceController)createMysqlNodePort(success bool, nodePort int32, dcIdList []int32, svcName string, op string) {
+func (csc *CreateServiceController)createMysqlNodePort(success bool, nodePort int32, dcIdList []int32, svcName string, op int32) {
 	for _, dcId := range dcIdList {
 		np := mynodeport.NewNodePort(nodePort, dcId, svcName, op)
 		err := np.InsertNodePort(op)
@@ -149,10 +150,10 @@ func (csc *CreateServiceController)createMysqlNodePort(success bool, nodePort in
 }
 
 
-func (csc *CreateServiceController) Post() {
+func (csc CreateServiceController) Post() {
 	sessionIdFromClient := csc.RequestHeader("Authorization")
-	orgId := csc.Params("orgId")
-	userId := csc.Params("userId")
+	orgId := csc.Param("orgId")
+	userId := csc.Param("userId")
 
 	// Validate OrgId error
 	csc.validateSession(sessionIdFromClient, orgId)
@@ -190,9 +191,9 @@ func (csc *CreateServiceController) Post() {
 	// And NodePort to MySQL nodeport table
 	// assuming single port service
 	// or spec.ports[0].nodeport == 0 for judging
-	hasNodePort := strings.EqualFold(sd.Service.Spec.Type, "NodePort")
+	hasNodePort := strings.EqualFold(string(sd.Service.Spec.Type), "NodePort")
 	op, _ := strconv.Atoi(userId)
-	csc.createMysqlNodePort(hasNodePort, sd.Service.Spec.Ports[0].NodePort, sd.DcIdList, sd.Service.ObjectMeta.Name, op)
+	csc.createMysqlNodePort(hasNodePort, sd.Service.Spec.Ports[0].NodePort, sd.DcIdList, sd.Service.ObjectMeta.Name, int32(op))
 	if csc.Ye != nil {
 		csc.WriteBack()
 		return
@@ -201,4 +202,4 @@ func (csc *CreateServiceController) Post() {
 	csc.Ye = myerror.NewYceError(myerror.EOK, "")
 	mylog.Log.Infoln("CreateServiceController over!")
 	return
-
+}

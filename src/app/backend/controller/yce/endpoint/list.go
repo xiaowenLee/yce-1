@@ -6,7 +6,6 @@ import (
 	"app/backend/common/yce/organization"
 	"app/backend/model/yce/endpoint"
 	myerror "app/backend/common/yce/error"
-	myorganization "app/backend/model/mysql/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mylog "app/backend/common/util/log"
 	"encoding/json"
@@ -20,7 +19,7 @@ import (
 type ListEndpointController struct {
 	*iris.Context
 	apiServers []string
-	k8sClients []client.Client
+	k8sClients []*client.Client
 	Ye *myerror.YceError
 }
 
@@ -52,7 +51,7 @@ func (lec *ListEndpointController) validateSessionId(sessionId, orgId string) {
 }
 
 
-func (lec *ListEndpointController) getDatacentersByOrgId(ed endpoint.ListEndpoints, orgId string) {
+func (lec *ListEndpointController) getDatacentersByOrgId(ed *endpoint.ListEndpoints, orgId string) {
 	org, err := organization.GetOrganizationById(orgId)
 	ed.Organization = org
 	if err != nil {
@@ -68,6 +67,9 @@ func (lec *ListEndpointController) getDatacentersByOrgId(ed endpoint.ListEndpoin
 		lec.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 	}
+
+	ed.DcIdList = make([]int32, len(dcList))
+	ed.DcName = make([]string, len(dcList))
 
 	for index, dc := range dcList {
 		ed.DcIdList[index] = dc.Id
@@ -116,7 +118,8 @@ func (lec *ListEndpointController) getApiServerList(dcIdList []int32) {
 
 func (lec *ListEndpointController) createK8sClients() {
 	// Foreach every ApiServer to create it's k8sClient
-	lec.k8sClients := make([]*client.Client, len(lec.apiServers))
+	//lec.k8sClients = make([]*client.Client, len(lec.apiServers))
+	lec.k8sClients = make([]*client.Client, 0)
 
 
 	for _, server := range lec.apiServers {
@@ -134,13 +137,13 @@ func (lec *ListEndpointController) createK8sClients() {
 		lec.k8sClients = append(lec.k8sClients, c)
 		// why??
 		//lec.apiServers = append(lec.apiServers, server)
-		mylog.Log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server})
+		mylog.Log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
 	return
 }
 
-func (lec *ListEndpointController) listEndpoints(namespace string, ed endpoint.ListEndpoints) (epString string){
+func (lec *ListEndpointController) listEndpoints(namespace string, ed *endpoint.ListEndpoints) (epString string){
 	epList := make([]endpoint.Endpoints, len(lec.apiServers))
 	// Foreach every K8sClient to create service
 	for index, cli := range lec.k8sClients {
@@ -155,15 +158,16 @@ func (lec *ListEndpointController) listEndpoints(namespace string, ed endpoint.L
 		//TODO: check consistency
 		epList[index].DcId = ed.DcIdList[index]
 		epList[index].DcName = ed.DcName[index]
-		epList[index].EndpointsList = eps
+		epList[index].EndpointsList = *eps
 
 		mylog.Log.Infof("listEndpoints successfully: namespace=%s, apiServer=%s", namespace, lec.apiServers[index])
 
 	}
 
-	epString, err := json.Marshal(epList)
+	epJson, err := json.Marshal(epList)
+	epString = string(epJson)
 	if err != nil {
-		mylog.Log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
+		mylog.Log.Errorf("listEndpoints Error: apiServer=%v, namespace=%s, error=%s", lec.apiServers, namespace, err)
 		lec.Ye = myerror.NewYceError(myerror.EKUBE_LIST_ENDPOINTS, "")
 		return
 	}
@@ -176,7 +180,6 @@ func (lec *ListEndpointController) listEndpoints(namespace string, ed endpoint.L
 func (lec ListEndpointController) Get() {
 	sessionIdFromClient := lec.RequestHeader("Authorization")
 	orgId := lec.Param("orgId")
-	userId := lec.Params("userId")
 
 	// validateSessionId
 	lec.validateSessionId(sessionIdFromClient, orgId)
@@ -217,7 +220,7 @@ func (lec ListEndpointController) Get() {
 		return
 	}
 
-	lec.Ye = myerror.NewYceError(myerror.EOK, "", epString)
+	lec.Ye = myerror.NewYceError(myerror.EOK, string(epString))
 	lec.WriteBack()
 
 	mylog.Log.Infoln("ListEndpointController over!")
