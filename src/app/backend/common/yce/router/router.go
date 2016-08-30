@@ -20,6 +20,7 @@ type Router struct {
 	ListDeploy   *mydeploy.ListDeployController
 	Registry     *myregistry.ListRegistryController
 	ListService      *myservice.ListServiceController
+	InitService *myservice.InitServiceController
 	ListEndpoint     *myendpoint.ListEndpointController
 	ListExtensions *myextensions.ListExtensionsController
 	InitDeploy   *mydeploy.InitDeployController
@@ -35,6 +36,7 @@ func NewRouter() *Router {
 	r.ListDeploy = new(mydeploy.ListDeployController)
 	r.Registry = new(myregistry.ListRegistryController)
 	r.ListService = new(myservice.ListServiceController)
+	r.InitService = new(myservice.InitServiceController)
 	r.ListEndpoint = new(myendpoint.ListEndpointController)
 	r.ListExtensions = new(myextensions.ListExtensionsController)
 	r.InitDeploy = new(mydeploy.InitDeployController)
@@ -54,6 +56,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/new", *r.CreateDeploy)
 	iris.API("/api/v1/registry/images", *r.Registry)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoint)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
 	iris.API("/api/v1/organizations/init", *r.InitNamespace)

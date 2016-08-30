@@ -23,5 +23,5 @@ type InitEndpoints struct {
 	OrgId string `json:"orgId"`
 	OrgName string `json:"orgName"`
 	DataCenters []mydatacenter.DataCenter `json:"dataCenters"`
-	NodePort mynodeport.NodePort `json:"nodePort"`
+	NodePort *mynodeport.NodePort `json:"nodePort"`
 }

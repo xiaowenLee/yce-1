@@ -3,6 +3,7 @@ package service
 import (
 	"k8s.io/kubernetes/pkg/api"
 	mydatacenter "app/backend/model/mysql/datacenter"
+	mynodeport "app/backend/model/mysql/nodeport"
 )
 
 type Service struct {
@@ -15,6 +16,7 @@ type InitService struct {
 	OrgId string `json:"orgId"`
 	OrgName string `json:"orgName"`
 	DataCenters []mydatacenter.DataCenter `json:"dataCenters"`
+	NodePort *mynodeport.NodePort `json:"nodePort"`
 }
 
 type CreateService struct {

@@ -9,7 +9,7 @@ type Extensions struct {
 	DcId int32 `json:"dcId"`
 	DcName string `json:"dcName"`
 	ServiceList api.ServiceList `json:"serviceList"`
-	EndpointList api.EndpointsList `json:"enpointsList"`
+	EndpointList api.EndpointsList `json:"endpointsList"`
 }
 
 type ListExtensions struct {

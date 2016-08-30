@@ -26,7 +26,7 @@ type ListExtensionsController struct {
 
 func (lec *ListExtensionsController) WriteBack() {
 	lec.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("Create ListExtensionsController Response Error: controller=%p, code=%d, note=%s", lec, lec.Ye.Code, myerror.Errors[lec.Ye.Code].LogMsg)
+	mylog.Log.Infof("Create ListExtensionsController Response : controller=%p, code=%d, note=%s", lec, lec.Ye.Code, myerror.Errors[lec.Ye.Code].LogMsg)
 	lec.Write(lec.Ye.String())
 }
 
