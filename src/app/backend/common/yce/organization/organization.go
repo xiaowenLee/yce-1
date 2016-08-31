@@ -42,7 +42,7 @@ func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacente
 	orgId := org.Id
 	err := json.Unmarshal([]byte(org.DcList), &dcList)
 	if err != nil {
-		mylog.Log.Errorf("GetOrganizationByOrgID Error: orgId=%s, error=%s", orgId, err)
+		mylog.Log.Errorf("GetDataCentersByOrg Error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
 
@@ -52,7 +52,7 @@ func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacente
 	for i := 0; i < len(dcList.DataCenter); i++ {
 		dc, err := datacenter.GetDataCenterById(dcList.DataCenter[i])
 		if err != nil {
-			mylog.Log.Errorf("GetOrganizationByOrgID Error: orgId=%s, error=%s", orgId, err)
+			mylog.Log.Errorf("GetDataCentersByOrg Error: orgId=%s, error=%s", orgId, err)
 			return nil, err
 		}
 		dataCenters[i] = *dc
