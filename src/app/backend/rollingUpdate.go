@@ -35,7 +35,7 @@ func rollingUpdate(c *client.Client, dp *extensions.Deployment) error {
 	dp.Spec.Strategy = *ds
 
 	// Image
-	dp.Spec.Template.Spec.Containers[0].Image = "nginx:1.9.1"
+	dp.Spec.Template.Spec.Containers[0].Image = "nginx:1.9.7"
 
 	// Update
 	_, err := c.Extensions().Deployments(api.NamespaceDefault).Update(dp)

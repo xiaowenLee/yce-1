@@ -1,29 +1,28 @@
 package main
 
-
 import (
-	"log"
-	"os"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/restclient"
+	"log"
+	"os"
 	// unver "k8s.io/kubernetes/pkg/api/unversioned"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
 )
 
 var logger *log.Logger
 
 var annotations = map[string]string{
-	"Image": "nginx:1.7.9",
-	"UserId": "2",
-	"Reason": "版本不匹配",
+	"Image":                      "nginx:1.7.9",
+	"UserId":                     "2",
+	"kubernetes.io/change-cause": "版本不匹配3",
 }
 
 const (
 	DEPLOYMENT         string = "nginx-deployment"
-	REVERSION 	int64 = 2
-	SERVER string = "http://172.21.1.11:8080"
-	RevisionAnnotation = "deployment.kubernetes.io/revision"
+	REVERSION          int64  = 3
+	SERVER             string = "http://172.21.1.11:8080"
+	RevisionAnnotation        = "deployment.kubernetes.io/revision"
 )
 
 func init() {
@@ -35,7 +34,7 @@ func rollBack(c *client.Client, dp *extensions.Deployment, revision int64) error
 	dr := new(extensions.DeploymentRollback)
 	dr.Name = dp.Name
 	dr.UpdatedAnnotations = annotations
-	dr.RollbackTo = extensions.RollbackConfig{ Revision: revision}
+	dr.RollbackTo = extensions.RollbackConfig{Revision: revision}
 
 	// Rollback
 	err := c.Extensions().Deployments(api.NamespaceDefault).Rollback(dr)
