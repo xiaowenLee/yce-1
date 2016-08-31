@@ -150,7 +150,7 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 		dps, err := cli.Pods(namespace).List(api.ListOptions{})
 		if err != nil {
 			mylog.Log.Errorf("listDeployments Error: apiServer=%s, namespace=%s, error=%s", ldc.apiServers[index], namespace, err)
-			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_ENDPOINTS, "")
+			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
 			return
 		}
 
@@ -167,7 +167,7 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 	dpString = string(dpJson)
 	if err != nil {
 		mylog.Log.Errorf("listDeployments Error: apiServer=%v, namespace=%s, error=%s", ldc.apiServers, namespace, err)
-		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_ENDPOINTS, "")
+		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
 		return
 	}
 

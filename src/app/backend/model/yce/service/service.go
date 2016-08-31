@@ -4,12 +4,20 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mynodeport "app/backend/model/mysql/nodeport"
+	myorganization "app/backend/model/mysql/organization"
 )
+
 
 type Service struct {
 	DcId int32 `json:"dcId"`
 	DcName string `json:"dcName"`
 	ServiceList api.ServiceList `json:"serviceList"`
+}
+
+type ListService struct {
+	Organization *myorganization.Organization
+	DcIdList []int32
+	DcName []string
 }
 
 type InitService struct {
