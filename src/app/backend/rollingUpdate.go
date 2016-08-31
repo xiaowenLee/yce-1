@@ -14,10 +14,10 @@ import (
 var logger *log.Logger
 
 const (
-	DEPLOYMENT         string = "nginx-deployment"
-	RevisionHistoryLimit int32 = 5
-	SERVER             string = "http://172.21.1.11:8080"
-	RevisionAnnotation        = "deployment.kubernetes.io/revision"
+	DEPLOYMENT           string = "nginx-deployment"
+	RevisionHistoryLimit int32  = 5
+	SERVER               string = "http://172.21.1.11:8080"
+	RevisionAnnotation   string = "deployment.kubernetes.io/revision"
 )
 
 func init() {
