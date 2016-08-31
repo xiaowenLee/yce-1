@@ -8,6 +8,7 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
 	"os"
+	"time"
 	"strings"
 )
 
@@ -23,9 +24,9 @@ func init() {
 	logger = log.New(os.Stdout, "", 0)
 }
 
-func encodeSelectors(selector *unver.LabelSelector) string {
+func encodeMapToString(labels map[string]string) string {
 	var ss []string
-	for key, value := range selector.MatchLabels {
+	for key, value := range labels {
 		str := key + ":" + value
 		ss = append(ss, str)
 	}
@@ -56,7 +57,7 @@ func displayReplicaSet(c *client.Client, dp *extensions.Deployment) {
 		name := rs.Name
 		namespace := rs.Namespace
 		desireReplicas := rs.Spec.Replicas
-		selector := encodeSelectors(rs.Spec.Selector)
+		selector := encodeMapToString(rs.Spec.Selector.MatchLabels)
 		image := rs.Spec.Template.Spec.Containers[0].Image
 		actualReplicas := rs.Status.Replicas
 		revision := rs.Annotations[RevisionAnnotation]
@@ -73,10 +74,41 @@ func displayReplicaSet(c *client.Client, dp *extensions.Deployment) {
 func displayDeployment(dp *extensions.Deployment) {
 
 	// Display Deployment
-	logger.Println("Deployment: ")
+	logger.Println("Deployment:\t")
 	name := dp.Name
+	logger.Printf("Name:\t\t%s\n", name)
+
 	namespace := dp.Namespace
-	creationTimestamp := dp.CreationTimestamp.Local()
+	logger.Printf("Namespace:\t\t%s\n", namespace)
+
+	creationTimestamp := dp.CreationTimestamp.Time.Format(time.RFC1123Z)
+	logger.Printf("CreationTimestamp:\t\t%s\n", creationTimestamp)
+
+	selector := encodeMapToString(dp.Spec.Selector.MatchLabels)
+	logger.Printf("Selector:\t\t%s\n", selector)
+
+	labels := encodeMapToString(dp.Labels)
+	logger.Printf("Labels:\t\t%s\n", labels)
+
+
+	// Annotations
+	annotations := encodeMapToString(dp.Annotations)
+	logger.Printf("Annotations:\t\t%s\n", annotations)
+
+	// Replicas
+	updatedReplicas := dp.Status.UpdatedReplicas
+	totalReplicas := dp.Spec.Replicas
+	availableReplicas := dp.Status.AvailableReplicas
+	unavailableReplicas := dp.Status.UnavailableReplicas
+	logger.Printf("Replicas:\t\t%d updated | %d total | %d available | %d unavailable\n", updatedReplicas, totalReplicas, availableReplicas, unavailableReplicas)
+
+	strategyType := dp.Spec.Strategy.Type
+	logger.Printf("StrategyType:\t\t%s\n", strategyType)
+
+	if dp.Spec.Strategy.RollingUpdate != nil {
+		ru := dp.Spec.Strategy.RollingUpdate
+		logger.Printf("RollingUpdateStrategy:\t\t%s max unavailable, %s max surge\n", ru.MaxUnavailable.String(), ru.MaxSurge.String())
+	}
 
 }
 
@@ -99,6 +131,10 @@ func main() {
 		return
 	}
 
+	displayDeployment(dp)
 
+	logger.Printf("\n\n")
+
+	displayReplicaSet(c, dp)
 
 }
