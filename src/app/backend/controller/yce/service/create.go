@@ -46,6 +46,8 @@ func (csc *CreateServiceController) validateSession(sessionIdFromClient, orgId s
 		csc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 	}
 
+	mylog.Log.Infof("CreateServiceController validate sessionId successfully: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
+
 	return
 }
 
@@ -90,7 +92,8 @@ func (csc *CreateServiceController) getApiServerList(dcIdList []int32) {
 // Create k8sClient for every ApiServer
 func (csc *CreateServiceController) createK8sClients() {
 	// Foreach every ApiServer to create it's k8sClient
-	csc.k8sClients = make([]*client.Client, len(csc.apiServers))
+	//csc.k8sClients = make([]*client.Client, len(csc.apiServers))
+	csc.k8sClients = make([]*client.Client, 0)
 
 
 	for _, server := range csc.apiServers {
@@ -166,6 +169,7 @@ func (csc CreateServiceController) Post() {
 	sd := new(service.CreateService)
 	csc.ReadJSON(sd)
 
+
 	// Get DcIdList
 	csc.getApiServerList(sd.DcIdList)
 	if csc.Ye != nil {
@@ -189,17 +193,21 @@ func (csc CreateServiceController) Post() {
 	}
 
 	// And NodePort to MySQL nodeport table
-	// assuming single port service
-	// or spec.ports[0].nodeport == 0 for judging
-	hasNodePort := strings.EqualFold(string(sd.Service.Spec.Type), "NodePort")
 	op, _ := strconv.Atoi(userId)
-	csc.createMysqlNodePort(hasNodePort, sd.Service.Spec.Ports[0].NodePort, sd.DcIdList, sd.Service.ObjectMeta.Name, int32(op))
-	if csc.Ye != nil {
-		csc.WriteBack()
-		return
+	for _, v := range sd.Service.Spec.Ports {
+		hasNodePort := mynodeport.PORT_START <= v.NodePort && v.NodePort <= mynodeport.PORT_LIMIT
+		if hasNodePort {
+			csc.createMysqlNodePort(hasNodePort, v.NodePort, sd.DcIdList, sd.Service.ObjectMeta.Name, int32(op))
+			if csc.Ye != nil {
+				csc.WriteBack()
+				return
+			}
+		}
 	}
+
 
 	csc.Ye = myerror.NewYceError(myerror.EOK, "")
 	mylog.Log.Infoln("CreateServiceController over!")
+	csc.WriteBack()
 	return
 }

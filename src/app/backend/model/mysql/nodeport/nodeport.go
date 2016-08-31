@@ -60,7 +60,7 @@ func NewNodePort(port, dcId int32, svcName string, modifiedOp int32) *NodePort {
 }
 
 // 推荐一个未使用的或VALID的端口
-
+// TODO: check the recommand algorithm
 func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
 	availablePorts := make(map[int32] int, 1)
 	np = new(NodePort)
