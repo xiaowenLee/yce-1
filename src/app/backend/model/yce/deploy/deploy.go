@@ -5,6 +5,7 @@ import (
 	mydatacenter "app/backend/model/mysql/datacenter"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	myorganization "app/backend/model/mysql/organization"
 )
 
 // AppDeployment for Frontend fulfillment
@@ -21,6 +22,18 @@ type AppDisplayDeployment struct {
 	DcId    int32       `json:"dcId"`
 	DcName  string      `json:"dcName"`
 	PodList api.PodList `json:"podList"`
+}
+
+type Deployment struct {
+	DcId int32 `json:"dcId"`
+	DcName string `json:"dcName"`
+	PodList api.PodList `json:"podList"`
+}
+
+type ListDeployment struct {
+	Organization *myorganization.Organization
+	DcIdList []int32
+	DcName []string
 }
 
 type InitDeployment struct {
