@@ -123,7 +123,7 @@ func (cec *CreateEndpointsController) createEndpoints(namespace string, endpoint
 		_, err := cli.Endpoints(namespace).Create(endpoints)
 		if err != nil {
 			mylog.Log.Errorf("createEndpoints Error: apiServer=%s, namespace=%s, error=%s", cec.apiServers[index], namespace, err)
-			cec.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_SERVICE, "")
+			cec.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_ENDPOINTS, "")
 			return
 		}
 

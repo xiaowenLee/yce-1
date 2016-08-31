@@ -23,6 +23,8 @@ const (
 	EKUBE_LIST_ENDPOINTS = 1207
 	EKUBE_CREATE_NAMESPACE = 1204
 	EKUBE_CREATE_RESOURCEQUOTA = 1205
+	EKUBE_LIST_SERVICE = 1208
+	EKUBE_CREATE_ENDPOINTS = 1209
 
 
 	EIRIS  int32 = 1300
@@ -102,6 +104,16 @@ var Errors = map[int32]*Error{
 	EKUBE_CREATE_RESOURCEQUOTA: &Error{
 		LogMsg: "Kubernetes create resourceQuota error",
 		ErrMsg: "创建资源配额失败",
+	},
+
+	EKUBE_LIST_SERVICE: &Error {
+		LogMsg: "Kubernetes list Service Error",
+		ErrMsg: "获取Service出错",
+	},
+
+	EKUBE_CREATE_ENDPOINTS: &Error {
+		LogMsg: "Kubernetes create Endpoints Error",
+		ErrMsg: "创建Endpoints出错",
 	},
 
 	// 1300~1399 Iris错误
