@@ -166,12 +166,12 @@ func (csc CreateServiceController) Post() {
 	}
 
 	// Parse data: service.
-	sd := new(service.CreateService)
-	csc.ReadJSON(sd)
+	cs := new(service.CreateService)
+	csc.ReadJSON(cs)
 
 
 	// Get DcIdList
-	csc.getApiServerList(sd.DcIdList)
+	csc.getApiServerList(cs.DcIdList)
 	if csc.Ye != nil {
 		csc.WriteBack()
 		return
@@ -185,8 +185,8 @@ func (csc CreateServiceController) Post() {
 	}
 
 	// Publish server to every datacenter
-	orgName := sd.OrgName
-	csc.createService(orgName, &sd.Service)
+	orgName := cs.OrgName
+	csc.createService(orgName, &cs.Service)
 	if csc.Ye != nil {
 		csc.WriteBack()
 		return
@@ -194,10 +194,10 @@ func (csc CreateServiceController) Post() {
 
 	// And NodePort to MySQL nodeport table
 	op, _ := strconv.Atoi(userId)
-	for _, v := range sd.Service.Spec.Ports {
+	for _, v := range cs.Service.Spec.Ports {
 		hasNodePort := mynodeport.PORT_START <= v.NodePort && v.NodePort <= mynodeport.PORT_LIMIT
 		if hasNodePort {
-			csc.createMysqlNodePort(hasNodePort, v.NodePort, sd.DcIdList, sd.Service.ObjectMeta.Name, int32(op))
+			csc.createMysqlNodePort(hasNodePort, v.NodePort, cs.DcIdList, cs.Service.ObjectMeta.Name, int32(op))
 			if csc.Ye != nil {
 				csc.WriteBack()
 				return

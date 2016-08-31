@@ -22,7 +22,9 @@ type Router struct {
 	ListService      *myservice.ListServiceController
 	InitService *myservice.InitServiceController
 	CreateService *myservice.CreateServiceController
-	ListEndpoint     *myendpoint.ListEndpointController
+	ListEndpoints     *myendpoint.ListEndpointsController
+	InitEndpoints *myendpoint.InitEndpointsController
+	CreateEndpoints *myendpoint.CreateEndpointsController
 	ListExtensions *myextensions.ListExtensionsController
 	InitDeploy   *mydeploy.InitDeployController
 	CreateDeploy *mydeploy.CreateDeployController
@@ -39,7 +41,9 @@ func NewRouter() *Router {
 	r.ListService = new(myservice.ListServiceController)
 	r.InitService = new(myservice.InitServiceController)
 	r.CreateService = new(myservice.CreateServiceController)
-	r.ListEndpoint = new(myendpoint.ListEndpointController)
+	r.ListEndpoints = new(myendpoint.ListEndpointsController)
+	r.InitEndpoints = new(myendpoint.InitEndpointsController)
+	r.CreateEndpoints = new(myendpoint.CreateEndpointsController)
 	r.ListExtensions = new(myextensions.ListExtensionsController)
 	r.InitDeploy = new(mydeploy.InitDeployController)
 	r.CreateDeploy = new(mydeploy.CreateDeployController)
@@ -60,7 +64,9 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/new", *r.CreateService)
-	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoint)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoints)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/init", *r.InitEndpoints)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
 	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 

@@ -16,26 +16,26 @@ import (
 	"strings"
 )
 
-type ListEndpointController struct {
+type ListEndpointsController struct {
 	*iris.Context
 	apiServers []string
 	k8sClients []*client.Client
 	Ye *myerror.YceError
 }
 
-func (lec *ListEndpointController) WriteBack() {
+func (lec *ListEndpointsController) WriteBack() {
 	lec.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("Create ListEndpointController Response Error: controller=%p, code=%d, note=%s", lec, lec.Ye.Code, myerror.Errors[lec.Ye.Code].LogMsg)
+	mylog.Log.Infof("Create ListEndpointsController Response Error: controller=%p, code=%d, note=%s", lec, lec.Ye.Code, myerror.Errors[lec.Ye.Code].LogMsg)
 	lec.Write(lec.Ye.String())
 }
 
-func (lec *ListEndpointController) validateSessionId(sessionId, orgId string) {
+func (lec *ListEndpointsController) validateSessionId(sessionId, orgId string) {
 	ss := session.SessionStoreInstance()
 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	// validate error
 	if err != nil {
-		mylog.Log.Errorf("Create ListEndpointController Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
+		mylog.Log.Errorf("Create ListEndpointsController Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
 		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
@@ -51,7 +51,7 @@ func (lec *ListEndpointController) validateSessionId(sessionId, orgId string) {
 }
 
 
-func (lec *ListEndpointController) getDatacentersByOrgId(ed *endpoint.ListEndpoints, orgId string) {
+func (lec *ListEndpointsController) getDatacentersByOrgId(ed *endpoint.ListEndpoints, orgId string) {
 	org, err := organization.GetOrganizationById(orgId)
 	ed.Organization = org
 	if err != nil {
@@ -80,7 +80,7 @@ func (lec *ListEndpointController) getDatacentersByOrgId(ed *endpoint.ListEndpoi
 
 
 // Get ApiServer by dcId
-func (lec *ListEndpointController) getApiServerByDcId(dcId int32) string {
+func (lec *ListEndpointsController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
@@ -100,12 +100,12 @@ func (lec *ListEndpointController) getApiServerByDcId(dcId int32) string {
 
 }
 
-func (lec *ListEndpointController) getApiServerList(dcIdList []int32) {
+func (lec *ListEndpointsController) getApiServerList(dcIdList []int32) {
 	for _, dcId := range dcIdList {
 		// Get ApiServer
 		apiServer := lec.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			mylog.Log.Errorf("ListEndpointController getApiServerList Error")
+			mylog.Log.Errorf("ListEndpointsController getApiServerList Error")
 			return
 		}
 
@@ -116,7 +116,7 @@ func (lec *ListEndpointController) getApiServerList(dcIdList []int32) {
 }
 
 
-func (lec *ListEndpointController) createK8sClients() {
+func (lec *ListEndpointsController) createK8sClients() {
 	// Foreach every ApiServer to create it's k8sClient
 	//lec.k8sClients = make([]*client.Client, len(lec.apiServers))
 	lec.k8sClients = make([]*client.Client, 0)
@@ -143,7 +143,7 @@ func (lec *ListEndpointController) createK8sClients() {
 	return
 }
 
-func (lec *ListEndpointController) listEndpoints(namespace string, ed *endpoint.ListEndpoints) (epString string){
+func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint.ListEndpoints) (epString string){
 	epList := make([]endpoint.Endpoints, len(lec.apiServers))
 	// Foreach every K8sClient to create service
 	for index, cli := range lec.k8sClients {
@@ -177,7 +177,7 @@ func (lec *ListEndpointController) listEndpoints(namespace string, ed *endpoint.
 
 
 //GET /api/v1/organizations/{orgId}/users/{userId}/endpoints
-func (lec ListEndpointController) Get() {
+func (lec ListEndpointsController) Get() {
 	sessionIdFromClient := lec.RequestHeader("Authorization")
 	orgId := lec.Param("orgId")
 
@@ -223,7 +223,7 @@ func (lec ListEndpointController) Get() {
 	lec.Ye = myerror.NewYceError(myerror.EOK, epString)
 	lec.WriteBack()
 
-	mylog.Log.Infoln("ListEndpointController over!")
+	mylog.Log.Infoln("ListEndpointsController over!")
 
 	return
 }

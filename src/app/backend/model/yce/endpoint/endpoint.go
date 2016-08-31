@@ -25,3 +25,11 @@ type InitEndpoints struct {
 	DataCenters []mydatacenter.DataCenter `json:"dataCenters"`
 	NodePort *mynodeport.NodePort `json:"nodePort"`
 }
+
+
+type CreateEndpoints struct {
+	EndpointsName string `json:"endpointsName`
+	OrgName string `json:"orgName"`
+	DcIdList []int32 `json:"dcIdList"`
+	Endpoints api.Endpoints `json:"endpoints"`
+}
