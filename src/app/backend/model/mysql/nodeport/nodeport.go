@@ -4,6 +4,7 @@ import (
 	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
+	mydatacenter "app/backend/model/mysql/datacenter"
 
 	//temporarily
 	"errors"
@@ -24,8 +25,14 @@ const (
 
 	NP_INSERT_ON_DUPLICATE_KEY_UPDATE = "INSERT INTO nodeport(port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE svcName=?, status=?, modifiedAt=?, modifiedOp=? "
 
+	NP_SELECT_VALID = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE status=? AND dcId=?"
+
+	NP_SELECT_NEW = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE port=? AND dcId=? ORDER BY port DESC"
+
 	VALID = 1
 	INVALID = 0
+	PORT_START = 30000
+	PORT_LIMIT = 32767
 )
 
 type NodePort struct {
@@ -50,6 +57,88 @@ func NewNodePort(port, dcId int32, svcName string, modifiedOp int32) *NodePort {
 		ModifiedOp: modifiedOp,
 		Comment: "",
 	}
+}
+
+// 推荐一个未使用的或VALID的端口
+// TODO: check the recommand algorithm
+func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
+	availablePorts := make(map[int32] int, 1)
+	np = new(NodePort)
+
+	for _, v := range datacenters {
+		err := np.QueryValidNodePort(v.Id)
+		if err != nil {
+			mylog.Log.Errorf("Recommand From Valid NodePort failed ")
+			break
+		}
+		availablePorts[np.Port] += 1
+	}
+
+	if availablePorts[np.Port] == len(datacenters) {
+		mylog.Log.Infof("Recommand NodePort: nodePort=%d", np.Port)
+		return np
+	} else {
+		np.QueryNewNodePort(datacenters)
+
+		return np
+	}
+
+}
+
+func (np *NodePort) QueryNewNodePort(datacenters []mydatacenter.DataCenter) {
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-statement
+	stmt, err := db.Prepare(NP_SELECT_NEW)
+	if err != nil {
+		log.Errorf("QueryValidNodePort Error: error=%s", err)
+		return
+	}
+
+	for i := PORT_START; i <= PORT_LIMIT; i++ {
+		var comment []byte
+		var j int
+		for j = 0; j < len(datacenters); j++ {
+			err := stmt.QueryRow(i, datacenters[j].Id).Scan(&np.Port, &np.DcId, &np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &comment)
+			if err != nil {
+				mylog.Log.Errorf("QueryNewNodePort Error: error=%s", err)
+				continue
+			} else {
+				break
+			}
+		}
+
+		if j >= len(datacenters) {
+			np.Port = int32(i)
+			log.Infof("QueryNewNodePort: Port=%d, DcId=%d, SvcName=%s, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%d, Comment=%s", np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
+			return
+		}
+	}
+
+	log.Debugf("QueryNewNodePort failed")
+
+}
+
+
+func (np *NodePort) QueryValidNodePort(dcId int32) error {
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-statement
+	stmt, err := db.Prepare(NP_SELECT_VALID)
+	if err != nil {
+		log.Errorf("QueryValidNodePort Error: error=%s", err)
+		return err
+	}
+	var comment []byte
+	err = stmt.QueryRow(VALID, dcId).Scan(&np.Port, &np.DcId, &np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &comment)
+	np.Comment = string(comment)
+
+	if err != nil {
+		log.Errorf("QueryValidNodePort Error: error=%s", err)
+		return err
+	}
+	log.Debugf("QueryValidNodePort: Port=%d, DcId=%d, SvcName=%s, Statu=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%d, Comment=%s", np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
+	return nil
 }
 
 // 查询是否存在该port和dcId组合, 如果存在,返回Nil, 如果不存在,返回err

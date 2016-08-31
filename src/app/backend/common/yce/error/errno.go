@@ -19,6 +19,8 @@ const (
 	EKUBE_CLIENT int32 = 1201
 	EKUBE_CREATE_DEPLOYMENT = 1202
 	EKUBE_LIST_PODS = 1203
+	EKUBE_CREATE_SERVICE = 1206
+	EKUBE_LIST_ENDPOINTS = 1207
 	EKUBE_CREATE_NAMESPACE = 1204
 	EKUBE_CREATE_RESOURCEQUOTA = 1205
 
@@ -30,7 +32,9 @@ const (
 	EYCE_SESSION int32 = 1402
 	EYCE_SESSION_DEL int32 = 1403
 	EYCE_ORG_EXIST int32 = 1404
-
+	EYCE_NODEPORT_EXIST int32 = 1405
+	EYCE_ORGTODC int32 = 1406
+	EYCE_LIST_EXTENSIONS int32 = 1407
 
 	EREGISTRY int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -83,6 +87,14 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes List Pods Error",
 		ErrMsg: "获取Pod列表出错",
 	},
+	EKUBE_CREATE_SERVICE: &Error {
+		LogMsg: "Kubernetes Create Service Error",
+		ErrMsg: "创建Service出错",
+	},
+	EKUBE_LIST_ENDPOINTS: &Error{
+		LogMsg: "Kubernetes List Endpoints Error",
+		ErrMsg: "获取Endpoints出错",
+	},
 	EKUBE_CREATE_NAMESPACE: &Error{
 		LogMsg: "Kubernetes create namespace error",
 		ErrMsg: "创建命名空间失败",
@@ -121,6 +133,21 @@ var Errors = map[int32]*Error{
 	EYCE_ORG_EXIST: &Error{
 		LogMsg: "The organization exists",
 		ErrMsg: "组织已经存在",
+	},
+
+	EYCE_NODEPORT_EXIST: &Error {
+		LogMsg: "The NodePort exists",
+		ErrMsg: "NodePort已存在",
+	},
+
+	EYCE_ORGTODC: &Error {
+		LogMsg: "Get Datacenter by orgId Error",
+		ErrMsg: "获取数据中心错误",
+	},
+
+	EYCE_LIST_EXTENSIONS: &Error {
+		LogMsg: "Get Service and Endpoint list error",
+		ErrMsg: "获取服务和访问点列表失败",
 	},
 
 	// 1500~1599 Registr错误
