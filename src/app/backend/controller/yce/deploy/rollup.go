@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 )
+
 /*
 const (
 	ACTION_TYPE  = myoption.ONLINE
@@ -119,44 +120,44 @@ func (rdc *RollingDeployController) createK8sClients() {
 
 func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, rd *deploy.RollingDeployment) (dp *extensions.Deployment) {
 
-		cli := rdc.k8sClients
-		dp, err := cli.Extensions().Deployments(namespace).Get(deployment)
-		if err != nil {
-			mylog.Log.Errorf("getDeployment Error: apiServer=%s, namespace=%s, err=%s", rdc.apiServers, namespace, err)
-			rdc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
-			return
-		}
+	cli := rdc.k8sClients
+	dp, err := cli.Extensions().Deployments(namespace).Get(deployment)
+	if err != nil {
+		mylog.Log.Errorf("getDeployment Error: apiServer=%s, namespace=%s, err=%s", rdc.apiServers, namespace, err)
+		rdc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
+		return
+	}
 
-		ds := new(extensions.DeploymentStrategy)
-		ds.Type = extensions.RollingUpdateDeploymentStrategyType
-		ds.RollingUpdate = new(extensions.RollingUpdateDeployment)
-		ds.RollingUpdate.MaxUnavailable = intstr.FromInt(int(rd.Strategy.MaxUnavailable))
+	ds := new(extensions.DeploymentStrategy)
+	ds.Type = extensions.RollingUpdateDeploymentStrategyType
+	ds.RollingUpdate = new(extensions.RollingUpdateDeployment)
+	ds.RollingUpdate.MaxUnavailable = intstr.FromInt(int(rd.Strategy.MaxUnavailable))
 
-		dp.Spec.Strategy = *ds
-		dp.Spec.Template.Spec.Containers[0].Image = rd.Strategy.Image
+	dp.Spec.Strategy = *ds
+	dp.Spec.Template.Spec.Containers[0].Image = rd.Strategy.Image
 
-		//rolling update interval
-		//rd.Strategy.UpdateInterval
+	//rolling update interval
+	//rd.Strategy.UpdateInterval
 
-		dp.Annotations["userId"] = strconv.Itoa(int(rd.UserId))
-		dp.Annotations["kubernetes.io/change-cause"] = rd.Comments
+	dp.Annotations["userId"] = strconv.Itoa(int(rd.UserId))
+	dp.Annotations["kubernetes.io/change-cause"] = rd.Comments
 
-		_, err = cli.Extensions().Deployments(namespace).Update(dp)
-		if err != nil {
-			mylog.Log.Errorf("Rolling Update Deployment Error: error=%s", err)
-		}
+	_, err = cli.Extensions().Deployments(namespace).Update(dp)
+	if err != nil {
+		mylog.Log.Errorf("Rolling Update Deployment Error: error=%s", err)
+	}
 
-		mylog.Log.Infof("Rolling Update deployment successfully: namespace=%s, apiserver=%s", namespace, rdc.apiServers)
+	mylog.Log.Infof("Rolling Update deployment successfully: namespace=%s, apiserver=%s", namespace, rdc.apiServers)
 
-		return dp
+	return dp
 
 }
 
 // Create Deployment(mysql) and insert it into db
 func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, orgId, json, reason, dcList string, userId int32) error {
-	ACTION_TYPE  := myoption.ONLINE
+	ACTION_TYPE := myoption.ROLLINGUPGRADE
 	ACTION_VERBE := "POST"
-	ACTION_URL   := "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
+	ACTION_URL := "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
 
 	uph := placeholder.NewPlaceHolder(ACTION_URL)
 	actionUrl := uph.Replace("<orgId>", orgId, "<deploymentName>", name)
