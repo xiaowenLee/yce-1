@@ -24,18 +24,27 @@ type AppDisplayDeployment struct {
 	PodList api.PodList `json:"podList"`
 }
 
+type DeployAndPodList struct {
+	Deploy *extensions.Deployment `json:"deploy"`
+	PodList *api.PodList `json:"podList"`
+}
+
+
+// Response List Deployments
 type Deployment struct {
 	DcId int32 `json:"dcId"`
 	DcName string `json:"dcName"`
-	PodList api.PodList `json:"podList"`
+	Deployments []DeployAndPodList `json:"deployments"`
 }
 
+// GET
 type ListDeployment struct {
 	Organization *myorganization.Organization
 	DcIdList []int32
 	DcName []string
 }
 
+// Get .../init
 type InitDeployment struct {
 	OrgId string `json:"orgId"`
 	OrgName string `json:"orgName"`
@@ -43,6 +52,7 @@ type InitDeployment struct {
 	Quotas []myqouta.Quota `json:"quotas"`
 }
 
+// Post .../new
 type CreateDeployment struct {
 	AppName  string `json: "appName"`
 	OrgName  string `json: "orgName"`

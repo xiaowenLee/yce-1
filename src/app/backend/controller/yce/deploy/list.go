@@ -14,6 +14,9 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strings"
+	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
+	unver "k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
 type ListDeployController struct {
@@ -29,6 +32,7 @@ func (ldc *ListDeployController) WriteBack() {
 	ldc.Write(ldc.Ye.String())
 }
 
+// Validate SessionId with OrgId
 func (ldc *ListDeployController) validateSessionId(sessionId, orgId string) {
 	ss := session.SessionStoreInstance()
 
@@ -51,6 +55,7 @@ func (ldc *ListDeployController) validateSessionId(sessionId, orgId string) {
 }
 
 
+// get Datacenters owned by this Organization via OrgId
 func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment, orgId string) {
 	org, err := organization.GetOrganizationById(orgId)
 	ld.Organization = org
@@ -76,10 +81,11 @@ func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment
 		ld.DcName[index] = dc.Name
 	}
 
+	mylog.Log.Infof("CreateServiceController getDatacentersByOrgId: dcList=%s", dcList)
 }
 
 
-// Get ApiServer by dcId
+// Get ApiServer(k8s cluster host) of this datacenter
 func (ldc *ListDeployController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
@@ -100,6 +106,7 @@ func (ldc *ListDeployController) getApiServerByDcId(dcId int32) string {
 
 }
 
+// Get ApiServer(k8s cluster host) of every datacenter
 func (ldc *ListDeployController) getApiServerList(dcIdList []int32) {
 	for _, dcId := range dcIdList {
 		// Get ApiServer
@@ -112,13 +119,13 @@ func (ldc *ListDeployController) getApiServerList(dcIdList []int32) {
 		ldc.apiServers = append(ldc.apiServers, apiServer)
 	}
 
+	mylog.Log.Infof("CreateServiceController getApiServerList successfully")
 	return
 }
 
-
+// Create K8s client according to the apiServers
 func (ldc *ListDeployController) createK8sClients() {
 	// Foreach every ApiServer to create it's k8sClient
-	//ldc.k8sClients = make([]*client.Client, len(ldc.apiServers))
 	ldc.k8sClients = make([]*client.Client, 0)
 
 
@@ -143,21 +150,82 @@ func (ldc *ListDeployController) createK8sClients() {
 	return
 }
 
+// Get PodList by ReplicaSet
+func (ldc *ListDeployController)getPodsByReplicaSet(c *client.Client, rs *extensions.ReplicaSet) (*api.PodList) {
+	namespace := rs.Namespace
+	selector, err := unver.LabelSelectorAsSelector(rs.Spec.Selector)
+	if err != nil {
+		mylog.Log.Errorf("getPodsByReplicaSet Error: error=%s", err)
+		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
+		return nil
+	}
+	options := api.ListOptions{LabelSelector: selector}
+
+	podList, err := c.Pods(namespace).List(options)
+	if err != nil {
+		mylog.Log.Errorf("getPodsByReplicaSet Error: error=%s", err)
+		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
+		return nil
+	}
+	mylog.Log.Infof("Get PodList by ReplicaSet successfully: podList=%p", &podList)
+
+	return podList
+}
+
+// Get ReplicaSetList by Deployment
+func (ldc *ListDeployController)getReplicaSetsByDeployment(c *client.Client, deployment *extensions.Deployment) ([]extensions.ReplicaSet) {
+
+	namespace := deployment.Namespace
+	selector, err := unver.LabelSelectorAsSelector(deployment.Spec.Selector)
+	if err != nil {
+		return nil
+		mylog.Log.Errorf("getReplicaSetsByDeployment Error: error=%s", err)
+	}
+	options := api.ListOptions{LabelSelector: selector}
+	rsList, err := c.Extensions().ReplicaSets(namespace).List(options)
+
+	mylog.Log.Infof("Get ReplicaSetList by Deployment successfully: ReplicaSetList=%p", &rsList)
+	return rsList.Items
+}
+
+// List all deployments in this namespace
 func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.ListDeployment) (dpString string){
 	dpList := make([]deploy.Deployment, len(ldc.apiServers))
-	// Foreach every K8sClient to create service
+
+	// Foreach every K8sClient to get DeploymentsList
 	for index, cli := range ldc.k8sClients {
-		dps, err := cli.Pods(namespace).List(api.ListOptions{})
+
+		dps, err := cli.Deployments(namespace).List(api.ListOptions{})
 		if err != nil {
 			mylog.Log.Errorf("listDeployments Error: apiServer=%s, namespace=%s, error=%s", ldc.apiServers[index], namespace, err)
-			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
+			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 			return
 		}
 
 		//TODO: check consistency
 		dpList[index].DcId = ld.DcIdList[index]
 		dpList[index].DcName = ld.DcName[index]
-		dpList[index].PodList = *dps
+		dpList[index].Deployments = make([]deploy.DeployAndPodList, len(dps.Items))
+
+
+		for i, deploy := range dps.Items {
+			dpList[index].Deployments[i].Deploy = &deploy
+
+			// Get ReplicaSetList of this deployment
+			rsList := ldc.getReplicaSetsByDeployment(cli, &deploy)
+
+			//Get the New (latest) ReplicaSet of this deployment
+			newRs, err := deploymentutil.FindNewReplicaSet(dpList[index].Deployments[i].Deploy, rsList)
+			if err != nil {
+				mylog.Log.Errorf("FindNewReplicaSet Error: error=%s", err)
+				ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
+				return ""
+			}
+
+			//Get PodList of the new ReplicaSet
+			dpList[index].Deployments[i].PodList = ldc.getPodsByReplicaSet(cli, newRs)
+		}
+
 
 		mylog.Log.Infof("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
 
@@ -167,7 +235,7 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 	dpString = string(dpJson)
 	if err != nil {
 		mylog.Log.Errorf("listDeployments Error: apiServer=%v, namespace=%s, error=%s", ldc.apiServers, namespace, err)
-		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
+		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 		return
 	}
 
@@ -175,7 +243,7 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 }
 
 
-//GET /api/v1/organizations/{orgId}/users/{userId}/endpoints
+//GET /api/v1/organizations/{orgId}/users/{userId}/deployments
 func (ldc ListDeployController) Get() {
 	sessionIdFromClient := ldc.RequestHeader("Authorization")
 	orgId := ldc.Param("orgId")
@@ -188,7 +256,7 @@ func (ldc ListDeployController) Get() {
 	}
 
 
-	// Get Datacenters by organizations
+	// Get Datacenters by organizs
 	ld :=  new(deploy.ListDeployment)
 	ldc.getDatacentersByOrgId(ld, orgId)
 	if ldc.Ye != nil {
@@ -211,7 +279,7 @@ func (ldc ListDeployController) Get() {
 		return
 	}
 
-	// List Endpoints
+	// List deployments
 	orgName := ld.Organization.Name
 	dpString := ldc.listDeployments(orgName, ld)
 	if ldc.Ye != nil {

@@ -1,8 +1,7 @@
 应用列表
 ===========
 
-用户点击应用列表时请求后台数据:
-
+用户点击应用管理时请求后台数据:
 
 请求的方法及URL: GET /api/v1/organizations/{orgId}/users/{userId}/deployments
 
@@ -12,7 +11,6 @@
 
 * 该组织下数据中心里的应用列表
 
-返回json示例：
 
 ```json
 {
@@ -23,12 +21,38 @@
     "data": [{
             "dcId": 1,
             "dcName": "bangongwang",
-            "podlist": {
-                //该数据中心下的应用列列表，json为k8s原生[PodList](https://godoc.org/k8s.io/kubernetes/pkg/api#PodList)
-            }
+            //该数据中心下的应用列列表
+            "deployments": [{
+                //应用对应的deployment
+                deployment[i]: {
+                
+                },
+                //该deployment下的最新的ReplicaSet包含的PodList
+                podList[every]: {
+               
+                },
+                
+            }]
     }]
 }
 ```
+
+返回json示例：
+
+列表显示:
+
+根据应用列表页面的设计，要显示的信息及相关说明如下：
+
+|信息：      |  说明：|
+|:------------:|:--------------:|
+|ID          |  数字，为页面显示ID|
+|应用名称    |  data[].deployments.deployList.items[i].metadata.name |
+|应用实例    |  data[].deployments.podList.items[every].metadata.name
+|标签组合    |  data[].deployments.deployList.items[i].metadata.labels |
+|数据中心    |  data[].dcName, 需要为中文 |
+|当前状态    |  data[].deployments.podList.items[every].status.phase, 需要为中文 |
+|运行时长    |  data[].deployments.podList.items[every].metadata.creationTimestamp，需要转化为天、分、时、秒（一级） |
+
 
 podList的json结构：
 
@@ -126,15 +150,4 @@ podList的json结构：
 }
     //还有一些省略了
 ```
-
-根据应用列表页面的设计，要显示的信息及相关说明如下：
-
-|信息：      |  说明：|
-|:------------:|:--------------:|
-|ID          |  数字，为页面显示ID|
-|应用名称    |  data[].podList.items[].metadata.name |
-|标签组合    |  data[].podList.items[].metadata.labels |
-|数据中心    |  data[].dataCenter, 需要为中文 |
-|当前状态    |  data[].podList.items[].status.phase, 需要为中文 |
-|运行时长    |  data[].podList.items[].metadata.creationTimestamp，需要转化为天、分、时、秒（一级） |
 
