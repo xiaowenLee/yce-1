@@ -2,7 +2,7 @@ package deploy
 
 import (
 	mylog "app/backend/common/util/log"
-	"app/backend/common/util/placeholder"
+	"app/backend/common/util/Placeholder"
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"

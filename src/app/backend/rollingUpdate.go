@@ -1,7 +1,7 @@
 package main
 
 import (
-	"k8s.io/kubernetes/pkg/api"
+//	"k8s.io/kubernetes/pkg/api"
 	// unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
@@ -14,7 +14,8 @@ import (
 var logger *log.Logger
 
 const (
-	DEPLOYMENT           string = "nginx-deployment"
+	//DEPLOYMENT           string = "nginx-deployment"
+	DEPLOYMENT           string = "nginx-test"
 	RevisionHistoryLimit int32  = 5
 	SERVER               string = "http://172.21.1.11:8080"
 	RevisionAnnotation   string = "deployment.kubernetes.io/revision"
@@ -35,10 +36,12 @@ func rollingUpdate(c *client.Client, dp *extensions.Deployment) error {
 	dp.Spec.Strategy = *ds
 
 	// Image
-	dp.Spec.Template.Spec.Containers[0].Image = "nginx:1.9.7"
+	//dp.Spec.Template.Spec.Containers[0].Image = "nginx:1.9.7"
+	dp.Spec.Template.Spec.Containers[0].Image = "nginx:1.9"
 
 	// Update
-	_, err := c.Extensions().Deployments(api.NamespaceDefault).Update(dp)
+	//_, err := c.Extensions().Deployments(api.NamespaceDefault).Update(dp)
+	_, err := c.Extensions().Deployments("ops").Update(dp)
 	if err != nil {
 		logger.Printf("Update Deployment Error: err=%s\n", err)
 		return err
@@ -56,7 +59,8 @@ func main() {
 		logger.Fatalf("Could not connect to k8s api: err=%s\n", err)
 	}
 
-	dp, err := c.Extensions().Deployments(api.NamespaceDefault).Get(DEPLOYMENT)
+	//dp, err := c.Extensions().Deployments(api.NamespaceDefault).Get(DEPLOYMENT)
+	dp, err := c.Extensions().Deployments("ops").Get(DEPLOYMENT)
 	if err != nil {
 		logger.Fatalf("Could not list deployments: err=%s\n", err)
 	}

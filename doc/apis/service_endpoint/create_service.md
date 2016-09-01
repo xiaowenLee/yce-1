@@ -92,6 +92,38 @@ POST /api/v1/organizations/{orgId}/users/{userId}/services/new
 
 请求头中包含: Authorization: ${sessionId}
 
+```json
+    {
+      "serviceName": "test-service-withselector",
+      "orgName": "ops",
+      "dcIdList": [1],
+      "service": {
+                     "kind": "Service",
+                     "apiVersion": "v1",
+                     "metadata": {
+                         "name": "1-test-nginx-service",
+                         "labels": {
+                             "name": "1-test-nginx-service"
+                         }
+                     },
+                     "spec": {
+                         "type": "NodePort",
+                         "selector": {
+                             "name": "test-nginx-test"
+                         },
+                         "ports": [
+                             {
+                                 "protocol": "TCP",
+                                 "port": 30091,
+                                 "targetPort": 80,
+                                 "nodePort": 32289
+                             }
+                         ]
+                     }
+                 }
+    }
+```
+
 
 ### 服务修改和删除
 

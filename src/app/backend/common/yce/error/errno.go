@@ -6,45 +6,45 @@ type Error struct {
 }
 
 const (
-	EOK    int32 = 0
+	EOK int32 = 0
 
-	EMYSQL int32 = 1000
-	EMYSQL_QUERY int32 = 1001
+	EMYSQL        int32 = 1000
+	EMYSQL_QUERY  int32 = 1001
 	EMYSQL_INSERT int32 = 1002
 
-	EREDIS int32 = 1100
+	EREDIS     int32 = 1100
 	EREDIS_GET int32 = 1101
 
-	EKUBE  int32 = 1200
-	EKUBE_CLIENT int32 = 1201
-	EKUBE_CREATE_DEPLOYMENT = 1202
-	EKUBE_LIST_PODS = 1203
-	EKUBE_CREATE_SERVICE = 1206
-	EKUBE_LIST_ENDPOINTS = 1207
-	EKUBE_CREATE_NAMESPACE = 1204
-	EKUBE_CREATE_RESOURCEQUOTA = 1205
-	EKUBE_LIST_SERVICE = 1208
-	EKUBE_CREATE_ENDPOINTS = 1209
-	EKUBE_LIST_DEPLOYMENTS = 1210
-	EKUBE_LABEL_SELECTOR = 1211
-	EKUBE_GET_DEPLOYMENT = 1212
+	EKUBE                      int32 = 1200
+	EKUBE_CLIENT               int32 = 1201
+	EKUBE_CREATE_DEPLOYMENT          = 1202
+	EKUBE_LIST_PODS                  = 1203
+	EKUBE_CREATE_SERVICE             = 1206
+	EKUBE_LIST_ENDPOINTS             = 1207
+	EKUBE_CREATE_NAMESPACE           = 1204
+	EKUBE_CREATE_RESOURCEQUOTA       = 1205
+	EKUBE_LIST_SERVICE               = 1208
+	EKUBE_CREATE_ENDPOINTS           = 1209
+	EKUBE_LIST_DEPLOYMENTS           = 1210
+	EKUBE_ROLLING_DEPLOYMENTS        = 1211
+	EKUBE_LABEL_SELECTOR             = 1212
+	EKUBE_GET_DEPLOYMENT             = 1213
 
-	EIRIS  int32 = 1300
+	EIRIS int32 = 1300
 
-	EYCE   int32 = 1400
-	EYCE_LOGIN int32 = 1401
-	EYCE_SESSION int32 = 1402
-	EYCE_SESSION_DEL int32 = 1403
-	EYCE_ORG_EXIST int32 = 1404
-	EYCE_NODEPORT_EXIST int32 = 1405
-	EYCE_ORGTODC int32 = 1406
+	EYCE                 int32 = 1400
+	EYCE_LOGIN           int32 = 1401
+	EYCE_SESSION         int32 = 1402
+	EYCE_SESSION_DEL     int32 = 1403
+	EYCE_ORG_EXIST       int32 = 1404
+	EYCE_NODEPORT_EXIST  int32 = 1405
+	EYCE_ORGTODC         int32 = 1406
 	EYCE_LIST_EXTENSIONS int32 = 1407
 
-	EREGISTRY int32 = 1500
+	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
 
 	EJSON int32 = 1600
-
 )
 
 var Errors = map[int32]*Error{
@@ -91,7 +91,7 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes List Pods Error",
 		ErrMsg: "获取Pod列表出错",
 	},
-	EKUBE_CREATE_SERVICE: &Error {
+	EKUBE_CREATE_SERVICE: &Error{
 		LogMsg: "Kubernetes Create Service Error",
 		ErrMsg: "创建Service出错",
 	},
@@ -107,27 +107,31 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes create resourceQuota error",
 		ErrMsg: "创建资源配额失败",
 	},
-	EKUBE_LIST_SERVICE: &Error {
+	EKUBE_LIST_SERVICE: &Error{
 		LogMsg: "Kubernetes list Service Error",
 		ErrMsg: "获取Service出错",
 	},
-	EKUBE_CREATE_ENDPOINTS: &Error {
+	EKUBE_CREATE_ENDPOINTS: &Error{
 		LogMsg: "Kubernetes create Endpoints Error",
 		ErrMsg: "创建Endpoints出错",
 	},
-	EKUBE_LABEL_SELECTOR: &Error {
+	EKUBE_LABEL_SELECTOR: &Error{
 		LogMsg: "Kubernetes LabelSelectorAsSelector Error",
 		ErrMsg: "通过标签选择出错",
 	},
-	EKUBE_GET_DEPLOYMENT: &Error {
+	EKUBE_GET_DEPLOYMENT: &Error{
 		LogMsg: "Kubernetes Get Deployment by name Error",
 		ErrMsg: "获取Deployment失败",
 	},
 
-
-	EKUBE_LIST_DEPLOYMENTS: &Error {
+	EKUBE_LIST_DEPLOYMENTS: &Error{
 		LogMsg: "Kubernetes list Deployments Error",
 		ErrMsg: "获取Deployments出错",
+	},
+
+	EKUBE_ROLLING_DEPLOYMENTS: &Error{
+		LogMsg: "Kubernetes RollingUpdate Deployments Error",
+		ErrMsg: "滚动升级Deployments出错",
 	},
 
 	// 1300~1399 Iris错误
@@ -161,17 +165,17 @@ var Errors = map[int32]*Error{
 		ErrMsg: "组织已经存在",
 	},
 
-	EYCE_NODEPORT_EXIST: &Error {
+	EYCE_NODEPORT_EXIST: &Error{
 		LogMsg: "The NodePort exists",
 		ErrMsg: "NodePort已存在",
 	},
 
-	EYCE_ORGTODC: &Error {
+	EYCE_ORGTODC: &Error{
 		LogMsg: "Get Datacenter by orgId Error",
 		ErrMsg: "获取数据中心错误",
 	},
 
-	EYCE_LIST_EXTENSIONS: &Error {
+	EYCE_LIST_EXTENSIONS: &Error{
 		LogMsg: "Get Service and Endpoint list error",
 		ErrMsg: "获取服务和访问点列表失败",
 	},
