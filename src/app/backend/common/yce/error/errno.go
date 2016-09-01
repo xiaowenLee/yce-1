@@ -29,7 +29,6 @@ const (
 	EKUBE_LABEL_SELECTOR = 1211
 	EKUBE_GET_DEPLOYMENT = 1212
 
-
 	EIRIS  int32 = 1300
 
 	EYCE   int32 = 1400
@@ -125,6 +124,11 @@ var Errors = map[int32]*Error{
 		ErrMsg: "获取Deployment失败",
 	},
 
+
+	EKUBE_LIST_DEPLOYMENTS: &Error {
+		LogMsg: "Kubernetes list Deployments Error",
+		ErrMsg: "获取Deployments出错",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{

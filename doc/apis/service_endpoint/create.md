@@ -64,7 +64,7 @@ GET /api/v1/organizations/{orgId}/users/{userId}/services/init
 * 服务类型:
     仅允许ClusterIP和NodePort两种类型，单选
 
-    1. ClusterIP: 不允许用户填写NodePort
+    1. ClusterIP: 不允许用户填写NodePort或NodePort为0
     2. NodePort: 允许用户填写NodePort
 
 * 选择器(selector): 
@@ -91,5 +91,10 @@ GET /api/v1/organizations/{orgId}/users/{userId}/services/init
 POST /api/v1/organizations/{orgId}/users/{userId}/services/new
 
 请求头中包含: Authorization: ${sessionId}
+
+
+### 服务修改和删除
+
+按钮在服务及访问点管理的页面上。
 
 
