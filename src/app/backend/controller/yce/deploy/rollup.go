@@ -18,14 +18,13 @@ import (
 	"strconv"
 	"strings"
 )
-/*
+
 const (
-	ACTION_TYPE  = myoption.ONLINE
-	ACTION_VERBE = "POST"
-	//ACTION_URL   = "/api/v1/organization/<orgId>/users/<userId>/deployments"
-	ACTION_URL   = "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
+	ROLLING_TYPE  = myoption.ONLINE
+	ROLLING_VERBE = "POST"
+	ROLLING_URL   = "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
 )
-*/
+
 
 type RollingDeployController struct {
 	*iris.Context
@@ -139,6 +138,7 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 		//rd.Strategy.UpdateInterval
 
 		dp.Annotations["userId"] = strconv.Itoa(int(rd.UserId))
+		dp.Annotations["image"] = rd.Strategy.Image
 		dp.Annotations["kubernetes.io/change-cause"] = rd.Comments
 
 		_, err = cli.Extensions().Deployments(namespace).Update(dp)
@@ -154,15 +154,14 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 
 // Create Deployment(mysql) and insert it into db
 func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, orgId, json, reason, dcList string, userId int32) error {
-	ACTION_TYPE  := myoption.ONLINE
-	ACTION_VERBE := "POST"
-	ACTION_URL   := "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
 
-	uph := placeholder.NewPlaceHolder(ACTION_URL)
+
+	uph := placeholder.NewPlaceHolder(ROLLING_URL)
 	actionUrl := uph.Replace("<orgId>", orgId, "<deploymentName>", name)
 	//actionOp, _ := strconv.Atoi(userId)
 	actionOp := userId
-	dp := mydeployment.NewDeployment(name, ACTION_VERBE, actionUrl, dcList, reason, json, "Rolilng Update a Deployment", int32(ACTION_TYPE), actionOp, int32(1))
+	//TODO: replace "Rolling update..." with rd.comments
+	dp := mydeployment.NewDeployment(name, ROLLING_VERBE, actionUrl, dcList, reason, json, "Rolilng Update a Deployment", int32(ROLLING_TYPE), actionOp, int32(1))
 	err := dp.InsertDeployment()
 	if err != nil {
 		mylog.Log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",

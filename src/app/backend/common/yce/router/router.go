@@ -29,6 +29,7 @@ type Router struct {
 	InitDeploy   *mydeploy.InitDeployController
 	CreateDeploy *mydeploy.CreateDeployController
 	RollingDeploy *mydeploy.RollingDeployController
+	ListOperationLog *mydeploy.ListOperationLogController
 	InitNamespace *mynamespace.InitNamespaceController
 }
 
@@ -49,6 +50,7 @@ func NewRouter() *Router {
 	r.InitDeploy = new(mydeploy.InitDeployController)
 	r.CreateDeploy = new(mydeploy.CreateDeployController)
 	r.RollingDeploy = new(mydeploy.RollingDeployController)
+	r.ListOperationLog = new(mydeploy.ListOperationLogController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
 
 	return r
@@ -63,6 +65,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/init", *r.InitDeploy)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/new", *r.CreateDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rolling", *r.RollingDeploy)
+	iris.API("/api/v1/organizations/:orgId/operationlog", *r.ListOperationLog)
 	iris.API("/api/v1/registry/images", *r.Registry)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)

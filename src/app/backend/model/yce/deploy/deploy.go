@@ -6,6 +6,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	myorganization "app/backend/model/mysql/organization"
+	mydeployment "app/backend/model/mysql/deployment"
 )
 
 // AppDeployment for Frontend fulfillment
@@ -56,7 +57,8 @@ type InitDeployment struct {
 type CreateDeployment struct {
 	AppName  string `json: "appName"`
 	OrgName  string `json: "orgName"`
-	DcIdList []int32 `json:"dcIdList"`
+	//DcIdList []int32 `json:"dcIdList"`
+	DcIdList DcIdListType `json:"dcIdList"`
 	Deployment extensions.Deployment `json:"deployment"`
 }
 
@@ -75,4 +77,25 @@ type RollingDeployment struct {
 	UserId int32 `json:"userId"`
 	Strategy RollingStrategy `json:"strategy"`
 	Comments string `json:"comments"`
+}
+
+// Response List OperationLog
+
+
+type DcIdListType struct {
+	DcIdList []int32 `json:"dcIdList"`
+}
+
+type OperationLog struct {
+	DcName []string `json:"dcName"`
+	UserName string `json:"userName"`
+	Record *mydeployment.Deployment `json:"records"`
+}
+
+
+// Get .../history
+type ListOperationLog struct {
+	DcName []string
+	DcIdList []int32
+	Organization *myorganization.Organization
 }

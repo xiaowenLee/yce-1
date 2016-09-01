@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	ACTION_TYPE  = myoption.ONLINE
-	ACTION_VERBE = "POST"
-	ACTION_URL   = "/api/v1/organization/<orgId>/users/<userId>/deployments"
+	CREATE_TYPE  = myoption.ONLINE
+	CREATE_VERBE = "POST"
+	CREATE_URL   = "/api/v1/organization/<orgId>/users/<userId>/deployments"
 )
 
 type CreateDeployController struct {
@@ -139,10 +139,10 @@ func (cdc *CreateDeployController) createDeployment(namespace string, deployment
 // Create Deployment(mysql) and insert it into db
 func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, orgId, userId, json, reason, dcList string) error {
 
-	uph := placeholder.NewPlaceHolder(ACTION_URL)
+	uph := placeholder.NewPlaceHolder(CREATE_URL)
 	actionUrl := uph.Replace("<orgId>", orgId, "<userId>", userId)
 	actionOp, _ := strconv.Atoi(userId)
-	dp := mydeployment.NewDeployment(name, ACTION_VERBE, actionUrl, dcList, reason, json, "Create a Deployment", ACTION_TYPE, int32(actionOp), int32(1))
+	dp := mydeployment.NewDeployment(name, CREATE_VERBE, actionUrl, dcList, reason, json, "Create a Deployment", CREATE_TYPE, int32(actionOp), int32(1))
 	err := dp.InsertDeployment()
 	if err != nil {
 		mylog.Log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
@@ -175,7 +175,7 @@ func (cdc CreateDeployController) Post() {
 	cdc.ReadJSON(cd)
 
 	// Get DcIdList
-	cdc.getApiServerList(cd.DcIdList)
+	cdc.getApiServerList(cd.DcIdList.DcIdList)
 	if cdc.Ye != nil {
 		cdc.WriteBack()
 		return
