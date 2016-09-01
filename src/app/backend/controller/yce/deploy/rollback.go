@@ -14,7 +14,7 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"k8s.io/kubernetes/pkg/util/intstr"
+	"app/backend/common/yce/organization"
 	"strconv"
 	"strings"
 )
@@ -162,7 +162,7 @@ func (rdc *RollbackDeployController) getApiServerAndK8sClientByDcId() {
 
 	// ApiServer
 	dc := new(mydatacenter.DataCenter)
-	dcId, _ := strconv.Atoi(rdc.dcId)
+	dcId, _ := strconv.Atoi(rdc.r.DcId)
 	err := dc.QueryDataCenterById(int32(dcId))
 	if err != nil {
 		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: dcId=%d, err=%s", dcId, err)
@@ -209,12 +209,12 @@ func (rdc *RollbackDeployController) rollback() {
 	err := rdc.k8sClient.Extensions().Deployments(rdc.deployment.Name).Rollback(dr)
 	if err != nil {
 		mylog.Log.Errorf("Deployment Rollback Error: err=%s\n", err)
-		hdc.Ye = myerror.NewYceError(myerror.EKUBE_ROLLBACK_DEPLOYMENT, "")
+		rdc.Ye = myerror.NewYceError(myerror.EKUBE_ROLLBACK_DEPLOYMENT, "")
 		return
 	}
 
 	mylog.Log.Infof("Deployment Rollback over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
-		rdc.apiServer, rdc.deployment.Namespace, rdc.deployment.name, rdc.deployment)
+		rdc.apiServer, rdc.deployment.Namespace, rdc.deployment.Name, rdc.deployment)
 }
 
 // Create Deployment(mysql) and insert it into db
@@ -243,7 +243,7 @@ func (rdc *RollbackDeployController) createMysqlDeployment(success bool, name, o
 func (rdc *RollbackDeployController) encodeDcIdList() string {
 	dcIdList := new(deploy.DcIdListType)
 	dcId, _  := strconv.Atoi(rdc.r.DcId)
-	*dcIdList = append(*dcIdList, int32(dcId))
+	dcIdList.DcIdList = append(dcIdList.DcIdList, int32(dcId))
 
 	data, _ := json.Marshal(dcIdList)
 	return string(data)
@@ -261,7 +261,7 @@ func (rdc *RollbackDeployController) Post() {
 
 	// Validate the session
 	sessionIdFromClient := rdc.RequestHeader("Authorization")
-	rdc.validateSession(sessionIdFromClient, orgId)
+	rdc.validateSession(sessionIdFromClient, rdc.orgId)
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return
@@ -294,8 +294,11 @@ func (rdc *RollbackDeployController) Post() {
 	// Encode DcIdList
 	dcIdList := rdc.encodeDcIdList()
 
+	// Convert UserId from string to int32
+	userId, _ := strconv.Atoi(rdc.r.UserId)
+
 	// Insert into MySQL.Deployment
-	rdc.createMysqlDeployment(true, rdc.r.AppName, rdc.orgId, string(dd), rdc.r.Comments, dcIdList, rdc.r.UserId)
+	rdc.createMysqlDeployment(true, rdc.r.AppName, rdc.orgId, string(dd), rdc.r.Comments, dcIdList, int32(userId))
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return
