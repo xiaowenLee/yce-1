@@ -214,7 +214,7 @@ func (cdc CreateDeployController) Post() {
 
 	cdc.Ye = myerror.NewYceError(myerror.EOK, "")
 	cdc.WriteBack()
-	// TODO: 成功写回
+
 	mylog.Log.Infoln("CreateDeploymentController over!")
 	return
 }

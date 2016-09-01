@@ -7,8 +7,9 @@
 用户点击应用发布(左侧菜单)时请求后台数据:
 
 请求的URL:
-
+```bash
 GET /api/v1/organizations/{orgId}/users/{userId}/deployments/init
+```
 
 请求头中包含: Authorization: ${sessionId}
 
