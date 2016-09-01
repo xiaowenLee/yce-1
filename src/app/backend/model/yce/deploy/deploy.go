@@ -59,3 +59,20 @@ type CreateDeployment struct {
 	DcIdList []int32 `json:"dcIdList"`
 	Deployment extensions.Deployment `json:"deployment"`
 }
+
+// RollingUpdate Strategy
+type RollingStrategy struct {
+	MaxUnavailable int32 `json:"maxUnavailable"`
+	Image string `json:"image"`
+	UpdateInterval int32 `json:"updateInterval"`
+}
+
+// RollingUpdate Deployment
+type RollingDeployment struct {
+	AppName string `json:"appName"`
+	OrgName string `json:"orgName"`
+	DcId int32 `json:"dcId"`
+	UserId int32 `json:"userId"`
+	Strategy RollingStrategy `json:"strategy"`
+	Comments string `json:"comments"`
+}

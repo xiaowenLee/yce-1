@@ -26,6 +26,7 @@ const (
 	EKUBE_LIST_SERVICE = 1208
 	EKUBE_CREATE_ENDPOINTS = 1209
 	EKUBE_LIST_DEPLOYMENTS = 1210
+	EKUBE_ROLLING_DEPLOYMENTS = 1211
 
 
 	EIRIS  int32 = 1300
@@ -120,6 +121,11 @@ var Errors = map[int32]*Error{
 	EKUBE_LIST_DEPLOYMENTS: &Error {
 		LogMsg: "Kubernetes list Deployments Error",
 		ErrMsg: "获取Deployments出错",
+	},
+
+	EKUBE_ROLLING_DEPLOYMENTS: &Error {
+		LogMsg: "Kubernetes RollingUpdate Deployments Error",
+		ErrMsg: "滚动升级Deployments出错",
 	},
 
 	// 1300~1399 Iris错误
