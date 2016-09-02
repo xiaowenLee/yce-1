@@ -29,6 +29,7 @@ const (
 	EKUBE_ROLLING_DEPLOYMENTS        = 1211
 	EKUBE_LABEL_SELECTOR             = 1212
 	EKUBE_GET_DEPLOYMENT             = 1213
+	EKUBE_ROLLBACK_DEPLOYMENT        = 1214
 
 	EIRIS int32 = 1300
 
@@ -128,10 +129,13 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes list Deployments Error",
 		ErrMsg: "获取Deployments出错",
 	},
-
 	EKUBE_ROLLING_DEPLOYMENTS: &Error{
 		LogMsg: "Kubernetes RollingUpdate Deployments Error",
 		ErrMsg: "滚动升级Deployments出错",
+	},
+	EKUBE_ROLLBACK_DEPLOYMENT: &Error{
+		LogMsg: "Kubernetes Rollback Deployment Error",
+		ErrMsg: "回滚失败",
 	},
 
 	// 1300~1399 Iris错误

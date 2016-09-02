@@ -53,6 +53,11 @@ type InitDeployment struct {
 	Quotas []myqouta.Quota `json:"quotas"`
 }
 
+// DcIdList
+type DcIdListType struct {
+	DcIdList []int32 `json: "dcIdList"`
+}
+
 // Post .../new
 type CreateDeployment struct {
 	AppName  string `json: "appName"`

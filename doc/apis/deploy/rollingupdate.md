@@ -36,7 +36,7 @@ POST /api/v1/organizations/{orgId}/deployments/{:deploymentName}/rolling
   "strategy": {
       "maxUnavailable": 3,
       "image": "nginx:1.9",
-      "updateInterval": 2
+      "updateInterval": 2,
   }
   "comments": "Update the xxx function"
 }
