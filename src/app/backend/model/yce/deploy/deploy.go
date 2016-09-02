@@ -55,13 +55,13 @@ type InitDeployment struct {
 
 // DcIdList
 type DcIdListType struct {
-	DcIdList []int32 `json: "dcIdList"`
+	DcIdList []int32 `json:"dcIdList"`
 }
 
 // Post .../new
 type CreateDeployment struct {
-	AppName  string `json: "appName"`
-	OrgName  string `json: "orgName"`
+	AppName  string `json:"appName"`
+	OrgName  string `json:"orgName"`
 	//DcIdList []int32 `json:"dcIdList"`
 	DcIdList DcIdListType `json:"dcIdList"`
 	Deployment extensions.Deployment `json:"deployment"`
@@ -78,7 +78,7 @@ type RollingStrategy struct {
 type RollingDeployment struct {
 	AppName string `json:"appName"`
 	OrgName string `json:"orgName"`
-	DcId int32 `json:"dcId"`
+	DcIdList DcIdListType `json:"dcIdList"`
 	UserId int32 `json:"userId"`
 	Strategy RollingStrategy `json:"strategy"`
 	Comments string `json:"comments"`
@@ -86,10 +86,11 @@ type RollingDeployment struct {
 
 // Response List OperationLog
 
-
+/*
 type DcIdListType struct {
 	DcIdList []int32 `json:"dcIdList"`
 }
+*/
 
 type OperationLog struct {
 	DcName []string `json:"dcName"`
