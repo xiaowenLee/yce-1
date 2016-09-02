@@ -206,16 +206,21 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 		dpList[index].DcId = ld.DcIdList[index]
 		dpList[index].DcName = ld.DcName[index]
 		dpList[index].Deployments = make([]deploy.DeployAndPodList, len(dps.Items))
+		// dpList[index].Deployments = make([]deploy.DeployAndPodList)
 
 
 		for i, deploy := range dps.Items {
-			dpList[index].Deployments[i].Deploy = &deploy
+			dpList[index].Deployments[i].Deploy = new(extensions.Deployment)
+			*dpList[index].Deployments[i].Deploy  = deploy
+
+			mylog.Log.Infof("ListDeployments Each Deployment: namespace=%s, name=%s, index=%d, deploy=%p",
+				deploy.Namespace, deploy.Name, i, &deploy)
 
 			// Get ReplicaSetList of this deployment
 			rsList := ldc.getReplicaSetsByDeployment(cli, &deploy)
 
 			//Get the New (latest) ReplicaSet of this deployment
-			newRs, err := deploymentutil.FindNewReplicaSet(dpList[index].Deployments[i].Deploy, rsList)
+			newRs, err := deploymentutil.FindNewReplicaSet(&deploy, rsList)
 			if err != nil {
 				mylog.Log.Errorf("FindNewReplicaSet Error: error=%s", err)
 				ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
@@ -223,7 +228,9 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 			}
 
 			//Get PodList of the new ReplicaSet
-			dpList[index].Deployments[i].PodList = ldc.getPodsByReplicaSet(cli, newRs)
+			dpList[index].Deployments[i].PodList = ldc.getPodsByReplicaSet(cli, newRs).Items
+			mylog.Log.Infof("ListDeployments each podList: namespace=%s, name=%s, index=%d, podListSize=%d",
+				deploy.Namespace, deploy.Name, i, len(dpList[index].Deployments[i].PodList))
 		}
 
 
