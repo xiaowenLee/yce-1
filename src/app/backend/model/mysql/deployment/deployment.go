@@ -10,16 +10,16 @@ var log =  mylog.Log
 
 const (
 	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment " +
+		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
 		"FROM deployment where id=?"
 
 	DEPLOYMENT_BYNAME = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment " +
+		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
 		"FROM deployment where name=? ORDER BY id DESC"
 
 	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+		"actionAt, actionOp, dcList, success, reason, json, comment, orgId) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	VALID   = 1
 	INVALID = 0
 )
@@ -37,9 +37,10 @@ type Deployment struct {
 	Reason     string `json:"reason",omitempty`
 	Json       string `json:"json"`
 	Comment    string `json:"comment,omitempty"`
+	OrgId      int32  `json:"orgId"`
 }
 
-func NewDeployment(name, actionVerb, actionUrl, dcList, reason, json, comment string, actionType, actionOp, success int32) *Deployment {
+func NewDeployment(name, actionVerb, actionUrl, dcList, reason, json, comment string, actionType, actionOp, success int32, orgId int32) *Deployment {
 	return &Deployment{
 		Name:       name,
 		ActionType: actionType,
@@ -52,6 +53,7 @@ func NewDeployment(name, actionVerb, actionUrl, dcList, reason, json, comment st
 		Reason:     reason,
 		Json:       json,
 		Comment:    comment,
+		OrgId:      orgId,
 	}
 }
 
@@ -70,7 +72,7 @@ func (d *Deployment) QueryDeploymentById(id int32) error {
 	var jsonFile []byte
 	var comment []byte
 
-	err = stmt.QueryRow(id).Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt, &d.ActionOp, &d.DcList, &d.Success, &d.Reason, &jsonFile, &comment)
+	err = stmt.QueryRow(id).Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt, &d.ActionOp, &d.DcList, &d.Success, &d.Reason, &jsonFile, &comment, &d.OrgId)
 	if err != nil {
 		log.Errorf("QueryDeploymentById Error: err=%s", err)
 		return err
@@ -79,8 +81,8 @@ func (d *Deployment) QueryDeploymentById(id int32) error {
 	d.Json = string(jsonFile)
 	d.Comment = string(comment)
 
-	log.Infof("QueryDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s",
-		d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
+	log.Infof("QueryDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s, orgId=%d",
+		d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment, d.OrgId)
 
 	return nil
 }
@@ -100,14 +102,14 @@ func (d *Deployment) InsertDeployment() error {
 	d.ActionAt = localtime.NewLocalTime().String()
 
 	// Insert a deployment
-	_, err = stmt.Exec(d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
+	_, err = stmt.Exec(d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment, d.OrgId)
 	if err != nil {
 		log.Errorf("InsertDeployment Error: err=%s", err)
 		return err
 	}
 
-	log.Infof("InsertDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s",
-		d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
+	log.Infof("InsertDeploymentById: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s, orgId=%d",
+		d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment, d.OrgId)
 
 	return nil
 }
@@ -138,7 +140,7 @@ func QueryDeploymentByAppName(name string) ([]Deployment, error) {
 
 		var comment []byte
 		err = rows.Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt,
-			&d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &comment)
+			&d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &comment, &d.OrgId)
 		d.Comment = string(comment)
 		if err != nil {
 			log.Errorf("QueryDeploymentByAppName Error: err=%s", err)
@@ -146,8 +148,8 @@ func QueryDeploymentByAppName(name string) ([]Deployment, error) {
 		}
 		deployments = append(deployments, *d)
 
-		log.Infof("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s",
-			d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment)
+		log.Infof("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s, orgId=%d",
+			d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment, d.OrgId)
 	}
 
 	return deployments, nil

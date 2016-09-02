@@ -58,6 +58,7 @@ type DcIdListType struct {
 	DcIdList []int32 `json:"dcIdList"`
 }
 
+//TODO: Change DcIdList 2 []int32
 // Post .../new
 type CreateDeployment struct {
 	AppName  string `json:"appName"`
@@ -74,6 +75,7 @@ type RollingStrategy struct {
 	UpdateInterval int32 `json:"updateInterval"`
 }
 
+//TODO: Change DcIdList 2 []int32
 // RollingUpdate Deployment
 type RollingDeployment struct {
 	AppName string `json:"appName"`

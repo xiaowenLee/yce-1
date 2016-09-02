@@ -5,45 +5,47 @@ import (
 	mylog "app/backend/common/util/log"
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
+	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
 	myoption "app/backend/model/mysql/option"
-	"app/backend/model/yce/deploy"
+//	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"app/backend/common/yce/organization"
 	"strconv"
 	"strings"
 )
 
 const (
-	ROLLBACK_ACTION_TYPE  = myoption.ROLLINGBACK
-	ROLLBACK_ACTION_VERBE = "POST"
-	ROLLBACK_ACTION_URL   = "/api/v1/organization/<orgId>/deployments/<name>/rollback"
+	ROLLBACK_ACTION_TYPE                = myoption.ROLLINGBACK
+	ROLLBACK_ACTION_VERBE               = "POST"
+	ROLLBACK_ACTION_URL                 = "/api/v1/organization/<orgId>/deployments/<name>/rollback"
 	ROLLBACK_REVISION_ANNOTATION string = "deployment.kubernetes.io/revision"
-	ROLLBACK_IMAGE = "image"
-	ROLLBACK_USERID = "userId"
+	ROLLBACK_IMAGE                      = "image"
+	ROLLBACK_USERID                     = "userId"
+	ROLLBACK_CHANGE_CAUSE string = "kubernetes.io/change-cause"
 )
 
 type RollbackDeployController struct {
 	*iris.Context
-	k8sClient *client.Client
-	apiServer string
+	k8sClient  *client.Client
+	apiServer  string
 	Ye         *myerror.YceError
-	orgId string
-	name string
-	r *RollbackDeployParam
+	orgId      string
+	name       string
+	r          *RollbackDeployParam
 	deployment *extensions.Deployment
 }
 
 type RollbackDeployParam struct {
-	AppName string `json: "appName"`
-	DcId string `json: "dcId"`
-	UserId string `json: "userId"`
-	Image string `json: "image"`
+	AppName  string `json: "appName"`
+	//DcId     string `json: "dcId"`
+	DcIdList []int32 `json: "dcIdList"`
+	UserId   string `json: "userId"`
+	Image    string `json: "image"`
 	Revision string `json: "revision"`
 	Comments string `json: "comments"`
 }
@@ -73,16 +75,16 @@ func (rdc *RollbackDeployController) validateSession(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infof("RollbackDeployment sessionId successfully: sessionId=%s, orgId=%d", sessionId, orgId)
 	return
 }
-
 
 // Get ApiServer by dcId
 func (rdc *RollbackDeployController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		mylog.Log.Errorf("Rollback getApiServerById QueryDataCenterById Error: err=%s", err)
 		rdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
@@ -91,7 +93,7 @@ func (rdc *RollbackDeployController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	mylog.Log.Infof("RollingDeployment getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
+	mylog.Log.Infof("RollbackDeployment getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
 	return apiServer
 }
 
@@ -106,6 +108,7 @@ func (rdc *RollbackDeployController) getApiServer(dcId int32) {
 
 	//rdc.apiServer = append(rdc.apiServer, apiServer)
 	rdc.apiServer = apiServer
+	mylog.Log.Infof("RollbackDeployment getApiServer: apiServer=%p", rdc.apiServer)
 	return
 }
 
@@ -119,13 +122,13 @@ func (rdc *RollbackDeployController) createK8sClients() {
 
 	c, err := client.New(config)
 	if err != nil {
-		mylog.Log.Errorf("createK8sClient Error: err=%s", err)
+		mylog.Log.Errorf("RollbackDeployment createK8sClient Error: err=%s", err)
 		rdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 		return
 	}
 
 	rdc.k8sClient = c
-	mylog.Log.Infof("Append a new client to rdc.k8sClient array: c=%p, apiServer=%s", c, server)
+	mylog.Log.Infof("RollbackDeployment createK8sClients: client=%p, apiServer=%s", c, server)
 
 	return
 }
@@ -136,7 +139,7 @@ func (rdc *RollbackDeployController) getDeploymentByName() {
 	// Get namespace(org.Name) by orgId
 	org, err := organization.GetOrganizationById(rdc.orgId)
 	if err != nil {
-		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", rdc.orgId, err)
+		mylog.Log.Errorf("RollbackDeployment getDatacentersByOrgId Error: orgId=%s, error=%s", rdc.orgId, err)
 		rdc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 
@@ -145,7 +148,7 @@ func (rdc *RollbackDeployController) getDeploymentByName() {
 	namespace := org.Name
 	dp, err := rdc.k8sClient.Extensions().Deployments(namespace).Get(rdc.name)
 	if err != nil {
-		mylog.Log.Errorf("getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
+		mylog.Log.Errorf("RollbackDeployment getDeployByName Error: apiServer=%s, namespace=%s, deployment.name=%s, err=%s\n",
 			rdc.apiServer, namespace, rdc.name, err)
 		rdc.Ye = myerror.NewYceError(myerror.EKUBE_GET_DEPLOYMENT, "")
 		return
@@ -153,7 +156,7 @@ func (rdc *RollbackDeployController) getDeploymentByName() {
 
 	rdc.deployment = dp
 
-	mylog.Log.Infof("GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
+	mylog.Log.Infof("RollbackDeployment GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
 		rdc.apiServer, namespace, rdc.name, dp)
 }
 
@@ -162,10 +165,13 @@ func (rdc *RollbackDeployController) getApiServerAndK8sClientByDcId() {
 
 	// ApiServer
 	dc := new(mydatacenter.DataCenter)
-	dcId, _ := strconv.Atoi(rdc.r.DcId)
-	err := dc.QueryDataCenterById(int32(dcId))
+
+	//dcId, _ := strconv.Atoi(rdc.r.DcIdList.DcIdList[0])
+	dcId := rdc.r.DcIdList[0]
+	err := dc.QueryDataCenterById(dcId)
+	//err := dc.QueryDataCenterById(int32(dcId))
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: dcId=%d, err=%s", dcId, err)
+		mylog.Log.Errorf("RollbackDeployment getApiServerById QueryDataCenterById Error: dcId=%d, err=%s", dcId, err)
 		rdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -187,44 +193,46 @@ func (rdc *RollbackDeployController) getApiServerAndK8sClientByDcId() {
 	}
 
 	rdc.k8sClient = c
-	mylog.Log.Infof("GetApiServerAndK8sClientByDcId over: apiServer=%s, k8sClient=%p",
+	mylog.Log.Infof("RollbackDeployment GetApiServerAndK8sClientByDcId over: apiServer=%s, k8sClient=%p",
 		rdc.apiServer, rdc.k8sClient)
 }
-
 
 // Rollback
 func (rdc *RollbackDeployController) rollback() {
 
 	dr := new(extensions.DeploymentRollback)
 	dr.Name = rdc.deployment.Name
+	dr.UpdatedAnnotations = make(map[string]string, 0)
 	dr.UpdatedAnnotations[ROLLBACK_IMAGE] = rdc.r.Image
 	dr.UpdatedAnnotations[ROLLBACK_USERID] = rdc.r.UserId
 	dr.UpdatedAnnotations[ROLLBACK_REVISION_ANNOTATION] = rdc.r.Comments
+	dr.UpdatedAnnotations[ROLLBACK_CHANGE_CAUSE] = rdc.r.Comments
 
 	// Convert revision from string to int64
 	revision, _ := strconv.ParseInt(rdc.r.Revision, 10, 64)
 	dr.RollbackTo = extensions.RollbackConfig{Revision: revision}
 
 	// Rollback
-	err := rdc.k8sClient.Extensions().Deployments(rdc.deployment.Name).Rollback(dr)
+	//err := rdc.k8sClient.Extensions().Deployments(rdc.deployment.Name).Rollback(dr)
+	err := rdc.k8sClient.Extensions().Deployments(rdc.deployment.Namespace).Rollback(dr)
 	if err != nil {
 		mylog.Log.Errorf("Deployment Rollback Error: err=%s\n", err)
 		rdc.Ye = myerror.NewYceError(myerror.EKUBE_ROLLBACK_DEPLOYMENT, "")
 		return
 	}
 
-	mylog.Log.Infof("Deployment Rollback over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
+	mylog.Log.Infof("RollbackDeployment over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
 		rdc.apiServer, rdc.deployment.Namespace, rdc.deployment.Name, rdc.deployment)
 }
 
 // Create Deployment(mysql) and insert it into db
-func (rdc *RollbackDeployController) createMysqlDeployment(success bool, name, orgId, json, reason, dcList string, userId int32) error {
+func (rdc *RollbackDeployController) createMysqlDeployment(success bool, name, json, reason, dcList string, userId, orgId int32) error {
 
 	uph := placeholder.NewPlaceHolder(ROLLBACK_ACTION_URL)
-	actionUrl := uph.Replace("<orgId>", orgId, "<name>", name)
-	//actionOp, _ := strconv.Atoi(userId)
+	orgIdString := strconv.Itoa(int(orgId))
+	actionUrl := uph.Replace("<orgId>", orgIdString, "<name>", name)
 	actionOp := userId
-	dp := mydeployment.NewDeployment(name, ROLLBACK_ACTION_VERBE, actionUrl, dcList, reason, json, "Rolilng Update a Deployment", int32(ROLLBACK_ACTION_TYPE), actionOp, int32(1))
+	dp := mydeployment.NewDeployment(name, ROLLBACK_ACTION_VERBE, actionUrl, dcList, reason, json, "Rolilng Update a Deployment", int32(ROLLBACK_ACTION_TYPE), actionOp, int32(1), orgId)
 	err := dp.InsertDeployment()
 	if err != nil {
 		mylog.Log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
@@ -233,31 +241,28 @@ func (rdc *RollbackDeployController) createMysqlDeployment(success bool, name, o
 		return err
 	}
 
-	mylog.Log.Infof("CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
+	mylog.Log.Infof("RollbackDeployment CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
 		actionUrl, actionOp, dcList)
 	return nil
 }
 
 // 在查看历史中,要显示在那个数据中心做的回滚,为了保证接口一致,存储成DcIdList的Json格式
 // Encode DcIdList
+/*
 func (rdc *RollbackDeployController) encodeDcIdList() string {
 	dcIdList := new(deploy.DcIdListType)
-	dcId, _  := strconv.Atoi(rdc.r.DcId)
+	dcId, _ := strconv.Atoi(rdc.r.DcIdList)
 	dcIdList.DcIdList = append(dcIdList.DcIdList, int32(dcId))
 
 	data, _ := json.Marshal(dcIdList)
 	return string(data)
 }
-
-
+*/
 // POST /api/v1/organizations/{orgId}/deployments/{name}/rollback
-func (rdc *RollbackDeployController) Post() {
+func (rdc RollbackDeployController) Post() {
 	rdc.orgId = rdc.Param("orgId")
 	rdc.name = rdc.Param("name")
 
-	// RollbackDeployment Param
-	rdc.r = new(RollbackDeployParam)
-	rdc.ReadJSON(rdc.r)
 
 	// Validate the session
 	sessionIdFromClient := rdc.RequestHeader("Authorization")
@@ -267,7 +272,15 @@ func (rdc *RollbackDeployController) Post() {
 		return
 	}
 
+	// RollbackDeployment Param
+	rdc.r = new(RollbackDeployParam)
+	rdc.ReadJSON(rdc.r)
+
+	//mylog.Log.Debugf("RollbackDeployController ReadJSON: rdc.r.DcIdList: DcIdList=%v", rdc.r.DcIdList)
+	mylog.Log.Debugf("RollbackDeployController ReadJSON: rdc.r: RollbackDeployment=%v", rdc.r)
+
 	// Get ApiServer and K8sClient
+	rdc.name = rdc.r.AppName
 	rdc.getApiServerAndK8sClientByDcId()
 	if rdc.Ye != nil {
 		rdc.WriteBack()
@@ -292,13 +305,15 @@ func (rdc *RollbackDeployController) Post() {
 	dd, _ := json.Marshal(rdc.deployment)
 
 	// Encode DcIdList
-	dcIdList := rdc.encodeDcIdList()
+	//dcIdList := rdc.encodeDcIdList()
+	dcIdList, _ := json.Marshal(rdc.r.DcIdList)
 
 	// Convert UserId from string to int32
 	userId, _ := strconv.Atoi(rdc.r.UserId)
+	oId, _ := strconv.Atoi(rdc.orgId)
 
 	// Insert into MySQL.Deployment
-	rdc.createMysqlDeployment(true, rdc.r.AppName, rdc.orgId, string(dd), rdc.r.Comments, dcIdList, int32(userId))
+	rdc.createMysqlDeployment(true, rdc.r.AppName, string(dd), rdc.r.Comments, string(dcIdList), int32(userId), int32(oId))
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return
@@ -306,6 +321,6 @@ func (rdc *RollbackDeployController) Post() {
 
 	rdc.Ye = myerror.NewYceError(myerror.EOK, "")
 	rdc.WriteBack()
-	mylog.Log.Infoln("Rolling DeploymentController over!")
+	mylog.Log.Infoln("Rollback DeploymentController over!")
 	return
 }
