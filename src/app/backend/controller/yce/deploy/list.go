@@ -188,9 +188,40 @@ func (ldc *ListDeployController)getReplicaSetsByDeployment(c *client.Client, dep
 	return rsList.Items
 }
 
+func (ldc *ListDeployController) getDeployAndPodList(cli *client.Client, deploymentList *extensions.DeploymentList) (dap []deploy.DeployAndPodList){
+
+	dap = make([]deploy.DeployAndPodList, 0)
+
+	for _, dploy := range deploymentList.Items {
+
+		dp := new(deploy.DeployAndPodList)
+		dp.Deploy = new(extensions.Deployment)
+
+		*dp.Deploy = dploy
+
+		rsList := ldc.getReplicaSetsByDeployment(cli, dp.Deploy)
+		newRs, err := deploymentutil.FindNewReplicaSet(dp.Deploy, rsList)
+
+		PodList := ldc.getPodsByReplicaSet(cli, newRs)
+		if err != nil {
+			mylog.Log.Errorf("FindNewReplicaSet Error: error=%s", err)
+			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
+			return nil
+		}
+
+		dp.PodList = new(api.PodList)
+		dp.PodList = PodList
+
+		dap = append(dap, *dp)
+
+	}
+	return dap
+
+}
+
 // List all deployments in this namespace
 func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.ListDeployment) (dpString string){
-	dpList := make([]deploy.Deployment, len(ldc.apiServers))
+	dpList := make([]deploy.Deployment, 0)
 
 	// Foreach every K8sClient to get DeploymentsList
 	for index, cli := range ldc.k8sClients {
@@ -203,29 +234,14 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 		}
 
 		//TODO: check consistency
-		dpList[index].DcId = ld.DcIdList[index]
-		dpList[index].DcName = ld.DcName[index]
-		dpList[index].Deployments = make([]deploy.DeployAndPodList, len(dps.Items))
 
 
-		for i, deploy := range dps.Items {
-			dpList[index].Deployments[i].Deploy = &deploy
+		dp := new(deploy.Deployment)
+		dp.DcId = ld.DcIdList[index]
+		dp.DcName = ld.DcName[index]
+		dp.Deployments = ldc.getDeployAndPodList(cli, dps)
 
-			// Get ReplicaSetList of this deployment
-			rsList := ldc.getReplicaSetsByDeployment(cli, &deploy)
-
-			//Get the New (latest) ReplicaSet of this deployment
-			newRs, err := deploymentutil.FindNewReplicaSet(dpList[index].Deployments[i].Deploy, rsList)
-			if err != nil {
-				mylog.Log.Errorf("FindNewReplicaSet Error: error=%s", err)
-				ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
-				return ""
-			}
-
-			//Get PodList of the new ReplicaSet
-			dpList[index].Deployments[i].PodList = ldc.getPodsByReplicaSet(cli, newRs)
-		}
-
+		dpList = append(dpList, *dp)
 
 		mylog.Log.Infof("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
 
