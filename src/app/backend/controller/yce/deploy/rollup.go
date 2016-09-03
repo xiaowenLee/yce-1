@@ -180,6 +180,17 @@ func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, js
 	return nil
 }
 
+//Encode dcIdList to JSON
+func (rdc *RollingDeployController) encodeDcIdList(dcIdList []int32) string{
+	dcIds := &deploy.DcIdListType{
+		DcIdList:dcIdList,
+	}
+
+	data, _ := json.Marshal(dcIds)
+	mylog.Log.Infof("RollingDeployController encodeDcIdList: dcIdList=%s", string(data))
+	return string(data)
+}
+
 func (rdc RollingDeployController) Post() {
 	orgId := rdc.Param("orgId")
 	deploymentName := rdc.Param("deploymentName")
@@ -197,7 +208,7 @@ func (rdc RollingDeployController) Post() {
 
 
 	// Get DcIdList
-	rdc.getApiServer(rd.DcIdList.DcIdList)
+	rdc.getApiServer(rd.DcIdList)
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return
@@ -219,7 +230,8 @@ func (rdc RollingDeployController) Post() {
 	}
 
 	// Encode cd.DcIdList to json
-	dcl, _ := json.Marshal(rd.DcIdList)
+	//dcl, _ := json.Marshal(rd.DcIdList)
+	dcIdList := rdc.encodeDcIdList(rd.DcIdList)
 
 	// Encode k8s.deployment to json
 	kd, _ := json.Marshal(dp)
@@ -227,7 +239,7 @@ func (rdc RollingDeployController) Post() {
 	oId, _ := strconv.Atoi(orgId)
 
 	// Insert into mysql.Deployment
-	rdc.createMysqlDeployment(true, rd.AppName,  string(kd), "", string(dcl), rd.Comments, rd.UserId, int32(oId),)
+	rdc.createMysqlDeployment(true, rd.AppName,  string(kd), "", dcIdList, rd.Comments, rd.UserId, int32(oId),)
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return

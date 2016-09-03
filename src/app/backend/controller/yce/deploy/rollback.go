@@ -9,14 +9,13 @@ import (
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
 	myoption "app/backend/model/mysql/option"
-//	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
-	"strings"
+	"app/backend/model/yce/deploy"
 )
 
 const (
@@ -42,7 +41,6 @@ type RollbackDeployController struct {
 
 type RollbackDeployParam struct {
 	AppName  string `json: "appName"`
-	//DcId     string `json: "dcId"`
 	DcIdList []int32 `json: "dcIdList"`
 	UserId   string `json: "userId"`
 	Image    string `json: "image"`
@@ -79,38 +77,6 @@ func (rdc *RollbackDeployController) validateSession(sessionId, orgId string) {
 	return
 }
 
-// Get ApiServer by dcId
-func (rdc *RollbackDeployController) getApiServerByDcId(dcId int32) string {
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		mylog.Log.Errorf("Rollback getApiServerById QueryDataCenterById Error: err=%s", err)
-		rdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return ""
-	}
-
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	apiServer := host + ":" + port
-
-	mylog.Log.Infof("RollbackDeployment getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
-	return apiServer
-}
-
-// Get ApiServer List for dcIdList
-func (rdc *RollbackDeployController) getApiServer(dcId int32) {
-	// Get ApiServer
-	apiServer := rdc.getApiServerByDcId(dcId)
-	if strings.EqualFold(apiServer, "") {
-		mylog.Log.Errorf("RollbackDeployController getApiServerList Error")
-		return
-	}
-
-	//rdc.apiServer = append(rdc.apiServer, apiServer)
-	rdc.apiServer = apiServer
-	mylog.Log.Infof("RollbackDeployment getApiServer: apiServer=%p", rdc.apiServer)
-	return
-}
 
 // Create k8sClient for every ApiServer
 func (rdc *RollbackDeployController) createK8sClients() {
@@ -148,7 +114,7 @@ func (rdc *RollbackDeployController) getDeploymentByName() {
 	namespace := org.Name
 	dp, err := rdc.k8sClient.Extensions().Deployments(namespace).Get(rdc.name)
 	if err != nil {
-		mylog.Log.Errorf("RollbackDeployment getDeployByName Error: apiServer=%s, namespace=%s, deployment.name=%s, err=%s\n",
+		mylog.Log.Errorf("RollbackDeployment getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
 			rdc.apiServer, namespace, rdc.name, err)
 		rdc.Ye = myerror.NewYceError(myerror.EKUBE_GET_DEPLOYMENT, "")
 		return
@@ -246,18 +212,18 @@ func (rdc *RollbackDeployController) createMysqlDeployment(success bool, name, j
 	return nil
 }
 
-// 在查看历史中,要显示在那个数据中心做的回滚,为了保证接口一致,存储成DcIdList的Json格式
 // Encode DcIdList
-/*
-func (rdc *RollbackDeployController) encodeDcIdList() string {
-	dcIdList := new(deploy.DcIdListType)
-	dcId, _ := strconv.Atoi(rdc.r.DcIdList)
-	dcIdList.DcIdList = append(dcIdList.DcIdList, int32(dcId))
-
+func (rdc *RollbackDeployController) encodeDcIdList() string{
+	dcIdList := &deploy.DcIdListType{
+		DcIdList:rdc.r.DcIdList,
+	}
 	data, _ := json.Marshal(dcIdList)
+
+	mylog.Log.Infof("RollbackDeployController encodeDcIdList: dcIdList=%s", string(data))
 	return string(data)
 }
-*/
+
+
 // POST /api/v1/organizations/{orgId}/deployments/{name}/rollback
 func (rdc RollbackDeployController) Post() {
 	rdc.orgId = rdc.Param("orgId")
@@ -276,8 +242,6 @@ func (rdc RollbackDeployController) Post() {
 	rdc.r = new(RollbackDeployParam)
 	rdc.ReadJSON(rdc.r)
 
-	//mylog.Log.Debugf("RollbackDeployController ReadJSON: rdc.r.DcIdList: DcIdList=%v", rdc.r.DcIdList)
-	mylog.Log.Debugf("RollbackDeployController ReadJSON: rdc.r: RollbackDeployment=%v", rdc.r)
 
 	// Get ApiServer and K8sClient
 	rdc.name = rdc.r.AppName
@@ -304,16 +268,15 @@ func (rdc RollbackDeployController) Post() {
 	// Encode deployment to string
 	dd, _ := json.Marshal(rdc.deployment)
 
-	// Encode DcIdList
-	//dcIdList := rdc.encodeDcIdList()
-	dcIdList, _ := json.Marshal(rdc.r.DcIdList)
+	// Encode DcIdList to string
+	dcIdList := rdc.encodeDcIdList()
 
 	// Convert UserId from string to int32
 	userId, _ := strconv.Atoi(rdc.r.UserId)
 	oId, _ := strconv.Atoi(rdc.orgId)
 
 	// Insert into MySQL.Deployment
-	rdc.createMysqlDeployment(true, rdc.r.AppName, string(dd), rdc.r.Comments, string(dcIdList), int32(userId), int32(oId))
+	rdc.createMysqlDeployment(true, rdc.r.AppName, string(dd), rdc.r.Comments, dcIdList, int32(userId), int32(oId))
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return

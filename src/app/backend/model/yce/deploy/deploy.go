@@ -63,8 +63,8 @@ type DcIdListType struct {
 type CreateDeployment struct {
 	AppName  string `json:"appName"`
 	OrgName  string `json:"orgName"`
-	//DcIdList []int32 `json:"dcIdList"`
-	DcIdList DcIdListType `json:"dcIdList"`
+	DcIdList []int32 `json:"dcIdList"`
+	//DcIdList DcIdListType `json:"dcIdList"`
 	Deployment extensions.Deployment `json:"deployment"`
 }
 
@@ -80,7 +80,8 @@ type RollingStrategy struct {
 type RollingDeployment struct {
 	AppName string `json:"appName"`
 	OrgName string `json:"orgName"`
-	DcIdList DcIdListType `json:"dcIdList"`
+	//DcIdList DcIdListType `json:"dcIdList"`
+	DcIdList []int32 `json:"dcIdList"`
 	UserId int32 `json:"userId"`
 	Strategy RollingStrategy `json:"strategy"`
 	Comments string `json:"comments"`
