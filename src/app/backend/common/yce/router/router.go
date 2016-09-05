@@ -32,6 +32,7 @@ type Router struct {
 	RollbackDeploy *mydeploy.RollbackDeployController
 	ListOperationLog *mydeploy.ListOperationLogController
 	InitNamespace *mynamespace.InitNamespaceController
+	DeleteService *myservice.DeleteServiceController
 }
 
 func NewRouter() *Router {
@@ -54,6 +55,7 @@ func NewRouter() *Router {
 	r.RollbackDeploy = new(mydeploy.RollbackDeployController)
 	r.ListOperationLog = new(mydeploy.ListOperationLogController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
+	r.DeleteService = new(myservice.DeleteServiceController)
 
 	return r
 }
@@ -73,6 +75,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/new", *r.CreateService)
+	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/users/:userId/services/:svcName", *r.DeleteService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/init", *r.InitEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)

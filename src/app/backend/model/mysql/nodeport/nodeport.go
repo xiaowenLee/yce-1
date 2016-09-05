@@ -245,7 +245,7 @@ func (np *NodePort) InsertOnDuplicateKeyUpdateStatus(svcName string, status int3
 		return err
 	}
 
-	log.Debugf("DeleteNodePorgOnDuplicateKeyUpdateStatus: Port=%d, DcId=%d, SvcName=%s, Status=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%d, Comment=%s", np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
+	log.Debugf("InsertNodePorgOnDuplicateKeyUpdateStatus: Port=%d, DcId=%d, SvcName=%s, Status=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%d, Comment=%s", np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	return nil
 }
 

@@ -30,6 +30,7 @@ const (
 	EKUBE_LABEL_SELECTOR             = 1212
 	EKUBE_GET_DEPLOYMENT             = 1213
 	EKUBE_ROLLBACK_DEPLOYMENT        = 1214
+	EKUBE_DELETE_SERVICE		 = 1215
 
 	EIRIS int32 = 1300
 
@@ -41,6 +42,7 @@ const (
 	EYCE_NODEPORT_EXIST  int32 = 1405
 	EYCE_ORGTODC         int32 = 1406
 	EYCE_LIST_EXTENSIONS int32 = 1407
+	EYCE_DELETE_NODEPORT int32 = 1408
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -137,6 +139,10 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Rollback Deployment Error",
 		ErrMsg: "回滚失败",
 	},
+	EKUBE_DELETE_SERVICE: &Error {
+		LogMsg: "Kubernetes Delete Service Error",
+		ErrMsg: "删除失败",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{
@@ -183,6 +189,11 @@ var Errors = map[int32]*Error{
 		LogMsg: "Get Service and Endpoint list error",
 		ErrMsg: "获取服务和访问点列表失败",
 	},
+	EYCE_DELETE_NODEPORT: &Error {
+		LogMsg: "Delete NodePort Error",
+		ErrMsg: "删除NodePort失败",
+	},
+
 
 	// 1500~1599 Registr错误
 	EREGISTRY: &Error{
