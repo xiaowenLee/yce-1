@@ -1,0 +1,24 @@
+{
+  "name": "yce",
+  "version": "0.1.0",
+  "description": "容器云",
+  "main": "index.js",
+  "dependencies": {
+    "express":"3.x"
+  },
+  "devDependencies": {
+    "grunt": "~1.0.1",
+    "grunt-contrib-concat": "~1.0.1",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-contrib-uglify": "~2.0.0",
+    "grunt-contrib-watch": "~1.0.0",
+    "grunt-contrib-connect": "~1.0.2",
+    "grunt-contrib-qunit": "~1.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server -a 0.0.0.0 -p 8000"
+  },
+  "author": "Jora",
+  "license": "MIT"
+}

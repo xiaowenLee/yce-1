@@ -1,0 +1,334 @@
+<div class='page-topbar '>
+    <div class='logo-area'>
+
+    </div>
+    <div class='quick-area'>
+        <div class='pull-left'>
+            <ul class="info-menu left-links list-inline list-unstyled">
+                <li class="sidebar-toggle-wrap">
+                    <a href="javascript:void(0);" ng-click="data.toggleNav=!data.toggleNav" class="sidebar_toggle">
+                        <i class="fa fa-bars"></i>
+                    </a>
+                </li>
+                <li class="hidden-sm hidden-xs searchform showopacity" ng-class="{focus:data.toggleSearch}">
+                    <form>
+                        <div class="input-group">
+                            <span class="input-group-addon" ng-click="data.toggleSearch=!data.toggleSearch">
+                                <i class="fa fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control animated fadeIn" placeholder="请输入想搜索的内容...">
+                        </div>
+                        <input type='submit' value="搜索">
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <div class='pull-right'>
+            <ul class="info-menu right-links list-inline list-unstyled">
+                <li class="profile showopacity" ng-class="{open:data.toggleProfile}" ng-click="data.toggleProfile=!data.toggleProfile">
+                    <a href="javascript:void(0);" data-toggle="dropdown" class="toggle" aria-expanded="false">
+                        <img src="data/profile/profile-music.jpg" alt="user-image" class="img-circle img-inline">
+                        <span>{{data.username}}&nbsp;<i class="fa fa-angle-down"></i></span>
+                    </a>
+                    <ul class="dropdown-menu profile animated fadeIn">
+                        <li>
+                            <a href="#profile">
+                                <i class="fa fa-user"></i>
+                                个人信息
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#settings">
+                                <i class="fa fa-wrench"></i>
+                                设&nbsp;&nbsp;置
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#help">
+                                <i class="fa fa-info"></i>
+                                &nbsp;&nbsp;帮&nbsp;&nbsp;助
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>&nbsp;&nbsp;</li>
+                <li>
+                    <a href="javascript:void(0);" ng-click="logout()" style="color: #fff;">退出</a>
+                </li>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+<div class="page-container row-fluid container-fluid">
+
+    <!-- SIDEBAR - START -->
+
+    <div class="page-sidebar pagescroll" ng-class="{collapseit:data.toggleNav}">
+
+        <!-- MAIN MENU - START -->
+        <div class="page-sidebar-wrapper" id="main-menu-wrapper">
+
+            <!-- USER INFO - START -->
+            <div class="profile-info row">
+
+                <div class="profile-image col-xs-4">
+                    <a href="ui-profile.html">
+                        <img alt="" src="data/profile/profile-music.jpg" class="img-responsive img-circle">
+                    </a>
+                </div>
+
+                <div class="profile-details col-xs-8">
+
+                    <h3>
+                        <a href="ui-profile.html">{{data.username}}</a>
+
+                        <!-- Available statuses: online, idle, busy, away and offline -->
+                        <span class="profile-status online"></span>
+                    </h3>
+
+                    <p class="profile-title">程序猿</p>
+
+                </div>
+
+            </div>
+            <!-- USER INFO - END -->
+
+
+            <ul class='wraplist'>
+                <li ng-class="{open:data.showSubnav[$index]}" ng-repeat="nav in navList">
+                    <a ui-sref="{{nav.state}}" ng-click="showSubnav($index)">
+                        <i class="fa" ng-class="nav.className"></i>
+                        <span class="title">{{nav.name}}</span>
+                        <span class="arrow" ng-class="{open:data.showSubnav[$index]}" ng-if="nav.item"></span>
+                    </a>
+                    <ul class="sub-menu" ng-show="data.showSubnav[$index]">
+                        <li ng-repeat="item in nav.item">
+                            <a class="" ui-sref="{{item.state}}">{{item.name}}</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+        <!-- MAIN MENU - END -->
+
+    </div>
+    <!--  SIDEBAR - END -->
+    <!-- START CONTENT -->
+    <section ui-view id="main-content" class=" "></section>
+    <!-- END CONTENT -->
+    <div class="page-chatapi hideit">
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search" class="form-control">
+        </div>
+
+        <div class="chat-wrapper">
+            <h4 class="group-head">Groups</h4>
+            <ul class="group-list list-unstyled">
+                <li class="group-row">
+                    <div class="group-status available">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                    <div class="group-info">
+                        <h4><a href="#">Work</a></h4>
+                    </div>
+                </li>
+                <li class="group-row">
+                    <div class="group-status away">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                    <div class="group-info">
+                        <h4><a href="#">Friends</a></h4>
+                    </div>
+                </li>
+
+            </ul>
+
+
+            <h4 class="group-head">Favourites</h4>
+            <ul class="contact-list">
+
+                <li class="user-row " id='chat_user_1' data-user-id='1'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-1.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Clarine Vassar</a></h4>
+                        <span class="status available" data-status="available"> Available</span>
+                    </div>
+                    <div class="user-status available">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_2' data-user-id='2'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-2.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Brooks Latshaw</a></h4>
+                        <span class="status away" data-status="away"> Away</span>
+                    </div>
+                    <div class="user-status away">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_3' data-user-id='3'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-3.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Clementina Brodeur</a></h4>
+                        <span class="status busy" data-status="busy"> Busy</span>
+                    </div>
+                    <div class="user-status busy">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+
+            </ul>
+
+
+            <h4 class="group-head">More Contacts</h4>
+            <ul class="contact-list">
+
+                <li class="user-row " id='chat_user_4' data-user-id='4'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-4.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Carri Busey</a></h4>
+                        <span class="status offline" data-status="offline"> Offline</span>
+                    </div>
+                    <div class="user-status offline">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_5' data-user-id='5'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-5.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Melissa Dock</a></h4>
+                        <span class="status offline" data-status="offline"> Offline</span>
+                    </div>
+                    <div class="user-status offline">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_6' data-user-id='6'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-1.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Verdell Rea</a></h4>
+                        <span class="status available" data-status="available"> Available</span>
+                    </div>
+                    <div class="user-status available">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_7' data-user-id='7'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-2.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Linette Lheureux</a></h4>
+                        <span class="status busy" data-status="busy"> Busy</span>
+                    </div>
+                    <div class="user-status busy">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_8' data-user-id='8'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-3.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Araceli Boatright</a></h4>
+                        <span class="status away" data-status="away"> Away</span>
+                    </div>
+                    <div class="user-status away">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_9' data-user-id='9'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-4.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Clay Peskin</a></h4>
+                        <span class="status busy" data-status="busy"> Busy</span>
+                    </div>
+                    <div class="user-status busy">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_10' data-user-id='10'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-5.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Loni Tindall</a></h4>
+                        <span class="status away" data-status="away"> Away</span>
+                    </div>
+                    <div class="user-status away">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_11' data-user-id='11'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-1.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Tanisha Kimbro</a></h4>
+                        <span class="status idle" data-status="idle"> Idle</span>
+                    </div>
+                    <div class="user-status idle">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+                <li class="user-row " id='chat_user_12' data-user-id='12'>
+                    <div class="user-img">
+                        <a href="#"><img src="data/profile/avatar-2.png" alt=""></a>
+                    </div>
+                    <div class="user-info">
+                        <h4><a href="#">Jovita Tisdale</a></h4>
+                        <span class="status idle" data-status="idle"> Idle</span>
+                    </div>
+                    <div class="user-status idle">
+                        <i class="fa fa-circle"></i>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+
+    </div>
+
+
+    <div class="chatapi-windows ">
+
+
+    </div>
+</div><div class="modal" id="section-settings" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog animated bounceInDown">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Section Settings</h4>
+            </div>
+            <div class="modal-body">
+
+                Body goes here...
+
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+                <button class="btn btn-success" type="button">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

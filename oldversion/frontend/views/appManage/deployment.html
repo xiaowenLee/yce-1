@@ -1,0 +1,160 @@
+<section class="wrapper main-wrapper row deployment">
+
+    <div class="col-xs-12">
+        <div class="page-title">
+
+            <div class="pull-left">
+                <h1 class="title">应用发布</h1>
+            </div>
+
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12">
+        <section class="box" ng-if="stepNum==1">
+            <header class="panel_header">
+                <h2 class="title pull-left">基本配置</h2>
+            </header>
+            <div class="content-body">
+                <div class="row">
+                    <form>
+                        <div class="col-xs-12 col-sm-9 col-md-8">
+                            <div class="form-group">
+                                <label class="form-label" for="field-name">应用名：</label>
+                                <span class="desc">应用名是您将要创建的应用的名称，组织内唯一</span>
+
+                                <div class="controls">
+                                    <input type="text" value="Color" class="form-control" id="field-name" ng-model="param.name">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="field-organization">组织名：</label>
+                                <span class="desc">组织名是您所属的组织</span>
+
+                                <div class="controls">
+                                    <input type="text" value="color" class="form-control" id="field-organization" ng-model="param.organization">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">数据中心：</label>
+                                <span class="desc">数据中心是您的应用将要部署到的位置</span>
+
+                                <div class="controls data-center">
+                                    <label ng-repeat="item in initData.dataCenter" class="form-label"
+                                           ng-class="{checked:param.dataCenter[$index]}">
+                                        <input type="checkbox" value="item.dcId"
+                                               ng-model="param.dataCenter[$index]">{{item.name}}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="field-image">镜像：</label>
+                                <span class="desc">镜像是您创建应用的根据</span>
+
+                                <div class="controls">
+                                    <input type="text" value="color" class="form-control" id="field-image" ng-model="param.image" ng-focus=" changeName = !shows ">
+                                    <!--<input type="text" value="{{ myImages }}" class="form-control" id="field-image" ng-model=" myImages" ng-focus=" changeName = !shows ">-->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="field-replicas">副本数：</label>
+                                <span class="desc">副本数是您创建应用的实例个数</span>
+
+                                <div class="controls">
+                                    <input type="text" value="color" class="form-control" id="field-replicas" ng-model="param.replicas">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">规格：</label>
+                                <span class="desc">规格是您为应用所申请的资源规格</span>
+
+                                <div class="controls resource-spec">
+                                    <label ng-repeat="item in initData.resourceSpec" class="form-label" ng-class="{checked:param.resourceSpec[$index]}">
+                                        <span class="resource-spec-title">{{item.name}}</span>
+                                        <p>
+                                            <input type="checkbox" value="item.quotaId" ng-model="param.resourceSpec[$index]">
+                                            CPU：{{item.cpu}}<br>MEM：{{item.memory}}
+                                        </p>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">环境变量：</label>
+                                <span class="desc"></span>
+
+                                <div class="controls">
+                                    <input type="text" value="color" class="form-control" ng-model="param.replicas">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-9 col-md-8 padding-bottom-30">
+                                <div class="text-left">
+                                    <button type="button" class="btn btn-primary" ng-click="nextStep(2)">下一步</button>
+                                    <!--<button type="button" class="btn">Cancel</button>-->
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Image -->
+                        <div class="replica_wrap" ng-show="changeName">
+
+                            <div class="replica_box1">
+                                <span class="replica_close" ng-click="changeName = shows">×</span>
+
+                                <span class="replica_inp">
+                                    <input class="input__field input__field--yoko" type="text" style="outline: none;" id="input-17" ng-model="test" />
+                                    <label class="input__label input__label--yoko" for="input-17">
+                                        <span class="input__label-content input__label-content--yoko"></span>
+                                    </label>
+                                </span>
+
+                                    <!--<p ng-repeat=" x in imageList | filter:test" ng-show="test"> &nbsp {{ x.name }} : {{x.tags[0]}} </p>-->
+                                    <!--<p ng-repeat=" x in imageList | filter:test" ng-show="test"> &nbsp {{ x }} </p>-->
+                                    <div class="replica_content" ng-click="changeName = shows">
+                                        <p class="images_list" ng-repeat=" x in imageList | filter:test" ng-click="getImages(x)">
+                                            <span ng-bind="$index+1"></span>
+                                            <span>{{ x }}</span>
+                                        </p>
+                                    </div>
+                            </div>
+                        </div>
+                    </form>
+
+
+                </div>
+            </div>
+        </section>
+        <section class="box" ng-if="stepNum==2">
+            <header class="panel_header">
+                <h2 class="title pull-left">高级配置</h2>
+            </header>
+            <div class="content-body">
+                <div class="row">
+                    <form>
+                        <div class="col-xs-12 col-sm-9 col-md-8">
+
+                            <div class="col-xs-12 col-sm-9 col-md-8 padding-bottom-30">
+                                <div class="text-left">
+                                    <button type="button" class="btn btn-primary" ng-click="submit()">提交</button>
+                                    <button type="button" class="btn btn-primary" ng-click="nextStep(1)">上一步</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+
+
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+</section>

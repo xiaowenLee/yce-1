@@ -1,0 +1,40 @@
+<!--
+<div class="login-box">
+    <h1>欢迎登录</h1>
+    <form>
+        <p><label>用户名：</label><input type="text" ng-model="username" ></p>
+        <p><label>密&nbsp;&nbsp;&nbsp;码： </label><input type="password" ng-model="pwd"><br></p>
+        <button ng-click="login()">提交</button>
+    </form>
+</div>-->
+<div class="login_page">
+    <div class="container-fluid">
+        <div class="login-wrapper row">
+            <div id="login" class="login loginpage col-lg-offset-4 col-md-offset-3 col-sm-offset-3 col-xs-offset-0 col-xs-12 col-sm-6 col-lg-4">
+                <h1>易宝容器云</h1>
+
+                <form>
+                    <p>
+                        <label for="user_login">用户名<br>
+                            <input type="text" id="user_login" class="input" ng-model="username"></label>
+                    </p>
+                    <p>
+                        <label for="user_pass">密&nbsp;&nbsp;&nbsp;码<br>
+                            <input type="password" id="user_pass" class="input" ng-model="pwd"></label>
+                    </p>
+                    <p class="submit">
+                        <span class="btn btn-accent btn-block"
+                              ng-click="login()">登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录</span>
+                    </p>
+                </form>
+
+                <p id="nav">
+                    <a class="pull-left" title="忘记密码">忘记密码?</a>
+                    <a class="pull-right" title="注册">注册</a>
+                </p>
+
+
+            </div>
+        </div>
+    </div>
+</div>
