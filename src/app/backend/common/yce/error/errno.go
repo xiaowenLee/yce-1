@@ -31,6 +31,7 @@ const (
 	EKUBE_GET_DEPLOYMENT             = 1213
 	EKUBE_ROLLBACK_DEPLOYMENT        = 1214
 	EKUBE_DELETE_SERVICE		 = 1215
+	EKUBE_DELETE_ENDPOINT 		 = 1216
 
 	EIRIS int32 = 1300
 
@@ -141,7 +142,11 @@ var Errors = map[int32]*Error{
 	},
 	EKUBE_DELETE_SERVICE: &Error {
 		LogMsg: "Kubernetes Delete Service Error",
-		ErrMsg: "删除失败",
+		ErrMsg: "删除服务失败",
+	},
+	EKUBE_DELETE_ENDPOINT: &Error {
+		LogMsg: "Kubernetes Delete Endpoint Error",
+		ErrMsg: "删除访问点失败",
 	},
 
 	// 1300~1399 Iris错误
