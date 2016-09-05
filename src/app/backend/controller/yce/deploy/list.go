@@ -15,6 +15,7 @@ import (
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
+	"app/backend/common/util/mysql"
 	"strconv"
 	"strings"
 )
@@ -185,14 +186,41 @@ func (ldc *ListDeployController) getReplicaSetsByDeployment(c *client.Client, de
 	return rsList.Items
 }
 
+// Query UserName by UserId
+func (ldc *ListDeployController) queryUserNameByUserId(userId int32) (name string) {
+	db := mysql.MysqlInstance().Conn()
+
+	stmt, err := db.Prepare(SELECT_USER)
+	if err != nil {
+		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		ldc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userId).Scan(&name)
+	if err != nil {
+		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		ldc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+	mylog.Log.Infof("queryUserNameByUserId successfully")
+	return name
+}
+
 // Get DeployAndPodList Pair by deploymentList
-func (ldc *ListDeployController) getDeployAndPodList(cli *client.Client, deploymentList *extensions.DeploymentList) (dap []deploy.DeployAndPodList) {
+func (ldc *ListDeployController) getDeployAndPodList(userId int32, cli *client.Client, deploymentList *extensions.DeploymentList) (dap []deploy.DeployAndPodList) {
 
 	dap = make([]deploy.DeployAndPodList, 0)
 
 	for _, deployment := range deploymentList.Items {
 
 		dp := new(deploy.DeployAndPodList)
+
+		dp.UserName = ldc.queryUserNameByUserId(userId)
+
+
+
 		dp.Deploy = new(extensions.Deployment)
 
 		*dp.Deploy = deployment
@@ -219,7 +247,7 @@ func (ldc *ListDeployController) getDeployAndPodList(cli *client.Client, deploym
 }
 
 // List all deployments in this namespace
-func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.ListDeployment) (dpString string) {
+func (ldc *ListDeployController) listDeployments(userId int32, namespace string, ld *deploy.ListDeployment) (dpString string) {
 	dpList := make([]deploy.Deployment, 0)
 
 	// Foreach every K8sClient to get DeploymentsList
@@ -237,7 +265,7 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 		deployment := new(deploy.Deployment)
 		deployment.DcId = ld.DcIdList[index]
 		deployment.DcName = ld.DcName[index]
-		deployment.Deployments = ldc.getDeployAndPodList(cli, deploymentList)
+		deployment.Deployments = ldc.getDeployAndPodList(userId, cli, deploymentList)
 
 		dpList = append(dpList, *deployment)
 
@@ -261,6 +289,7 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 func (ldc ListDeployController) Get() {
 	sessionIdFromClient := ldc.RequestHeader("Authorization")
 	orgId := ldc.Param("orgId")
+	userId := ldc.Param("userId")
 
 	// validateSessionId
 	ldc.validateSessionId(sessionIdFromClient, orgId)
@@ -293,7 +322,8 @@ func (ldc ListDeployController) Get() {
 
 	// List deployments
 	orgName := ld.Organization.Name
-	dpString := ldc.listDeployments(orgName, ld)
+	uId, _ := strconv.Atoi(userId)
+	dpString := ldc.listDeployments(int32(uId), orgName, ld)
 	if ldc.Ye != nil {
 		ldc.WriteBack()
 		return

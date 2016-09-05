@@ -26,6 +26,7 @@ type AppDisplayDeployment struct {
 }
 
 type DeployAndPodList struct {
+	UserName string `json:"userName"`
 	Deploy *extensions.Deployment `json:"deploy"`
 	PodList *api.PodList `json:"podList"`
 }
@@ -45,7 +46,6 @@ type ListDeployment struct {
 	DcName []string
 }
 
-// Get .../init
 type InitDeployment struct {
 	OrgId string `json:"orgId"`
 	OrgName string `json:"orgName"`
