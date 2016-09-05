@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	ACTION_TYPE  = myoption.ONLINE
-	ACTION_VERBE = "POST"
-	ACTION_URL   = "/api/v1/organization/<orgId>/users/<userId>/deployments"
+	CREATE_TYPE  = myoption.ONLINE
+	CREATE_VERBE = "POST"
+	CREATE_URL   = "/api/v1/organization/<orgId>/users/<userId>/deployments"
 )
 
 type CreateDeployController struct {
@@ -137,12 +137,13 @@ func (cdc *CreateDeployController) createDeployment(namespace string, deployment
 }
 
 // Create Deployment(mysql) and insert it into db
-func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, orgId, userId, json, reason, dcList string) error {
+func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, userId, json, reason, dcList string, orgId int32) error {
 
-	uph := placeholder.NewPlaceHolder(ACTION_URL)
-	actionUrl := uph.Replace("<orgId>", orgId, "<userId>", userId)
+	uph := placeholder.NewPlaceHolder(CREATE_URL)
+	orgIdString := strconv.Itoa(int(orgId))
+	actionUrl := uph.Replace("<orgId>", orgIdString, "<userId>", userId)
 	actionOp, _ := strconv.Atoi(userId)
-	dp := mydeployment.NewDeployment(name, ACTION_VERBE, actionUrl, dcList, reason, json, "Create a Deployment", ACTION_TYPE, int32(actionOp), int32(1))
+	dp := mydeployment.NewDeployment(name, CREATE_VERBE, actionUrl, dcList, reason, json, "Create a Deployment", CREATE_TYPE, int32(actionOp), int32(1), orgId)
 	err := dp.InsertDeployment()
 	if err != nil {
 		mylog.Log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
@@ -154,6 +155,18 @@ func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, org
 	mylog.Log.Infof("CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
 		actionUrl, actionOp, dcList)
 	return nil
+}
+
+// Encode JSON of dcIdList
+func (cdc *CreateDeployController) encodeDcIdList(dcIdList []int32) string {
+	dcIds := &deploy.DcIdListType{
+		DcIdList:dcIdList,
+	}
+
+	data, _ := json.Marshal(dcIds)
+
+	mylog.Log.Infof("CreateDeployController encodeDcIdList: dcIdList=%s", string(data))
+	return string(data)
 }
 
 // POST /api/v1/organizations/{orgId}/users/{userId}/deployments
@@ -197,13 +210,15 @@ func (cdc CreateDeployController) Post() {
 	}
 
 	// Encode cd.DcIdList to json
-	dcl, _ := json.Marshal(cd.DcIdList)
+	dcIdList := cdc.encodeDcIdList(cd.DcIdList)
 
 	// Encode k8s.deployment to json
 	kd, _ := json.Marshal(cd.Deployment)
 
+	oId, _ := strconv.Atoi(orgId)
+
 	// Insert into mysql.Deployment
-	cdc.createMysqlDeployment(true, cd.AppName, orgId, userId, string(kd), "", string(dcl))
+	cdc.createMysqlDeployment(true, cd.AppName, userId, string(kd), "", dcIdList, int32(oId))
 	if cdc.Ye != nil {
 		cdc.WriteBack()
 		return
@@ -211,7 +226,6 @@ func (cdc CreateDeployController) Post() {
 
 	// ToDo: 数据库中两个dcList的格式不一致,要改过来,统一叫DcIdList
 	// ToDo: 发布出错时也要插入数据库
-
 	cdc.Ye = myerror.NewYceError(myerror.EOK, "")
 	cdc.WriteBack()
 

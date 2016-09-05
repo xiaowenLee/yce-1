@@ -27,7 +27,7 @@ GET /api/v1/organizations/{orgId}/users/{userId}/endpoints/init
       "message": "请求成功",
       "data": {
                 "orgId":  "1",
-                "orgName": "Ops",
+                "orgName": "ops",
                 "dataCenters": [
                 {
                     "dcId": "1",
@@ -60,6 +60,8 @@ GET /api/v1/organizations/{orgId}/users/{userId}/endpoints/init
 
 * 访问点名:
 * 访问点所属数据中心: 依据GET请求的返回值确定。卡片式
+* 所属组织
+* Labels
 * 地址端口组:
   多条:
  

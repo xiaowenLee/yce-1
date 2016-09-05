@@ -19,14 +19,14 @@ import (
 	"strings"
 )
 
-/*
+
 const (
-	ACTION_TYPE  = myoption.ONLINE
-	ACTION_VERBE = "POST"
-	//ACTION_URL   = "/api/v1/organization/<orgId>/users/<userId>/deployments"
-	ACTION_URL   = "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
+
+	ROLLING_TYPE = myoption.ROLLINGUPGRADE
+	ROLLING_VERBE = "POST"
+	ROLLING_URL = "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
+
 )
-*/
 
 type RollingDeployController struct {
 	*iris.Context
@@ -48,18 +48,19 @@ func (rdc *RollingDeployController) validateSession(sessionId, orgId string) {
 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	if err != nil {
-		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
+		mylog.Log.Errorf("RollingDeployment Validate Session error: sessionId=%s, error=%s", sessionId, err)
 		rdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
 
 	// Session invalide
 	if !ok {
-		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
+		mylog.Log.Errorf("RollingDeployment Validate Session failed: sessionId=%s, error=%s", sessionId, err)
 		rdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
 
+	mylog.Log.Infof("RollingDeployment validate sessionId: sessionId=%s, orgId=%s", sessionId, orgId)
 	return
 }
 
@@ -68,7 +69,7 @@ func (rdc *RollingDeployController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		mylog.Log.Errorf("RollingDeployment getApiServerById QueryDataCenterById Error: err=%s", err)
 		rdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
@@ -82,8 +83,10 @@ func (rdc *RollingDeployController) getApiServerByDcId(dcId int32) string {
 }
 
 // Get ApiServer List for dcIdList
-func (rdc *RollingDeployController) getApiServer(dcId int32) {
+func (rdc *RollingDeployController) getApiServer(dcIdList []int32) {
 	// Get ApiServer
+	// must be one dcId
+	dcId := dcIdList[0]
 	apiServer := rdc.getApiServerByDcId(dcId)
 	if strings.EqualFold(apiServer, "") {
 		mylog.Log.Errorf("RollingDeployController getApiServerList Error")
@@ -92,6 +95,7 @@ func (rdc *RollingDeployController) getApiServer(dcId int32) {
 
 	//rdc.apiServers = append(rdc.apiServers, apiServer)
 	rdc.apiServers = apiServer
+	mylog.Log.Infof("RollingDeployment getApiServer: len(rdc.apiServers)=%d", len(rdc.apiServers))
 	return
 }
 
@@ -113,7 +117,7 @@ func (rdc *RollingDeployController) createK8sClients() {
 	//rdc.k8sClients = append(rdc.k8sClients, c)
 	//rdc.apiServers = append(rdc.apiServers, server)
 	rdc.k8sClients = c
-	mylog.Log.Infof("Append a new client to rdc.k8sClients array: c=%p, apiServer=%s", c, server)
+	mylog.Log.Infof("RollingDeployment CreateK8sClient: c=%p, apiServer=%s", c, server)
 
 	return
 }
@@ -123,7 +127,7 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 	cli := rdc.k8sClients
 	dp, err := cli.Extensions().Deployments(namespace).Get(deployment)
 	if err != nil {
-		mylog.Log.Errorf("getDeployment Error: apiServer=%s, namespace=%s, err=%s", rdc.apiServers, namespace, err)
+		mylog.Log.Errorf("RollingDeployment RollingUpdate getDeployment Error: apiServer=%s, namespace=%s, err=%s", rdc.apiServers, namespace, err)
 		rdc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 		return
 	}
@@ -140,6 +144,7 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 	//rd.Strategy.UpdateInterval
 
 	dp.Annotations["userId"] = strconv.Itoa(int(rd.UserId))
+	dp.Annotations["image"] = rd.Strategy.Image
 	dp.Annotations["kubernetes.io/change-cause"] = rd.Comments
 
 	_, err = cli.Extensions().Deployments(namespace).Update(dp)
@@ -154,27 +159,36 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 }
 
 // Create Deployment(mysql) and insert it into db
-func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, orgId, json, reason, dcList string, userId int32) error {
-	ACTION_TYPE := myoption.ROLLINGUPGRADE
-	ACTION_VERBE := "POST"
-	ACTION_URL := "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
+func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, json, reason, dcList, comments string, userId, orgId int32) error {
 
-	uph := placeholder.NewPlaceHolder(ACTION_URL)
-	actionUrl := uph.Replace("<orgId>", orgId, "<deploymentName>", name)
-	//actionOp, _ := strconv.Atoi(userId)
+	uph := placeholder.NewPlaceHolder(ROLLING_URL)
+	orgIdString := strconv.Itoa(int(orgId))
+	actionUrl := uph.Replace("<orgId>", orgIdString, "<deploymentName>", name)
 	actionOp := userId
-	dp := mydeployment.NewDeployment(name, ACTION_VERBE, actionUrl, dcList, reason, json, "Rolilng Update a Deployment", int32(ACTION_TYPE), actionOp, int32(1))
+
+	dp := mydeployment.NewDeployment(name, ROLLING_VERBE, actionUrl, dcList, reason, json, comments, int32(ROLLING_TYPE), actionOp, int32(1), orgId)
 	err := dp.InsertDeployment()
 	if err != nil {
-		mylog.Log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
+		mylog.Log.Errorf("RollingDeployment CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
 			actionUrl, actionOp, dcList, err)
 		rdc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
 		return err
 	}
 
-	mylog.Log.Infof("CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
+	mylog.Log.Infof("RollingDeployment CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
 		actionUrl, actionOp, dcList)
 	return nil
+}
+
+//Encode dcIdList to JSON
+func (rdc *RollingDeployController) encodeDcIdList(dcIdList []int32) string{
+	dcIds := &deploy.DcIdListType{
+		DcIdList:dcIdList,
+	}
+
+	data, _ := json.Marshal(dcIds)
+	mylog.Log.Infof("RollingDeployController encodeDcIdList: dcIdList=%s", string(data))
+	return string(data)
 }
 
 func (rdc RollingDeployController) Post() {
@@ -189,13 +203,12 @@ func (rdc RollingDeployController) Post() {
 		return
 	}
 
-	// Parse data: deploy.CreateDeployment
-	//rd := new(deploy.CreateDeployment)
 	rd := new(deploy.RollingDeployment)
 	rdc.ReadJSON(rd)
 
+
 	// Get DcIdList
-	rdc.getApiServer(rd.DcId)
+	rdc.getApiServer(rd.DcIdList)
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return
@@ -217,13 +230,16 @@ func (rdc RollingDeployController) Post() {
 	}
 
 	// Encode cd.DcIdList to json
-	dcl, _ := json.Marshal(rd.DcId)
+	//dcl, _ := json.Marshal(rd.DcIdList)
+	dcIdList := rdc.encodeDcIdList(rd.DcIdList)
 
 	// Encode k8s.deployment to json
 	kd, _ := json.Marshal(dp)
 
+	oId, _ := strconv.Atoi(orgId)
+
 	// Insert into mysql.Deployment
-	rdc.createMysqlDeployment(true, rd.AppName, orgId, string(kd), "", string(dcl), rd.UserId)
+	rdc.createMysqlDeployment(true, rd.AppName,  string(kd), "", dcIdList, rd.Comments, rd.UserId, int32(oId),)
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return
