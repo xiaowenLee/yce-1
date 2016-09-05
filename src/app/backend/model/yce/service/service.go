@@ -11,7 +11,6 @@ import (
 type Service struct {
 	DcId int32 `json:"dcId"`
 	DcName string `json:"dcName"`
-	UserName string `json:"userName"`
 	ServiceList api.ServiceList `json:"serviceList"`
 }
 
