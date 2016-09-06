@@ -1,29 +1,30 @@
 package deploy
 
 import (
-	"github.com/kataras/iris"
-	"app/backend/common/util/session"
-	"app/backend/common/yce/organization"
-	"app/backend/model/yce/deploy"
-	myerror "app/backend/common/yce/error"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	mylog "app/backend/common/util/log"
+	"app/backend/common/util/session"
+	myerror "app/backend/common/yce/error"
+	"app/backend/common/yce/organization"
+	mydatacenter "app/backend/model/mysql/datacenter"
+	"app/backend/model/yce/deploy"
 	"encoding/json"
-	"strconv"
-	"k8s.io/kubernetes/pkg/client/restclient"
+	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/api"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"strings"
-	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/kubernetes/pkg/client/restclient"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
+	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
+	"app/backend/common/util/mysql"
+	"strconv"
+	"strings"
 )
 
 type ListDeployController struct {
 	*iris.Context
 	apiServers []string
 	k8sClients []*client.Client
-	Ye *myerror.YceError
+	Ye         *myerror.YceError
 }
 
 func (ldc *ListDeployController) WriteBack() {
@@ -51,9 +52,9 @@ func (ldc *ListDeployController) validateSessionId(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infoln("ListDeploymentController validate SessionId successfully")
 	return
 }
-
 
 // get Datacenters owned by this Organization via OrgId
 func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment, orgId string) {
@@ -73,17 +74,16 @@ func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment
 		return
 	}
 
-	ld.DcIdList = make([]int32, len(dcList))
-	ld.DcName = make([]string, len(dcList))
+	ld.DcIdList = make([]int32, 0)
+	ld.DcName = make([]string, 0)
 
-	for index, dc := range dcList {
-		ld.DcIdList[index] = dc.Id
-		ld.DcName[index] = dc.Name
+	for _, dc := range dcList {
+		ld.DcIdList = append(ld.DcIdList, dc.Id)
+		ld.DcName = append(ld.DcName, dc.Name)
 	}
 
 	mylog.Log.Infof("CreateServiceController getDatacentersByOrgId: dcList=%s", dcList)
 }
-
 
 // Get ApiServer(k8s cluster host) of this datacenter
 func (ldc *ListDeployController) getApiServerByDcId(dcId int32) string {
@@ -102,7 +102,6 @@ func (ldc *ListDeployController) getApiServerByDcId(dcId int32) string {
 	mylog.Log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
 
 	return apiServer
-
 
 }
 
@@ -128,7 +127,6 @@ func (ldc *ListDeployController) createK8sClients() {
 	// Foreach every ApiServer to create it's k8sClient
 	ldc.k8sClients = make([]*client.Client, 0)
 
-
 	for _, server := range ldc.apiServers {
 		config := &restclient.Config{
 			Host: server,
@@ -144,14 +142,14 @@ func (ldc *ListDeployController) createK8sClients() {
 		ldc.k8sClients = append(ldc.k8sClients, c)
 		// why??
 		//ldc.apiServers = append(ldc.apiServers, server)
-		mylog.Log.Infof("Append a new client to ldc.K8sClients array: c=%p, apiServer=%s", c, server)
+		mylog.Log.Infof("ListDeploymentController create K8sClients successfully: client=%p, apiServer=%s", c, server)
 	}
 
 	return
 }
 
 // Get PodList by ReplicaSet
-func (ldc *ListDeployController)getPodsByReplicaSet(c *client.Client, rs *extensions.ReplicaSet) (*api.PodList) {
+func (ldc *ListDeployController) getPodsByReplicaSet(c *client.Client, rs *extensions.ReplicaSet) *api.PodList {
 	namespace := rs.Namespace
 	selector, err := unver.LabelSelectorAsSelector(rs.Spec.Selector)
 	if err != nil {
@@ -173,7 +171,7 @@ func (ldc *ListDeployController)getPodsByReplicaSet(c *client.Client, rs *extens
 }
 
 // Get ReplicaSetList by Deployment
-func (ldc *ListDeployController)getReplicaSetsByDeployment(c *client.Client, deployment *extensions.Deployment) ([]extensions.ReplicaSet) {
+func (ldc *ListDeployController) getReplicaSetsByDeployment(c *client.Client, deployment *extensions.Deployment) []extensions.ReplicaSet {
 
 	namespace := deployment.Namespace
 	selector, err := unver.LabelSelectorAsSelector(deployment.Spec.Selector)
@@ -188,14 +186,74 @@ func (ldc *ListDeployController)getReplicaSetsByDeployment(c *client.Client, dep
 	return rsList.Items
 }
 
+// Query UserName by UserId
+func (ldc *ListDeployController) queryUserNameByUserId(userId int32) (name string) {
+	db := mysql.MysqlInstance().Conn()
+
+	stmt, err := db.Prepare(SELECT_USER)
+	if err != nil {
+		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		ldc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userId).Scan(&name)
+	if err != nil {
+		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		ldc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+	mylog.Log.Infof("queryUserNameByUserId successfully")
+	return name
+}
+
+// Get DeployAndPodList Pair by deploymentList
+func (ldc *ListDeployController) getDeployAndPodList(userId int32, cli *client.Client, deploymentList *extensions.DeploymentList) (dap []deploy.DeployAndPodList) {
+
+	dap = make([]deploy.DeployAndPodList, 0)
+
+	for _, deployment := range deploymentList.Items {
+
+		dp := new(deploy.DeployAndPodList)
+
+		dp.UserName = ldc.queryUserNameByUserId(userId)
+
+
+
+		dp.Deploy = new(extensions.Deployment)
+
+		*dp.Deploy = deployment
+
+		rsList := ldc.getReplicaSetsByDeployment(cli, dp.Deploy)
+		newRs, err := deploymentutil.FindNewReplicaSet(dp.Deploy, rsList)
+
+		PodList := ldc.getPodsByReplicaSet(cli, newRs)
+		if err != nil {
+			mylog.Log.Errorf("FindNewReplicaSet Error: error=%s", err)
+			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
+			return nil
+		}
+
+		dp.PodList = new(api.PodList)
+		dp.PodList = PodList
+
+		dap = append(dap, *dp)
+
+	}
+	mylog.Log.Infof("ListDeployController getDeployAndPodList successfully")
+	return dap
+
+}
+
 // List all deployments in this namespace
-func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.ListDeployment) (dpString string){
-	dpList := make([]deploy.Deployment, len(ldc.apiServers))
+func (ldc *ListDeployController) listDeployments(userId int32, namespace string, ld *deploy.ListDeployment) (dpString string) {
+	dpList := make([]deploy.Deployment, 0)
 
 	// Foreach every K8sClient to get DeploymentsList
 	for index, cli := range ldc.k8sClients {
 
-		dps, err := cli.Deployments(namespace).List(api.ListOptions{})
+		deploymentList, err := cli.Deployments(namespace).List(api.ListOptions{})
 		if err != nil {
 			mylog.Log.Errorf("listDeployments Error: apiServer=%s, namespace=%s, error=%s", ldc.apiServers[index], namespace, err)
 			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
@@ -203,38 +261,14 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 		}
 
 		//TODO: check consistency
-		dpList[index].DcId = ld.DcIdList[index]
-		dpList[index].DcName = ld.DcName[index]
-		dpList[index].Deployments = make([]deploy.DeployAndPodList, len(dps.Items))
-		// dpList[index].Deployments = make([]deploy.DeployAndPodList)
+		deployment := new(deploy.Deployment)
+		deployment.DcId = ld.DcIdList[index]
+		deployment.DcName = ld.DcName[index]
+		deployment.Deployments = ldc.getDeployAndPodList(userId, cli, deploymentList)
 
+		dpList = append(dpList, *deployment)
 
-		for i, deploy := range dps.Items {
-			dpList[index].Deployments[i].Deploy = new(extensions.Deployment)
-			*dpList[index].Deployments[i].Deploy  = deploy
-
-			mylog.Log.Infof("ListDeployments Each Deployment: namespace=%s, name=%s, index=%d, deploy=%p",
-				deploy.Namespace, deploy.Name, i, &deploy)
-
-			// Get ReplicaSetList of this deployment
-			rsList := ldc.getReplicaSetsByDeployment(cli, &deploy)
-
-			//Get the New (latest) ReplicaSet of this deployment
-			newRs, err := deploymentutil.FindNewReplicaSet(&deploy, rsList)
-			if err != nil {
-				mylog.Log.Errorf("FindNewReplicaSet Error: error=%s", err)
-				ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
-				return ""
-			}
-
-			//Get PodList of the new ReplicaSet
-			dpList[index].Deployments[i].PodList = ldc.getPodsByReplicaSet(cli, newRs).Items
-			mylog.Log.Infof("ListDeployments each podList: namespace=%s, name=%s, index=%d, podListSize=%d",
-				deploy.Namespace, deploy.Name, i, len(dpList[index].Deployments[i].PodList))
-		}
-
-
-		mylog.Log.Infof("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
+		mylog.Log.Infoln("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
 
 	}
 
@@ -246,14 +280,15 @@ func (ldc *ListDeployController) listDeployments(namespace string, ld *deploy.Li
 		return
 	}
 
+	mylog.Log.Infoln("ListDeployController listDeployments successfully")
 	return dpString
 }
-
 
 //GET /api/v1/organizations/{orgId}/users/{userId}/deployments
 func (ldc ListDeployController) Get() {
 	sessionIdFromClient := ldc.RequestHeader("Authorization")
 	orgId := ldc.Param("orgId")
+	userId := ldc.Param("userId")
 
 	// validateSessionId
 	ldc.validateSessionId(sessionIdFromClient, orgId)
@@ -262,15 +297,13 @@ func (ldc ListDeployController) Get() {
 		return
 	}
 
-
 	// Get Datacenters by organizs
-	ld :=  new(deploy.ListDeployment)
+	ld := new(deploy.ListDeployment)
 	ldc.getDatacentersByOrgId(ld, orgId)
 	if ldc.Ye != nil {
 		ldc.WriteBack()
 		return
 	}
-
 
 	// Get ApiServers by organizations
 	ldc.getApiServerList(ld.DcIdList)
@@ -288,7 +321,8 @@ func (ldc ListDeployController) Get() {
 
 	// List deployments
 	orgName := ld.Organization.Name
-	dpString := ldc.listDeployments(orgName, ld)
+	uId, _ := strconv.Atoi(userId)
+	dpString := ldc.listDeployments(int32(uId), orgName, ld)
 	if ldc.Ye != nil {
 		ldc.WriteBack()
 		return
@@ -297,7 +331,7 @@ func (ldc ListDeployController) Get() {
 	ldc.Ye = myerror.NewYceError(myerror.EOK, dpString)
 	ldc.WriteBack()
 
-	mylog.Log.Infoln("ListDeployController over!")
+	mylog.Log.Infoln("ListDeployController Get over!")
 
 	return
 }

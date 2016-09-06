@@ -14,6 +14,11 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strings"
+	"app/backend/common/util/mysql"
+)
+
+const (
+	SELECT_USER = "SELECT name FROM user WHERE id=?"
 )
 
 type ListEndpointsController struct {
@@ -143,7 +148,30 @@ func (lec *ListEndpointsController) createK8sClients() {
 	return
 }
 
-func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint.ListEndpoints) (epString string){
+// Query UserName by UserId
+func (lec *ListEndpointsController) queryUserNameByUserId(userId int32) (name string) {
+	db := mysql.MysqlInstance().Conn()
+
+	stmt, err := db.Prepare(SELECT_USER)
+	if err != nil {
+		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		lec.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userId).Scan(&name)
+	if err != nil {
+		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		lec.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+	mylog.Log.Infof("queryUserNameByUserId successfully")
+	return name
+}
+
+
+func (lec *ListEndpointsController) listEndpoints(userId int32, namespace string, ed *endpoint.ListEndpoints) (epString string){
 	epList := make([]endpoint.Endpoints, len(lec.apiServers))
 	// Foreach every K8sClient to create service
 	for index, cli := range lec.k8sClients {
@@ -156,6 +184,7 @@ func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint
 		}
 
 		//TODO: check consistency
+		epList[index].UserName = lec.queryUserNameByUserId(userId)
 		epList[index].DcId = ed.DcIdList[index]
 		epList[index].DcName = ed.DcName[index]
 		epList[index].EndpointsList = *eps
@@ -180,6 +209,7 @@ func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint
 func (lec ListEndpointsController) Get() {
 	sessionIdFromClient := lec.RequestHeader("Authorization")
 	orgId := lec.Param("orgId")
+	userId := lec.Param("userId")
 
 	// validateSessionId
 	lec.validateSessionId(sessionIdFromClient, orgId)
@@ -214,7 +244,8 @@ func (lec ListEndpointsController) Get() {
 
 	// List Endpoints
 	orgName := ed.Organization.Name
-	epString := lec.listEndpoints(orgName, ed)
+	uId, _ := strconv.Atoi(userId)
+	epString := lec.listEndpoints(int32(uId), orgName, ed)
 	if lec.Ye != nil {
 		lec.WriteBack()
 		return
