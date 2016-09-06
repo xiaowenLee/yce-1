@@ -109,9 +109,3 @@ type ListOperationLog struct {
 	Organization *myorganization.Organization
 }
 
-type ScaleDeployment struct{
-	NewSize int32 `json:"newSize"`
-	DcIdList []int32 `json:"dcIdList"`
-	UserId int32 `json:"userId"`
-	Comments string `json:"comments"`
-}

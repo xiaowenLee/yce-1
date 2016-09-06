@@ -24,17 +24,19 @@ type Session struct {
 	UserId     string   `json:"userId"`
 	UserName   string   `json:"userName"`
 	OrgId      string   `json:"orgId"`
+	OrgName    string   `json:"orgName`
 	DcList     []string `json:"dcList"`
 	CreatedAt  string   `json:"CreatedAt"`
 	Expiration string   `json:"Expiration"` // expiration in seconds
 }
 
-func NewSession(userId, userName, orgId string) *Session {
+func NewSession(userId, userName, orgId, orgName string) *Session {
 	return &Session{
 		SessionId:  uuid.New(),
 		UserId:     userId,
 		UserName:   userName,
 		OrgId:      orgId,
+		OrgName:    orgName,
 		CreatedAt:  localtime.NewLocalTime().String(),
 		Expiration: DEFAULT_EXPIRATION,
 	}
