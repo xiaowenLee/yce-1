@@ -108,3 +108,4 @@ type ListOperationLog struct {
 	DcIdList []int32
 	Organization *myorganization.Organization
 }
+

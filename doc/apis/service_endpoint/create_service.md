@@ -103,7 +103,8 @@ POST /api/v1/organizations/{orgId}/users/{userId}/services/new
                      "metadata": {
                          "name": "1-test-nginx-service",
                          "labels": {
-                             "name": "1-test-nginx-service"
+                             "name": "1-test-nginx-service",
+                             "type": "service"
                          }
                      },
                      "spec": {

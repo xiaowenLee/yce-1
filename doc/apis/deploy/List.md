@@ -23,6 +23,7 @@
             "dcName": "bangongwang",
             //该数据中心下的应用列列表
             "deployments": [{
+                userName: "xxx",
                 //应用对应的deployment
                 deployment[i]: {
                 

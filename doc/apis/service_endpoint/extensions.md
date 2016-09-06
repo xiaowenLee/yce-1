@@ -38,9 +38,10 @@
 |信息：      |  说明：|
 |:------------:|:--------------:|
 |ID          |  数字，为页面显示ID|
-|名称    |      data[].serviceList.items[].metadata.name 或 data[].endpointsList.items[].metadata.name|
+|名称    |      data[].serviceList.serviceList.items[].metadata.name 或 data[].endpointsList.endpointsList.items[].metadata.name|
 |类型       |   *如果是service显示为服务,如果是endpoints显示为访问点* 
 |数据中心    |  data[].dcName, 需要为中文 |
+|创建者 | data[].serviceList.items[].labels["author"] 或 data[].endpointsList.items.labels["author"]| 
 |运行时长    |  data[].serviceList.items[].metadata.creationTimestamp，需要转化为天、分、时、秒（一级） |
 
 需要详情相关定义
