@@ -12,6 +12,7 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
 	"strings"
+	"app/backend/model/yce/service"
 )
 
 type DeleteServiceController struct {
@@ -174,7 +175,10 @@ func (dsc DeleteServiceController) Delete() {
 	dcId := dsc.Param("dcId")
 	userId := dsc.Param("userId")
 	svcName := dsc.Param("svcName")
-	nodePort := dsc.RequestHeader("NodePort")
+
+	nodePort := new(service.NodePortType)
+	dsc.ReadJSON(nodePort)
+	mylog.Log.Infof("DeleteServiceController ReadJSON: nodePort=%d", nodePort.NodePort)
 
 	// Validate OrgId error
 	dsc.validateSession(sessionIdFromClient, orgId)
@@ -211,8 +215,7 @@ func (dsc DeleteServiceController) Delete() {
 
 	// Update NodePort Status to MySQL nodeport table
 	op, _ := strconv.Atoi(userId)
-	port, _ := strconv.Atoi(nodePort)
-	dsc.deleteMysqlNodePort(dcIdList, int32(port), int32(op))
+	dsc.deleteMysqlNodePort(dcIdList, nodePort.NodePort, int32(op))
 	if dsc.Ye != nil {
 		dsc.WriteBack()
 		return

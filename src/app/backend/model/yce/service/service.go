@@ -33,3 +33,7 @@ type CreateService struct {
 	DcIdList []int32  `json:"dcIdList"`
 	Service api.Service `json:"service"`
 }
+
+type NodePortType struct {
+	NodePort int32 `json:"nodePort"`
+}

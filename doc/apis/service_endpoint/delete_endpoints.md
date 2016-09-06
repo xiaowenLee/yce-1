@@ -14,3 +14,4 @@ DELETE /api/v1/organizations/{orgId}/datacenters/{dcId}/users/{userId}/endpoints
 返回值:
 
 * 操作结果
+
