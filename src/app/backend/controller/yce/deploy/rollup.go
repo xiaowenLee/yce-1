@@ -147,7 +147,7 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 	//rolling update interval
 	//rd.Strategy.UpdateInterval
 
-	dp.Annotations["userId"] = strconv.Itoa(int(rd.UserId))
+	dp.Annotations["userId"] = rd.UserId
 	dp.Annotations["image"] = rd.Strategy.Image
 	dp.Annotations["kubernetes.io/change-cause"] = rd.Comments
 
@@ -248,8 +248,10 @@ func (rdc RollingDeployController) Post() {
 
 	oId, _ := strconv.Atoi(orgId)
 
+
 	// Insert into mysql.Deployment
-	rdc.createMysqlDeployment(true, rd.AppName,  string(kd), "", dcIdList, rd.Comments, rd.UserId, int32(oId),)
+	userId, _ :=  strconv.Atoi(rd.UserId)
+	rdc.createMysqlDeployment(true, rd.AppName,  string(kd), "", dcIdList, rd.Comments, int32(userId), int32(oId))
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return

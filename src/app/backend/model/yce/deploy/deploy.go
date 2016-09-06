@@ -81,7 +81,7 @@ type RollingDeployment struct {
 	AppName string `json:"appName"`
 	//DcIdList DcIdListType `json:"dcIdList"`
 	DcIdList []int32 `json:"dcIdList"`
-	UserId int32 `json:"userId"`
+	UserId string `json:"userId"`
 	Strategy RollingStrategy `json:"strategy"`
 	Comments string `json:"comments"`
 }
