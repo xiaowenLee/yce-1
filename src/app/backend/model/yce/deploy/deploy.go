@@ -1,9 +1,8 @@
 package deploy
 
 import (
-	mydatacenter "app/backend/model/mysql/datacenter"
-	myorganization "app/backend/model/mysql/organization"
 	myqouta "app/backend/model/mysql/quota"
+	mydatacenter "app/backend/model/mysql/datacenter"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	myorganization "app/backend/model/mysql/organization"
@@ -32,25 +31,26 @@ type DeployAndPodList struct {
 	PodList *api.PodList `json:"podList"`
 }
 
+
 // Response List Deployments
 type Deployment struct {
-	DcId        int32              `json:"dcId"`
-	DcName      string             `json:"dcName"`
+	DcId int32 `json:"dcId"`
+	DcName string `json:"dcName"`
 	Deployments []DeployAndPodList `json:"deployments"`
 }
 
 // GET
 type ListDeployment struct {
 	Organization *myorganization.Organization
-	DcIdList     []int32
-	DcName       []string
+	DcIdList []int32
+	DcName []string
 }
 
 type InitDeployment struct {
-	OrgId       string                    `json:"orgId"`
-	OrgName     string                    `json:"orgName"`
+	OrgId string `json:"orgId"`
+	OrgName string `json:"orgName"`
 	DataCenters []mydatacenter.DataCenter `json:"dataCenters"`
-	Quotas      []myqouta.Quota           `json:"quotas"`
+	Quotas []myqouta.Quota `json:"quotas"`
 }
 
 // DcIdList
@@ -70,9 +70,9 @@ type CreateDeployment struct {
 
 // RollingUpdate Strategy
 type RollingStrategy struct {
-	MaxUnavailable int32  `json:"maxUnavailable"`
-	Image          string `json:"image"`
-	UpdateInterval int32  `json:"updateInterval"`
+	MaxUnavailable int32 `json:"maxUnavailable"`
+	Image string `json:"image"`
+	UpdateInterval int32 `json:"updateInterval"`
 }
 
 //TODO: Change DcIdList 2 []int32
@@ -84,7 +84,7 @@ type RollingDeployment struct {
 	DcIdList []int32 `json:"dcIdList"`
 	UserId int32 `json:"userId"`
 	Strategy RollingStrategy `json:"strategy"`
-	Comments string          `json:"comments"`
+	Comments string `json:"comments"`
 }
 
 // Response List OperationLog
