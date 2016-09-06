@@ -6,6 +6,7 @@ import (
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
+	myorganization "app/backend/model/mysql/organization"
 	mydeployment "app/backend/model/mysql/deployment"
 	myoption "app/backend/model/mysql/option"
 	"app/backend/model/yce/deploy"
@@ -25,6 +26,8 @@ const (
 	ROLLING_TYPE = myoption.ROLLINGUPGRADE
 	ROLLING_VERBE = "POST"
 	ROLLING_URL = "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
+	ROLLING_MAXUNAVAILABLE = 2
+	ROLLING_MAXSURGE = 2
 
 )
 
@@ -135,7 +138,8 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 	ds := new(extensions.DeploymentStrategy)
 	ds.Type = extensions.RollingUpdateDeploymentStrategyType
 	ds.RollingUpdate = new(extensions.RollingUpdateDeployment)
-	ds.RollingUpdate.MaxUnavailable = intstr.FromInt(int(rd.Strategy.MaxUnavailable))
+	ds.RollingUpdate.MaxUnavailable = intstr.FromInt(int(ROLLING_MAXUNAVAILABLE))
+	ds.RollingUpdate.MaxSurge = intstr.FromInt(int(ROLLING_MAXSURGE))
 
 	dp.Spec.Strategy = *ds
 	dp.Spec.Template.Spec.Containers[0].Image = rd.Strategy.Image
@@ -150,6 +154,7 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 	_, err = cli.Extensions().Deployments(namespace).Update(dp)
 	if err != nil {
 		mylog.Log.Errorf("Rolling Update Deployment Error: error=%s", err)
+		rdc.Ye = myerror.NewYceError(myerror.EKUBE_ROLLING_DEPLOYMENTS, "")
 	}
 
 	mylog.Log.Infof("Rolling Update deployment successfully: namespace=%s, apiserver=%s", namespace, rdc.apiServers)
@@ -194,6 +199,12 @@ func (rdc *RollingDeployController) encodeDcIdList(dcIdList []int32) string{
 func (rdc RollingDeployController) Post() {
 	orgId := rdc.Param("orgId")
 	deploymentName := rdc.Param("deploymentName")
+	org := new(myorganization.Organization)
+
+	// Get orgName by orgId
+	orgIdInt, _ := strconv.Atoi(orgId)
+	org.QueryOrganizationById(int32(orgIdInt))
+	orgName := org.Name
 
 	sessionIdFromClient := rdc.RequestHeader("Authorization")
 	rdc.validateSession(sessionIdFromClient, orgId)
@@ -215,7 +226,6 @@ func (rdc RollingDeployController) Post() {
 	}
 
 	// create K8sClient
-	orgName := rd.OrgName
 	rdc.createK8sClients()
 	if rdc.Ye != nil {
 		rdc.WriteBack()
