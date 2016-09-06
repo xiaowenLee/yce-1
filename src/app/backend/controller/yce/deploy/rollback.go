@@ -21,7 +21,7 @@ import (
 const (
 	ROLLBACK_ACTION_TYPE                = myoption.ROLLINGBACK
 	ROLLBACK_ACTION_VERBE               = "POST"
-	ROLLBACK_ACTION_URL                 = "/api/v1/organization/<orgId>/deployments/<name>/rollback"
+	ROLLBACK_ACTION_URL                 = "/api/v1/organizations/<orgId>/deployments/<name>/rollback"
 	ROLLBACK_REVISION_ANNOTATION string = "deployment.kubernetes.io/revision"
 	ROLLBACK_IMAGE                      = "image"
 	ROLLBACK_USERID                     = "userId"

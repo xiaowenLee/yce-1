@@ -31,7 +31,8 @@ POST /api/v1/organizations/{orgId}/deployments/{:deploymentName}/rolling
 ```json
 {
   "appName": "nginx-test",
-  "dcId": 1,
+  "dcIdList": 1,
+  "orgName":"ops",
   "userId": 1,
   "strategy": {
       "maxUnavailable": 3,

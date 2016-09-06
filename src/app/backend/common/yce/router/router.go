@@ -30,8 +30,11 @@ type Router struct {
 	CreateDeploy *mydeploy.CreateDeployController
 	RollingDeploy *mydeploy.RollingDeployController
 	RollbackDeploy *mydeploy.RollbackDeployController
+	ScaleDeploy *mydeploy.ScaleDeploymentController
 	ListOperationLog *mydeploy.ListOperationLogController
 	InitNamespace *mynamespace.InitNamespaceController
+	DeleteService *myservice.DeleteServiceController
+	DeleteEndpoint *myendpoint.DeleteEndpointsController
 }
 
 func NewRouter() *Router {
@@ -52,8 +55,11 @@ func NewRouter() *Router {
 	r.CreateDeploy = new(mydeploy.CreateDeployController)
 	r.RollingDeploy = new(mydeploy.RollingDeployController)
 	r.RollbackDeploy = new(mydeploy.RollbackDeployController)
+	r.ScaleDeploy = new(mydeploy.ScaleDeploymentController)
 	r.ListOperationLog = new(mydeploy.ListOperationLogController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
+	r.DeleteService = new(myservice.DeleteServiceController)
+	r.DeleteEndpoint = new(myendpoint.DeleteEndpointsController)
 
 	return r
 }
@@ -68,14 +74,17 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/new", *r.CreateDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rolling", *r.RollingDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rollback", *r.RollbackDeploy)
+	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/scale", *r.ScaleDeploy)
 	iris.API("/api/v1/organizations/:orgId/operationlog", *r.ListOperationLog)
 	iris.API("/api/v1/registry/images", *r.Registry)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/new", *r.CreateService)
+	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/users/:userId/services/:svcName", *r.DeleteService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/init", *r.InitEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)
+	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/endpoints/:epName", *r.DeleteEndpoint)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
 	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 

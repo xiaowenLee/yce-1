@@ -11,7 +11,6 @@ import (
 type Service struct {
 	DcId int32 `json:"dcId"`
 	DcName string `json:"dcName"`
-	UserName string `json:"userName"`
 	ServiceList api.ServiceList `json:"serviceList"`
 }
 
@@ -33,4 +32,8 @@ type CreateService struct {
 	OrgName string `json:"orgName"`
 	DcIdList []int32  `json:"dcIdList"`
 	Service api.Service `json:"service"`
+}
+
+type NodePortType struct {
+	NodePort int32 `json:"nodePort"`
 }

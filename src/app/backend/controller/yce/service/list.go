@@ -14,7 +14,6 @@ import (
 	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"app/backend/common/util/mysql"
 )
 
 type ListServiceController struct {
@@ -148,29 +147,8 @@ func (lsc *ListServiceController) createK8sClients() {
 	return
 }
 
-// Query UserName by UserId
-func (lsc *ListServiceController) queryUserNameByUserId(userId int32) (name string) {
-	db := mysql.MysqlInstance().Conn()
 
-	stmt, err := db.Prepare(SELECT_USER)
-	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
-		lsc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	defer stmt.Close()
-
-	err = stmt.QueryRow(userId).Scan(&name)
-	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
-		lsc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	mylog.Log.Infof("queryUserNameByUserId successfully")
-	return name
-}
-
-func (lsc *ListServiceController) listService(userId int32, namespace string, sd *service.ListService) (svcString string){
+func (lsc *ListServiceController) listService(namespace string, sd *service.ListService) (svcString string){
 	svcList := make([]service.Service, len(lsc.apiServers))
 	// Foreach every K8sClient to create service
 	for index, cli := range lsc.k8sClients {
@@ -186,7 +164,6 @@ func (lsc *ListServiceController) listService(userId int32, namespace string, sd
 
 		svcList[index].DcId = sd.DcIdList[index]
 		svcList[index].DcName = sd.DcName[index]
-		svcList[index].UserName = lsc.queryUserNameByUserId(userId)
 		svcList[index].ServiceList = *svcs
 
 		mylog.Log.Infof("listService successfully: namespace=%s, apiServer=%s", namespace, lsc.apiServers[index])
@@ -209,7 +186,6 @@ func (lsc *ListServiceController) listService(userId int32, namespace string, sd
 func (lsc ListServiceController) Get() {
 	sessionIdFromClient := lsc.RequestHeader("Authorization")
 	orgId := lsc.Param("orgId")
-	userId := lsc.Param("userId")
 
 	// validateSessionId
 	lsc.validateSessionId(sessionIdFromClient, orgId)
@@ -245,8 +221,7 @@ func (lsc ListServiceController) Get() {
 
 	// List Endpoints
 	orgName := sd.Organization.Name
-	uId, _ := strconv.Atoi(userId)
-	svcString := lsc.listService(int32(uId), orgName, sd)
+	svcString := lsc.listService(orgName, sd)
 	if lsc.Ye != nil {
 		lsc.WriteBack()
 		return

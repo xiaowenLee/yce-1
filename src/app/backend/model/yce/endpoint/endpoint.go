@@ -10,7 +10,6 @@ import (
 type Endpoints struct {
 	DcId int32 `json:"dcId"`
 	DcName string `json:"dcName"`
-	UserName string `json:"userName"`
 	EndpointsList api.EndpointsList `json:"endpointsList`
 }
 
