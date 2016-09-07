@@ -165,7 +165,7 @@ func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, js
 	orgIdString := strconv.Itoa(int(orgId))
 	actionUrl := uph.Replace("<orgId>", orgIdString, "<deploymentName>", name)
 	actionOp := userId
-
+	mylog.Log.Debugf("RollingDeployController createMySQLDeployment: actionOp=%d", actionOp)
 	dp := mydeployment.NewDeployment(name, ROLLING_VERBE, actionUrl, dcList, reason, json, comments, int32(ROLLING_TYPE), actionOp, int32(1), orgId)
 	err := dp.InsertDeployment()
 	if err != nil {

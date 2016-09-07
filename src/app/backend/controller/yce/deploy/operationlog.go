@@ -100,7 +100,7 @@ func (loc *ListOperationLogController) queryUserNameByUserId(userId int32) (name
 
 	stmt, err := db.Prepare(SELECT_USER)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		mylog.Log.Errorf("queryUserNameByUserId Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -108,7 +108,7 @@ func (loc *ListOperationLogController) queryUserNameByUserId(userId int32) (name
 
 	err = stmt.QueryRow(userId).Scan(&name)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		mylog.Log.Errorf("queryUserNameByUserId Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
