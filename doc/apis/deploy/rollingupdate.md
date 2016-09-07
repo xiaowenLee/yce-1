@@ -31,17 +31,19 @@ POST /api/v1/organizations/{orgId}/deployments/{:deploymentName}/rolling
 ```json
 {
   "appName": "nginx-test",
-  "dcIdList": 1,
+  "dcIdList": [1],
   "orgName":"ops",
   "userId": 1,
   "strategy": {
-      "maxUnavailable": 3,
-      "image": "nginx:1.9",
-      "updateInterval": 2,
-  }
+      "image": "nginx:1.9"
+  },
   "comments": "Update the xxx function"
 }
 ```
+
+注意: 
+    滚动升级策略两个参数: MaxUnavalable/MaxSurge参数在后台中采用默认值,均为2
+
 
 升级记录需要写入数据库和Annotations
 

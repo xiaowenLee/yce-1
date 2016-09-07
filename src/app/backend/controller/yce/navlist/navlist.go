@@ -23,8 +23,9 @@ var navList = `
         },
         {"id": 3, "name": "镜像管理", "state": "main.imageManage", "includeState": "main.imageManage","className":"fa-file-archive-o",
             "item": [
-                {"id": 31, "name": "查找镜像", "state": "main.imageManageSearch", "includeState": "main.imageManageSearch"},
-                {"id": 32, "name": "删除镜像", "state": "main.imageManageDelete", "includeState": "main.imageManageDelete"}
+                {"id": 31, "name": "基础镜像", "state": "main.imageManageDelete", "includeState": "main.imageManageDelete"},
+                {"id": 32, "name": "查找镜像", "state": "main.imageManageSearch", "includeState": "main.imageManageSearch"},
+                {"id": 33, "name": "删除镜像", "state": "main.imageManageDelete", "includeState": "main.imageManageDelete"}
             ]
         },
         {"id": 4, "name": "云盘管理", "state": "main.rbdManage", "includeState": "main.rbdManage","className":"fa-cloud"},
