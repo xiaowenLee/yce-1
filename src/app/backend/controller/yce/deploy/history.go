@@ -209,7 +209,7 @@ func (hdc *HistoryDeployController) encodeReplicaSetList() string {
 }
 
 // GET /api/v1/organizations/{orgId}/datacenters/{dcId}/deployments/{name}/history
-func (hdc *HistoryDeployController) Get() {
+func (hdc HistoryDeployController) Get() {
 	hdc.orgId = hdc.Param("orgId")
 	hdc.dcId = hdc.Param("dcId")
 	hdc.name = hdc.Param("name")
