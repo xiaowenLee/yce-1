@@ -73,6 +73,7 @@ func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
 
 	//TODO: find a better way
 	dcId := sdc.s.DcIdList[0]
+	sdc.dcId = strconv.Itoa(int(dcId))
 
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
@@ -143,9 +144,10 @@ func (sdc *ScaleDeploymentController) ScaleSimple() {
 
 // create a deployment record
 func (sdc *ScaleDeploymentController) createMysqlDeployment(success bool, name, json, reason, dcList string, userId, orgId int32) error {
+	//TODO: actionUrl not complete
 	uph := placeholder.NewPlaceHolder(SCALE_ACTION_URL)
 	orgIdString := strconv.Itoa(int(orgId))
-	actionUrl := uph.Replace("<orgId>", orgIdString, "<name>", name)
+	actionUrl := uph.Replace("<orgId>", orgIdString, "<dcId>", sdc.dcId, "<name>", name)
 	actionOp := userId
 	dp := mydeployment.NewDeployment(name, SCALE_ACTION_VERBE, actionUrl, dcList, reason, json, "Rolilng Update a Deployment", int32(SCALE_ACTION_TYPE), actionOp, int32(1), orgId)
 	err := dp.InsertDeployment()

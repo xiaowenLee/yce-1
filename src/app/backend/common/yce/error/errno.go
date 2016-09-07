@@ -32,6 +32,11 @@ const (
 	EKUBE_ROLLBACK_DEPLOYMENT        = 1214
 	EKUBE_DELETE_SERVICE		 = 1215
 	EKUBE_DELETE_ENDPOINT 		 = 1216
+	EKUBE_LIST_REPLICASET		 = 1217
+	EKUBE_DELETE_REPLICASET		 = 1218
+	EKUBE_DELETE_DEPLOYMENT		 = 1219
+	EKUBE_DELETE_POD		 = 1220
+
 
 	EIRIS int32 = 1300
 
@@ -44,6 +49,7 @@ const (
 	EYCE_ORGTODC         int32 = 1406
 	EYCE_LIST_EXTENSIONS int32 = 1407
 	EYCE_DELETE_NODEPORT int32 = 1408
+	EYCE_DELETE_DEPLOYMENT int32 = 1409
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -148,6 +154,22 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Delete Endpoint Error",
 		ErrMsg: "删除访问点失败",
 	},
+	EKUBE_LIST_REPLICASET: &Error {
+		LogMsg: "Kubernetes List ReplicaSet Error",
+		ErrMsg: "获取ReplicaSet列表失败",
+	},
+	EKUBE_DELETE_REPLICASET: &Error {
+		LogMsg: "Kubernete Delete ReplicaSet Error",
+		ErrMsg: "删除ReplicaSet失败",
+	},
+	EKUBE_DELETE_DEPLOYMENT: &Error {
+		LogMsg: "Kubernetes Delete Deployment Error",
+		ErrMsg: "删除应用失败",
+	},
+	EKUBE_DELETE_POD: &Error {
+		LogMsg: "Kubernetes Delete Deployment Error",
+		ErrMsg: "删除实例失败",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{
@@ -197,6 +219,11 @@ var Errors = map[int32]*Error{
 	EYCE_DELETE_NODEPORT: &Error {
 		LogMsg: "Delete NodePort Error",
 		ErrMsg: "删除NodePort失败",
+	},
+
+	EYCE_DELETE_DEPLOYMENT : &Error {
+		LogMsg: "Delete Deployment Error",
+		ErrMsg: "删除应用失败",
 	},
 
 

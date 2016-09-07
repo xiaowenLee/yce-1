@@ -11,6 +11,7 @@ const (
 	CANCEL                    // 取消上线,下线
 	PAUSE                     // 暂停上线
 	RESUME                    // 恢复上线
+	DELETE			  // 删除
 
 )
 

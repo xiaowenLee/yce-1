@@ -51,7 +51,6 @@ func (loc *ListOperationLogController) validateSession(sessionId, orgId string) 
 
 	return
 }
-
 // Query Deployments according to orgId
 func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (deployments []mydeploy.Deployment) {
 
@@ -89,8 +88,7 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 		deployments = append(deployments, *dp)
 		mylog.Log.Debugf("query result: id=%d, name=%s", dp.Id, dp.Name)
 	}
-
-	mylog.Log.Infof("queryOperationLogMySQL successfully")
+	mylog.Log.Infof("queryOperationLogMySQL successfully, totally %d deployments", len(deployments))
 	return deployments
 }
 
@@ -100,7 +98,7 @@ func (loc *ListOperationLogController) queryUserNameByUserId(userId int32) (name
 
 	stmt, err := db.Prepare(SELECT_USER)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		mylog.Log.Errorf("queryUserNameByUserId Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -108,7 +106,7 @@ func (loc *ListOperationLogController) queryUserNameByUserId(userId int32) (name
 
 	err = stmt.QueryRow(userId).Scan(&name)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		mylog.Log.Errorf("queryUserNameByUserId Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -141,39 +139,55 @@ func (loc *ListOperationLogController) queryDcNameByDcId(dcIdList []int32) (dcNa
 	return dcNameList
 }
 
-// getOperationLogs
-func (loc *ListOperationLogController) getOperationLog(deployments []mydeploy.Deployment) (opLog []deploy.OperationLog){
-	opLog = make([]deploy.OperationLog, 0)
+// getOperationLogList
 
-	for _, dp := range deployments{
-		op := new(deploy.OperationLog)
-		userName := loc.queryUserNameByUserId(dp.ActionOp)
+func (loc *ListOperationLogController) getOperationLog(deployment mydeploy.Deployment) *deploy.OperationLogType {
+	opLog := new(deploy.OperationLogType)
+	userName := loc.queryUserNameByUserId(deployment.ActionOp)
 
-		dcIdListJSON := []byte(dp.DcList)
-		mylog.Log.Debugf("dcIdListJSON=%s", dp.DcList)
-		dcIdList := new(deploy.DcIdListType)
-		err := json.Unmarshal(dcIdListJSON, dcIdList)
-		if err != nil {
-			mylog.Log.Errorf("getOperationLog Error: error=%s", err)
-			loc.Ye = myerror.NewYceError(myerror.EJSON, "")
-			return
-		}
+	dcIdListJSON := []byte(deployment.DcList)
+	mylog.Log.Debugf("dcIdListJSON=%s", deployment.DcList)
+	dcIdList := new(deploy.DcIdListType)
+	err := json.Unmarshal(dcIdListJSON, dcIdList)
+	if err != nil {
+		mylog.Log.Errorf("getOperationLog Error: error=%s", err)
+		loc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return nil
 
-		dcNameList := loc.queryDcNameByDcId(dcIdList.DcIdList)
-
-		op.UserName = userName
-		op.DcName = dcNameList
-		op.Record = &dp
-
-		opLog = append(opLog, *op)
-		mylog.Log.Infof("ListOperationController getOperation: len(dcIdList):%d", len(dcIdList.DcIdList))
 	}
 
+	dcNameList := loc.queryDcNameByDcId(dcIdList.DcIdList)
+	opLog.UserName = userName
+	opLog.DcName = dcNameList
+	opLog.Record = &deployment
+
+	mylog.Log.Infof("getOperationLog userName=%s, dcName=%v deploymentName=%s", opLog.UserName, opLog.DcName, opLog.Record.Name)
+
 	return opLog
+}
+
+func (loc *ListOperationLogController) getOperationLogList(deployments []mydeploy.Deployment) string {
+	opLogList := new(deploy.OperationLogList)
+	opLogList.OperationLog = make([]deploy.OperationLogType, 0)
+
+
+	for _, dp := range deployments{
+		opLog := loc.getOperationLog(dp)
+		opLogList.OperationLog = append(opLogList.OperationLog, *opLog)
+
+		mylog.Log.Infof("ListOperationController getOperation: name=%s, userName=%s, len(dcName):%d", dp.Name, opLog.UserName, len(opLog.DcName))
+	}
+
+	opLogListJson, _ := json.Marshal(opLogList)
+	opLogListString := string(opLogListJson)
+
+	mylog.Log.Infof("ListOperationController getOperationLogList over")
+	return opLogListString
 
 }
 
 // getOperationLog list
+/*
 func (loc *ListOperationLogController) getOperationLogList(deployments []mydeploy.Deployment) (opString string){
 
 	opLog := loc.getOperationLog(deployments)
@@ -188,7 +202,7 @@ func (loc *ListOperationLogController) getOperationLogList(deployments []mydeplo
 	mylog.Log.Infof("ListOperationLogController getOperationLog successfully")
 	return opString
 }
-
+*/
 func (loc ListOperationLogController) Get() {
 	orgId := loc.Param("orgId")
 
