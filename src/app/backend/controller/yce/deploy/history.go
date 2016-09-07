@@ -40,17 +40,17 @@ func (hdc *HistoryDeployController) WriteBack() {
 }
 
 type ReplicaType struct {
-	Current int32 `json: "current"`
-	Desire  int32 `json: "desire"`
+	Current int32 `json:"current"`
+	Desire  int32 `json:"desire"`
 }
 
 type HistoryReturn struct {
-	Revision  string      `json: "revision"`
-	Name      string      `json: "name"`
-	Namespace string      `json: "name"`
-	Image     string      `json: "image"`
-	Selector  string      `json: "image"`
-	Replicas  ReplicaType `json: "replicas"`
+	Revision  string      `json:"revision"`
+	Name      string      `json:"name"`
+	Namespace string      `json:"namespace"`
+	Image     string      `json:"image"`
+	Selector  string      `json:"selector"`
+	Replicas  ReplicaType `json:"replicas"`
 }
 
 type ReplicaSetList []HistoryReturn
