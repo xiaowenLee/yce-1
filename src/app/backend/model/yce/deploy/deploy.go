@@ -94,7 +94,11 @@ type DcIdListType struct {
 }
 */
 
-type OperationLog struct {
+type OperationLogList struct {
+	OperationLog []OperationLogType `json:"operationLog"`
+}
+
+type OperationLogType struct {
 	DcName []string `json:"dcName"`
 	UserName string `json:"userName"`
 	Record *mydeployment.Deployment `json:"records"`

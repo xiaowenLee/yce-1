@@ -18,10 +18,12 @@
     "message":[
         "OK"
     ],
-    "data": [{
+    "data": {
+      "operationLog":  [{
             "dcName": ["bangongwang", "dianxin"]
             "userName": "admin",
             "record": deployRecord mysql.Deployment
-    }]
+      }]
+    }
 }
 ```
