@@ -143,6 +143,7 @@ func (sdc *ScaleDeploymentController) ScaleSimple() {
 
 // create a deployment record
 func (sdc *ScaleDeploymentController) createMysqlDeployment(success bool, name, json, reason, dcList string, userId, orgId int32) error {
+	//TODO: actionUrl not complete
 	uph := placeholder.NewPlaceHolder(SCALE_ACTION_URL)
 	orgIdString := strconv.Itoa(int(orgId))
 	actionUrl := uph.Replace("<orgId>", orgIdString, "<name>", name)
