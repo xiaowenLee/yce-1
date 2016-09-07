@@ -79,10 +79,9 @@ type RollingStrategy struct {
 // RollingUpdate Deployment
 type RollingDeployment struct {
 	AppName string `json:"appName"`
-	OrgName string `json:"orgName"`
 	//DcIdList DcIdListType `json:"dcIdList"`
 	DcIdList []int32 `json:"dcIdList"`
-	UserId int32 `json:"userId"`
+	UserId string `json:"userId"`
 	Strategy RollingStrategy `json:"strategy"`
 	Comments string `json:"comments"`
 }
@@ -95,7 +94,11 @@ type DcIdListType struct {
 }
 */
 
-type OperationLog struct {
+type OperationLogList struct {
+	OperationLog []OperationLogType `json:"operationLog"`
+}
+
+type OperationLogType struct {
 	DcName []string `json:"dcName"`
 	UserName string `json:"userName"`
 	Record *mydeployment.Deployment `json:"records"`
@@ -109,3 +112,9 @@ type ListOperationLog struct {
 	Organization *myorganization.Organization
 }
 
+type ScaleDeployment struct{
+	NewSize int32 `json:"newSize"`
+	DcIdList []int32 `json:"dcIdList"`
+	UserId int32 `json:"userId"`
+	Comments string `json:"comments"`
+}
