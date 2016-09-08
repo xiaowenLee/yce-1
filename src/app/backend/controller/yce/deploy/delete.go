@@ -16,6 +16,7 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	"app/backend/model/yce/deploy"
 	"strconv"
 )
 
@@ -285,8 +286,10 @@ func (ddc *DeleteDeploymentController) encodeDcIdList() string {
 		dcIdList.DcIdList = make([]int32, 0)
 		dcIdList.DcIdList = append(dcIdList.DcIdList, ddc.params.DcIdList)
 	*/
-
-	dcIdListJson, _ := json.Marshal(ddc.params.DcIdList)
+	dcIdList := new(deploy.DcIdListType)
+	dcIdList.DcIdList = ddc.params.DcIdList
+	//dcIdListJson, _ := json.Marshal(ddc.params.DcIdList)
+	dcIdListJson, _ := json.Marshal(dcIdList)
 
 	dcIdListString := string(dcIdListJson)
 
