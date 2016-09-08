@@ -32,6 +32,7 @@ type Router struct {
 	RollbackDeploy *mydeploy.RollbackDeployController
 	ScaleDeploy *mydeploy.ScaleDeploymentController
 	DeleteDeploy *mydeploy.DeleteDeploymentController
+	LogsPod  *mydeploy.LogsPodController
 	ListOperationLog *mydeploy.ListOperationLogController
 	InitNamespace *mynamespace.InitNamespaceController
 	DeleteService *myservice.DeleteServiceController
@@ -58,6 +59,7 @@ func NewRouter() *Router {
 	r.RollbackDeploy = new(mydeploy.RollbackDeployController)
 	r.ScaleDeploy = new(mydeploy.ScaleDeploymentController)
 	r.DeleteDeploy = new(mydeploy.DeleteDeploymentController)
+	r.LogsPod = new(mydeploy.LogsPodController)
 	r.ListOperationLog = new(mydeploy.ListOperationLogController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
 	r.DeleteService = new(myservice.DeleteServiceController)
@@ -78,6 +80,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rollback", *r.RollbackDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/scale", *r.ScaleDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName", *r.DeleteDeploy)
+	iris.API("/api/v1/organizations/:orgId/pods/:podName/logs", *r.LogsPod)
 	iris.API("/api/v1/organizations/:orgId/operationlog", *r.ListOperationLog)
 	iris.API("/api/v1/registry/images", *r.Registry)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)

@@ -36,6 +36,7 @@ const (
 	EKUBE_DELETE_REPLICASET		 = 1218
 	EKUBE_DELETE_DEPLOYMENT		 = 1219
 	EKUBE_DELETE_POD		 = 1220
+	EKUBE_LOGS_POD			 = 1221
 
 
 	EIRIS int32 = 1300
@@ -50,6 +51,7 @@ const (
 	EYCE_LIST_EXTENSIONS int32 = 1407
 	EYCE_DELETE_NODEPORT int32 = 1408
 	EYCE_DELETE_DEPLOYMENT int32 = 1409
+	EYCE_LOGS_POD	     int32 = 1410
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -170,6 +172,10 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Delete Deployment Error",
 		ErrMsg: "删除实例失败",
 	},
+	EKUBE_LOGS_POD: &Error {
+		LogMsg: "Kubernetes Logs Pod Error",
+		ErrMsg: "获取Pod日志失败",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{
@@ -224,6 +230,10 @@ var Errors = map[int32]*Error{
 	EYCE_DELETE_DEPLOYMENT : &Error {
 		LogMsg: "Delete Deployment Error",
 		ErrMsg: "删除应用失败",
+	},
+	EYCE_LOGS_POD: &Error {
+		LogMsg: "Get Pod Logs Error",
+		ErrMsg: "获取实例日志失败",
 	},
 
 
