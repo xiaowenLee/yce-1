@@ -73,7 +73,7 @@ func (rdc *RollbackDeployController) validateSession(sessionId, orgId string) {
 		return
 	}
 
-	mylog.Log.Infof("RollbackDeployment sessionId successfully: sessionId=%s, orgId=%d", sessionId, orgId)
+	mylog.Log.Infof("RollbackDeployment sessionId successfully: sessionId=%s, orgId=%s", sessionId, orgId)
 	return
 }
 

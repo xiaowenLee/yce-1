@@ -269,7 +269,7 @@ func (ldc *ListDeployController) listDeployments(userId int32, namespace string,
 
 		dpList = append(dpList, *deployment)
 
-		mylog.Log.Infoln("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
+		mylog.Log.Infof("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
 
 	}
 
