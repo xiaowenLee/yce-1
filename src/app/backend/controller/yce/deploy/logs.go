@@ -212,7 +212,7 @@ func (lpc *LogsPodController) logs() string {
 }
 
 // main
-func (lpc LogsPodController) Get() {
+func (lpc LogsPodController) Post() {
 
 	lpc.params = new(LogsPodParam)
 	lpc.params.LogOption = new(LogOptionType)
