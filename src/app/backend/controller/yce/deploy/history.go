@@ -15,6 +15,7 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
 	"strings"
+	"sort"
 )
 
 const (
@@ -54,6 +55,21 @@ type HistoryReturn struct {
 }
 
 type ReplicaSetList []HistoryReturn
+
+// Sort interface
+func (slice ReplicaSetList) Len() int {
+	return len(slice)
+}
+
+func (slice ReplicaSetList) Less(i, j int) bool {
+	iRevision, _ := strconv.Atoi(slice[i].Revision)
+	jRevision, _ := strconv.Atoi(slice[j].Revision)
+	return iRevision > jRevision
+}
+
+func (slice ReplicaSetList) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
+}
 
 func (hdc *HistoryDeployController) encodeMapToString(labels map[string]string) string {
 	var ss []string
@@ -200,6 +216,8 @@ func (hdc *HistoryDeployController) getReplicaSetList() {
 
 // Encode ReplicaSetList to string
 func (hdc *HistoryDeployController) encodeReplicaSetList() string {
+	// Sort the HistoryReturn List
+	sort.Sort(hdc.list)
 	data, err := json.Marshal(hdc.list)
 	if err != nil {
 		mylog.Log.Errorf("EncodeReplicaSetList Error: err=%s", err)

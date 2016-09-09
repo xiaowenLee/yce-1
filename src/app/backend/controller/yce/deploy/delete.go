@@ -1,29 +1,29 @@
 package deploy
 
 import (
+	"app/backend/common/util/Placeholder"
+	mylog "app/backend/common/util/log"
+	"app/backend/common/util/session"
+	myerror "app/backend/common/yce/error"
+	mydatacenter "app/backend/model/mysql/datacenter"
+	mydeployment "app/backend/model/mysql/deployment"
+	myoption "app/backend/model/mysql/option"
+	myorganization "app/backend/model/mysql/organization"
+	"encoding/json"
+	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	mylog "app/backend/common/util/log"
-	myerror "app/backend/common/yce/error"
-	mydeployment "app/backend/model/mysql/deployment"
-	mydatacenter "app/backend/model/mysql/datacenter"
-	myorganization "app/backend/model/mysql/organization"
-	myoption "app/backend/model/mysql/option"
-	"github.com/kataras/iris"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"app/backend/common/util/session"
-	"strconv"
-	"app/backend/common/util/Placeholder"
 	"app/backend/model/yce/deploy"
-	"encoding/json"
+	"strconv"
 )
 
 const (
-	DELETE_TYPE = myoption.DELETE
+	DELETE_TYPE  = myoption.DELETE
 	DELETE_VERBE = "DELETE"
-	DELETE_URL = "/api/v1/organization/<orgId>/deployments/<deploymentName>"
+	DELETE_URL   = "/api/v1/organization/<orgId>/deployments/<deploymentName>"
 )
 
 type DeleteDeploymentController struct {
@@ -31,27 +31,26 @@ type DeleteDeploymentController struct {
 	*iris.Context
 	apiServer string
 	k8sClient *client.Client
-	Ye *myerror.YceError
+	Ye        *myerror.YceError
 
 	// url param
-	orgId string
+	orgId          string
 	deploymentName string
 
 	// json param
 	params *DeleteDeploymentParam
 
 	//
-	deployment *extensions.Deployment
+	deployment  *extensions.Deployment
 	replicaSets []extensions.ReplicaSet
-	pods []api.Pod
-
+	pods        []api.Pod
 }
 
 // json from client
 type DeleteDeploymentParam struct {
-	UserId string `json:"userId"`
-	DcId int32	`json:"dcId"`
-	Comments string `json:"comments"`
+	UserId   string  `json:"userId"`
+	DcIdList []int32 `json:"dcIdList"`
+	Comments string  `json:"comments"`
 }
 
 // write response
@@ -92,18 +91,18 @@ func (ddc *DeleteDeploymentController) getParams() {
 		ddc.Ye = myerror.NewYceError(myerror.EYCE_DELETE_DEPLOYMENT, "")
 		return
 	}
-	mylog.Log.Debugf("DeleteDeploymentController getParams successfully: dcId=%s, userId=%s", ddc.params.DcId, ddc.params.UserId)
+	mylog.Log.Debugf("DeleteDeploymentController getParams successfully: dcId=%d, userId=%s", ddc.params.DcIdList[0], ddc.params.UserId)
 }
 
 // get dcId int32
-func (ddc *DeleteDeploymentController) getDcId() int32{
+func (ddc *DeleteDeploymentController) getDcId() int32 {
 	//dcId, _ := strconv.Itoi(ddc.params.DcId)
 	//return int32(dcId)
-	return ddc.params.DcId
+	return ddc.params.DcIdList[0]
 }
 
 // getDatacenter by DcId
-func (ddc *DeleteDeploymentController) getDatacenterByDcId(dcId int32) *mydatacenter.DataCenter{
+func (ddc *DeleteDeploymentController) getDatacenterByDcId(dcId int32) *mydatacenter.DataCenter {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
@@ -115,7 +114,6 @@ func (ddc *DeleteDeploymentController) getDatacenterByDcId(dcId int32) *mydatace
 	mylog.Log.Infof("DeleteDeploymentController getDatacenterByDcId successfully: name=%s, id=%d", dc.Name, dc.Id)
 	return dc
 }
-
 
 // getApiServer
 func (ddc *DeleteDeploymentController) getApiServer() {
@@ -164,7 +162,6 @@ func (ddc *DeleteDeploymentController) getOrgNameByOrgId() string {
 	return organization.Name
 }
 
-
 // getDeploymentByName
 func (ddc *DeleteDeploymentController) getDeploymentByName() {
 
@@ -188,7 +185,7 @@ func (ddc *DeleteDeploymentController) getReplicaSetListByDeployment() {
 		return
 	}
 
-	options := api.ListOptions{LabelSelector:selector}
+	options := api.ListOptions{LabelSelector: selector}
 
 	rsList, err := ddc.k8sClient.Extensions().ReplicaSets(ddc.deployment.Namespace).List(options)
 	if err != nil {
@@ -231,7 +228,7 @@ func (ddc *DeleteDeploymentController) getPodsByReplicaSet() {
 			return
 		}
 
-		options := api.ListOptions{LabelSelector:selector}
+		options := api.ListOptions{LabelSelector: selector}
 
 		podList, err := ddc.k8sClient.Pods(rs.Namespace).List(options)
 		if err != nil {
@@ -247,9 +244,7 @@ func (ddc *DeleteDeploymentController) getPodsByReplicaSet() {
 		mylog.Log.Infof("DeleteDeploymentController append pods: len(podList.Items)=%d, len(pods)=%d", len(podList.Items), len(ddc.pods))
 	}
 
-
 	mylog.Log.Infof("DeleteDeploymentController getPodsByReplicaSet successfully: len(pods)=%d", len(ddc.pods))
-
 
 }
 
@@ -257,7 +252,7 @@ func (ddc *DeleteDeploymentController) getPodsByReplicaSet() {
 func (ddc *DeleteDeploymentController) deletePods() {
 	for _, pod := range ddc.pods {
 		falseVar := false
-		deleteOptions := &api.DeleteOptions{OrphanDependents:&falseVar}
+		deleteOptions := &api.DeleteOptions{OrphanDependents: &falseVar}
 
 		mylog.Log.Infof("DeleteDeploymentController deletePods: podName=%s", pod.Name)
 		err := ddc.k8sClient.Pods(pod.Namespace).Delete(pod.Name, deleteOptions)
@@ -273,8 +268,6 @@ func (ddc *DeleteDeploymentController) deletePods() {
 	mylog.Log.Infof("DeleteDeploymentController delete pods successfully")
 }
 
-
-
 // delete Deployment
 func (ddc *DeleteDeploymentController) deleteDeployment() {
 	err := ddc.k8sClient.Extensions().Deployments(ddc.deployment.Namespace).Delete(ddc.deployment.Name, nil)
@@ -288,11 +281,14 @@ func (ddc *DeleteDeploymentController) deleteDeployment() {
 }
 
 func (ddc *DeleteDeploymentController) encodeDcIdList() string {
+	/*
+		dcIdList := new(deploy.DcIdListType)
+		dcIdList.DcIdList = make([]int32, 0)
+		dcIdList.DcIdList = append(dcIdList.DcIdList, ddc.params.DcIdList)
+	*/
 	dcIdList := new(deploy.DcIdListType)
-	dcIdList.DcIdList = make([]int32, 0)
-	dcIdList.DcIdList = append(dcIdList.DcIdList, ddc.params.DcId)
-
-
+	dcIdList.DcIdList = ddc.params.DcIdList
+	//dcIdListJson, _ := json.Marshal(ddc.params.DcIdList)
 	dcIdListJson, _ := json.Marshal(dcIdList)
 
 	dcIdListString := string(dcIdListJson)
@@ -301,8 +297,6 @@ func (ddc *DeleteDeploymentController) encodeDcIdList() string {
 	return dcIdListString
 }
 
-
-
 // create MySQL Deployment of Delete
 func (ddc *DeleteDeploymentController) createMysqlDeployment() {
 
@@ -310,7 +304,6 @@ func (ddc *DeleteDeploymentController) createMysqlDeployment() {
 	actionUrl := uph.Replace("<orgId>", ddc.orgId, "<deploymentName>", ddc.deploymentName)
 	actionOp, _ := strconv.Atoi(ddc.params.UserId)
 	mylog.Log.Debugf("DeleteDeploymentController createMySQLDeployment: actionOp=%d", actionOp)
-
 
 	//dcIdList := strconv.Itoa(int(ddc.params.DcId))
 	dcIdList := ddc.encodeDcIdList()
@@ -328,7 +321,6 @@ func (ddc *DeleteDeploymentController) createMysqlDeployment() {
 	mylog.Log.Infof("DeleteDeploymentController CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
 		actionUrl, actionOp, dcIdList)
 }
-
 
 // delete all
 func (ddc *DeleteDeploymentController) delete() {
@@ -351,7 +343,6 @@ func (ddc *DeleteDeploymentController) delete() {
 	// delete Pods
 	ddc.deletePods()
 
-
 	// write delete event to mysql
 	ddc.createMysqlDeployment()
 
@@ -359,7 +350,7 @@ func (ddc *DeleteDeploymentController) delete() {
 }
 
 // main
-func (ddc DeleteDeploymentController) Delete() {
+func (ddc DeleteDeploymentController) Post() {
 
 	ddc.params = new(DeleteDeploymentParam)
 
@@ -381,7 +372,6 @@ func (ddc DeleteDeploymentController) Delete() {
 		return
 	}
 
-
 	// getApiServer
 	ddc.getApiServer()
 	if ddc.Ye != nil {
@@ -391,7 +381,6 @@ func (ddc DeleteDeploymentController) Delete() {
 
 	// getK8sClient
 	ddc.getK8sClient()
-
 
 	// deleteDeployment
 	ddc.delete()

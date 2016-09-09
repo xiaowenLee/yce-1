@@ -79,7 +79,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rolling", *r.RollingDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rollback", *r.RollbackDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/scale", *r.ScaleDeploy)
-	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName", *r.DeleteDeploy)
+	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/delete", *r.DeleteDeploy)
 	iris.API("/api/v1/organizations/:orgId/operationlog", *r.ListOperationLog)
 	iris.API("/api/v1/registry/images", *r.Registry)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)

@@ -95,6 +95,9 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 		return nil
 	}
 
+	// Add Prefix
+	image.Name = myregistry.REGISTRY_HOST + ":" + myregistry.REGISTRY_PORT + "/" + image.Name
+
 	return image
 }
 
