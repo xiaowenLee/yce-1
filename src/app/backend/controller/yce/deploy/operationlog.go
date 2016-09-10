@@ -18,7 +18,7 @@ type ListOperationLogController struct {
 }
 
 const (
-	SELECT_DEPLOYMENT = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment WHERE orgId=?"
+	SELECT_DEPLOYMENT = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment WHERE orgId=? LIMIT 30"
 	SELECT_USER = "SELECT name FROM user WHERE id=?"
 	SELECT_DATACENTER = "SELECT name FROM datacenter WHERE id=?"
 )

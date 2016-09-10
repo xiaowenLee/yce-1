@@ -15,7 +15,7 @@ const (
 
 	DEPLOYMENT_BYNAME = "SELECT id, name, actionType, actionVerb, actionUrl, " +
 		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
-		"FROM deployment where name=? ORDER BY id DESC"
+		"FROM deployment where name=? ORDER BY id DESC LIMIT 30"
 
 	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, " +
 		"actionAt, actionOp, dcList, success, reason, json, comment, orgId) " +

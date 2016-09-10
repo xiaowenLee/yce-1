@@ -2,8 +2,6 @@ package router
 
 import (
 	mydeploy "app/backend/controller/yce/deploy"
-	myendpoint "app/backend/controller/yce/endpoint"
-	myextensions "app/backend/controller/yce/extensions"
 	mylogin "app/backend/controller/yce/login"
 	mylogout "app/backend/controller/yce/logout"
 	mynamespace "app/backend/controller/yce/namespace"
@@ -12,7 +10,6 @@ import (
 	myservice "app/backend/controller/yce/service"
 	myendpoint "app/backend/controller/yce/endpoint"
 	myextensions "app/backend/controller/yce/extensions"
-	mynamespace "app/backend/controller/yce/namespace"
 	// mytopology "app/backend/controller/yce/topology"
 	"github.com/kataras/iris"
 )
