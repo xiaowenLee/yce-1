@@ -2,8 +2,11 @@ package router
 
 import (
 	mydeploy "app/backend/controller/yce/deploy"
+	myendpoint "app/backend/controller/yce/endpoint"
+	myextensions "app/backend/controller/yce/extensions"
 	mylogin "app/backend/controller/yce/login"
 	mylogout "app/backend/controller/yce/logout"
+	mynamespace "app/backend/controller/yce/namespace"
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
 	myservice "app/backend/controller/yce/service"
@@ -15,24 +18,25 @@ import (
 )
 
 type Router struct {
-	Login        *mylogin.LoginController
-	Logout       *mylogout.LogoutController
-	Nav          *mynavList.NavListController
-	ListDeploy   *mydeploy.ListDeployController
-	Registry     *myregistry.ListRegistryController
+	Login            *mylogin.LoginController
+	Logout           *mylogout.LogoutController
+	Nav              *mynavList.NavListController
+	ListDeploy       *mydeploy.ListDeployController
+	Registry         *myregistry.ListRegistryController
 	ListService      *myservice.ListServiceController
-	InitService *myservice.InitServiceController
-	CreateService *myservice.CreateServiceController
-	ListEndpoints     *myendpoint.ListEndpointsController
-	InitEndpoints *myendpoint.InitEndpointsController
-	CreateEndpoints *myendpoint.CreateEndpointsController
-	ListExtensions *myextensions.ListExtensionsController
-	InitDeploy   *mydeploy.InitDeployController
-	CreateDeploy *mydeploy.CreateDeployController
-	RollingDeploy *mydeploy.RollingDeployController
-	RollbackDeploy *mydeploy.RollbackDeployController
-	ScaleDeploy *mydeploy.ScaleDeploymentController
-	DeleteDeploy *mydeploy.DeleteDeploymentController
+	InitService      *myservice.InitServiceController
+	CreateService    *myservice.CreateServiceController
+	ListEndpoints    *myendpoint.ListEndpointsController
+	InitEndpoints    *myendpoint.InitEndpointsController
+	CreateEndpoints  *myendpoint.CreateEndpointsController
+	ListExtensions   *myextensions.ListExtensionsController
+	InitDeploy       *mydeploy.InitDeployController
+	CreateDeploy     *mydeploy.CreateDeployController
+	RollingDeploy    *mydeploy.RollingDeployController
+	RollbackDeploy   *mydeploy.RollbackDeployController
+	ScaleDeploy      *mydeploy.ScaleDeploymentController
+	DeleteDeploy     *mydeploy.DeleteDeploymentController
+	LogsPod          *mydeploy.LogsPodController
 	ListOperationLog *mydeploy.ListOperationLogController
 	InitNamespace *mynamespace.InitNamespaceController
 	DeleteService *myservice.DeleteServiceController
@@ -61,6 +65,7 @@ func NewRouter() *Router {
 	r.RollbackDeploy = new(mydeploy.RollbackDeployController)
 	r.ScaleDeploy = new(mydeploy.ScaleDeploymentController)
 	r.DeleteDeploy = new(mydeploy.DeleteDeploymentController)
+	r.LogsPod = new(mydeploy.LogsPodController)
 	r.ListOperationLog = new(mydeploy.ListOperationLogController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
 	r.DeleteService = new(myservice.DeleteServiceController)
@@ -81,6 +86,8 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rolling", *r.RollingDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rollback", *r.RollbackDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/scale", *r.ScaleDeploy)
+	//iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName", *r.DeleteDeploy)
+	iris.API("/api/v1/organizations/:orgId/pods/:podName/logs", *r.LogsPod)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/delete", *r.DeleteDeploy)
 	iris.API("/api/v1/organizations/:orgId/operationlog", *r.ListOperationLog)
 	iris.API("/api/v1/registry/images", *r.Registry)

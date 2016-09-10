@@ -13,7 +13,7 @@
 ```json
   {
     "userId": "1", 
-    "dcId": 1, 
+    "dcIdList": [1], 
     "comments": "delete busybox-test-delete"
   }
     
