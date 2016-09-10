@@ -7,7 +7,6 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	// deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"log"
 	"os"
 	"fmt"

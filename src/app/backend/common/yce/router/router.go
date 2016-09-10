@@ -10,6 +10,7 @@ import (
 	myendpoint "app/backend/controller/yce/endpoint"
 	myextensions "app/backend/controller/yce/extensions"
 	mynamespace "app/backend/controller/yce/namespace"
+	mytopology "app/backend/controller/yce/topology"
 	"github.com/kataras/iris"
 )
 
@@ -37,6 +38,7 @@ type Router struct {
 	DeleteService *myservice.DeleteServiceController
 	DeleteEndpoint *myendpoint.DeleteEndpointsController
 	HistoryDeploy *mydeploy.HistoryDeployController
+	Topology *mytopology.TopologyController
 }
 
 func NewRouter() *Router {
@@ -93,6 +95,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
 	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/deployments/:name/history", *r.HistoryDeploy)
+	iris.API("/api/v1/organizations/:orgId/topology", *r.Topology)
 
 	iris.StaticServe("../frontend", "/static")
 }

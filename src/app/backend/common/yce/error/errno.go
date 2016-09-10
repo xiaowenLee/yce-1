@@ -36,6 +36,11 @@ const (
 	EKUBE_DELETE_REPLICASET		 = 1218
 	EKUBE_DELETE_DEPLOYMENT		 = 1219
 	EKUBE_DELETE_POD		 = 1220
+	EKUBE_GET_RS_BY_DEPLOYMENT       = 1221
+	EKUBE_GET_PODS_BY_RS             = 1222
+	EKUBE_GET_NODE_BY_POD            = 1223
+	EKUBE_GET_SERVICES_BY_NAMESPACE  = 1224
+	EKUBE_GET_PODS_BY_SERVICE        = 1225
 
 
 	EIRIS int32 = 1300
@@ -55,6 +60,7 @@ const (
 	EREGISTRY_GET int32 = 1501
 
 	EJSON int32 = 1600
+	EARGS int32 = 1601
 )
 
 var Errors = map[int32]*Error{
@@ -170,6 +176,26 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Delete Deployment Error",
 		ErrMsg: "删除实例失败",
 	},
+	EKUBE_GET_RS_BY_DEPLOYMENT: &Error {
+		LogMsg: "Kuberetes get Replicaset by Deployment Error",
+		ErrMsg: "通过Deployment获取Rs失败",
+	},
+	EKUBE_GET_PODS_BY_RS: &Error {
+		LogMsg: "Kuberentes Get Pods by Replicaset Error",
+		ErrMsg: "通过Rs获取Pods失败",
+	},
+	EKUBE_GET_NODE_BY_POD: &Error {
+		LogMsg: "Kubernetes Get Node by Pod Error",
+		ErrMsg: "通过Pod获取Node失败",
+	},
+	EKUBE_GET_SERVICES_BY_NAMESPACE: &Error {
+		LogMsg: "Kubernetes Get Services by Namespaces Error",
+		ErrMsg: "通过命名空间获取服务列表失败",
+	},
+	EKUBE_GET_PODS_BY_SERVICE: &Error {
+		LogMsg: "Kubernetes Get Pods by Service Error",
+		ErrMsg: "通过服务列表获取pods失败",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{
@@ -241,5 +267,11 @@ var Errors = map[int32]*Error{
 	EJSON: &Error{
 		LogMsg: "Json Marshal/Unmarshal Error",
 		ErrMsg: "Json序列化错误",
+	},
+
+	// 1601 参数错误
+	EARGS: &Error{
+		LogMsg: "Invalid arguments",
+		ErrMsg: "参数错误",
 	},
 }
