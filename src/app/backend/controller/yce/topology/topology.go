@@ -423,7 +423,7 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 
 func (tc *TopologyController) encodeTopology() string {
 
-	data, err := json.MarshalIndent(tc.topology, "", "\t")
+	data, err := json.Marshal(tc.topology)
 	if err != nil {
 		mylog.Log.Errorf("encodeTopology Error: err=%s\n", err)
 		tc.Ye = myerror.NewYceError(myerror.EJSON, "")

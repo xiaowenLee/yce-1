@@ -68,6 +68,7 @@ func NewRouter() *Router {
 	r.DeleteService = new(myservice.DeleteServiceController)
 	r.DeleteEndpoint = new(myendpoint.DeleteEndpointsController)
 	r.HistoryDeploy = new(mydeploy.HistoryDeployController)
+	r.Topology = new(mytopology.TopologyController)
 
 	return r
 }
