@@ -3,6 +3,7 @@ package topology
 import (
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
+	"app/backend/common/util/session"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
@@ -22,7 +23,7 @@ type DcList struct {
 
 type TopologyController struct {
 	*iris.Context
-	k8sClient []*client.Client
+	k8sClients []*client.Client
 	apiServers []string
 	Ye *myerror.YceError
 	orgName string
@@ -121,7 +122,7 @@ func (tc *TopologyController) getDcIdListByOrgId() {
 	}
 
 	dcList := DcList{}
-	err = json.Unmarshal(org.DcList, &dcList)
+	err = json.Unmarshal([]byte(org.DcList), &dcList)
 	if err != nil {
 		tc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return
@@ -204,7 +205,7 @@ func getDeploymentsByNamespace(c *client.Client, namespace string) ([]extensions
 
 	dps, err := c.Extensions().Deployments(namespace).List(api.ListOptions{})
 	if err != nil {
-		logger.Fatalf("getDeploymentsByNamespace Error: err=%s\n", err)
+		mylog.Log.Errorf("getDeploymentsByNamespace Error: err=%s\n", err)
 		return nil, err
 	}
 
@@ -216,13 +217,13 @@ func getReplicaSetsByDeployment(c *client.Client, deployment *extensions.Deploym
 	namespace := deployment.Namespace
 	selector, err := unver.LabelSelectorAsSelector(deployment.Spec.Selector)
 	if err != nil {
-		logger.Fatalf("getReplicaSetsByDeployment Error: err=%s\n", err)
+		mylog.Log.Errorf("getReplicaSetsByDeployment Error: err=%s\n", err)
 		return nil, err
 	}
 	options := api.ListOptions{LabelSelector: selector}
 	rsList, err := c.Extensions().ReplicaSets(namespace).List(options)
 
-	logger.Printf("getReplicaSetsByDeployment: dp.Name=%s, len(rs.Items)=%d\n", deployment.Name, len(rsList.Items))
+	mylog.Log.Infof("getReplicaSetsByDeployment: dp.Name=%s, len(rs.Items)=%d\n", deployment.Name, len(rsList.Items))
 
 	return rsList.Items, nil
 }
@@ -230,18 +231,18 @@ func getReplicaSetsByDeployment(c *client.Client, deployment *extensions.Deploym
 func getPodsByReplicaSet(c *client.Client, namespace string, rs *extensions.ReplicaSet) ([]api.Pod, error) {
 	selector, err := unver.LabelSelectorAsSelector(rs.Spec.Selector)
 	if err != nil {
-		logger.Fatalf("getPodsByReplicaSet Error: err=%s\n", err)
+		mylog.Log.Infof("getPodsByReplicaSet Error: err=%s\n", err)
 		return nil, err
 	}
 	options := api.ListOptions{LabelSelector: selector}
 
 	podList, err := c.Pods(namespace).List(options)
 	if err != nil {
-		logger.Fatalf("getPodsByReplicaSet Error: err=%s\n", err)
+		mylog.Log.Errorf("getPodsByReplicaSet Error: err=%s\n", err)
 		return nil, err
 	}
 
-	logger.Printf("getPodsByReplicaSet: rs.Name=%s, len(rs.Items)=%d\n", rs.Name, len(podList.Items))
+	mylog.Log.Infof("getPodsByReplicaSet: rs.Name=%s, len(rs.Items)=%d\n", rs.Name, len(podList.Items))
 
 	return podList.Items, nil
 }
@@ -250,7 +251,7 @@ func getNodeByPod(c *client.Client, pod *api.Pod) (*api.Node, error) {
 	name := pod.Spec.NodeName
 	node, err := c.Nodes().Get(name)
 	if err != nil {
-		logger.Fatalf("getNodeByPod Error: err=%s\n", err)
+		mylog.Log.Infof("getNodeByPod Error: err=%s\n", err)
 		return nil, err
 	}
 	return node, nil
@@ -259,7 +260,7 @@ func getNodeByPod(c *client.Client, pod *api.Pod) (*api.Node, error) {
 func getServicesByNamespace(c *client.Client, namespace string) ([]api.Service, error) {
 	svcs, err := c.Services(namespace).List(api.ListOptions{})
 	if err != nil {
-		logger.Fatalf("getServicesByNamespace Error: err=%s\n", err)
+		mylog.Log.Infof("getServicesByNamespace Error: err=%s\n", err)
 		return nil, err
 	}
 
@@ -272,7 +273,7 @@ func getPodByService(c *client.Client, namespace string, svc *api.Service) ([]ap
 
 	s, err := unver.LabelSelectorAsSelector(selector)
 	if err != nil {
-		logger.Fatalf("getPodByService Error: err=%s\n", err)
+		mylog.Log.Infof("getPodByService Error: err=%s\n", err)
 		return nil, err
 	}
 
@@ -280,7 +281,7 @@ func getPodByService(c *client.Client, namespace string, svc *api.Service) ([]ap
 
 	podList, err := c.Pods(namespace).List(options)
 	if err != nil {
-		logger.Fatalf("getPodByService Error: err=%s\n", err)
+		mylog.Log.Fatalf("getPodByService Error: err=%s\n", err)
 		return nil, err
 	}
 
@@ -319,7 +320,7 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 		rsList, err := getReplicaSetsByDeployment(c, &dp)
 		if err != nil {
 			mylog.Log.Errorf("getTopology Error: err=%s\n", err)
-			tc.Ye = myerror.NewYceError(EKUBE_GET_RS_BY_DEPLOYMENT, "")
+			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_RS_BY_DEPLOYMENT, "")
 			return false
 		}
 
@@ -424,7 +425,7 @@ func (tc *TopologyController) encodeTopology() string {
 
 	data, err := json.MarshalIndent(tc.topology, "", "\t")
 	if err != nil {
-		myerror.Log.Errorf("encodeTopology Error: err=%s\n", err)
+		mylog.Log.Errorf("encodeTopology Error: err=%s\n", err)
 		tc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
 	}
@@ -438,26 +439,26 @@ func (tc *TopologyController) initTopology() {
 }
 
 func (tc *TopologyController) getTopologyForAllDc() {
-	for index, client := range tc.k8sClient {
+	for index, client := range tc.k8sClients {
 		tc.getTopology(client, tc.orgName)
-		myerror.Log.Infof("Get Topology data for every datacenter: apiServer=%s, client=%p\n", tc.apiServers[index], client)
+		mylog.Log.Infof("Get Topology data for every datacenter: apiServer=%s, client=%p\n", tc.apiServers[index], client)
 	}
 }
 
 // GET /api/v1/organizations/{orgId}/topology
 func (tc TopologyController) Get() {
 	sessionIdFromClient := tc.RequestHeader("Authorization")
-	orgId := tc.Param("orgId")
-
-	tc.orgId, err = strconv.Atoi(orgId)
+	orgIdStr := tc.Param("orgId")
+	orgId, err := strconv.Atoi(orgIdStr)
 	if err != nil {
 		tc.Ye = myerror.NewYceError(myerror.EARGS, "")
 		tc.WriteBack()
 		return
 	}
+	tc.orgId = int32(orgId)
 
 	// Validate OrgId error
-	tc.validateSession(sessionIdFromClient, orgId)
+	tc.validateSession(sessionIdFromClient, orgIdStr)
 	if tc.Ye != nil {
 		tc.WriteBack()
 		return
