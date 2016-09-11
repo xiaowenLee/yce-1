@@ -18,19 +18,20 @@ var navList = `
                 {"id": 22, "name": "历史操作", "state": "main.appManageHistory", "includeState": "main.appManageHistory"}
             ]
         },
-        {"id": 3, "name": "镜像管理", "state": "main.imageManage", "includeState": "main.imageManage","className":"fa-file-archive-o",
+        {"id": 3, "name": "服务管理", "state": "main.extensions", "includeState": "main.extensions","className":"fa-arrows",
             "item": [
-                {"id": 31, "name": "基础镜像", "state": "main.imageManageDelete", "includeState": "main.imageManageDelete"}
+                {"id": 31, "name": "创建服务", "state": "main.extensionsService", "includeState": "main.extensionsService"},
+                {"id": 32, "name": "创建访问点", "state": "main.extensionsEndpoint", "includeState": "main.extensionsEndpoint"}
             ]
         },
-        {"id": 4, "name": "服务管理", "state": "main.extensions", "includeState": "main.extensions","className":"fa-arrows",
+        {"id": 4, "name": "镜像管理", "state": "main.imageManage", "includeState": "main.imageManage","className":"fa-file-archive-o",
             "item": [
-                {"id": 51, "name": "创建服务", "state": "main.extensionsService", "includeState": "main.extensionsService"},
-                {"id": 52, "name": "创建访问点", "state": "main.extensionsEndpoint", "includeState": "main.extensionsEndpoint"}
+                {"id": 41, "name": "基础镜像", "state": "main.imageManageDelete", "includeState": "main.imageManageDelete"}
             ]
         },
-        {"id": 5, "name": "云盘管理", "state": "main.rbdManage", "includeState": "main.rbdManage","className":"fa-cloud"},
-        {"id": 6, "name": "计费&充值", "state": "main.costManage", "includeState": "main.costManage","className":"fa-credit-card"}
+        {"id": 5, "name": "集群拓扑", "state": "main.topology", "includeState": "main.topology","className":"fa-share-alt"},
+        {"id": 6, "name": "云盘管理", "state": "main.rbdManage", "includeState": "main.rbdManage","className":"fa-cloud"},
+        {"id": 7, "name": "计费&充值", "state": "main.costManage", "includeState": "main.costManage","className":"fa-credit-card"}
     ]
 }
 `
