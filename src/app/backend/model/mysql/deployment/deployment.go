@@ -20,6 +20,9 @@ const (
 	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, " +
 		"actionAt, actionOp, dcList, success, reason, json, comment, orgId) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	DEPLOYMENT_ACTIONTYPE_STAT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
+		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
+		"FROM deployment where actionType=?"
 	VALID   = 1
 	INVALID = 0
 )
@@ -153,4 +156,44 @@ func QueryDeploymentByAppName(name string) ([]Deployment, error) {
 	}
 
 	return deployments, nil
+}
+
+func StatDeploymentByActionType(actionType int) (count int32, err error) {
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-by-actionType
+	stmt, err := db.Prepare(DEPLOYMENT_ACTIONTYPE_STAT)
+	if err != nil {
+		log.Errorf("StatDeploymentByActionType Error: err=%s", err)
+		return 0, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(actionType)
+	if err != nil {
+		log.Errorf("StatDeploymentByActionType Error: err=%s", err)
+		return 0, err
+	}
+	defer rows.Close()
+
+	count = 0
+	for rows.Next() {
+		d := new(Deployment)
+		var comment []byte
+
+		err = rows.Scan(&d.Id, &d.Name, &d.ActionType, &d.ActionVerb, &d.ActionUrl, &d.ActionAt,
+			&d.ActionOp, &d.DcList, &d.Success, &d.Reason, &d.Json, &comment, &d.OrgId)
+		d.Comment = string(comment)
+		if err != nil {
+			log.Errorf("StatDeploymentByActionType Error: err=%s", err)
+			return 0, err
+		}
+
+		count++
+		//log.Infof("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s, orgId=%d", d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment, d.OrgId)
+
+	}
+
+	return count, nil
 }
