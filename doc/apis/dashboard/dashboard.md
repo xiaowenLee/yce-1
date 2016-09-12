@@ -1,0 +1,161 @@
+dashboard显示信息:
+
+--------
+
+### 获取dashboard统计信息
+
+请求URL: /api/v1/organizations/{:orgId}/dashboard 
+
+请求头: Authorization: SessionId
+
+请求返回Json:
+
+```json
+{
+  "code":0
+  "message": "OK",
+  "data": {
+      "datacenterStat": {       // 数据中心信息统计
+        "totalActionStat": {
+            "counts": {
+              "online": 1,
+              "rollingBack": 1,
+              "rollingUpgrade": 1,
+              "pause": 1,
+              "resume": 1,
+              "scaling": 1,
+              "delete": 1,
+              "cancel": 1
+            }, 
+           "userOpCounts": {   // 数据中心里用户操作信息
+              "user1": 10,
+              "user2": 20
+           } 
+      },
+      "totalDeploymentStat": { // 当前发布总数
+          "current": 10
+      },
+      "totalService": {       // 当前服务总数
+          "current": 5 
+      },
+      "quotaStat":    {      // 当前配额统计
+          "total": {
+              "cpu": 10,
+              "mem": 200
+          },
+          "used": {
+              "cpu": 5,
+              "mem": 100
+          }, 
+          "free": {
+              "cpu": 5,
+              "mem": 100,
+          }
+      }
+    },
+    
+   "userStat": {                // 用户统计
+        "organizations": "ops",
+        "dataCenters": [
+              "bangongwang",
+              "dianxin"
+        ],
+        "accountAudit": [      // 账户收支统计
+            "budget": 100,
+            "balance": 50
+        ]
+   },
+   
+   "deploymentStat": [{         // 该组织下应用统计
+          "dcIdList": [
+              1,
+              2
+          ],
+          "dcName": [
+             "bangongwang",
+             "dianxin"
+          ],
+          "actionStat": {
+            "counts": {
+              "online": 1,
+              "rollingback": 1,
+              "rollingupgrade": 1,
+              "pause": 1,
+              "resume": 1,
+              "scaling": 1,
+              "delete": 1,
+              "cancel": 1,
+            },
+          }, 
+          "health": [      // 健康状态百分比  running / all
+              70,
+              80
+          ],
+          "podStat": [     // 实例个数求它的长度即可
+              {
+                  "podName": "abc",
+                  "restart": 10,
+                  "state": "Running"
+              } 
+          ]
+   }],
+   "serviceStat": [
+      {
+          "dcIdList": [
+              1,
+              2
+           ],
+          "dcName": [
+              "bangongwang",
+              "dianxin"
+          ]
+          "svcName": "test-svc",
+          "health": 100
+      }       
+   ]
+} 
+
+```
+
+
+涉及到多个信息组,目前能想到的有:
+
+###普通用户
+
+应用发布信息:
+
+发布次数、滚升次数、回滚次数、扩容次数、删除次数. 可按时间筛选
+
+应用状态信息:
+
+实例个数、健康状态(可运行实例数/总实例数)、实例重启次数
+
+服务信息:
+
+服务个数、健康状态
+
+用户个人信息:
+
+数据中心、组织、账户信息、配额信息
+
+账户信息:
+
+充值记录、当前余额、消费记录
+
+配额信息:
+
+配额总量、当前余额
+
+
+### 管理员用户
+
+数据中心信息:
+
+数据中心位置、集群数量、节点网络、CPU、内存、硬盘使用情况
+
+镜像仓库信息:
+
+镜像仓库位置、网络、硬盘使用情况、同步情况
+
+用户、组织审计信息:
+
