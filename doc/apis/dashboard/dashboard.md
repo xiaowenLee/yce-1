@@ -26,11 +26,8 @@ dashboard显示信息:
               "scaling": 1,
               "delete": 1,
               "cancel": 1
-            }, 
-           "userOpCounts": {   // 数据中心里用户操作信息
-              "user1": 10,
-              "user2": 20
-           } 
+            }
+           
       },
       "totalDeploymentStat": { // 当前发布总数
           "current": 10
@@ -54,12 +51,16 @@ dashboard显示信息:
       }
     },
     
-   "userStat": {                // 用户统计
+   "userStat": {                // 当前用户统计
         "organizations": "ops",
         "dataCenters": [
               "bangongwang",
               "dianxin"
         ],
+        "userActionCounts": {   // 数据中心里用户操作信息
+              "ActionType1": 10,
+              "ActionType2": 20
+           } 
         "accountAudit": [      // 账户收支统计
             "budget": 100,
             "balance": 50
@@ -116,6 +117,44 @@ dashboard显示信息:
 } 
 
 ```
+
+
+数据包括:
+    数据中心统计, 包括:
+        总操作统计: 各个操作(上线、回滚等)的次数
+        总应用统计: 当前应用数量
+        总服务统计: 当前服务数量
+        配额统计: 
+            已用:
+                CPU:
+                MEM:
+            可用:
+                CPU:
+                MEM:
+            总额:
+                CPU:
+                MEM:
+    用户统计, 包括:
+        组织:
+        数据中心:
+        用户操作统计:
+        账户统计:
+            预算:
+            支出:
+    应用统计, 按应用统计, 按数据中心区分
+        数据中心:
+        数据中心名称:
+        操作统计:
+        健康度统计: 运行/全部 百分比
+        实例统计:
+            实例名称:
+            运行状态:
+            重启次数:
+    服务统计, 按数据中心区分
+        数据中心:
+        数据中心名称:
+        服务名称:
+        是否可用:
 
 
 涉及到多个信息组,目前能想到的有:
