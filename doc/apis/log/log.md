@@ -91,6 +91,7 @@ func (y *YceLogger) Fatalf() {
 ```
 
 
+
 ### 参考资料
 
 [logging-levels-logback-rule-of-thumb-to-assign-log-levels](http://stackoverflow.com/questions/7839565/logging-levels-logback-rule-of-thumb-to-assign-log-levels)
