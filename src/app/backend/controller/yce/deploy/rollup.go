@@ -89,10 +89,20 @@ func (rdc *RollingDeployController) getApiServerByDcId(dcId int32) string {
 func (rdc *RollingDeployController) getApiServer(dcIdList []int32) {
 	// Get ApiServer
 	// must be one dcId
-	dcId := dcIdList[0]
+	var dcId int32
+	if len(dcIdList) > 0 {
+		dcId = dcIdList[0]
+	} else {
+		mylog.Log.Errorf("RollingDeployController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(dcIdList))
+		rdc.Ye = myerror.NewYceError(myerror.EOOM, "")
+		return
+
+	}
+
 	apiServer := rdc.getApiServerByDcId(dcId)
 	if strings.EqualFold(apiServer, "") {
 		mylog.Log.Errorf("RollingDeployController getApiServerList Error")
+		rdc.Ye = myerror.NewYceError(myerror.EOOM, "")
 		return
 	}
 
@@ -155,6 +165,7 @@ func (rdc *RollingDeployController) RollingUpdate(namespace, deployment string, 
 	if err != nil {
 		mylog.Log.Errorf("Rolling Update Deployment Error: error=%s", err)
 		rdc.Ye = myerror.NewYceError(myerror.EKUBE_ROLLING_DEPLOYMENTS, "")
+		return
 	}
 
 	mylog.Log.Infof("Rolling Update deployment successfully: namespace=%s, apiserver=%s", namespace, rdc.apiServers)
@@ -201,22 +212,29 @@ func (rdc RollingDeployController) Post() {
 	deploymentName := rdc.Param("deploymentName")
 	org := new(myorganization.Organization)
 
+
 	// Get orgName by orgId
 	orgIdInt, _ := strconv.Atoi(orgId)
 	org.QueryOrganizationById(int32(orgIdInt))
 	orgName := org.Name
 
 	sessionIdFromClient := rdc.RequestHeader("Authorization")
-	rdc.validateSession(sessionIdFromClient, orgId)
+	mylog.Log.Debugf("RolllingDeployController Params: sessionId=%s, orgId=%s, orgName=%s", sessionIdFromClient, orgId, orgName)
 
+	rdc.validateSession(sessionIdFromClient, orgId)
 	if rdc.Ye != nil {
 		rdc.WriteBack()
 		return
 	}
 
 	rd := new(deploy.RollingDeployment)
-	rdc.ReadJSON(rd)
-
+	err := rdc.ReadJSON(rd)
+	if err != nil {
+		mylog.Log.Errorf("RollingUpDeployController ReadJSON Error: error=%s", err)
+		rdc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		rdc.WriteBack()
+		return
+	}
 
 	// Get DcIdList
 	rdc.getApiServer(rd.DcIdList)
