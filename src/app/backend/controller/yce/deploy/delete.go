@@ -18,6 +18,7 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"app/backend/model/yce/deploy"
 	"strconv"
+	"app/backend/common/yce/datacenter"
 )
 
 const (
@@ -105,7 +106,7 @@ func (ddc *DeleteDeploymentController) getDcId() int32 {
 	} else {
 		mylog.Log.Errorf("DeleteDeploymentController getDcId Error: len(DcIdList)=%d, err=no value in DcIdList, Index out of range", len(ddc.params.DcIdList))
 		ddc.Ye = myerror.NewYceError(myerror.EOOM, "")
-		return
+		return 0
 	}
 
 
@@ -128,8 +129,14 @@ func (ddc *DeleteDeploymentController) getDatacenterByDcId(dcId int32) *mydatace
 // getApiServer
 func (ddc *DeleteDeploymentController) getApiServer() {
 	dcId := ddc.getDcId()
+	if ddc.Ye != nil {
+		return
+	}
 
 	datacenter := ddc.getDatacenterByDcId(dcId)
+	if ddc.Ye != nil {
+		return
+	}
 
 	host := datacenter.Host
 	port := strconv.Itoa(int(datacenter.Port))

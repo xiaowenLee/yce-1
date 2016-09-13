@@ -100,7 +100,13 @@ func (lpc *LogsPodController) getParams() {
 func (lpc *LogsPodController) getDcId() int32 {
 	//dcId, _ := strconv.Itoi(lpc.params.DcId)
 	//return int32(dcId)
-	return lpc.params.DcIdList[0]
+	if len(lpc.params.DcIdList) > 0 {
+		return lpc.params.DcIdList[0]
+	}else {
+		mylog.Log.Errorf("LogsPodController getDcId Error: len(DcIdList)=%d, err=no value in DcIdList, Index out of range", len(ddc.params.DcIdList))
+		lpc.Ye = myerror.NewYceError(myerror.EOOM, "")
+		return 0
+	}
 }
 
 // getDatacenter by DcId
@@ -120,8 +126,14 @@ func (lpc *LogsPodController) getDatacenterByDcId(dcId int32) *mydatacenter.Data
 // getApiServer
 func (lpc *LogsPodController) getApiServer() {
 	dcId := lpc.getDcId()
+	if lpc.Ye != nil {
+		return
+	}
 
 	datacenter := lpc.getDatacenterByDcId(dcId)
+	if lpc.Ye != nil {
+		return
+	}
 
 	host := datacenter.Host
 	port := strconv.Itoa(int(datacenter.Port))
@@ -205,6 +217,9 @@ func (lpc *LogsPodController) getPodLogsByPodName() string {
 func (lpc *LogsPodController) logs() string {
 
 	logs := lpc.getPodLogsByPodName()
+	if lpc.Ye != nil {
+		return
+	}
 
 	mylog.Log.Infof("LogsPodController logs pod successfully")
 
@@ -220,6 +235,9 @@ func (lpc LogsPodController) Post() {
 	sessionIdFromClient := lpc.RequestHeader("Authorization")
 	lpc.orgId = lpc.Param("orgId")
 	lpc.podName = lpc.Param("podName")
+
+	mylog.Log.Debugf("LogsPodController Params: sessionId=%s, orgId=%s, podName=%s", sessionIdFromClient, lpc.orgId, lpc.podName)
+
 
 	// validate sessionId
 	lpc.validateSession(sessionIdFromClient, lpc.orgId)
@@ -244,6 +262,10 @@ func (lpc LogsPodController) Post() {
 
 	// getK8sClient
 	lpc.getK8sClient()
+	if lpc.Ye != nil {
+		lpc.WriteBack()
+		return
+	}
 
 	// logs Pod
 	logs := lpc.logs()
