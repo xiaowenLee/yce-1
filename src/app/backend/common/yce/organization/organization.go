@@ -31,6 +31,7 @@ func GetOrganizationById(orgId string) (*organization.Organization, error) {
 		return nil, err
 	}
 
+
 	return myorganization, nil
 
 }
