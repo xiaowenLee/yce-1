@@ -26,7 +26,7 @@ var navList = `
         },
         {"id": 4, "name": "镜像管理", "state": "main.imageManage", "includeState": "main.imageManage","className":"fa-file-archive-o",
             "item": [
-                {"id": 41, "name": "基础镜像", "state": "main.imageManageDelete", "includeState": "main.imageManageDelete"}
+                {"id": 41, "name": "基础镜像", "state": "main.imageManageBase", "includeState": "main.imageManageBase"}
             ]
         },
         {"id": 5, "name": "集群拓扑", "state": "main.topology", "includeState": "main.topology","className":"fa-share-alt"},
