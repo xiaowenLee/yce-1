@@ -103,7 +103,7 @@ func (lpc *LogsPodController) getDcId() int32 {
 	if len(lpc.params.DcIdList) > 0 {
 		return lpc.params.DcIdList[0]
 	}else {
-		mylog.Log.Errorf("LogsPodController getDcId Error: len(DcIdList)=%d, err=no value in DcIdList, Index out of range", len(ddc.params.DcIdList))
+		mylog.Log.Errorf("LogsPodController getDcId Error: len(DcIdList)=%d, err=no value in DcIdList, Index out of range", len(lpc.params.DcIdList))
 		lpc.Ye = myerror.NewYceError(myerror.EOOM, "")
 		return 0
 	}
@@ -218,7 +218,7 @@ func (lpc *LogsPodController) logs() string {
 
 	logs := lpc.getPodLogsByPodName()
 	if lpc.Ye != nil {
-		return
+		return ""
 	}
 
 	mylog.Log.Infof("LogsPodController logs pod successfully")

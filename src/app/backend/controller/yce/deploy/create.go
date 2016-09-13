@@ -87,7 +87,7 @@ func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) {
 		apiServer := cdc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
 			mylog.Log.Errorf("CreateDeployController getApiServerList Error")
-			cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY)
+			cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 			return
 		}
 

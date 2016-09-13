@@ -18,7 +18,7 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"app/backend/model/yce/deploy"
 	"strconv"
-	"app/backend/common/yce/datacenter"
+	//"app/backend/common/yce/datacenter"
 )
 
 const (
@@ -169,7 +169,7 @@ func (ddc *DeleteDeploymentController) createK8sClient() *client.Client {
 func (ddc *DeleteDeploymentController) getK8sClient() {
 	ddc.k8sClient = ddc.createK8sClient()
 	if ddc.k8sClient == nil {
-		mylog.Log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=%s", ddc.apiServer, err)
+		mylog.Log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=createK8sClient failed", ddc.apiServer)
 		ddc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 		return
 	}
