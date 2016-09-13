@@ -139,6 +139,9 @@ func (cec CreateEndpointsController) Post() {
 	sessionIdFromClient := cec.RequestHeader("Authorization")
 	orgId := cec.Param("orgId")
 
+	mylog.Log.Debugf("CreateEndpointsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
+
+
 	// Validate OrgId error
 	cec.validateSession(sessionIdFromClient, orgId)
 	if cec.Ye != nil {
