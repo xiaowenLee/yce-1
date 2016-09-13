@@ -98,7 +98,17 @@ func (ddc *DeleteDeploymentController) getParams() {
 func (ddc *DeleteDeploymentController) getDcId() int32 {
 	//dcId, _ := strconv.Itoi(ddc.params.DcId)
 	//return int32(dcId)
-	return ddc.params.DcIdList[0]
+	//TODO: unsupported multi deletion
+
+	if len(ddc.params.DcIdList) > 0 {
+		return ddc.params.DcIdList[0]
+	} else {
+		mylog.Log.Errorf("DeleteDeploymentController getDcId Error: len(DcIdList)=%d, err=no value in DcIdList, Index out of range", len(ddc.params.DcIdList))
+		ddc.Ye = myerror.NewYceError(myerror.EOOM, "")
+		return
+	}
+
+
 }
 
 // getDatacenter by DcId
@@ -140,6 +150,8 @@ func (ddc *DeleteDeploymentController) createK8sClient() *client.Client {
 	c, err := client.New(config)
 	if err != nil {
 		mylog.Log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=%s", ddc.apiServer, err)
+		ddc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
+		return nil
 	}
 
 	mylog.Log.Debugf("DeleteDeploymentController createK8sClient successfully: apiServer=%s, k8sClient=%p", ddc.apiServer, c)
@@ -149,6 +161,11 @@ func (ddc *DeleteDeploymentController) createK8sClient() *client.Client {
 // get k8sclient
 func (ddc *DeleteDeploymentController) getK8sClient() {
 	ddc.k8sClient = ddc.createK8sClient()
+	if ddc.k8sClient == nil {
+		mylog.Log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=%s", ddc.apiServer, err)
+		ddc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
+		return
+	}
 	mylog.Log.Infof("DeleteDeploymentController getK8sClient successfully: k8sClient=%p, apiServer=%s", ddc.k8sClient, ddc.apiServer)
 }
 
@@ -303,7 +320,7 @@ func (ddc *DeleteDeploymentController) createMysqlDeployment() {
 	uph := placeholder.NewPlaceHolder(DELETE_URL)
 	actionUrl := uph.Replace("<orgId>", ddc.orgId, "<deploymentName>", ddc.deploymentName)
 	actionOp, _ := strconv.Atoi(ddc.params.UserId)
-	mylog.Log.Debugf("DeleteDeploymentController createMySQLDeployment: actionOp=%d", actionOp)
+	mylog.Log.Debugf("DeleteDeploymentController createMySQLDeployment: actionOp=%d, actionUrl=%s", actionOp, actionUrl)
 
 	//dcIdList := strconv.Itoa(int(ddc.params.DcId))
 	dcIdList := ddc.encodeDcIdList()
@@ -326,25 +343,52 @@ func (ddc *DeleteDeploymentController) createMysqlDeployment() {
 func (ddc *DeleteDeploymentController) delete() {
 	// getDeployment By Name and DcId and namespace
 	ddc.getDeploymentByName()
-	//TODO: handle the error
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	// gerReplicaSet List referred to this Deployment
 	ddc.getReplicaSetListByDeployment()
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	// getPods referred to every replicase
 	ddc.getPodsByReplicaSet()
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	// delete Deployment
 	ddc.deleteDeployment()
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	// delete ReplicaSet
 	ddc.deleteReplicaSet()
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	// delete Pods
 	ddc.deletePods()
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	// write delete event to mysql
 	ddc.createMysqlDeployment()
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	mylog.Log.Infof("DeleteDeploymentController delete replicaset and deployment and create mysql deployment successfully")
 }
@@ -357,6 +401,9 @@ func (ddc DeleteDeploymentController) Post() {
 	sessionIdFromClient := ddc.RequestHeader("Authorization")
 	ddc.orgId = ddc.Param("orgId")
 	ddc.deploymentName = ddc.Param("deploymentName")
+
+	mylog.Log.Debugf("DeleteDeploymentController Params: sessionId=%s, orgId=%s, deploymentName=%s", sessionIdFromClient, ddc.orgId, ddc.deploymentName)
+
 
 	// validate sessionId
 	ddc.validateSession(sessionIdFromClient, ddc.orgId)
@@ -381,6 +428,10 @@ func (ddc DeleteDeploymentController) Post() {
 
 	// getK8sClient
 	ddc.getK8sClient()
+	if ddc.Ye != nil {
+		ddc.WriteBack()
+		return
+	}
 
 	// deleteDeployment
 	ddc.delete()
