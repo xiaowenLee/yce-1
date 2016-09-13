@@ -197,6 +197,7 @@ func (cdc CreateDeployController) Post() {
 	if err != nil {
 		mylog.Log.Errorf("CreateDeployController ReadJSON error: error=%s", err)
 		cdc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		cdc.WriteBack()
 		return
 	}
 	mylog.Log.Infof("CreateDeployController ReadJSON success: cd=%p", cd)
