@@ -63,6 +63,7 @@ const (
 
 	EJSON int32 = 1600
 	EARGS int32 = 1601
+	EOOM  int32 = 1602
 )
 
 var Errors = map[int32]*Error{
@@ -283,5 +284,11 @@ var Errors = map[int32]*Error{
 	EARGS: &Error{
 		LogMsg: "Invalid arguments",
 		ErrMsg: "参数错误",
+	},
+
+	// 1602 内存溢出
+	EOOM: &Error {
+		LogMsg: "Out of memory",
+		ErrMsg: "内存溢出",
 	},
 }
