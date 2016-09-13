@@ -49,6 +49,7 @@ func (loc *ListOperationLogController) validateSession(sessionId, orgId string) 
 		return
 	}
 
+	mylog.Log.Infof("ListOperationLogController ValidateSession success")
 	return
 }
 // Query Deployments according to orgId
@@ -181,7 +182,7 @@ func (loc *ListOperationLogController) getOperationLogList(deployments []mydeplo
 	opLogListJson, _ := json.Marshal(opLogList)
 	opLogListString := string(opLogListJson)
 
-	mylog.Log.Infof("ListOperationController getOperationLogList over")
+	mylog.Log.Infof("ListOperationController getOperationLogList over: len(deployment)=%d", len(opLogList.OperationLog))
 	return opLogListString
 
 }
@@ -207,6 +208,8 @@ func (loc ListOperationLogController) Get() {
 	orgId := loc.Param("orgId")
 
 	sessionIdFromClient := loc.RequestHeader("Authorization")
+	mylog.Log.Debugf("ListOperationLogController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
+
 
 	// Validate sessionId with orgId
 	loc.validateSession(sessionIdFromClient, orgId)

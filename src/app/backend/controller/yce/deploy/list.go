@@ -82,7 +82,7 @@ func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment
 		ld.DcName = append(ld.DcName, dc.Name)
 	}
 
-	mylog.Log.Infof("CreateServiceController getDatacentersByOrgId: dcList=%s", dcList)
+	mylog.Log.Infof("CreateServiceController getDatacentersByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(ld.DcIdList), len(ld.DcName))
 }
 
 // Get ApiServer(k8s cluster host) of this datacenter
@@ -118,7 +118,7 @@ func (ldc *ListDeployController) getApiServerList(dcIdList []int32) {
 		ldc.apiServers = append(ldc.apiServers, apiServer)
 	}
 
-	mylog.Log.Infof("CreateServiceController getApiServerList successfully")
+	mylog.Log.Infof("CreateServiceController getApiServerList success: len(apiServers)=%d", len(ldc.apiServers))
 	return
 }
 
@@ -281,7 +281,7 @@ func (ldc *ListDeployController) listDeployments(userId int32, namespace string,
 		return
 	}
 
-	mylog.Log.Infoln("ListDeployController listDeployments successfully")
+	mylog.Log.Infoln("ListDeployController listDeployments success: len(Deployment)=%d", len(dpList))
 	return dpString
 }
 
@@ -290,6 +290,9 @@ func (ldc ListDeployController) Get() {
 	sessionIdFromClient := ldc.RequestHeader("Authorization")
 	orgId := ldc.Param("orgId")
 	userId := ldc.Param("userId")
+
+	mylog.Log.Debugf("ListDeployController Params: sessionId=%s, orgid=%s, userId=%s", sessionIdFromClient, orgId, userId)
+
 
 	// validateSessionId
 	ldc.validateSessionId(sessionIdFromClient, orgId)

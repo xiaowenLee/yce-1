@@ -99,6 +99,7 @@ func (hdc *HistoryDeployController) validateSessionId(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infof("HistoryDeployController ValidateSessionId success")
 	return
 }
 
@@ -211,7 +212,7 @@ func (hdc *HistoryDeployController) getReplicaSetList() {
 		*hdc.list = append(*hdc.list, hr)
 	}
 
-	mylog.Log.Infof("GetReplicaList over!")
+	mylog.Log.Infof("GetReplicaList over: len(rsList)=%d", len(rsList))
 }
 
 // Encode ReplicaSetList to string
@@ -231,9 +232,11 @@ func (hdc HistoryDeployController) Get() {
 	hdc.orgId = hdc.Param("orgId")
 	hdc.dcId = hdc.Param("dcId")
 	hdc.name = hdc.Param("name")
+	sessionIdFromClient := hdc.RequestHeader("Authorization")
+
+	mylog.Log.Debugf("HistoryDeployController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.name)
 
 	// validateSessionId
-	sessionIdFromClient := hdc.RequestHeader("Authorization")
 	hdc.validateSessionId(sessionIdFromClient, hdc.orgId)
 	if hdc.Ye != nil {
 		hdc.WriteBack()

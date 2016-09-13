@@ -228,10 +228,11 @@ func (rdc *RollbackDeployController) encodeDcIdList() string{
 func (rdc RollbackDeployController) Post() {
 	rdc.orgId = rdc.Param("orgId")
 	rdc.name = rdc.Param("name")
+	sessionIdFromClient := rdc.RequestHeader("Authorization")
 
+	mylog.Log.Debugf("RollbackDeployController Params: sessionId=%s, orgId=%s, name=%s", sessionIdFromClient, rdc.orgId, rdc.name)
 
 	// Validate the session
-	sessionIdFromClient := rdc.RequestHeader("Authorization")
 	rdc.validateSession(sessionIdFromClient, rdc.orgId)
 	if rdc.Ye != nil {
 		rdc.WriteBack()
@@ -240,8 +241,13 @@ func (rdc RollbackDeployController) Post() {
 
 	// RollbackDeployment Param
 	rdc.r = new(RollbackDeployParam)
-	rdc.ReadJSON(rdc.r)
-
+	err := rdc.ReadJSON(rdc.r)
+	if err != nil {
+		mylog.Log.Errorf("RollbackDeployController ReadJSON Error: error=%s", err)
+		rdc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		rdc.WriteBack()
+		return
+	}
 
 	// Get ApiServer and K8sClient
 	rdc.name = rdc.r.AppName

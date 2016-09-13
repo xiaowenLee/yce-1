@@ -54,6 +54,8 @@ func (idc *InitDeployController) validateSession(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infof("InitDeployController ValidateSession success")
+
 	return
 }
 
@@ -62,9 +64,10 @@ func (idc InitDeployController) Get() {
 	sessionIdFromClient := idc.RequestHeader("Authorization")
 	orgId := idc.Param("orgId")
 
-	// Validate OrgId error
-	idc.validateSession(sessionIdFromClient, orgId)
+	mylog.Log.Debugf("InitDeployController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
+	idc.validateSession(sessionIdFromClient, orgId)
+	// Validate OrgId error
 	if idc.Ye != nil {
 		idc.WriteBack()
 		return
@@ -72,16 +75,17 @@ func (idc InitDeployController) Get() {
 
 	// Valid session
 	org, err := organization.GetOrganizationById(orgId)
-	idc.org = org
-	idc.Init.OrgId = orgId
-	idc.Init.OrgName = idc.org.Name
-
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		idc.WriteBack()
 		return
 	}
+
+	idc.org = org
+	idc.Init.OrgId = orgId
+	idc.Init.OrgName = idc.org.Name
+	mylog.Log.Debugf("InitDeployController Params: org=%p, orgId=%s", idc.org, idc.Init.OrgId, idc.Init.OrgName)
 
 	// Get Datacenters by a organization
 	idc.Init.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)

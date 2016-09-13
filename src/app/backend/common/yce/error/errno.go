@@ -42,6 +42,7 @@ const (
 	EKUBE_GET_SERVICES_BY_NAMESPACE  = 1224
 	EKUBE_GET_PODS_BY_SERVICE        = 1225
 	EKUBE_LOGS_POD			 = 1226
+	EKUBE_SCALE_DEPLOYMENT		 = 1227
 
 
 	EIRIS int32 = 1300
@@ -63,6 +64,7 @@ const (
 
 	EJSON int32 = 1600
 	EARGS int32 = 1601
+	EOOM  int32 = 1602
 )
 
 var Errors = map[int32]*Error{
@@ -202,6 +204,10 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Logs Pod Error",
 		ErrMsg: "获取Pod日志失败",
 	},
+	EKUBE_SCALE_DEPLOYMENT: &Error {
+		LogMsg: "Kuberentes Scale Deployment Error",
+		ErrMsg: "扩容Deployment失败",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{
@@ -283,5 +289,11 @@ var Errors = map[int32]*Error{
 	EARGS: &Error{
 		LogMsg: "Invalid arguments",
 		ErrMsg: "参数错误",
+	},
+
+	// 1602 内存溢出
+	EOOM: &Error {
+		LogMsg: "Out of memory",
+		ErrMsg: "内存溢出",
 	},
 }
