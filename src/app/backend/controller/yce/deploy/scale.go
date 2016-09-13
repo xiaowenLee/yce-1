@@ -72,7 +72,15 @@ func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
 	dc := new(mydatacenter.DataCenter)
 
 	//TODO: find a better way
-	dcId := sdc.s.DcIdList[0]
+	var dcId int32
+	if len(sdc.s.DcIdList) > 0 {
+		dcId = sdc.s.DcIdList[0]
+	} else {
+		mylog.Log.Errorf("ScaleDeployController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(sdc.s.DcIdList))
+		sdc.Ye = myerror.NewYceError(myerror.EOOM, "")
+		return
+	}
+
 	sdc.dcId = strconv.Itoa(int(dcId))
 
 	err := dc.QueryDataCenterById(dcId)
@@ -110,9 +118,7 @@ func (sdc *ScaleDeploymentController) getDeploymentByName() {
 		mylog.Log.Errorf("ScaleDeployment getDatacentersByOrgId Error: orgId=%s, error=%s", sdc.orgId, err)
 		sdc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
-
 	}
-
 
 	// get Deployments by deployment's name and namespace
 	namespace := org.Name
@@ -137,6 +143,8 @@ func (sdc *ScaleDeploymentController) ScaleSimple() {
 	_, err := sdc.k8sClient.Extensions().Deployments(sdc.deployment.Namespace).Update(&sdc.deployment)
 	if err != nil {
 		mylog.Log.Errorf("ScaleDeployment ScaleSimple Error: name=%s, namespace=%s, newsize=%d", sdc.deployment.Name, sdc.deployment.Namespace, sdc.s.NewSize)
+		sdc.Ye = myerror.NewYceError(myerror.EKUBE_SCALE_DEPLOYMENT, "")
+		return
 	}
 
 	mylog.Log.Infof("ScaleDeployment ScaleSimple Successfully")
@@ -178,8 +186,11 @@ func (sdc ScaleDeploymentController) Post() {
 	sdc.orgId = sdc.Param("orgId")
 	sdc.name = sdc.Param("deploymentName")
 
-	//validate the session
 	sessionIdFromClient := sdc.RequestHeader("Authorization")
+
+	mylog.Log.Debugf("ScaleDeploymentController Params: sessionId=%s, orgId=%s, name=%s", sessionIdFromClient, sdc.orgId, sdc.name)
+
+	//validate the session
 	sdc.valideSession(sessionIdFromClient, sdc.orgId)
 	if sdc.Ye != nil {
 		sdc.WriteBack()
@@ -188,7 +199,13 @@ func (sdc ScaleDeploymentController) Post() {
 
 	// ScaleDeployment Params
 	sdc.s = new(deploy.ScaleDeployment)
-	sdc.ReadJSON(sdc.s)
+	err := sdc.ReadJSON(sdc.s)
+	if err != nil {
+		mylog.Log.Errorf("ScaleDeployController ReadJSON Error: error=%s", err)
+		sdc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		sdc.WriteBack()
+		return
+	}
 
 	//get ApiServer and K8sClient
 	sdc.getApiServerAndK8sClientByDcId()

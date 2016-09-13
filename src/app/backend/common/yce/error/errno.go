@@ -42,6 +42,7 @@ const (
 	EKUBE_GET_SERVICES_BY_NAMESPACE  = 1224
 	EKUBE_GET_PODS_BY_SERVICE        = 1225
 	EKUBE_LOGS_POD			 = 1226
+	EKUBE_SCALE_DEPLOYMENT		 = 1227
 
 
 	EIRIS int32 = 1300
@@ -202,6 +203,10 @@ var Errors = map[int32]*Error{
 	EKUBE_LOGS_POD: &Error {
 		LogMsg: "Kubernetes Logs Pod Error",
 		ErrMsg: "获取Pod日志失败",
+	},
+	EKUBE_SCALE_DEPLOYMENT: &Error {
+		LogMsg: "Kuberentes Scale Deployment Error",
+		ErrMsg: "扩容Deployment失败",
 	},
 
 	// 1300~1399 Iris错误
