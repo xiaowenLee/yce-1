@@ -56,6 +56,8 @@ func (cdc *CreateDeployController) validateSession(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infof("CreateDeployController ValidateSession successfully")
+
 	return
 }
 
@@ -85,11 +87,14 @@ func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) {
 		apiServer := cdc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
 			mylog.Log.Errorf("CreateDeployController getApiServerList Error")
+			cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY)
 			return
 		}
 
 		cdc.apiServers = append(cdc.apiServers, apiServer)
 	}
+
+	mylog.Log.Infof("CreateDeployController getApiServerList success: len(apiSeverList)=%d", len(cdc.apiServers))
 	return
 }
 
@@ -115,7 +120,7 @@ func (cdc *CreateDeployController) createK8sClients() {
 		cdc.apiServers = append(cdc.apiServers, server)
 		mylog.Log.Infof("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
-
+	mylog.Log.Infof("CreateDeployController createK8sClients success: len(k8sCLients)=%d", len(cdc.k8sClients))
 	return
 }
 
@@ -143,6 +148,8 @@ func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, use
 	orgIdString := strconv.Itoa(int(orgId))
 	actionUrl := uph.Replace("<orgId>", orgIdString, "<userId>", userId)
 	actionOp, _ := strconv.Atoi(userId)
+	mylog.Log.Debugf("CreateDeployController createMySQLDeployment: actionUrl=%s, actionOp=%d", actionUrl, actionOp)
+
 	dp := mydeployment.NewDeployment(name, CREATE_VERBE, actionUrl, dcList, reason, json, "Create a Deployment", CREATE_TYPE, int32(actionOp), int32(1), orgId)
 	err := dp.InsertDeployment()
 	if err != nil {
@@ -175,9 +182,10 @@ func (cdc CreateDeployController) Post() {
 	orgId := cdc.Param("orgId")
 	userId := cdc.Param("userId")
 
+	mylog.Log.Debugf("CreateDeployController get Params:  sessionIdFromClient=%s, orgId=%s, userId=%s", sessionIdFromClient, orgId, userId)
+
 	// Validate OrgId error
 	cdc.validateSession(sessionIdFromClient, orgId)
-
 	if cdc.Ye != nil {
 		cdc.WriteBack()
 		return
@@ -185,7 +193,14 @@ func (cdc CreateDeployController) Post() {
 
 	// Parse data: deploy.CreateDeployment
 	cd := new(deploy.CreateDeployment)
-	cdc.ReadJSON(cd)
+	err := cdc.ReadJSON(cd)
+	if err != nil {
+		mylog.Log.Errorf("CreateDeployController ReadJSON error: error=%s", err)
+		cdc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return
+	}
+	mylog.Log.Infof("CreateDeployController ReadJSON success: cd=%p", cd)
+
 
 	// Get DcIdList
 	cdc.getApiServerList(cd.DcIdList)
@@ -193,6 +208,7 @@ func (cdc CreateDeployController) Post() {
 		cdc.WriteBack()
 		return
 	}
+
 
 	// Create k8s clients
 	cdc.createK8sClients()
