@@ -58,6 +58,7 @@ const (
 	EYCE_DELETE_NODEPORT int32 = 1408
 	EYCE_DELETE_DEPLOYMENT int32 = 1409
 	EYCE_LOGS_POD	     int32 = 1410
+	EYCE_LOGOUT	     int32 = 1411
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -267,7 +268,10 @@ var Errors = map[int32]*Error{
 		LogMsg: "Get Pod Logs Error",
 		ErrMsg: "获取实例日志失败",
 	},
-
+	EYCE_LOGOUT: &Error{
+		LogMsg: "Get Logout Params Error",
+		ErrMsg: "用户退出参数错误",
+	},
 
 	// 1500~1599 Registr错误
 	EREGISTRY: &Error{
