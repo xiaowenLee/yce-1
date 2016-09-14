@@ -85,6 +85,7 @@ func (cec *CreateEndpointsController) getApiServerList(dcIdList []int32) {
 		cec.apiServers = append(cec.apiServers, apiServer)
 	}
 
+	mylog.Log.Infof("CreateEndpointsController getApiServerList success: len(apiServer)=%d", len(cec.apiServers))
 	return
 }
 
@@ -112,6 +113,7 @@ func (cec *CreateEndpointsController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to cec.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("CreateEndpointsController createK8sClient success: len(k8sclient)=%d", len(cec.k8sClients))
 	return
 }
 
@@ -127,9 +129,10 @@ func (cec *CreateEndpointsController) createEndpoints(namespace string, endpoint
 			return
 		}
 
-		mylog.Log.Infof("Create Endpoints successfully: namespace=%s, apiServer=%s", namespace, cec.apiServers[index])
+		mylog.Log.Infof("Create Endpoints successfully: name=%s, namespace=%s, apiServer=%s", endpoints.Name, namespace, cec.apiServers[index])
 	}
 
+	mylog.Log.Infof("CreateEndpointsController createEndpoints success")
 	return
 }
 
@@ -151,7 +154,13 @@ func (cec CreateEndpointsController) Post() {
 
 	// Parse data: service.
 	ce := new(endpoint.CreateEndpoints)
-	cec.ReadJSON(ce)
+	err := cec.ReadJSON(ce)
+	if err != nil {
+		mylog.Log.Debugf("CreateEndpointsController ReadJSON Error: error=%s", err)
+		cec.Ye = myerror.NewYceError(myerror.EJSON, "")
+		cec.WriteBack()
+		return
+	}
 
 
 	// Get DcIdList
