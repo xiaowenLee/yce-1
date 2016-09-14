@@ -64,6 +64,8 @@ func (cnc *CreateNamespaceController) validateSession(sessionId, orgId string) {
 		cnc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
+
+	mylog.Log.Infof("CreateNamespaceController validate sessionId success")
 	return
 }
 
@@ -84,6 +86,9 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
 		return
 	}
+
+	mylog.Log.Infof("CreateNamespaceController createNamespaceDbItem success")
+
 }
 
 // Get ApiServer by dcId
@@ -117,6 +122,9 @@ func (cnc *CreateNamespaceController) getApiServerList(dcIdList []int32) {
 
 		cnc.apiServers = append(cnc.apiServers, apiServer)
 	}
+
+	mylog.Log.Infof("CreateNamespaceController getApiServerList: len(apiServer)=%d", len(cnc.apiServers))
+
 	return
 }
 
@@ -143,6 +151,7 @@ func (cnc *CreateNamespaceController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to cnc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("CreateNamespaceController createK8sClients: len(k8sClient)=%d", len(cnc.k8sClients))
 	return
 }
 
@@ -161,6 +170,8 @@ func (cnc *CreateNamespaceController) createNamespace() {
 			return
 		}
 	}
+
+	mylog.Log.Infof("CreateNamespaceController createNamespace success")
 
 }
 
@@ -187,16 +198,26 @@ func (cnc *CreateNamespaceController) createResourceQuota() {
 		}
 	}
 
+	mylog.Log.Infof("CreateNamespaceController createResourceQuota: create Resource Quota success")
+
 }
 
 // Post /api/v1/organizations
 func (cnc *CreateNamespaceController) Post() {
 	// Parse create organization params
 	cnc.Param = new(CreateNamespaceParam)
-	cnc.ReadJSON(cnc.Param)
+	err := cnc.ReadJSON(cnc.Param)
+	if err != nil {
+		mylog.Log.Errorf("CreateNamespaceController ReadJSON Error: error=%s", err)
+		cnc.Ye =  myerror.NewYceError(myerror.EJSON, "")
+		cnc.WriteBack()
+		return
+	}
 
 	// Validate Session
 	sessionIdFromClient := cnc.RequestHeader("Authorization")
+	mylog.Log.Debugf("CreateNamespaceController Params: sessionId=%s", sessionIdFromClient)
+
 	cnc.validateSession(sessionIdFromClient, cnc.Param.OrgId)
 	if cnc.Ye != nil {
 		cnc.WriteBack()
