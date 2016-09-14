@@ -59,7 +59,7 @@ func (inc *InitNamespaceController) Post() {
 	}
 
 	org := new(myorganization.Organization)
-	err := org.QueryOrganizationByName(initNamespaceParams.Name)
+	err = org.QueryOrganizationByName(initNamespaceParams.Name)
 
 	// Exists
 	if err == nil {
