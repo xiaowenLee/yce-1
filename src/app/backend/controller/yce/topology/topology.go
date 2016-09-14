@@ -74,7 +74,7 @@ type Topology struct {
 
 func (tc *TopologyController) WriteBack() {
 	tc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("CreateDeployController Response YceError: controller=%p, code=%d, note=%s", tc, tc.Ye.Code, myerror.Errors[tc.Ye.Code].LogMsg)
+	mylog.Log.Infof("TopologyController Response YceError: controller=%p, code=%d, note=%s", tc, tc.Ye.Code, myerror.Errors[tc.Ye.Code].LogMsg)
 	tc.Write(tc.Ye.String())
 }
 
@@ -97,6 +97,7 @@ func (tc *TopologyController) validateSession(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infof("TopologyController validate session success")
 	return
 }
 
@@ -109,6 +110,7 @@ func (tc *TopologyController) getOrgNameByOrgId() {
 		return
 	}
 	tc.orgName = org.Name
+	mylog.Log.Infof("TopologyController getOrgNameByOrgId: orgName=%s", tc.orgName)
 	return
 }
 
@@ -117,6 +119,7 @@ func (tc *TopologyController) getDcIdListByOrgId() {
 	org := new(myorganization.Organization)
 	err := org.QueryOrganizationById(tc.orgId)
 	if err != nil {
+		mylog.Log.Errorf("TopologyController QueryOrganizationById error: error=%s", err)
 		tc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -124,6 +127,7 @@ func (tc *TopologyController) getDcIdListByOrgId() {
 	dcList := DcList{}
 	err = json.Unmarshal([]byte(org.DcList), &dcList)
 	if err != nil {
+		mylog.Log.Errorf("TopologyController getDcIdListByOrgId: unmarshal error: error=%s", err)
 		tc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return
 	}
@@ -134,6 +138,7 @@ func (tc *TopologyController) getDcIdListByOrgId() {
 	}
 
 	// Decode to DcIdList
+	mylog.Log.Infof("TopologyController getDcIdListByOrgId: len(dcIdList)=%d", len(tc.dcIdList))
 	return
 }
 
@@ -151,7 +156,7 @@ func (tc *TopologyController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	mylog.Log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
+	mylog.Log.Infof("TopologyController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
 	return apiServer
 }
 
@@ -162,12 +167,13 @@ func (tc *TopologyController) getApiServerList() {
 		// Get ApiServer
 		apiServer := tc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			mylog.Log.Errorf("CreateDeployController getApiServerList Error")
+			mylog.Log.Errorf("TopologyController getApiServerList Error")
 			return
 		}
 
 		tc.apiServers = append(tc.apiServers, apiServer)
 	}
+	mylog.Log.Infof("TopologyController getApiServerList: len(apiServer)=%d", len(tc.apiServers))
 	return
 }
 
@@ -194,6 +200,8 @@ func (tc *TopologyController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to tc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+
+	mylog.Log.Infof("TopologyController createK8sClient: len(k8sClient)=%d", len(tc.k8sClients))
 	return
 }
 
@@ -443,12 +451,18 @@ func (tc *TopologyController) getTopologyForAllDc() {
 		tc.getTopology(client, tc.orgName)
 		mylog.Log.Infof("Get Topology data for every datacenter: apiServer=%s, client=%p\n", tc.apiServers[index], client)
 	}
+
+
 }
 
 // GET /api/v1/organizations/{orgId}/topology
 func (tc TopologyController) Get() {
 	sessionIdFromClient := tc.RequestHeader("Authorization")
 	orgIdStr := tc.Param("orgId")
+
+	mylog.Log.Debugf("TopologyController Params: sessionId=%s, orgIdStr=%s", sessionIdFromClient, orgIdStr)
+
+
 	orgId, err := strconv.Atoi(orgIdStr)
 	if err != nil {
 		tc.Ye = myerror.NewYceError(myerror.EARGS, "")
