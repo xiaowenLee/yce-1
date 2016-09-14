@@ -50,7 +50,13 @@ func (inc *InitNamespaceController) validateSession(sessionId, orgId string) {
 func (inc *InitNamespaceController) Post() {
 
 	initNamespaceParams := new(InitNamespaceParams)
-	inc.ReadJSON(initNamespaceParams)
+	err := inc.ReadJSON(initNamespaceParams)
+	if err != nil {
+		mylog.Log.Errorf("InitNamespaceController ReadJSON Error: error=%s", err)
+		inc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		inc.WriteBack()
+		return
+	}
 
 	org := new(myorganization.Organization)
 	err := org.QueryOrganizationByName(initNamespaceParams.Name)
