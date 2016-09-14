@@ -39,11 +39,13 @@ func (lc *LoginController) check(name, password string) *myuser.User {
 	err := user.QueryUserByNameAndPassword(name, encryptPass)
 
 	if err != nil {
-		log.Errorf("Can not find the user: username=%s, err=%s", name, err)
+		//log.Errorf("Can not find the user: username=%s, err=%s", name, err)
+		mylog.Log.Errorf("Can not find the user: username=%s, err=%s", name, err)
 		lc.Ye = myerror.NewYceError(myerror.EYCE_LOGIN, "")
 		return nil
 	}
 
+	mylog.Log.Infof("LoginController check success: name=%s", user.Name)
 	return user
 
 }
@@ -78,7 +80,13 @@ func (lc LoginController) Post() {
 
 	loginParams := new(LoginParams)
 
-	lc.ReadJSON(loginParams)
+	err := lc.ReadJSON(loginParams)
+	if err != nil {
+		mylog.Log.Errorf("LoginController ReadJSON Error=%s", err)
+		lc.Ye = myerror.NewYceError(myerror.EYCE_LOGIN, "")
+		lc.WriteBack()
+		return
+	}
 
 	user := lc.check(loginParams.Username, loginParams.Password)
 	if lc.Ye != nil {
