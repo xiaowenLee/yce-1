@@ -51,6 +51,7 @@ func (lec *ListEndpointsController) validateSessionId(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infof("ListEndpointsController ValidateSession success")
 	return
 }
 
@@ -79,6 +80,8 @@ func (lec *ListEndpointsController) getDatacentersByOrgId(ed *endpoint.ListEndpo
 		ed.DcIdList[index] = dc.Id
 		ed.DcName[index] = dc.Name
 	}
+
+	mylog.Log.Infof("ListEndpointsController len(DcName)=%d, len(dcIdList)=%d", len(ed.DcName), len(ed.DcIdList))
 
 }
 
@@ -116,6 +119,7 @@ func (lec *ListEndpointsController) getApiServerList(dcIdList []int32) {
 		lec.apiServers = append(lec.apiServers, apiServer)
 	}
 
+	mylog.Log.Infof("ListEndpointsController getApiServerList: len(apiServer)=%d", len(lec.apiServers))
 	return
 }
 
@@ -144,6 +148,7 @@ func (lec *ListEndpointsController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("ListEndpointsController createK8sController: len(k8sClient)=%d", len(lec.k8sClients))
 	return
 }
 
@@ -167,7 +172,6 @@ func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint
 		epList[index].EndpointsList = *eps
 
 		mylog.Log.Infof("listEndpoints successfully: namespace=%s, apiServer=%s", namespace, lec.apiServers[index])
-
 	}
 
 	epJson, err := json.Marshal(epList)
@@ -186,6 +190,7 @@ func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint
 func (lec ListEndpointsController) Get() {
 	sessionIdFromClient := lec.RequestHeader("Authorization")
 	orgId := lec.Param("orgId")
+	mylog.Log.Debugf("ListEndpointsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 	// validateSessionId
 	lec.validateSessionId(sessionIdFromClient, orgId)
