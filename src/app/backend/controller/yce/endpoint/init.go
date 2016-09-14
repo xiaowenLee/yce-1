@@ -53,6 +53,7 @@ func (iec *InitEndpointsController) validateSession(sessionId, orgId string) {
 		iec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
+	mylog.Log.Debugf("InitEndpointsController ValidateSession success")
 
 	return
 }
@@ -62,11 +63,11 @@ func (iec *InitEndpointsController) validateSession(sessionId, orgId string) {
 func (iec InitEndpointsController) Get() {
 	sessionIdFromClient := iec.RequestHeader("Authorization")
 	orgId := iec.Param("orgId")
+	mylog.Log.Debugf("InitEndpointsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 
 	// Validate OrgId error
 	iec.validateSession(sessionIdFromClient, orgId)
-
 	if iec.Ye != nil {
 		iec.WriteBack()
 		return
@@ -74,16 +75,17 @@ func (iec InitEndpointsController) Get() {
 
 	// Valid session
 	org, err := organization.GetOrganizationById(orgId)
-	iec.org = org
-	iec.Init.OrgId = orgId
-	iec.Init.OrgName = iec.org.Name
-
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		iec.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		iec.WriteBack()
 		return
 	}
+	iec.org = org
+	iec.Init.OrgId = orgId
+	iec.Init.OrgName = iec.org.Name
+	mylog.Log.Debugf("InitEndpointsController Params: orgName=%s", iec.Init.OrgName)
+
 
 	// Get Datacenters by a organization
 	iec.Init.DataCenters, err = organization.GetDataCentersByOrganization(iec.org)
