@@ -65,12 +65,17 @@ func (lc *LogoutController) logout(sessionId string) {
 func (lc LogoutController) Post() {
 
 	logoutParams := new(LogoutParams)
-	lc.ReadJSON(logoutParams)
+	err := lc.ReadJSON(logoutParams)
+	if err != nil {
+		mylog.Log.Errorf("LogoutController ReadJSON Error: error=%s", err)
+		lc.Ye = myerror.NewYceError(myerror.EYCE_LOGOUT, "")
+		lc.WriteBack()
+		return
+	}
 
 	log.Infof("User Logout: username=%s, sessionId=%s", logoutParams.Username, logoutParams.SessionId)
 
 	session := lc.checkLogin(logoutParams.SessionId)
-
 	if lc.Ye != nil {
 		lc.WriteBack()
 		return
