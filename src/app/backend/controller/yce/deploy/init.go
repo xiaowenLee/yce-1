@@ -7,7 +7,6 @@ import (
 	myqouta "app/backend/model/mysql/quota"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
-	"github.com/kataras/iris"
 	yce "app/backend/controller/yce"
 )
 

@@ -1,17 +1,12 @@
 package logout
 
 import (
-	mylog "app/backend/common/util/log"
-	mysession "app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
-	"github.com/kataras/iris"
+	yce "app/backend/controller/yce"
 )
 
-var log = mylog.Log
-
 type LogoutController struct {
-	*iris.Context
-	Ye *myerror.YceError
+	yce.Controller
 }
 
 type LogoutParams struct {
@@ -21,7 +16,7 @@ type LogoutParams struct {
 
 func (lc *LogoutController) WriteBack() {
 	lc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("LoginController Response YceError: controller=%p, code=%d, note=%s", lc, lc.Ye.Code, myerror.Errors[lc.Ye.Code].LogMsg)
+	log.Infof("LoginController Response YceError: controller=%p, code=%d, note=%s", lc, lc.Ye.Code, myerror.Errors[lc.Ye.Code].LogMsg)
 	lc.Write(lc.Ye.String())
 }
 
@@ -67,35 +62,31 @@ func (lc LogoutController) Post() {
 	logoutParams := new(LogoutParams)
 	err := lc.ReadJSON(logoutParams)
 	if err != nil {
-		mylog.Log.Errorf("LogoutController ReadJSON Error: error=%s", err)
+		log.Errorf("LogoutController ReadJSON Error: error=%s", err)
 		lc.Ye = myerror.NewYceError(myerror.EYCE_LOGOUT, "")
-		lc.WriteBack()
+	}
+	if lc.CheckError() {
 		return
 	}
 
 	log.Infof("User Logout: username=%s, sessionId=%s", logoutParams.Username, logoutParams.SessionId)
 
 	session := lc.checkLogin(logoutParams.SessionId)
-	if lc.Ye != nil {
-		lc.WriteBack()
+	if lc.CheckError() {
 		return
 	}
 
 	if session != nil {
 		lc.logout(logoutParams.SessionId)
-		if lc.Ye != nil {
-			log.Errorf("Logout error: sessionId=%s, userName=%s, orgId=%s",
-				logoutParams.SessionId, session.UserName, session.OrgId)
-			lc.WriteBack()
+		if lc.CheckError() {
+			log.Errorf("Logout error: sessionId=%s, userName=%s, orgId=%s", logoutParams.SessionId, session.UserName, session.OrgId)
 			return
 		}
 	}
 
-	lc.Ye = myerror.NewYceError(myerror.EOK, "")
-	log.Infof("Logout successfully: sessionId=%s, userName=%s, orgId=%s",
-		logoutParams.SessionId, session.UserName, session.OrgId)
+	log.Infof("Logout successfully: sessionId=%s, userName=%s, orgId=%s", logoutParams.SessionId, session.UserName, session.OrgId)
 
-	lc.WriteBack()
+	lc.WriteOk("")
 	return
 
 }

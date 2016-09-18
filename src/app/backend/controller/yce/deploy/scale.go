@@ -5,7 +5,6 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"github.com/kataras/iris"
 
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
@@ -15,13 +14,13 @@ import (
 	"strconv"
 	"app/backend/common/util/Placeholder"
 	"github.com/kubernetes/kubernetes/pkg/util/json"
+	yce "app/backend/controller/yce"
 )
 
 type ScaleDeploymentController struct{
-	*iris.Context
+	yce.Controller
 	k8sClient *client.Client
 	apiServer string
-	Ye *myerror.YceError
 	orgId string
 	userId string
 	dcId string

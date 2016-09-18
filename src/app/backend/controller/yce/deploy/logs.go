@@ -4,7 +4,6 @@ import (
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
-	"github.com/kataras/iris"
 	"io/ioutil"
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"

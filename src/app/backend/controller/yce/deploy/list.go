@@ -6,7 +6,6 @@ import (
 	mydatacenter "app/backend/model/mysql/datacenter"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
-	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"

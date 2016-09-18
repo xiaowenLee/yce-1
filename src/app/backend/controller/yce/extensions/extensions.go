@@ -1,8 +1,6 @@
 package extensions
 
 import (
-	"github.com/kataras/iris"
-	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mylog "app/backend/common/util/log"
@@ -15,42 +13,13 @@ import (
 	"app/backend/model/yce/extensions"
 	"strconv"
 	"k8s.io/kubernetes/pkg/api"
+	yce "app/backend/controller/yce"
 )
 
 type ListExtensionsController struct {
-	*iris.Context
-	Ye *myerror.YceError
+	yce.Controller
 	apiServers []string
 	k8sClients []*client.Client
-}
-
-func (lec *ListExtensionsController) WriteBack() {
-	lec.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("Create ListExtensionsController Response : controller=%p, code=%d, note=%s", lec, lec.Ye.Code, myerror.Errors[lec.Ye.Code].LogMsg)
-	lec.Write(lec.Ye.String())
-}
-
-func (lec *ListExtensionsController) validateSessionId(sessionId, orgId string) {
-
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	// validate error
-	if err != nil {
-		mylog.Log.Errorf("ListExtensions Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
-		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// invalid sessionId
-	if !ok {
-		mylog.Log.Errorf("ListExtensions Controller Failed: sessionId=%s, orgId=%s", sessionId, orgId)
-		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("ListExtensionsController validate Session success")
-	return
 }
 
 
@@ -58,7 +27,7 @@ func (lec *ListExtensionsController) getDatacentersByOrgId(le *extensions.ListEx
 	org, err := organization.GetOrganizationById(orgId)
 	le.Organization = org
 	if err != nil {
-		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+		log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
 		lec.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 
@@ -66,7 +35,7 @@ func (lec *ListExtensionsController) getDatacentersByOrgId(le *extensions.ListEx
 
 	dcList, err := organization.GetDataCentersByOrganization(le.Organization)
 	if err != nil {
-		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+		log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
 		lec.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 	}
@@ -79,7 +48,7 @@ func (lec *ListExtensionsController) getDatacentersByOrgId(le *extensions.ListEx
 		le.DcName[index] = dc.Name
 	}
 
-	mylog.Log.Debugf("ListExtensionsController getDatacentersByOrgId: len(dcIdList)=%d, len(dcName)=%d", len(le.DcIdList), len(le.DcName))
+	log.Debugf("ListExtensionsController getDatacentersByOrgId: len(dcIdList)=%d, len(dcName)=%d", len(le.DcIdList), len(le.DcName))
 
 }
 
@@ -89,7 +58,7 @@ func (lec *ListExtensionsController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
 		lec.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
@@ -98,7 +67,7 @@ func (lec *ListExtensionsController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	mylog.Log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
+	log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
 
 	return apiServer
 
@@ -110,14 +79,14 @@ func (lec *ListExtensionsController) getApiServerList(dcIdList []int32) {
 		// Get ApiServer
 		apiServer := lec.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			mylog.Log.Errorf("ListExtensionsController getApiServerList Error")
+			log.Errorf("ListExtensionsController getApiServerList Error")
 			return
 		}
 
 		lec.apiServers = append(lec.apiServers, apiServer)
 	}
 
-	mylog.Log.Infof("ListExtensionsController getApiServerList: len(apiServer)=%d", len(lec.apiServers))
+	log.Infof("ListExtensionsController getApiServerList: len(apiServer)=%d", len(lec.apiServers))
 	return
 }
 
@@ -135,7 +104,7 @@ func (lec *ListExtensionsController) createK8sClients() {
 
 		c, err := client.New(config)
 		if err != nil {
-			mylog.Log.Errorf("CreateK8sClient Error: error=%s", err)
+			log.Errorf("CreateK8sClient Error: error=%s", err)
 			lec.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 			return
 		}
@@ -143,10 +112,10 @@ func (lec *ListExtensionsController) createK8sClients() {
 		lec.k8sClients = append(lec.k8sClients, c)
 		// why??
 		//lec.apiServers = append(lec.apiServers, server)
-		mylog.Log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server)
+		log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
-	mylog.Log.Infof("ListExtensionsController createK8sClient: len(k8sClient)=%d", len(lec.k8sClients))
+	log.Infof("ListExtensionsController createK8sClient: len(k8sClient)=%d", len(lec.k8sClients))
 	return
 }
 
@@ -156,14 +125,14 @@ func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, l
 	for index, cli := range lec.k8sClients {
 		svcs, err := cli.Services(namespace).List(api.ListOptions{})
 		if err != nil {
-			mylog.Log.Errorf("listService Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
+			log.Errorf("listService Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
 			myerror.NewYceError(myerror.EYCE_LIST_EXTENSIONS, "")
 			return
 		}
 
 		eps, err := cli.Endpoints(namespace).List(api.ListOptions{})
 		if err != nil {
-			mylog.Log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
+			log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
 			myerror.NewYceError(myerror.EYCE_LIST_EXTENSIONS, "")
 			return
 		}
@@ -173,13 +142,13 @@ func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, l
 		extList[index].ServiceList = *svcs
 		extList[index].EndpointList = *eps
 
-		mylog.Log.Infof("list Service and Endpoints Successfully: namespace=%s, apiServer=%s", namespace, lec.apiServers)
+		log.Infof("list Service and Endpoints Successfully: namespace=%s, apiServer=%s", namespace, lec.apiServers)
 	}
 
 	extJson, err := json.Marshal(extList)
 	extString = string(extJson)
 	if err != nil {
-		mylog.Log.Errorf("list Service and Endpoints Error: apiServer=%v, namespace=%s, error=%s", lec.apiServers, namespace, err)
+		log.Errorf("list Service and Endpoints Error: apiServer=%v, namespace=%s, error=%s", lec.apiServers, namespace, err)
 		lec.Ye = myerror.NewYceError(myerror.EYCE_LIST_EXTENSIONS, "")
 		return
 	}
@@ -191,12 +160,11 @@ func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, l
 func (lec ListExtensionsController) Get() {
 	sessionIdFromClient := lec.RequestHeader("Authorization")
 	orgId := lec.Param("orgId")
-	mylog.Log.Debugf("ListExtensionsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
+	log.Debugf("ListExtensionsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
-	// validateSessionId
-	lec.validateSessionId(sessionIdFromClient, orgId)
-	if lec.Ye != nil {
-		lec.WriteBack()
+	// ValidateSessionId
+	lec.ValidateSessionId(sessionIdFromClient, orgId)
+	if lec.CheckError() {
 		return
 	}
 
@@ -204,38 +172,32 @@ func (lec ListExtensionsController) Get() {
 	// Get Datacenters by organizations
 	le := new(extensions.ListExtensions)
 	lec.getDatacentersByOrgId(le, orgId)
-	if lec.Ye != nil {
-		lec.WriteBack()
+	if lec.CheckError() {
 		return
 	}
 
 
 	// Get ApiServers by organizations
 	lec.getApiServerList(le.DcIdList)
-	if lec.Ye != nil {
-		lec.WriteBack()
+	if lec.CheckError() {
 		return
 	}
 
 	// Get K8sClient
 	lec.createK8sClients()
-	if lec.Ye != nil {
-		lec.WriteBack()
+	if lec.CheckError() {
 		return
 	}
 
 	// Get ServiceList and Endpoint
 	orgName := le.Organization.Name
 	extString := lec.listServiceAndEndpoints(orgName, le)
-	if lec.Ye != nil {
-		lec.WriteBack()
+	if lec.CheckError() {
 		return
 	}
 
-	lec.Ye = myerror.NewYceError(myerror.EOK, extString)
-	lec.WriteBack()
-
-	mylog.Log.Infoln("ListExtensionsController over!")
+	lec.WriteOk(extString)
+	log.Infoln("ListExtensionsController over!")
 
 	return
 }

@@ -1,13 +1,11 @@
 package deploy
 
 import (
-	mylog "app/backend/common/util/log"
 	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	"encoding/json"
-	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"

@@ -1,9 +1,6 @@
 package namespace
 
 import (
-	"github.com/kataras/iris"
-	"app/backend/common/util/session"
-	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
@@ -14,16 +11,11 @@ import (
 	"encoding/json"
 	"strconv"
 	"strings"
-)
-
-const (
-	CPU_MULTIPLIER int64 = 1024
-	MEM_MULTIPLIER int64 = 1024*1024*1024
+	yce "app/backend/controller/yce"
 )
 
 type CreateNamespaceController struct {
-	*iris.Context
-	Ye *myerror.YceError
+	yce.Controller
 	Param  *CreateNamespaceParam
 	k8sClients []*client.Client
 	apiServers []string
@@ -39,34 +31,6 @@ type CreateNamespaceParam struct {
 	Budget string `json:"budget"`
 	Balance string `json:"balance"`
 	DcIdList []int32 `json:"dcIdList"`
-}
-
-func (cnc *CreateNamespaceController) WriteBack() {
-	cnc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("CreateDeployController Response YceError: controller=%p, code=%d, note=%s", cnc, cnc.Ye.Code, myerror.Errors[cnc.Ye.Code].LogMsg)
-	cnc.Write(cnc.Ye.String())
-}
-
-func (cnc *CreateNamespaceController) validateSession(sessionId, orgId string) {
-	// Validate the session
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	if err != nil {
-		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		cnc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Session invalide
-	if !ok {
-		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		cnc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("CreateNamespaceController validate sessionId success")
-	return
 }
 
 // Parse Namespace struct, insert into MySQL
@@ -218,48 +182,42 @@ func (cnc *CreateNamespaceController) Post() {
 	sessionIdFromClient := cnc.RequestHeader("Authorization")
 	mylog.Log.Debugf("CreateNamespaceController Params: sessionId=%s", sessionIdFromClient)
 
-	cnc.validateSession(sessionIdFromClient, cnc.Param.OrgId)
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	cnc.ValidateSession(sessionIdFromClient, cnc.Param.OrgId)
+	if cnc.CheckError() {
 		return
 	}
 
 	// Create Organization struct and insert it into MySQL
 	cnc.createNamespaceDbItem()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
 	// Get DcIdList
 	cnc.getApiServerList(cnc.Param.DcIdList)
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
 	// Create k8s clients
 	cnc.createK8sClients()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
 	// Create Namespace
 	cnc.createNamespace()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
 	// Create ResourceQuota
 	cnc.createResourceQuota()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
-	cnc.Ye = myerror.NewYceError(myerror.EOK, "")
+	cnc.WriteOk("")
 	mylog.Log.Infoln("CreateNamespaceController over!")
 	return
 }

@@ -9,7 +9,6 @@ import (
 	myoption "app/backend/model/mysql/option"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
-	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"

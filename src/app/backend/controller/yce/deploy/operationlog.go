@@ -1,9 +1,7 @@
 package deploy
 
 import (
-	"github.com/kataras/iris"
 	myerror "app/backend/common/yce/error"
-	mylog "app/backend/common/util/log"
 	mydeploy "app/backend/model/mysql/deployment"
 	"app/backend/common/util/session"
 	"app/backend/common/util/mysql"
