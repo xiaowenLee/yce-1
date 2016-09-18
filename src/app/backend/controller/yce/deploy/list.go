@@ -1,8 +1,6 @@
 package deploy
 
 import (
-	mylog "app/backend/common/util/log"
-	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
@@ -18,42 +16,13 @@ import (
 	"app/backend/common/util/mysql"
 	"strconv"
 	"strings"
+	yce "app/backend/controller/yce"
 )
 
 type ListDeployController struct {
-	*iris.Context
+	yce.Controller
 	apiServers []string
 	k8sClients []*client.Client
-	Ye         *myerror.YceError
-}
-
-func (ldc *ListDeployController) WriteBack() {
-	ldc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("Create ListDeployController Response Error: controller=%p, code=%d, note=%s", ldc, ldc.Ye.Code, myerror.Errors[ldc.Ye.Code].LogMsg)
-	ldc.Write(ldc.Ye.String())
-}
-
-// Validate SessionId with OrgId
-func (ldc *ListDeployController) validateSessionId(sessionId, orgId string) {
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	// validate error
-	if err != nil {
-		mylog.Log.Errorf("Create ListDeployController Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
-		ldc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// invalid sessionId
-	if !ok {
-		mylog.Log.Errorf("Create ListDeployController Failed: sessionId=%s, orgId=%s", sessionId, orgId)
-		ldc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infoln("ListDeploymentController validate SessionId successfully")
-	return
 }
 
 // get Datacenters owned by this Organization via OrgId
@@ -61,7 +30,7 @@ func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment
 	org, err := organization.GetOrganizationById(orgId)
 	ld.Organization = org
 	if err != nil {
-		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+		log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
 		ldc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 
@@ -69,7 +38,7 @@ func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment
 
 	dcList, err := organization.GetDataCentersByOrganization(ld.Organization)
 	if err != nil {
-		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+		log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
 		ldc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 	}
@@ -82,7 +51,7 @@ func (ldc *ListDeployController) getDatacentersByOrgId(ld *deploy.ListDeployment
 		ld.DcName = append(ld.DcName, dc.Name)
 	}
 
-	mylog.Log.Infof("CreateServiceController getDatacentersByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(ld.DcIdList), len(ld.DcName))
+	log.Infof("CreateServiceController getDatacentersByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(ld.DcIdList), len(ld.DcName))
 }
 
 // Get ApiServer(k8s cluster host) of this datacenter
@@ -90,7 +59,7 @@ func (ldc *ListDeployController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
 		ldc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
@@ -99,7 +68,7 @@ func (ldc *ListDeployController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	mylog.Log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
+	log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
 
 	return apiServer
 
@@ -111,14 +80,14 @@ func (ldc *ListDeployController) getApiServerList(dcIdList []int32) {
 		// Get ApiServer
 		apiServer := ldc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			mylog.Log.Errorf("ListDeployController getApiServerList Error")
+			log.Errorf("ListDeployController getApiServerList Error")
 			return
 		}
 
 		ldc.apiServers = append(ldc.apiServers, apiServer)
 	}
 
-	mylog.Log.Infof("CreateServiceController getApiServerList success: len(apiServers)=%d", len(ldc.apiServers))
+	log.Infof("CreateServiceController getApiServerList success: len(apiServers)=%d", len(ldc.apiServers))
 	return
 }
 
@@ -134,7 +103,7 @@ func (ldc *ListDeployController) createK8sClients() {
 
 		c, err := client.New(config)
 		if err != nil {
-			mylog.Log.Errorf("CreateK8sClient Error: error=%s", err)
+			log.Errorf("CreateK8sClient Error: error=%s", err)
 			ldc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 			return
 		}
@@ -142,7 +111,7 @@ func (ldc *ListDeployController) createK8sClients() {
 		ldc.k8sClients = append(ldc.k8sClients, c)
 		// why??
 		//ldc.apiServers = append(ldc.apiServers, server)
-		mylog.Log.Infof("ListDeploymentController create K8sClients successfully: client=%p, apiServer=%s", c, server)
+		log.Infof("ListDeploymentController create K8sClients successfully: client=%p, apiServer=%s", c, server)
 	}
 
 	return
@@ -153,7 +122,7 @@ func (ldc *ListDeployController) getPodsByReplicaSet(c *client.Client, rs *exten
 	namespace := rs.Namespace
 	selector, err := unver.LabelSelectorAsSelector(rs.Spec.Selector)
 	if err != nil {
-		mylog.Log.Errorf("getPodsByReplicaSet Error: error=%s", err)
+		log.Errorf("getPodsByReplicaSet Error: error=%s", err)
 		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
 		return nil
 	}
@@ -161,11 +130,11 @@ func (ldc *ListDeployController) getPodsByReplicaSet(c *client.Client, rs *exten
 
 	podList, err := c.Pods(namespace).List(options)
 	if err != nil {
-		mylog.Log.Errorf("getPodsByReplicaSet Error: error=%s", err)
+		log.Errorf("getPodsByReplicaSet Error: error=%s", err)
 		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
 		return nil
 	}
-	mylog.Log.Infof("Get PodList by ReplicaSet successfully: podList=%p", &podList)
+	log.Infof("Get PodList by ReplicaSet successfully: podList=%p", &podList)
 
 	return podList
 }
@@ -177,12 +146,12 @@ func (ldc *ListDeployController) getReplicaSetsByDeployment(c *client.Client, de
 	selector, err := unver.LabelSelectorAsSelector(deployment.Spec.Selector)
 	if err != nil {
 		return nil
-		mylog.Log.Errorf("getReplicaSetsByDeployment Error: error=%s", err)
+		log.Errorf("getReplicaSetsByDeployment Error: error=%s", err)
 	}
 	options := api.ListOptions{LabelSelector: selector}
 	rsList, err := c.Extensions().ReplicaSets(namespace).List(options)
 
-	mylog.Log.Infof("Get ReplicaSetList by Deployment successfully: ReplicaSetList=%p", &rsList)
+	log.Infof("Get ReplicaSetList by Deployment successfully: ReplicaSetList=%p", &rsList)
 	return rsList.Items
 }
 
@@ -192,7 +161,7 @@ func (ldc *ListDeployController) queryUserNameByUserId(userId int32) (name strin
 
 	stmt, err := db.Prepare(SELECT_USER)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 		ldc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -200,11 +169,11 @@ func (ldc *ListDeployController) queryUserNameByUserId(userId int32) (name strin
 
 	err = stmt.QueryRow(userId).Scan(&name)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 		ldc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
-	mylog.Log.Infof("queryUserNameByUserId successfully")
+	log.Infof("queryUserNameByUserId successfully")
 	return name
 }
 
@@ -230,7 +199,7 @@ func (ldc *ListDeployController) getDeployAndPodList(userId int32, cli *client.C
 
 		PodList := ldc.getPodsByReplicaSet(cli, newRs)
 		if err != nil {
-			mylog.Log.Errorf("FindNewReplicaSet Error: error=%s", err)
+			log.Errorf("FindNewReplicaSet Error: error=%s", err)
 			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 			return nil
 		}
@@ -241,7 +210,7 @@ func (ldc *ListDeployController) getDeployAndPodList(userId int32, cli *client.C
 		dap = append(dap, *dp)
 
 	}
-	mylog.Log.Infof("ListDeployController getDeployAndPodList successfully")
+	log.Infof("ListDeployController getDeployAndPodList successfully")
 	return dap
 
 }
@@ -255,7 +224,7 @@ func (ldc *ListDeployController) listDeployments(userId int32, namespace string,
 
 		deploymentList, err := cli.Deployments(namespace).List(api.ListOptions{})
 		if err != nil {
-			mylog.Log.Errorf("listDeployments Error: apiServer=%s, namespace=%s, error=%s", ldc.apiServers[index], namespace, err)
+			log.Errorf("listDeployments Error: apiServer=%s, namespace=%s, error=%s", ldc.apiServers[index], namespace, err)
 			ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 			return
 		}
@@ -269,19 +238,19 @@ func (ldc *ListDeployController) listDeployments(userId int32, namespace string,
 
 		dpList = append(dpList, *deployment)
 
-		mylog.Log.Infof("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
+		log.Infof("listDeployments successfully: namespace=%s, apiServer=%s", namespace, ldc.apiServers[index])
 
 	}
 
 	dpJson, err := json.Marshal(dpList)
 	dpString = string(dpJson)
 	if err != nil {
-		mylog.Log.Errorf("listDeployments Error: apiServer=%v, namespace=%s, error=%s", ldc.apiServers, namespace, err)
+		log.Errorf("listDeployments Error: apiServer=%v, namespace=%s, error=%s", ldc.apiServers, namespace, err)
 		ldc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 		return
 	}
 
-	mylog.Log.Infoln("ListDeployController listDeployments success: len(Deployment)=%d", len(dpList))
+	log.Infoln("ListDeployController listDeployments success: len(Deployment)=%d", len(dpList))
 	return dpString
 }
 
@@ -291,35 +260,31 @@ func (ldc ListDeployController) Get() {
 	orgId := ldc.Param("orgId")
 	userId := ldc.Param("userId")
 
-	mylog.Log.Debugf("ListDeployController Params: sessionId=%s, orgid=%s, userId=%s", sessionIdFromClient, orgId, userId)
+	log.Debugf("ListDeployController Params: sessionId=%s, orgid=%s, userId=%s", sessionIdFromClient, orgId, userId)
 
 
-	// validateSessionId
-	ldc.validateSessionId(sessionIdFromClient, orgId)
-	if ldc.Ye != nil {
-		ldc.WriteBack()
+	// ValidateSession
+	ldc.ValidateSession(sessionIdFromClient, orgId)
+	if ldc.CheckError() {
 		return
 	}
 
 	// Get Datacenters by organizs
 	ld := new(deploy.ListDeployment)
 	ldc.getDatacentersByOrgId(ld, orgId)
-	if ldc.Ye != nil {
-		ldc.WriteBack()
+	if ldc.CheckError() {
 		return
 	}
 
 	// Get ApiServers by organizations
 	ldc.getApiServerList(ld.DcIdList)
-	if ldc.Ye != nil {
-		ldc.WriteBack()
+	if ldc.CheckError() {
 		return
 	}
 
 	// Get K8sClient
 	ldc.createK8sClients()
-	if ldc.Ye != nil {
-		ldc.WriteBack()
+	if ldc.CheckError() {
 		return
 	}
 
@@ -327,15 +292,12 @@ func (ldc ListDeployController) Get() {
 	orgName := ld.Organization.Name
 	uId, _ := strconv.Atoi(userId)
 	dpString := ldc.listDeployments(int32(uId), orgName, ld)
-	if ldc.Ye != nil {
-		ldc.WriteBack()
+	if ldc.CheckError() {
 		return
 	}
 
-	ldc.Ye = myerror.NewYceError(myerror.EOK, dpString)
-	ldc.WriteBack()
-
-	mylog.Log.Infoln("ListDeployController Get over!")
+	ldc.WriteOk(dpString)
+	log.Infoln("ListDeployController Get over!")
 
 	return
 }
