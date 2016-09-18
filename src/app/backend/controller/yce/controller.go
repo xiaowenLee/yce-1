@@ -12,13 +12,13 @@ type Controller struct {
 }
 
 type IController interface {
-	WriteBack()
+	WriteError()
 	ValidateSession(sessionId, orgId string)
 	CheckError() bool // if error true, else false
-	Ok()
+	WriteOk()
 }
 
-func (c *Controller) WriteBack() {
+func (c *Controller) WriteError() {
 	c.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	log.Infof("Controller Response YceError: controller=%p, code=%d, note=%s", c, c.Ye.Code, myerror.Errors[c.Ye.Code].LogMsg)
 	c.Write(c.Ye.String())
@@ -49,13 +49,13 @@ func (c *Controller) ValidateSession(sessionId, orgId string) {
 
 func (c *Controller) CheckError() bool {
 	if c.Ye != nil {
-		c.WriteBack()
+		c.WriteError()
 		return true
 	}
 	return false
 }
 
-func (c *Controller) Ok(msg string) {
-	c.ye = myerror.NewYceError(myerror.EOK, msg)
-	c.WriteBack()
+func (c *Controller) WriteOk(msg string) {
+	c.Ye = myerror.NewYceError(myerror.EOK, msg)
+	c.WriteError()
 }

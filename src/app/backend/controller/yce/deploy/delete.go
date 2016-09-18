@@ -3,7 +3,6 @@ package deploy
 import (
 	"app/backend/common/util/Placeholder"
 	mylog "app/backend/common/util/log"
-	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
@@ -19,20 +18,15 @@ import (
 	"app/backend/model/yce/deploy"
 	"strconv"
 	//"app/backend/common/yce/datacenter"
-)
-
-const (
-	DELETE_TYPE  = myoption.DELETE
-	DELETE_VERBE = "DELETE"
-	DELETE_URL   = "/api/v1/organization/<orgId>/deployments/<deploymentName>"
+	yce "app/backend/controller/yce"
 )
 
 type DeleteDeploymentController struct {
+	yce.Controller
+
 	// must
-	*iris.Context
 	apiServer string
 	k8sClient *client.Client
-	Ye        *myerror.YceError
 
 	// url param
 	orgId          string
@@ -41,7 +35,7 @@ type DeleteDeploymentController struct {
 	// json param
 	params *DeleteDeploymentParam
 
-	//
+	// k8s objects
 	deployment  *extensions.Deployment
 	replicaSets []extensions.ReplicaSet
 	pods        []api.Pod
@@ -54,45 +48,16 @@ type DeleteDeploymentParam struct {
 	Comments string  `json:"comments"`
 }
 
-// write response
-func (ddc *DeleteDeploymentController) WriteBack() {
-	ddc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("DeleteDeploymentController Response YceError: controller=%p, code=%d, note=%s", ddc, ddc.Ye.Code, myerror.Errors[ddc.Ye.Code].LogMsg)
-	ddc.Write(ddc.Ye.String())
-}
-
-// validate Session with orgId
-func (ddc *DeleteDeploymentController) validateSession(sessionId, orgId string) {
-	// Validate the session
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		ddc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Session invalide
-	if !ok {
-		mylog.Log.Errorf("DeleteDeploymentController Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		ddc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("DeleteDeploymentController validate sessionId successfully: sessionId=%s, orgId=%s", sessionId, orgId)
-	return
-}
 
 // parse params from json
 func (ddc *DeleteDeploymentController) getParams() {
 	err := ddc.ReadJSON(ddc.params)
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController getParams Error: error=%s", err)
+		log.Errorf("DeleteDeploymentController getParams Error: error=%s", err)
 		ddc.Ye = myerror.NewYceError(myerror.EYCE_DELETE_DEPLOYMENT, "")
 		return
 	}
-	mylog.Log.Debugf("DeleteDeploymentController getParams successfully: dcId=%d, userId=%s", ddc.params.DcIdList[0], ddc.params.UserId)
+	log.Debugf("DeleteDeploymentController getParams successfully: dcId=%d, userId=%s", ddc.params.DcIdList[0], ddc.params.UserId)
 }
 
 // get dcId int32
@@ -104,7 +69,7 @@ func (ddc *DeleteDeploymentController) getDcId() int32 {
 	if len(ddc.params.DcIdList) > 0 {
 		return ddc.params.DcIdList[0]
 	} else {
-		mylog.Log.Errorf("DeleteDeploymentController getDcId Error: len(DcIdList)=%d, err=no value in DcIdList, Index out of range", len(ddc.params.DcIdList))
+		log.Errorf("DeleteDeploymentController getDcId Error: len(DcIdList)=%d, err=no value in DcIdList, Index out of range", len(ddc.params.DcIdList))
 		ddc.Ye = myerror.NewYceError(myerror.EOOM, "")
 		return 0
 	}
@@ -117,12 +82,12 @@ func (ddc *DeleteDeploymentController) getDatacenterByDcId(dcId int32) *mydatace
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController getDatacenter QueryDataCenterById Error: dcId=%d, error=%s", dcId, err)
+		log.Errorf("DeleteDeploymentController getDatacenter QueryDataCenterById Error: dcId=%d, error=%s", dcId, err)
 		ddc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return nil
 	}
 
-	mylog.Log.Infof("DeleteDeploymentController getDatacenterByDcId successfully: name=%s, id=%d", dc.Name, dc.Id)
+	log.Infof("DeleteDeploymentController getDatacenterByDcId successfully: name=%s, id=%d", dc.Name, dc.Id)
 	return dc
 }
 
@@ -144,7 +109,7 @@ func (ddc *DeleteDeploymentController) getApiServer() {
 
 	ddc.apiServer = apiServer
 
-	mylog.Log.Infof("DeleteDeploymentController getApiServer successfully: apiServer=%s, dcId=%d", apiServer, dcId)
+	log.Infof("DeleteDeploymentController getApiServer successfully: apiServer=%s, dcId=%d", apiServer, dcId)
 
 }
 
@@ -156,12 +121,12 @@ func (ddc *DeleteDeploymentController) createK8sClient() *client.Client {
 
 	c, err := client.New(config)
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=%s", ddc.apiServer, err)
+		log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=%s", ddc.apiServer, err)
 		ddc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 		return nil
 	}
 
-	mylog.Log.Debugf("DeleteDeploymentController createK8sClient successfully: apiServer=%s, k8sClient=%p", ddc.apiServer, c)
+	log.Debugf("DeleteDeploymentController createK8sClient successfully: apiServer=%s, k8sClient=%p", ddc.apiServer, c)
 	return c
 }
 
@@ -169,11 +134,11 @@ func (ddc *DeleteDeploymentController) createK8sClient() *client.Client {
 func (ddc *DeleteDeploymentController) getK8sClient() {
 	ddc.k8sClient = ddc.createK8sClient()
 	if ddc.k8sClient == nil {
-		mylog.Log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=createK8sClient failed", ddc.apiServer)
+		log.Errorf("DeleteDeploymentController createK8sClient Error: apiServer=%s, error=createK8sClient failed", ddc.apiServer)
 		ddc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 		return
 	}
-	mylog.Log.Infof("DeleteDeploymentController getK8sClient successfully: k8sClient=%p, apiServer=%s", ddc.k8sClient, ddc.apiServer)
+	log.Infof("DeleteDeploymentController getK8sClient successfully: k8sClient=%p, apiServer=%s", ddc.k8sClient, ddc.apiServer)
 }
 
 // get OrgNameByOrgId
@@ -182,7 +147,7 @@ func (ddc *DeleteDeploymentController) getOrgNameByOrgId() string {
 
 	orgId, _ := strconv.Atoi(ddc.orgId)
 	organization.QueryOrganizationById(int32(orgId))
-	mylog.Log.Infof("DeleteDeploymentController getOrgNameByOrgId successfully: orgName=%s, orgId=%d", organization.Name, orgId)
+	log.Infof("DeleteDeploymentController getOrgNameByOrgId successfully: orgName=%s, orgId=%d", organization.Name, orgId)
 	return organization.Name
 }
 
@@ -193,18 +158,18 @@ func (ddc *DeleteDeploymentController) getDeploymentByName() {
 	var err error
 	ddc.deployment, err = ddc.k8sClient.Extensions().Deployments(namespace).Get(ddc.deploymentName)
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController getDeploymentByName Error: apiServer=%s, namespace=%s, err=%s", ddc.apiServer, namespace, err)
+		log.Errorf("DeleteDeploymentController getDeploymentByName Error: apiServer=%s, namespace=%s, err=%s", ddc.apiServer, namespace, err)
 		ddc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 		return
 	}
-	mylog.Log.Infof("DeleteDeploymentController getDeploymentByName successfully: name=%s, createTime=%s", ddc.deployment.Name, ddc.deployment.CreationTimestamp)
+	log.Infof("DeleteDeploymentController getDeploymentByName successfully: name=%s, createTime=%s", ddc.deployment.Name, ddc.deployment.CreationTimestamp)
 }
 
 // getReplicaSetListByDeployment
 func (ddc *DeleteDeploymentController) getReplicaSetListByDeployment() {
 	selector, err := unver.LabelSelectorAsSelector(ddc.deployment.Spec.Selector)
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController getReplicaSetListByDeployment Error: name=%s, err=%s", ddc.deployment.Name, err)
+		log.Errorf("DeleteDeploymentController getReplicaSetListByDeployment Error: name=%s, err=%s", ddc.deployment.Name, err)
 		ddc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_REPLICASET, "")
 		return
 	}
@@ -213,14 +178,14 @@ func (ddc *DeleteDeploymentController) getReplicaSetListByDeployment() {
 
 	rsList, err := ddc.k8sClient.Extensions().ReplicaSets(ddc.deployment.Namespace).List(options)
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController getReplicaSetListByDeployment Error: name=%s, err=%s", ddc.deployment.Name, err)
+		log.Errorf("DeleteDeploymentController getReplicaSetListByDeployment Error: name=%s, err=%s", ddc.deployment.Name, err)
 		ddc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_REPLICASET, "")
 		return
 	}
 
 	ddc.replicaSets = rsList.Items
 
-	mylog.Log.Infof("DeleteDeploymentController getReplicaSetListByDeployment successfully: name=%s, len(replicaSet)=%d", ddc.deployment.Name, len(ddc.replicaSets))
+	log.Infof("DeleteDeploymentController getReplicaSetListByDeployment successfully: name=%s, len(replicaSet)=%d", ddc.deployment.Name, len(ddc.replicaSets))
 }
 
 // deleteReplicaSet
@@ -229,17 +194,17 @@ func (ddc *DeleteDeploymentController) deleteReplicaSet() {
 		falseVar := false
 		deleteOptions := &api.DeleteOptions{OrphanDependents: &falseVar}
 
-		mylog.Log.Debugf("DeleteDeploymentController ReplicaSet Name: replicaSetName=%s", rs.Name)
+		log.Debugf("DeleteDeploymentController ReplicaSet Name: replicaSetName=%s", rs.Name)
 		err := ddc.k8sClient.Extensions().ReplicaSets(ddc.deployment.Namespace).Delete(rs.Name, deleteOptions)
 		if err != nil {
-			mylog.Log.Errorf("DeleteDeploymentController deleteReplicaSet Error: name=%s, err=%s", rs.Name, err)
+			log.Errorf("DeleteDeploymentController deleteReplicaSet Error: name=%s, err=%s", rs.Name, err)
 			ddc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_REPLICASET, "")
 			return
 		}
 
 	}
 
-	mylog.Log.Infof("DeleteDeploymentController deleteReplicaSet successfully")
+	log.Infof("DeleteDeploymentController deleteReplicaSet successfully")
 }
 
 // getPodsByReplicaSet
@@ -247,7 +212,7 @@ func (ddc *DeleteDeploymentController) getPodsByReplicaSet() {
 	for _, rs := range ddc.replicaSets {
 		selector, err := unver.LabelSelectorAsSelector(rs.Spec.Selector)
 		if err != nil {
-			mylog.Log.Errorf("DeleteDeploymentController getPodsByReplicaSet Error: rsName=%s, error=%s", rs.Name, err)
+			log.Errorf("DeleteDeploymentController getPodsByReplicaSet Error: rsName=%s, error=%s", rs.Name, err)
 			ddc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
 			return
 		}
@@ -256,7 +221,7 @@ func (ddc *DeleteDeploymentController) getPodsByReplicaSet() {
 
 		podList, err := ddc.k8sClient.Pods(rs.Namespace).List(options)
 		if err != nil {
-			mylog.Log.Errorf("DeleteDeploymentController getPodsByReplicaSet Error: rsName=%s, error=%s", rs.Name, err)
+			log.Errorf("DeleteDeploymentController getPodsByReplicaSet Error: rsName=%s, error=%s", rs.Name, err)
 			ddc.Ye = myerror.NewYceError(myerror.EKUBE_LIST_PODS, "")
 			return
 		}
@@ -265,10 +230,10 @@ func (ddc *DeleteDeploymentController) getPodsByReplicaSet() {
 			ddc.pods = append(ddc.pods, pod)
 		}
 
-		mylog.Log.Infof("DeleteDeploymentController append pods: len(podList.Items)=%d, len(pods)=%d", len(podList.Items), len(ddc.pods))
+		log.Infof("DeleteDeploymentController append pods: len(podList.Items)=%d, len(pods)=%d", len(podList.Items), len(ddc.pods))
 	}
 
-	mylog.Log.Infof("DeleteDeploymentController getPodsByReplicaSet successfully: len(pods)=%d", len(ddc.pods))
+	log.Infof("DeleteDeploymentController getPodsByReplicaSet successfully: len(pods)=%d", len(ddc.pods))
 
 }
 
@@ -278,30 +243,30 @@ func (ddc *DeleteDeploymentController) deletePods() {
 		falseVar := false
 		deleteOptions := &api.DeleteOptions{OrphanDependents: &falseVar}
 
-		mylog.Log.Infof("DeleteDeploymentController deletePods: podName=%s", pod.Name)
+		log.Infof("DeleteDeploymentController deletePods: podName=%s", pod.Name)
 		err := ddc.k8sClient.Pods(pod.Namespace).Delete(pod.Name, deleteOptions)
 
 		if err != nil {
-			mylog.Log.Errorf("DeleteDeploymentController deletePods: Error: name=%s, err=%s", pod.Name, err)
+			log.Errorf("DeleteDeploymentController deletePods: Error: name=%s, err=%s", pod.Name, err)
 			ddc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_POD, "")
 			return
 		}
 
 	}
 
-	mylog.Log.Infof("DeleteDeploymentController delete pods successfully")
+	log.Infof("DeleteDeploymentController delete pods successfully")
 }
 
 // delete Deployment
 func (ddc *DeleteDeploymentController) deleteDeployment() {
 	err := ddc.k8sClient.Extensions().Deployments(ddc.deployment.Namespace).Delete(ddc.deployment.Name, nil)
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController deleteDeployment Error: name=%s, err=%s", ddc.deployment.Name, err)
+		log.Errorf("DeleteDeploymentController deleteDeployment Error: name=%s, err=%s", ddc.deployment.Name, err)
 		ddc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_DEPLOYMENT, "")
 		return
 	}
 
-	mylog.Log.Infof("DeleteDeploymentController deleteDeployment successfully: name=%s", ddc.deploymentName)
+	log.Infof("DeleteDeploymentController deleteDeployment successfully: name=%s", ddc.deploymentName)
 }
 
 func (ddc *DeleteDeploymentController) encodeDcIdList() string {
@@ -317,7 +282,7 @@ func (ddc *DeleteDeploymentController) encodeDcIdList() string {
 
 	dcIdListString := string(dcIdListJson)
 
-	mylog.Log.Infof("DeleteDeploymentController encodeDcIdList successfully: dcIdList=%s", dcIdListString)
+	log.Infof("DeleteDeploymentController encodeDcIdList successfully: dcIdList=%s", dcIdListString)
 	return dcIdListString
 }
 
@@ -327,7 +292,7 @@ func (ddc *DeleteDeploymentController) createMysqlDeployment() {
 	uph := placeholder.NewPlaceHolder(DELETE_URL)
 	actionUrl := uph.Replace("<orgId>", ddc.orgId, "<deploymentName>", ddc.deploymentName)
 	actionOp, _ := strconv.Atoi(ddc.params.UserId)
-	mylog.Log.Debugf("DeleteDeploymentController createMySQLDeployment: actionOp=%d, actionUrl=%s", actionOp, actionUrl)
+	log.Debugf("DeleteDeploymentController createMySQLDeployment: actionOp=%d, actionUrl=%s", actionOp, actionUrl)
 
 	//dcIdList := strconv.Itoa(int(ddc.params.DcId))
 	dcIdList := ddc.encodeDcIdList()
@@ -336,13 +301,13 @@ func (ddc *DeleteDeploymentController) createMysqlDeployment() {
 
 	err := dp.InsertDeployment()
 	if err != nil {
-		mylog.Log.Errorf("DeleteDeploymentController CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
+		log.Errorf("DeleteDeploymentController CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
 			actionUrl, actionOp, dcIdList, err)
 		ddc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
 		return
 	}
 
-	mylog.Log.Infof("DeleteDeploymentController CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
+	log.Infof("DeleteDeploymentController CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
 		actionUrl, actionOp, dcIdList)
 }
 
@@ -397,7 +362,7 @@ func (ddc *DeleteDeploymentController) delete() {
 		return
 	}
 
-	mylog.Log.Infof("DeleteDeploymentController delete replicaset and deployment and create mysql deployment successfully")
+	log.Infof("DeleteDeploymentController delete replicaset and deployment and create mysql deployment successfully")
 }
 
 // main
@@ -409,48 +374,41 @@ func (ddc DeleteDeploymentController) Post() {
 	ddc.orgId = ddc.Param("orgId")
 	ddc.deploymentName = ddc.Param("deploymentName")
 
-	mylog.Log.Debugf("DeleteDeploymentController Params: sessionId=%s, orgId=%s, deploymentName=%s", sessionIdFromClient, ddc.orgId, ddc.deploymentName)
+	log.Debugf("DeleteDeploymentController Params: sessionId=%s, orgId=%s, deploymentName=%s", sessionIdFromClient, ddc.orgId, ddc.deploymentName)
 
 
 	// validate sessionId
-	ddc.validateSession(sessionIdFromClient, ddc.orgId)
-	if ddc.Ye != nil {
-		ddc.WriteBack()
+	ddc.ValidateSession(sessionIdFromClient, ddc.orgId)
+	if ddc.CheckError() {
 		return
 	}
 
 	//Parse Param
 	ddc.getParams()
-	if ddc.Ye != nil {
-		ddc.WriteBack()
+	if ddc.CheckError() {
 		return
 	}
 
 	// getApiServer
 	ddc.getApiServer()
-	if ddc.Ye != nil {
-		ddc.WriteBack()
+	if ddc.CheckError() {
 		return
 	}
 
 	// getK8sClient
 	ddc.getK8sClient()
-	if ddc.Ye != nil {
-		ddc.WriteBack()
+	if ddc.CheckError() {
 		return
 	}
 
 	// deleteDeployment
 	ddc.delete()
-	if ddc.Ye != nil {
-		ddc.WriteBack()
+	if ddc.CheckError() {
 		return
 	}
 
-	ddc.Ye = myerror.NewYceError(myerror.EOK, "")
-	ddc.WriteBack()
-	// TODO: 成功写回
-	mylog.Log.Infoln("Delete Deployment over!")
+	ddc.Ok()
+	log.Infoln("Delete Deployment over!")
 	return
 
 }
