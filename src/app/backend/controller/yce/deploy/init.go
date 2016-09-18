@@ -11,22 +11,22 @@ import (
 	yce "app/backend/controller/yce"
 )
 
-type InitDeployController struct {
+type InitDeploymentController struct {
 	yce.Controller
 	org  *myorganization.Organization
 	Init deploy.InitDeployment
 }
 
-func (idc *InitDeployController) String() string {
+func (idc *InitDeploymentController) String() string {
 	data, err := json.Marshal(idc.Init)
 	if err != nil {
-		log.Errorf("InitDeployController String() Marshal Error: err=%s", err)
+		log.Errorf("InitDeploymentController String() Marshal Error: err=%s", err)
 		return ""
 	}
 	return string(data)
 }
 
-func (idc *InitDeployController) getOrgName(orgId string) {
+func (idc *InitDeploymentController) getOrgName(orgId string) {
 	org, err := organization.GetOrganizationById(orgId)
 
 	if err != nil {
@@ -38,11 +38,11 @@ func (idc *InitDeployController) getOrgName(orgId string) {
 	idc.org = org
 	idc.Init.OrgId = orgId
 	idc.Init.OrgName = idc.org.Name
-	log.Debugf("InitDeployController Params: org=%p, orgId=%s", idc.org, idc.Init.OrgId, idc.Init.OrgName)
+	log.Debugf("InitDeploymentController Params: org=%p, orgId=%s", idc.org, idc.Init.OrgId, idc.Init.OrgName)
 
 }
 
-func (idc *InitDeployController) getDatacenters() {
+func (idc *InitDeploymentController) getDatacenters() {
 	// Get Datacenters by a organization
 	idc.Init.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)
 	if err != nil {
@@ -53,7 +53,7 @@ func (idc *InitDeployController) getDatacenters() {
 	return
 }
 
-func (idc *InitDeployController) getAllQuotas() {
+func (idc *InitDeploymentController) getAllQuotas() {
 	// Get all quotas
 	idc.Init.Quotas, err = myqouta.QueryAllQuotas()
 	if err != nil {
@@ -65,11 +65,11 @@ func (idc *InitDeployController) getAllQuotas() {
 }
 
 // GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
-func (idc InitDeployController) Get() {
+func (idc InitDeploymentController) Get() {
 	sessionIdFromClient := idc.RequestHeader("Authorization")
 	orgId := idc.Param("orgId")
 
-	log.Debugf("InitDeployController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
+	log.Debugf("InitDeploymentController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 	// Valid session
 	idc.ValidateSession(sessionIdFromClient, orgId)
@@ -94,7 +94,7 @@ func (idc InitDeployController) Get() {
 	}
 
 	idc.WriteOk(idc.String())
-	log.Infoln("InitDeployController Get over!")
+	log.Infoln("InitDeploymentController Get over!")
 
 	return
 

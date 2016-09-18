@@ -2,13 +2,11 @@ package deploy
 
 import (
 	"app/backend/model/yce/deploy"
-	"app/backend/common/util/session"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"github.com/kataras/iris"
 
-	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
@@ -17,12 +15,6 @@ import (
 	"strconv"
 	"app/backend/common/util/Placeholder"
 	"github.com/kubernetes/kubernetes/pkg/util/json"
-)
-
-const (
-	SCALE_ACTION_TYPE                = myoption.SCALING
-	SCALE_ACTION_VERBE               = "POST"
-	SCALE_ACTION_URL                 = "/api/v1/organizations/<orgId>/datacenters/<dcId>/deployments/<name>/scale"
 )
 
 type ScaleDeploymentController struct{
@@ -38,34 +30,6 @@ type ScaleDeploymentController struct{
 	deployment extensions.Deployment
 }
 
-func (sdc *ScaleDeploymentController) WriteBack() {
-	sdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("ScaleDeploymentController Response YceError: controller=%p, code=%d, note=%s", sdc, sdc.Ye.Code, myerror.Errors[sdc.Ye.Code].LogMsg)
-	sdc.Write(sdc.Ye.String())
-}
-
-// validate sessionId from Client
-func (sdc *ScaleDeploymentController) valideSession(sessionId, orgId string) {
-	// Validate the session
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	if err != nil {
-		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		sdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Session invalide
-	if !ok {
-		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		sdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("ScaleDeployment sessionId successfully: sessionId=%s, orgId=%d", sessionId, orgId)
-	return
-}
 
 // get ApiServer And K8sClient By DcId
 func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
@@ -76,7 +40,7 @@ func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
 	if len(sdc.s.DcIdList) > 0 {
 		dcId = sdc.s.DcIdList[0]
 	} else {
-		mylog.Log.Errorf("ScaleDeployController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(sdc.s.DcIdList))
+		log.Errorf("ScaleDeployController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(sdc.s.DcIdList))
 		sdc.Ye = myerror.NewYceError(myerror.EOOM, "")
 		return
 	}
@@ -85,7 +49,7 @@ func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
 
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("ScaleDeployment getApiServerById QueryDataCenterById error: dcId=%d, error=%s", dcId, err)
+		log.Errorf("ScaleDeployment getApiServerById QueryDataCenterById error: dcId=%d, error=%s", dcId, err)
 		sdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -100,13 +64,13 @@ func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
 
 	c, err := client.New(config)
 	if err != nil {
-		mylog.Log.Errorf("ScaleDeployment create K8sClient error: apiServer=%s, error=%s", sdc.apiServer, err)
+		log.Errorf("ScaleDeployment create K8sClient error: apiServer=%s, error=%s", sdc.apiServer, err)
 		sdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 		return
 	}
 
 	sdc.k8sClient = c
-	mylog.Log.Infof("ScaleDeployment GetApiServerAndK8sClientByDcID over: apiServer=%s, k8sClient=%p", sdc.apiServer, sdc.k8sClient)
+	log.Infof("ScaleDeployment GetApiServerAndK8sClientByDcID over: apiServer=%s, k8sClient=%p", sdc.apiServer, sdc.k8sClient)
 
 }
 
@@ -115,7 +79,7 @@ func (sdc *ScaleDeploymentController) getDeploymentByName() {
 	//get Organization by OrgId
 	org, err := organization.GetOrganizationById(sdc.orgId)
 	if err != nil {
-		mylog.Log.Errorf("ScaleDeployment getDatacentersByOrgId Error: orgId=%s, error=%s", sdc.orgId, err)
+		log.Errorf("ScaleDeployment getDatacentersByOrgId Error: orgId=%s, error=%s", sdc.orgId, err)
 		sdc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 	}
@@ -124,7 +88,7 @@ func (sdc *ScaleDeploymentController) getDeploymentByName() {
 	namespace := org.Name
 	dp, err := sdc.k8sClient.Extensions().Deployments(namespace).Get(sdc.name)
 	if err != nil {
-		mylog.Log.Errorf("ScaleDeployment getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
+		log.Errorf("ScaleDeployment getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
 			sdc.apiServer, namespace, sdc.name, err)
 		sdc.Ye = myerror.NewYceError(myerror.EKUBE_GET_DEPLOYMENT, "")
 		return
@@ -132,22 +96,22 @@ func (sdc *ScaleDeploymentController) getDeploymentByName() {
 
 	sdc.deployment = *dp
 
-	mylog.Log.Infof("ScaleDeployment GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
+	log.Infof("ScaleDeployment GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
 		sdc.apiServer, namespace, sdc.name, dp)
 }
 
 
 // Scale directly
-func (sdc *ScaleDeploymentController) ScaleSimple() {
+func (sdc *ScaleDeploymentController) scaleSimple() {
 	sdc.deployment.Spec.Replicas = sdc.s.NewSize
 	_, err := sdc.k8sClient.Extensions().Deployments(sdc.deployment.Namespace).Update(&sdc.deployment)
 	if err != nil {
-		mylog.Log.Errorf("ScaleDeployment ScaleSimple Error: name=%s, namespace=%s, newsize=%d", sdc.deployment.Name, sdc.deployment.Namespace, sdc.s.NewSize)
+		log.Errorf("ScaleDeployment ScaleSimple Error: name=%s, namespace=%s, newsize=%d", sdc.deployment.Name, sdc.deployment.Namespace, sdc.s.NewSize)
 		sdc.Ye = myerror.NewYceError(myerror.EKUBE_SCALE_DEPLOYMENT, "")
 		return
 	}
 
-	mylog.Log.Infof("ScaleDeployment ScaleSimple Successfully")
+	log.Infof("ScaleDeployment ScaleSimple Successfully")
 }
 
 // create a deployment record
@@ -160,13 +124,13 @@ func (sdc *ScaleDeploymentController) createMysqlDeployment(success bool, name, 
 	dp := mydeployment.NewDeployment(name, SCALE_ACTION_VERBE, actionUrl, dcList, reason, json, "Rolilng Update a Deployment", int32(SCALE_ACTION_TYPE), actionOp, int32(1), orgId)
 	err := dp.InsertDeployment()
 	if err != nil {
-		mylog.Log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
+		log.Errorf("CreateMysqlDeployment Error: actionUrl=%s, actionOp=%d, dcList=%s, err=%s",
 			actionUrl, actionOp, dcList, err)
 		sdc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
 		return err
 	}
 
-	mylog.Log.Infof("ScaleDeployment CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
+	log.Infof("ScaleDeployment CreateMysqlDeployment successfully: actionUrl=%s, actionOp=%d, dcList=%s",
 		actionUrl, actionOp, dcList)
 	return nil
 }
@@ -178,7 +142,7 @@ func (sdc *ScaleDeploymentController) encodeDcIdList() string {
 	}
 	data, _ := json.Marshal(dcIdList)
 
-	mylog.Log.Infof("ScaleDeployController encodeDcIdList: dcIdList=%s", string(data))
+	log.Infof("ScaleDeployController encodeDcIdList: dcIdList=%s", string(data))
 	return string(data)
 }
 
@@ -188,12 +152,11 @@ func (sdc ScaleDeploymentController) Post() {
 
 	sessionIdFromClient := sdc.RequestHeader("Authorization")
 
-	mylog.Log.Debugf("ScaleDeploymentController Params: sessionId=%s, orgId=%s, name=%s", sessionIdFromClient, sdc.orgId, sdc.name)
+	log.Debugf("ScaleDeploymentController Params: sessionId=%s, orgId=%s, name=%s", sessionIdFromClient, sdc.orgId, sdc.name)
 
-	//validate the session
-	sdc.valideSession(sessionIdFromClient, sdc.orgId)
-	if sdc.Ye != nil {
-		sdc.WriteBack()
+	// Validate the session
+	sdc.ValideSession(sessionIdFromClient, sdc.orgId)
+	if sdc.CheckError() {
 		return
 	}
 
@@ -201,30 +164,29 @@ func (sdc ScaleDeploymentController) Post() {
 	sdc.s = new(deploy.ScaleDeployment)
 	err := sdc.ReadJSON(sdc.s)
 	if err != nil {
-		mylog.Log.Errorf("ScaleDeployController ReadJSON Error: error=%s", err)
+		log.Errorf("ScaleDeployController ReadJSON Error: error=%s", err)
 		sdc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		sdc.WriteBack()
+	}
+
+	if sdc.CheckError() {
 		return
 	}
 
 	//get ApiServer and K8sClient
 	sdc.getApiServerAndK8sClientByDcId()
-	if sdc.Ye != nil {
-		sdc.WriteBack()
+	if sdc.CheckError() {
 		return
 	}
 
 	//get Deployment
 	sdc.getDeploymentByName()
-	if sdc.Ye != nil {
-		sdc.WriteBack()
+	if sdc.CheckError() {
 		return
 	}
 
 	//scale the deployment
-	sdc.ScaleSimple()
-	if sdc.Ye != nil {
-		sdc.WriteBack()
+	sdc.scaleSimple()
+	if sdc.CheckError() {
 		return
 	}
 
@@ -235,15 +197,13 @@ func (sdc ScaleDeploymentController) Post() {
 
 	// create mysql deployment
 	sdc.createMysqlDeployment(true, sdc.name, string(dd), sdc.s.Comments, dcIdList, sdc.s.UserId, int32(oId))
-	if sdc.Ye != nil {
-		sdc.WriteBack()
+	if sdc.CheckError() {
 		return
 	}
 
 	// success
-	sdc.Ye = myerror.NewYceError(myerror.EOK, "")
-	sdc.WriteBack()
-	mylog.Log.Infoln("ScaleDeploymentController over!")
+	sdc.WriteOk("")
+	log.Infoln("ScaleDeploymentController over!")
 	return
 
 }

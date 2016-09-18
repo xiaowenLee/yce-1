@@ -20,7 +20,7 @@ import (
 )
 
 
-type HistoryDeployController struct {
+type HistoryDeploymentController struct {
 	yce.Controller
 	apiServer  string
 	k8sClient  *client.Client
@@ -62,7 +62,7 @@ func (slice ReplicaSetList) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
-func (hdc *HistoryDeployController) encodeMapToString(labels map[string]string) string {
+func (hdc *HistoryDeploymentController) encodeMapToString(labels map[string]string) string {
 	var ss []string
 	for key, value := range labels {
 		str := key + ":" + value
@@ -73,7 +73,7 @@ func (hdc *HistoryDeployController) encodeMapToString(labels map[string]string) 
 }
 
 // Get ReplicaSet List by deployment via LabelSelectorAsSelector func
-func (hdc *HistoryDeployController) getReplicaSetsByDeployment() []extensions.ReplicaSet {
+func (hdc *HistoryDeploymentController) getReplicaSetsByDeployment() []extensions.ReplicaSet {
 
 	namespace := hdc.deployment.Namespace
 	selector, err := unver.LabelSelectorAsSelector(hdc.deployment.Spec.Selector)
@@ -86,12 +86,12 @@ func (hdc *HistoryDeployController) getReplicaSetsByDeployment() []extensions.Re
 	options := api.ListOptions{LabelSelector: selector}
 	rsList, err := hdc.k8sClient.Extensions().ReplicaSets(namespace).List(options)
 
-	log.Infof("HistoryDeployController GetReplicaSetByDeployment over!")
+	log.Infof("HistoryDeploymentController GetReplicaSetByDeployment over!")
 	return rsList.Items
 }
 
 // Get ApiServer by DcId
-func (hdc *HistoryDeployController) getApiServerAndK8sClientByDcId() {
+func (hdc *HistoryDeploymentController) getApiServerAndK8sClientByDcId() {
 
 	// ApiServer
 	dc := new(mydatacenter.DataCenter)
@@ -125,7 +125,7 @@ func (hdc *HistoryDeployController) getApiServerAndK8sClientByDcId() {
 }
 
 // Get Deployment by deployment-name
-func (hdc *HistoryDeployController) getDeploymentByName() {
+func (hdc *HistoryDeploymentController) getDeploymentByName() {
 
 	// Get namespace(org.Name) by orgId
 	org, err := organization.GetOrganizationById(hdc.orgId)
@@ -152,7 +152,7 @@ func (hdc *HistoryDeployController) getDeploymentByName() {
 }
 
 // Foreach ReplicaSets to return
-func (hdc *HistoryDeployController) getReplicaSetList() {
+func (hdc *HistoryDeploymentController) getReplicaSetList() {
 
 	hdc.list = new(ReplicaSetList)
 
@@ -185,7 +185,7 @@ func (hdc *HistoryDeployController) getReplicaSetList() {
 }
 
 // Encode ReplicaSetList to string
-func (hdc *HistoryDeployController) encodeReplicaSetList() string {
+func (hdc *HistoryDeploymentController) encodeReplicaSetList() string {
 	// Sort the HistoryReturn List
 	sort.Sort(hdc.list)
 	data, err := json.Marshal(hdc.list)
@@ -197,13 +197,13 @@ func (hdc *HistoryDeployController) encodeReplicaSetList() string {
 }
 
 // GET /api/v1/organizations/{orgId}/datacenters/{dcId}/deployments/{name}/history
-func (hdc HistoryDeployController) Get() {
+func (hdc HistoryDeploymentController) Get() {
 	hdc.orgId = hdc.Param("orgId")
 	hdc.dcId = hdc.Param("dcId")
 	hdc.name = hdc.Param("name")
 	sessionIdFromClient := hdc.RequestHeader("Authorization")
 
-	log.Debugf("HistoryDeployController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.name)
+	log.Debugf("HistoryDeploymentController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.name)
 
 	// ValidateSessionId
 	hdc.ValidateSessionId(sessionIdFromClient, hdc.orgId)
@@ -236,6 +236,6 @@ func (hdc HistoryDeployController) Get() {
 	}
 
 	hdc.WriteOk(ret)
-	log.Infoln("HistoryDeployController over!")
+	log.Infoln("HistoryDeploymentController over!")
 	return
 }

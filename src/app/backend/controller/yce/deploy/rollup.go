@@ -19,14 +19,14 @@ import (
 	yce "app/backend/controller/yce"
 )
 
-type RollingDeployController struct {
+type RollingDeploymentController struct {
 	yce.Controller
 	k8sClients *client.Client
 	apiServers string
 }
 
 // Get ApiServer by dcId
-func (rdc *RollingDeployController) getApiServerByDcId(dcId int32) string {
+func (rdc *RollingDeploymentController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
@@ -44,14 +44,14 @@ func (rdc *RollingDeployController) getApiServerByDcId(dcId int32) string {
 }
 
 // Get ApiServer List for dcIdList
-func (rdc *RollingDeployController) getApiServer(dcIdList []int32) {
+func (rdc *RollingDeploymentController) getApiServer(dcIdList []int32) {
 	// Get ApiServer
 	// must be one dcId
 	var dcId int32
 	if len(dcIdList) > 0 {
 		dcId = dcIdList[0]
 	} else {
-		log.Errorf("RollingDeployController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(dcIdList))
+		log.Errorf("RollingDeploymentController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(dcIdList))
 		rdc.Ye = myerror.NewYceError(myerror.EOOM, "")
 		return
 
@@ -59,7 +59,7 @@ func (rdc *RollingDeployController) getApiServer(dcIdList []int32) {
 
 	apiServer := rdc.getApiServerByDcId(dcId)
 	if strings.EqualFold(apiServer, "") {
-		log.Errorf("RollingDeployController getApiServerList Error")
+		log.Errorf("RollingDeploymentController getApiServerList Error")
 		rdc.Ye = myerror.NewYceError(myerror.EOOM, "")
 		return
 	}
@@ -71,7 +71,7 @@ func (rdc *RollingDeployController) getApiServer(dcIdList []int32) {
 }
 
 // Create k8sClients for every ApiServer
-func (rdc *RollingDeployController) createK8sClients() {
+func (rdc *RollingDeploymentController) createK8sClients() {
 
 	server := rdc.apiServers
 	config := &restclient.Config{
@@ -93,7 +93,7 @@ func (rdc *RollingDeployController) createK8sClients() {
 	return
 }
 
-func (rdc *RollingDeployController) rollingUpdate(namespace, deployment string, rd *deploy.RollingDeployment) (dp *extensions.Deployment) {
+func (rdc *RollingDeploymentController) rollingUpdate(namespace, deployment string, rd *deploy.RollingDeployment) (dp *extensions.Deployment) {
 
 	cli := rdc.k8sClients
 	dp, err := cli.Extensions().Deployments(namespace).Get(deployment)
@@ -133,13 +133,13 @@ func (rdc *RollingDeployController) rollingUpdate(namespace, deployment string, 
 }
 
 // Create Deployment(mysql) and insert it into db
-func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, json, reason, dcList, comments string, userId, orgId int32) error {
+func (rdc *RollingDeploymentController) createMysqlDeployment(success bool, name, json, reason, dcList, comments string, userId, orgId int32) error {
 
 	uph := placeholder.NewPlaceHolder(ROLLING_URL)
 	orgIdString := strconv.Itoa(int(orgId))
 	actionUrl := uph.Replace("<orgId>", orgIdString, "<deploymentName>", name)
 	actionOp := userId
-	log.Debugf("RollingDeployController createMySQLDeployment: actionOp=%d", actionOp)
+	log.Debugf("RollingDeploymentController createMySQLDeployment: actionOp=%d", actionOp)
 	dp := mydeployment.NewDeployment(name, ROLLING_VERBE, actionUrl, dcList, reason, json, comments, int32(ROLLING_TYPE), actionOp, int32(1), orgId)
 	err := dp.InsertDeployment()
 	if err != nil {
@@ -155,17 +155,17 @@ func (rdc *RollingDeployController) createMysqlDeployment(success bool, name, js
 }
 
 //Encode dcIdList to JSON
-func (rdc *RollingDeployController) encodeDcIdList(dcIdList []int32) string{
+func (rdc *RollingDeploymentController) encodeDcIdList(dcIdList []int32) string{
 	dcIds := &deploy.DcIdListType{
 		DcIdList:dcIdList,
 	}
 
 	data, _ := json.Marshal(dcIds)
-	log.Infof("RollingDeployController encodeDcIdList: dcIdList=%s", string(data))
+	log.Infof("RollingDeploymentController encodeDcIdList: dcIdList=%s", string(data))
 	return string(data)
 }
 
-func (rdc RollingDeployController) Post() {
+func (rdc RollingDeploymentController) Post() {
 	orgId := rdc.Param("orgId")
 	deploymentName := rdc.Param("deploymentName")
 	org := new(myorganization.Organization)

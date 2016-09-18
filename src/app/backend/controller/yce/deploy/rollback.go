@@ -17,7 +17,7 @@ import (
 	yce "app/backend/controller/yce"
 )
 
-type RollbackDeployController struct {
+type RollbackDeploymentController struct {
 	yce.Controller
 	k8sClient  *client.Client
 	apiServer  string
@@ -37,7 +37,7 @@ type RollbackDeployParam struct {
 }
 
 // Create k8sClient for every ApiServer
-func (rdc *RollbackDeployController) createK8sClients() {
+func (rdc *RollbackDeploymentController) createK8sClients() {
 
 	server := rdc.apiServer
 	config := &restclient.Config{
@@ -58,7 +58,7 @@ func (rdc *RollbackDeployController) createK8sClients() {
 }
 
 // Get Deployment by deployment-name
-func (rdc *RollbackDeployController) getDeploymentByName() {
+func (rdc *RollbackDeploymentController) getDeploymentByName() {
 
 	// Get namespace(org.Name) by orgId
 	org, err := organization.GetOrganizationById(rdc.orgId)
@@ -85,7 +85,7 @@ func (rdc *RollbackDeployController) getDeploymentByName() {
 }
 
 // Get ApiServer by DcId
-func (rdc *RollbackDeployController) getApiServerAndK8sClientByDcId() {
+func (rdc *RollbackDeploymentController) getApiServerAndK8sClientByDcId() {
 
 	// ApiServer
 	dc := new(mydatacenter.DataCenter)
@@ -122,7 +122,7 @@ func (rdc *RollbackDeployController) getApiServerAndK8sClientByDcId() {
 }
 
 // Rollback
-func (rdc *RollbackDeployController) rollback() {
+func (rdc *RollbackDeploymentController) rollback() {
 
 	dr := new(extensions.DeploymentRollback)
 	dr.Name = rdc.deployment.Name
@@ -150,7 +150,7 @@ func (rdc *RollbackDeployController) rollback() {
 }
 
 // Create Deployment(mysql) and insert it into db
-func (rdc *RollbackDeployController) createMysqlDeployment(success bool, name, json, reason, dcList string, userId, orgId int32) error {
+func (rdc *RollbackDeploymentController) createMysqlDeployment(success bool, name, json, reason, dcList string, userId, orgId int32) error {
 
 	uph := placeholder.NewPlaceHolder(ROLLBACK_ACTION_URL)
 	orgIdString := strconv.Itoa(int(orgId))
@@ -171,24 +171,24 @@ func (rdc *RollbackDeployController) createMysqlDeployment(success bool, name, j
 }
 
 // Encode DcIdList
-func (rdc *RollbackDeployController) encodeDcIdList() string{
+func (rdc *RollbackDeploymentController) encodeDcIdList() string{
 	dcIdList := &deploy.DcIdListType{
 		DcIdList:rdc.r.DcIdList,
 	}
 	data, _ := json.Marshal(dcIdList)
 
-	log.Infof("RollbackDeployController encodeDcIdList: dcIdList=%s", string(data))
+	log.Infof("RollbackDeploymentController encodeDcIdList: dcIdList=%s", string(data))
 	return string(data)
 }
 
 
 // POST /api/v1/organizations/{orgId}/deployments/{name}/rollback
-func (rdc RollbackDeployController) Post() {
+func (rdc RollbackDeploymentController) Post() {
 	rdc.orgId = rdc.Param("orgId")
 	rdc.name = rdc.Param("name")
 	sessionIdFromClient := rdc.RequestHeader("Authorization")
 
-	log.Debugf("RollbackDeployController Params: sessionId=%s, orgId=%s, name=%s", sessionIdFromClient, rdc.orgId, rdc.name)
+	log.Debugf("RollbackDeploymentController Params: sessionId=%s, orgId=%s, name=%s", sessionIdFromClient, rdc.orgId, rdc.name)
 
 	// Validate the session
 	rdc.ValidateSession(sessionIdFromClient, rdc.orgId)
@@ -200,7 +200,7 @@ func (rdc RollbackDeployController) Post() {
 	rdc.r = new(RollbackDeployParam)
 	err := rdc.ReadJSON(rdc.r)
 	if err != nil {
-		log.Errorf("RollbackDeployController ReadJSON Error: error=%s", err)
+		log.Errorf("RollbackDeploymentController ReadJSON Error: error=%s", err)
 		rdc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
 

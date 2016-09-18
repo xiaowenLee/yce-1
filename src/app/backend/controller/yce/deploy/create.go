@@ -19,14 +19,14 @@ import (
 )
 
 
-type CreateDeployController struct {
+type CreateDeploymentController struct {
 	yce.Controller
 	k8sClients []*client.Client
 	apiServers []string
 }
 
 // Get ApiServer by dcId
-func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) string {
+func (cdc *CreateDeploymentController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
@@ -39,18 +39,18 @@ func (cdc *CreateDeployController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
+	log.Infof("CreateDeploymentController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
 	return apiServer
 }
 
 // Get ApiServer List for dcIdList
-func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) {
+func (cdc *CreateDeploymentController) getApiServerList(dcIdList []int32) {
 	// Foreach dcIdList
 	for _, dcId := range dcIdList {
 		// Get ApiServer
 		apiServer := cdc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			log.Errorf("CreateDeployController getApiServerList Error")
+			log.Errorf("CreateDeploymentController getApiServerList Error")
 			cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 			return
 		}
@@ -58,12 +58,12 @@ func (cdc *CreateDeployController) getApiServerList(dcIdList []int32) {
 		cdc.apiServers = append(cdc.apiServers, apiServer)
 	}
 
-	log.Infof("CreateDeployController getApiServerList success: len(apiSeverList)=%d", len(cdc.apiServers))
+	log.Infof("CreateDeploymentController getApiServerList success: len(apiSeverList)=%d", len(cdc.apiServers))
 	return
 }
 
 // Create k8sClients for every ApiServer
-func (cdc *CreateDeployController) createK8sClients() {
+func (cdc *CreateDeploymentController) createK8sClients() {
 
 	// Foreach every ApiServer to create it's k8sClient
 	cdc.k8sClients = make([]*client.Client, 0)
@@ -84,12 +84,12 @@ func (cdc *CreateDeployController) createK8sClients() {
 		cdc.apiServers = append(cdc.apiServers, server)
 		log.Infof("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
-	log.Infof("CreateDeployController createK8sClients success: len(k8sCLients)=%d", len(cdc.k8sClients))
+	log.Infof("CreateDeploymentController createK8sClients success: len(k8sCLients)=%d", len(cdc.k8sClients))
 	return
 }
 
 // Publish k8s.Deployment to every datacenter which in dcIdList
-func (cdc *CreateDeployController) createDeployment(namespace string, deployment *extensions.Deployment) {
+func (cdc *CreateDeploymentController) createDeployment(namespace string, deployment *extensions.Deployment) {
 
 	// Foreach every k8sClient to create deployment
 	for index, cli := range cdc.k8sClients {
@@ -106,13 +106,13 @@ func (cdc *CreateDeployController) createDeployment(namespace string, deployment
 }
 
 // Create Deployment(mysql) and insert it into db
-func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, userId, json, reason, dcList string, orgId int32) error {
+func (cdc *CreateDeploymentController) createMysqlDeployment(success bool, name, userId, json, reason, dcList string, orgId int32) error {
 
 	uph := placeholder.NewPlaceHolder(CREATE_URL)
 	orgIdString := strconv.Itoa(int(orgId))
 	actionUrl := uph.Replace("<orgId>", orgIdString, "<userId>", userId)
 	actionOp, _ := strconv.Atoi(userId)
-	log.Debugf("CreateDeployController createMySQLDeployment: actionUrl=%s, actionOp=%d", actionUrl, actionOp)
+	log.Debugf("CreateDeploymentController createMySQLDeployment: actionUrl=%s, actionOp=%d", actionUrl, actionOp)
 
 	dp := mydeployment.NewDeployment(name, CREATE_VERBE, actionUrl, dcList, reason, json, "Create a Deployment", CREATE_TYPE, int32(actionOp), int32(1), orgId)
 	err := dp.InsertDeployment()
@@ -129,24 +129,24 @@ func (cdc *CreateDeployController) createMysqlDeployment(success bool, name, use
 }
 
 // Encode JSON of dcIdList
-func (cdc *CreateDeployController) encodeDcIdList(dcIdList []int32) string {
+func (cdc *CreateDeploymentController) encodeDcIdList(dcIdList []int32) string {
 	dcIds := &deploy.DcIdListType{
 		DcIdList:dcIdList,
 	}
 
 	data, _ := json.Marshal(dcIds)
 
-	log.Infof("CreateDeployController encodeDcIdList: dcIdList=%s", string(data))
+	log.Infof("CreateDeploymentController encodeDcIdList: dcIdList=%s", string(data))
 	return string(data)
 }
 
 // POST /api/v1/organizations/{orgId}/users/{userId}/deployments
-func (cdc CreateDeployController) Post() {
+func (cdc CreateDeploymentController) Post() {
 	sessionIdFromClient := cdc.RequestHeader("Authorization")
 	orgId := cdc.Param("orgId")
 	userId := cdc.Param("userId")
 
-	log.Debugf("CreateDeployController get Params:  sessionIdFromClient=%s, orgId=%s, userId=%s", sessionIdFromClient, orgId, userId)
+	log.Debugf("CreateDeploymentController get Params:  sessionIdFromClient=%s, orgId=%s, userId=%s", sessionIdFromClient, orgId, userId)
 
 	// Validate OrgId error
 	cdc.ValidateSession(sessionIdFromClient, orgId)
@@ -159,7 +159,7 @@ func (cdc CreateDeployController) Post() {
 	cd := new(deploy.CreateDeployment)
 	err := cdc.ReadJSON(cd)
 	if err != nil {
-		log.Errorf("CreateDeployController ReadJSON error: error=%s", err)
+		log.Errorf("CreateDeploymentController ReadJSON error: error=%s", err)
 		cdc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
 
@@ -167,7 +167,7 @@ func (cdc CreateDeployController) Post() {
 		return
 	}
 
-	log.Infof("CreateDeployController ReadJSON success: cd=%p", cd)
+	log.Infof("CreateDeploymentController ReadJSON success: cd=%p", cd)
 
 
 	// Get DcIdList
