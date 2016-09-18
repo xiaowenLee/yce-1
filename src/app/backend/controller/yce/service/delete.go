@@ -1,54 +1,22 @@
 package service
 
 import (
-	mylog "app/backend/common/util/log"
-	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	myorganization "app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mynodeport "app/backend/model/mysql/nodeport"
-	"github.com/kataras/iris"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
 	"strings"
 	"app/backend/model/yce/service"
+	yce "app/backend/controller/yce"
 )
 
 type DeleteServiceController struct {
-	*iris.Context
-	Ye         *myerror.YceError
+	yce.Controller
 	k8sClients []*client.Client
 	apiServers []string
-}
-
-func (dsc *DeleteServiceController) WriteBack() {
-	dsc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("DeleteServiceController Response YceError: controller=%p, code=%d, note=%s", dsc, dsc.Ye.Code, myerror.Errors[dsc.Ye.Code].LogMsg)
-	dsc.Write(dsc.Ye.String())
-}
-
-// Validate Session
-func (dsc *DeleteServiceController) validateSession(sessionIdFromClient, orgId string) {
-	ss := session.SessionStoreInstance()
-
-	// validate the session
-	ok, err := ss.ValidateOrgId(sessionIdFromClient, orgId)
-	if err != nil {
-		mylog.Log.Errorf("Validate Session Error: sessionId=%s, error=%s", sessionIdFromClient, err)
-		dsc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Invalidate SessionId
-	if !ok {
-		mylog.Log.Errorf("Validate Session Failed: sessionId=%s, error=%s", sessionIdFromClient, err)
-		dsc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-	}
-
-	mylog.Log.Infof("DeleteServiceController validate sessionId successfully: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
-
-	return
 }
 
 // Get ApiServer by dcId
@@ -56,7 +24,7 @@ func (dsc *DeleteServiceController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
 		dsc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
@@ -65,7 +33,7 @@ func (dsc *DeleteServiceController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	mylog.Log.Infof("DeleteServiceController getApiServerByDcId: apiServer=%s", apiServer)
+	log.Infof("DeleteServiceController getApiServerByDcId: apiServer=%s", apiServer)
 
 	return apiServer
 
@@ -78,13 +46,13 @@ func (dsc *DeleteServiceController) getApiServerList(dcIdList []int32) {
 		// Get ApiServer
 		apiServer := dsc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			mylog.Log.Errorf("DeleteServiceController getApiServerList Error")
+			log.Errorf("DeleteServiceController getApiServerList Error")
 			return
 		}
 
 		dsc.apiServers = append(dsc.apiServers, apiServer)
 	}
-	mylog.Log.Infof("DeleteServiceController getApiServerList successfully: len(apiServers)=%d", len(dsc.apiServers))
+	log.Infof("DeleteServiceController getApiServerList successfully: len(apiServers)=%d", len(dsc.apiServers))
 	return
 }
 
@@ -101,7 +69,7 @@ func (dsc *DeleteServiceController) createK8sClients() {
 
 		c, err := client.New(config)
 		if err != nil {
-			mylog.Log.Errorf("CreateK8sClient Error: error=%s", err)
+			log.Errorf("CreateK8sClient Error: error=%s", err)
 			dsc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 			return
 		}
@@ -109,10 +77,10 @@ func (dsc *DeleteServiceController) createK8sClients() {
 		dsc.k8sClients = append(dsc.k8sClients, c)
 		// why??
 		//dsc.apiServers = append(dsc.apiServers, server)
-		mylog.Log.Infof("Append a new client to dsc.K8sClients array: c=%p, apiServer=%s", c, server)
+		log.Infof("Append a new client to dsc.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
-	mylog.Log.Infof("DeleteServiceController createK8sClient: len(k8sClients)=%d", len(dsc.k8sClients))
+	log.Infof("DeleteServiceController createK8sClient: len(k8sClients)=%d", len(dsc.k8sClients))
 	return
 }
 
@@ -123,13 +91,13 @@ func (dsc *DeleteServiceController) deleteService(namespace, svcName string) {
 	for index, cli := range dsc.k8sClients {
 		err := cli.Services(namespace).Delete(svcName)
 		if err != nil {
-			mylog.Log.Errorf("deleteService Error: apiServer=%s, namespace=%s, error=%s", dsc.apiServers[index], namespace, err)
+			log.Errorf("deleteService Error: apiServer=%s, namespace=%s, error=%s", dsc.apiServers[index], namespace, err)
 			//dsc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_SERVICE, "")
 			dsc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_SERVICE, "")
 			return
 		}
 
-		mylog.Log.Infof("Delete Service successfully: namespace=%s, apiServer=%s", namespace, dsc.apiServers[index])
+		log.Infof("Delete Service successfully: namespace=%s, apiServer=%s", namespace, dsc.apiServers[index])
 	}
 
 	return
@@ -138,11 +106,11 @@ func (dsc *DeleteServiceController) deleteService(namespace, svcName string) {
 func (dsc *DeleteServiceController) getOrgNameByOrgId(orgId string) string {
 	org, err := myorganization.GetOrganizationById(orgId)
 	if err != nil {
-		mylog.Log.Errorf("deleteService Error: error=%s",err)
+		log.Errorf("deleteService Error: error=%s",err)
 		dsc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_SERVICE, "")
 		return ""
 	}
-	mylog.Log.Infof("DeleteServiceController getOrgNameByOrgId successfully: orgName=%s, orgId=%d", org.Name, orgId)
+	log.Infof("DeleteServiceController getOrgNameByOrgId successfully: orgName=%s, orgId=%d", org.Name, orgId)
 	return org.Name
 }
 
@@ -159,12 +127,12 @@ func (dsc *DeleteServiceController) deleteMysqlNodePort(dcIdList []int32, nodePo
 
 		err := np.DeleteNodePort(op)
 		if err != nil {
-			mylog.Log.Errorf("DeleteMysqlNodePort Error: nodeport=%d, dcId=%d, svcName=%s, error=%s", np.Port, np.DcId, np.SvcName, err)
+			log.Errorf("DeleteMysqlNodePort Error: nodeport=%d, dcId=%d, svcName=%s, error=%s", np.Port, np.DcId, np.SvcName, err)
 			dsc.Ye = myerror.NewYceError(myerror.EYCE_DELETE_NODEPORT, "")
 			return
 		}
 
-		mylog.Log.Infof("DeleteMysqlNodePort Successfully: nodeport=%d, dcId=%d, svcName=%s", np.Port, np.DcId, np.SvcName)
+		log.Infof("DeleteMysqlNodePort Successfully: nodeport=%d, dcId=%d, svcName=%s", np.Port, np.DcId, np.SvcName)
 	}
 
 	return
@@ -176,24 +144,24 @@ func (dsc DeleteServiceController) Delete() {
 	dcId := dsc.Param("dcId")
 	userId := dsc.Param("userId")
 	svcName := dsc.Param("svcName")
-	mylog.Log.Debugf("DeleteServiceController Params: sessionId=%s, orgId=%s, dcId=%s, userId=%s, svcName=%s", sessionIdFromClient, orgId, dcId, svcName)
+	log.Debugf("DeleteServiceController Params: sessionId=%s, orgId=%s, dcId=%s, userId=%s, svcName=%s", sessionIdFromClient, orgId, dcId, svcName)
 
 
 	nodePort := new(service.NodePortType)
 	err := dsc.ReadJSON(nodePort)
 	if err != nil {
-		mylog.Log.Errorf("DeleteServiceController ReadJSON Error: error=%s", err)
+		log.Errorf("DeleteServiceController ReadJSON Error: error=%s", err)
 		dsc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		dsc.WriteBack()
+	}
+	if dsc.CheckError() {
 		return
 	}
 
-	mylog.Log.Debugf("DeleteServiceController ReadJSON: nodePort=%d", nodePort.NodePort)
+	log.Debugf("DeleteServiceController ReadJSON: nodePort=%d", nodePort.NodePort)
 
 	// Validate OrgId error
-	dsc.validateSession(sessionIdFromClient, orgId)
-	if dsc.Ye != nil {
-		dsc.WriteBack()
+	dsc.ValidateSession(sessionIdFromClient, orgId)
+	if dsc.CheckError() {
 		return
 	}
 
@@ -201,44 +169,38 @@ func (dsc DeleteServiceController) Delete() {
 	dcIdList := make([]int32, 0)
 	datacenterId, _ := strconv.Atoi(dcId)
 	dcIdList = append(dcIdList, int32(datacenterId))
-	mylog.Log.Debugf("DeleteServiceController Params: len(dcIdList)=%d", len(dcIdList))
+	log.Debugf("DeleteServiceController Params: len(dcIdList)=%d", len(dcIdList))
 
 	dsc.getApiServerList(dcIdList)
-	if dsc.Ye != nil {
-		dsc.WriteBack()
+	if dsc.CheckError() {
 		return
 	}
 
 	// Get K8sClient
 	dsc.createK8sClients()
-	if dsc.Ye != nil {
-		dsc.WriteBack()
+	if dsc.CheckError() {
 		return
 	}
 
 	// Publish server to every datacenter
 	orgName := dsc.getOrgNameByOrgId(orgId)
-	if dsc.Ye != nil {
-		dsc.WriteBack()
+	if dsc.CheckError() {
 		return
 	}
 
 	dsc.deleteService(orgName, svcName)
-	if dsc.Ye != nil {
-		dsc.WriteBack()
+	if dsc.CheckError() {
 		return
 	}
 
 	// Update NodePort Status to MySQL nodeport table
 	op, _ := strconv.Atoi(userId)
 	dsc.deleteMysqlNodePort(dcIdList, nodePort.NodePort, int32(op))
-	if dsc.Ye != nil {
-		dsc.WriteBack()
+	if dsc.CheckError() {
 		return
 	}
 
-	dsc.Ye = myerror.NewYceError(myerror.EOK, "")
-	mylog.Log.Infoln("DeleteServiceController over!")
-	dsc.WriteBack()
+	dsc.WriteOk("")
+	log.Infoln("DeleteServiceController over!")
 	return
 }

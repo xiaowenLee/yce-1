@@ -1,29 +1,21 @@
 package service
 
 import (
-	"github.com/kataras/iris"
 	myorganizaiton "app/backend/model/mysql/organization"
 	mynodeport "app/backend/model/mysql/nodeport"
 	myerror "app/backend/common/yce/error"
-	mylog "app/backend/common/util/log"
 	"app/backend/model/yce/service"
 	"app/backend/common/yce/organization"
-	"app/backend/common/util/session"
 	"encoding/json"
+	yce "app/backend/controller/yce"
 )
 
 type InitServiceController struct {
-	*iris.Context
+	yce.Controller
 	org *myorganizaiton.Organization
 	Init service.InitService
-	Ye *myerror.YceError
 }
 
-func (isc *InitServiceController) WriteBack() {
-	isc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("CreateServiceController Response YceError: controller=%p, code=%d, note=%s", isc, isc.Ye.Code, myerror.Errors[isc.Ye.Code].LogMsg)
-	isc.Write(isc.Ye.String())
-}
 
 func (isc *InitServiceController) String() string {
 	data, err := json.Marshal(isc.Init)
@@ -34,42 +26,15 @@ func (isc *InitServiceController) String() string {
 	return string(data)
 }
 
-// Validate Session
-func (isc *InitServiceController) validateSession(sessionId, orgId string) {
-	// Validate the session
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	if err != nil {
-		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		isc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Session invalide
-	if !ok {
-		// relogin
-		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		isc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("InitServiceController validate Session success")
-	return
-}
-
-
-
 func (isc InitServiceController) Get() {
 	sessionIdFromClient := isc.RequestHeader("Authorization")
 	orgId := isc.Param("orgId")
 	mylog.Log.Debugf("InitServiceController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 	// Validate OrgId error
-	isc.validateSession(sessionIdFromClient, orgId)
+	isc.ValidateSession(sessionIdFromClient, orgId)
 
-	if isc.Ye != nil {
-		isc.WriteBack()
+	if isc.CheckError() {
 		return
 	}
 
@@ -83,7 +48,8 @@ func (isc InitServiceController) Get() {
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		isc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		isc.WriteBack()
+	}
+	if isc.CheckError() {
 		return
 	}
 
@@ -92,7 +58,8 @@ func (isc InitServiceController) Get() {
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		isc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		isc.WriteBack()
+	}
+	if isc.CheckError() {
 		return
 	}
 
@@ -103,15 +70,14 @@ func (isc InitServiceController) Get() {
 	if err != nil {
 		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		isc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		isc.WriteBack()
+	}
+	if isc.CheckError() {
 		return
 	}
 
-	isc.Ye = myerror.NewYceError(myerror.EOK, isc.String())
-	isc.WriteBack()
+	isc.WriteOk(isc.String())
 	mylog.Log.Infoln("InitServiceController Get over!")
 	return
-
 }
 
 
