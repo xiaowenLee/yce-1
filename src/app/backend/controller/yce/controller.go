@@ -1,5 +1,54 @@
 package yce
 
+import (
+	"github.com/kataras/iris"
+	"app/backend/common/util/session"
+)
+
+
+type Controller struct {
+	*iris.Context
+	Ye *myerror.YceError
+}
+
 type IController interface {
 	WriteBack()
+	ValidateSession(sessionId, orgId string)
+	CheckError() bool // if error true, else false
+}
+
+func (c *Controller) WriteBack() {
+	c.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	log.Infof("Controller Response YceError: controller=%p, code=%d, note=%s", c, c.Ye.Code, myerror.Errors[c.Ye.Code].LogMsg)
+	c.Write(c.Ye.String())
+}
+
+func (c *Controller) ValidateSession(sessionId, orgId string) {
+	// Validate the session
+	ss := session.SessionStoreInstance()
+
+	ok, err := ss.ValidateOrgId(sessionId, orgId)
+	if err != nil {
+		log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
+		c.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return
+	}
+
+	// Session invalide
+	if !ok {
+		log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
+		c.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
+		return c.Ye
+	}
+
+	log.Infof("Controller ValidateSession successfully")
+
+	return
+}
+
+func (c *Controller) CheckError() bool {
+	if c.Ye != nil {
+		return true
+	}
+	return false
 }
