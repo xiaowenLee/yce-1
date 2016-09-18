@@ -51,6 +51,7 @@ func (lsc *ListServiceController) validateSessionId(sessionId, orgId string) {
 		return
 	}
 
+	mylog.Log.Infof("ListServiceController validate sessionId success")
 	return
 }
 
@@ -80,6 +81,7 @@ func (lsc *ListServiceController) getDatacentersByOrgId(sd *service.ListService,
 		sd.DcName[index] = dc.Name
 	}
 
+	mylog.Log.Infof("ListServiceController getDatacentersByOrgId: len(dcIdList)=%d, len(dcName)=%d", len(sd.DcIdList), len(sd.DcName))
 }
 
 
@@ -116,6 +118,7 @@ func (lsc *ListServiceController) getApiServerList(dcIdList []int32) {
 		lsc.apiServers = append(lsc.apiServers, apiServer)
 	}
 
+	mylog.Log.Infof("CreateServiceController getApiServerList: len(apiServer)=%d", len(lsc.apiServers))
 	return
 }
 
@@ -144,6 +147,7 @@ func (lsc *ListServiceController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to lsc.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("CreateServiceController createK8sClients: len(k8sClients)=%d", len(lsc.k8sClients))
 	return
 }
 
@@ -186,6 +190,8 @@ func (lsc *ListServiceController) listService(namespace string, sd *service.List
 func (lsc ListServiceController) Get() {
 	sessionIdFromClient := lsc.RequestHeader("Authorization")
 	orgId := lsc.Param("orgId")
+
+	mylog.Log.Debugf("ListServiceController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 	// validateSessionId
 	lsc.validateSessionId(sessionIdFromClient, orgId)

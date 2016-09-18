@@ -112,6 +112,7 @@ func (dsc *DeleteServiceController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to dsc.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("DeleteServiceController createK8sClient: len(k8sClients)=%d", len(dsc.k8sClients))
 	return
 }
 
@@ -175,10 +176,19 @@ func (dsc DeleteServiceController) Delete() {
 	dcId := dsc.Param("dcId")
 	userId := dsc.Param("userId")
 	svcName := dsc.Param("svcName")
+	mylog.Log.Debugf("DeleteServiceController Params: sessionId=%s, orgId=%s, dcId=%s, userId=%s, svcName=%s", sessionIdFromClient, orgId, dcId, svcName)
+
 
 	nodePort := new(service.NodePortType)
-	dsc.ReadJSON(nodePort)
-	mylog.Log.Infof("DeleteServiceController ReadJSON: nodePort=%d", nodePort.NodePort)
+	err := dsc.ReadJSON(nodePort)
+	if err != nil {
+		mylog.Log.Errorf("DeleteServiceController ReadJSON Error: error=%s", err)
+		dsc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		dsc.WriteBack()
+		return
+	}
+
+	mylog.Log.Debugf("DeleteServiceController ReadJSON: nodePort=%d", nodePort.NodePort)
 
 	// Validate OrgId error
 	dsc.validateSession(sessionIdFromClient, orgId)
@@ -191,6 +201,7 @@ func (dsc DeleteServiceController) Delete() {
 	dcIdList := make([]int32, 0)
 	datacenterId, _ := strconv.Atoi(dcId)
 	dcIdList = append(dcIdList, int32(datacenterId))
+	mylog.Log.Debugf("DeleteServiceController Params: len(dcIdList)=%d", len(dcIdList))
 
 	dsc.getApiServerList(dcIdList)
 	if dsc.Ye != nil {
@@ -207,6 +218,11 @@ func (dsc DeleteServiceController) Delete() {
 
 	// Publish server to every datacenter
 	orgName := dsc.getOrgNameByOrgId(orgId)
+	if dsc.Ye != nil {
+		dsc.WriteBack()
+		return
+	}
+
 	dsc.deleteService(orgName, svcName)
 	if dsc.Ye != nil {
 		dsc.WriteBack()

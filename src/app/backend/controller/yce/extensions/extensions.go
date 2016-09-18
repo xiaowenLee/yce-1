@@ -37,18 +37,19 @@ func (lec *ListExtensionsController) validateSessionId(sessionId, orgId string) 
 	ok, err := ss.ValidateOrgId(sessionId, orgId)
 	// validate error
 	if err != nil {
-		mylog.Log.Errorf("Create ListEndpointController Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
+		mylog.Log.Errorf("ListExtensions Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
 		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
 
 	// invalid sessionId
 	if !ok {
-		mylog.Log.Errorf("Create ListEndpoint Controller Failed: sessionId=%s, orgId=%s", sessionId, orgId)
+		mylog.Log.Errorf("ListExtensions Controller Failed: sessionId=%s, orgId=%s", sessionId, orgId)
 		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
 		return
 	}
 
+	mylog.Log.Infof("ListExtensionsController validate Session success")
 	return
 }
 
@@ -77,6 +78,8 @@ func (lec *ListExtensionsController) getDatacentersByOrgId(le *extensions.ListEx
 		le.DcIdList[index] = dc.Id
 		le.DcName[index] = dc.Name
 	}
+
+	mylog.Log.Debugf("ListExtensionsController getDatacentersByOrgId: len(dcIdList)=%d, len(dcName)=%d", len(le.DcIdList), len(le.DcName))
 
 }
 
@@ -114,6 +117,7 @@ func (lec *ListExtensionsController) getApiServerList(dcIdList []int32) {
 		lec.apiServers = append(lec.apiServers, apiServer)
 	}
 
+	mylog.Log.Infof("ListExtensionsController getApiServerList: len(apiServer)=%d", len(lec.apiServers))
 	return
 }
 
@@ -142,6 +146,7 @@ func (lec *ListExtensionsController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("ListExtensionsController createK8sClient: len(k8sClient)=%d", len(lec.k8sClients))
 	return
 }
 
@@ -186,6 +191,7 @@ func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, l
 func (lec ListExtensionsController) Get() {
 	sessionIdFromClient := lec.RequestHeader("Authorization")
 	orgId := lec.Param("orgId")
+	mylog.Log.Debugf("ListExtensionsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 	// validateSessionId
 	lec.validateSessionId(sessionIdFromClient, orgId)
@@ -221,7 +227,6 @@ func (lec ListExtensionsController) Get() {
 	// Get ServiceList and Endpoint
 	orgName := le.Organization.Name
 	extString := lec.listServiceAndEndpoints(orgName, le)
-
 	if lec.Ye != nil {
 		lec.WriteBack()
 		return

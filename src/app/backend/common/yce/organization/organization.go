@@ -58,6 +58,6 @@ func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacente
 		}
 		dataCenters[i] = *dc
 	}
-
+	mylog.Log.Debugf("GetDataCentersByOrganization len(datacenters)=%d", len(dataCenters))
 	return dataCenters, nil
 }

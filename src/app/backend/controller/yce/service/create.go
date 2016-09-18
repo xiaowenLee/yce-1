@@ -86,6 +86,7 @@ func (csc *CreateServiceController) getApiServerList(dcIdList []int32) {
 		csc.apiServers = append(csc.apiServers, apiServer)
 	}
 
+	mylog.Log.Infof("CreateServiceController getApiServerList: len(apiServer)=%d", len(csc.apiServers))
 	return
 }
 
@@ -114,6 +115,7 @@ func (csc *CreateServiceController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to csc.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("CreateServiceController createK8sClients: len(k8sClients)=%d", len(csc.k8sClients))
 	return
 }
 
@@ -132,6 +134,7 @@ func (csc *CreateServiceController) createService(namespace string, service *api
 		mylog.Log.Infof("Create Service successfully: namespace=%s, apiServer=%s", namespace, csc.apiServers[index])
 	}
 
+	mylog.Log.Infof("CreateServiceController createService success")
 	return
 }
 
@@ -157,6 +160,8 @@ func (csc CreateServiceController) Post() {
 	sessionIdFromClient := csc.RequestHeader("Authorization")
 	orgId := csc.Param("orgId")
 	userId := csc.Param("userId")
+	mylog.Log.Debugf("CreateServiceController Params: sessionId=%s, orgId=%s, userId=%s", sessionIdFromClient, orgId, userId)
+
 
 	// Validate OrgId error
 	csc.validateSession(sessionIdFromClient, orgId)
@@ -167,8 +172,13 @@ func (csc CreateServiceController) Post() {
 
 	// Parse data: service.
 	cs := new(service.CreateService)
-	csc.ReadJSON(cs)
-
+	err := csc.ReadJSON(cs)
+	if err != nil {
+		mylog.Log.Errorf("CreateServiceController ReadJSON Error: error=%s", err)
+		csc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		csc.WriteBack()
+		return
+	}
 
 	// Get DcIdList
 	csc.getApiServerList(cs.DcIdList)

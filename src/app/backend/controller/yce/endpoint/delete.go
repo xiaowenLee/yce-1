@@ -109,6 +109,7 @@ func (dec *DeleteEndpointsController) createK8sClients() {
 		mylog.Log.Infof("Append a new client to dec.K8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
+	mylog.Log.Infof("DeleteEndpointsController createK8sClient success: len(createK8sClient)=%d", len(dec.k8sClients))
 	return
 }
 
@@ -127,7 +128,7 @@ func (dec *DeleteEndpointsController) deleteEndpoints(namespace, epName string) 
 
 		mylog.Log.Infof("Delete Endpoint successfully: namespace=%s, apiServer=%s", namespace, dec.apiServers[index])
 	}
-
+	mylog.Log.Infof("DeleteEndpointsController Delete Endpoints success")
 	return
 }
 
@@ -150,6 +151,9 @@ func (dec DeleteEndpointsController) Delete() {
 	dcId := dec.Param("dcId")
 	epName := dec.Param("epName")
 
+	mylog.Log.Debugf("DeleteEndpontsController Params: sessionId=%s, orgId=%s, dcId=%s, epName=%s", sessionIdFromClient, orgId, dcId, epName)
+
+
 	// Validate OrgId error
 	dec.validateSession(sessionIdFromClient, orgId)
 	if dec.Ye != nil {
@@ -161,6 +165,7 @@ func (dec DeleteEndpointsController) Delete() {
 	dcIdList := make([]int32, 0)
 	datacenterId, _ := strconv.Atoi(dcId)
 	dcIdList = append(dcIdList, int32(datacenterId))
+	mylog.Log.Debugf("DeleteEndpointController len(DcIdList)=%d", len(dcIdList))
 
 	dec.getApiServerList(dcIdList)
 	if dec.Ye != nil {
@@ -177,12 +182,16 @@ func (dec DeleteEndpointsController) Delete() {
 
 	// Publish server to every datacenter
 	orgName := dec.getOrgNameByOrgId(orgId)
-	dec.deleteEndpoints(orgName, epName)
 	if dec.Ye != nil {
 		dec.WriteBack()
 		return
 	}
 
+	dec.deleteEndpoints(orgName, epName)
+	if dec.Ye != nil {
+		dec.WriteBack()
+		return
+	}
 
 	dec.Ye = myerror.NewYceError(myerror.EOK, "")
 	mylog.Log.Infoln("DeleteEndpointsController over!")

@@ -98,6 +98,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 	// Add Prefix
 	image.Name = myregistry.REGISTRY_HOST + ":" + myregistry.REGISTRY_PORT + "/" + image.Name
 
+	mylog.Log.Infof("ListRegistryController getTagsList success: name=%s, len(tags)=%d", name, len(image.Tags))
 	return image
 }
 
@@ -109,6 +110,9 @@ func (lrc ListRegistryController) Get() {
 	lrc.c = myhttps.NewHttpsClient(r.Host, r.Port, r.Cert)
 	lrc.BaseUrl = "https://" + r.Host + ":" + r.Port
 	lrc.Registry = r
+
+
+	mylog.Log.Debugf("ListRegistryController Params: BaseURL=%s, Registry=%p", lrc.BaseUrl, lrc.Registry)
 
 	// Get repositories in the registry
 	list := lrc.getRepositories()
@@ -136,6 +140,7 @@ func (lrc ListRegistryController) Get() {
 	}
 
 	images, _ := lrc.Registry.GetImagesList()
+	mylog.Log.Infof("ListRegistryController GetImagesList success: images=%s", images)
 
 	lrc.Ye = myerror.NewYceError(myerror.EOK, images)
 	lrc.WriteBack()
