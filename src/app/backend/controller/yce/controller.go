@@ -15,6 +15,7 @@ type IController interface {
 	WriteBack()
 	ValidateSession(sessionId, orgId string)
 	CheckError() bool // if error true, else false
+	Ok()
 }
 
 func (c *Controller) WriteBack() {
@@ -48,7 +49,13 @@ func (c *Controller) ValidateSession(sessionId, orgId string) {
 
 func (c *Controller) CheckError() bool {
 	if c.Ye != nil {
+		c.WriteBack()
 		return true
 	}
 	return false
+}
+
+func (c *Controller) Ok(msg string) {
+	c.ye = myerror.NewYceError(myerror.EOK, msg)
+	c.WriteBack()
 }
