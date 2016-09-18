@@ -153,6 +153,7 @@ func (lsc *ListServiceController) createK8sClients() {
 
 
 func (lsc *ListServiceController) listService(namespace string, sd *service.ListService) (svcString string){
+	//TODO: use slice instead of array
 	svcList := make([]service.Service, len(lsc.apiServers))
 	// Foreach every K8sClient to create service
 	for index, cli := range lsc.k8sClients {
