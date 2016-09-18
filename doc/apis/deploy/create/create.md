@@ -40,7 +40,7 @@ type InitDeploymentController struct {
     org *myorganization.Organization
     
     // response 
-    Init deploy.InitDeployment
+    Init deploy.InitDeployment 
     
 }
 
@@ -70,5 +70,19 @@ type CreateDeployController struct {
 	k8sClients []*client.Client
 	apiServers []string
 	Ye         *myerror.YceError
+}
+
+可以改为:
+
+type CreateDeploymentController struct {
+    // basic elements
+    *iris.Context
+    Ye *myerror.YceError
+    
+    // Params
+    ...
+    
+    // DAO
+    deploy mydeployment.deployment
 }
 
