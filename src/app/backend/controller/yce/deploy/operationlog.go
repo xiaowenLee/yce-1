@@ -10,48 +10,13 @@ import (
 	"app/backend/model/yce/deploy"
 	"strconv"
 	"encoding/json"
+	yce "app/backend/controller/yce"
 )
 
 type ListOperationLogController struct {
-	*iris.Context
-	Ye *myerror.YceError
+	yce.Controller
 }
 
-const (
-	SELECT_DEPLOYMENT = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment WHERE orgId=? ORDER BY id DESC LIMIT 30"
-	SELECT_USER = "SELECT name FROM user WHERE id=?"
-	SELECT_DATACENTER = "SELECT name FROM datacenter WHERE id=?"
-)
-
-
-func (loc *ListOperationLogController) WriteBack() {
-	loc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("ListOperationLogController Response YceError: controller=%p, code=%d, note=%s", loc, loc.Ye.Code, myerror.Errors[loc.Ye.Code].LogMsg)
-	loc.Write(loc.Ye.String())
-}
-
-// Validate Session
-func (loc *ListOperationLogController) validateSession(sessionId, orgId string) {
-	// Validate the session
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	if err != nil {
-		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		loc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Session invalide
-	if !ok {
-		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		loc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("ListOperationLogController ValidateSession success")
-	return
-}
 // Query Deployments according to orgId
 func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (deployments []mydeploy.Deployment) {
 
@@ -59,7 +24,7 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 
 	stmt, err := db.Prepare(SELECT_DEPLOYMENT)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -67,7 +32,7 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 
 	rows, err := stmt.Query(orgId)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -78,7 +43,7 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 		var jsonFile []byte
 		err := rows.Scan(&dp.Id, &dp.Name, &dp.ActionType, &dp.ActionVerb, &dp.ActionUrl, &dp.ActionAt, &dp.ActionOp, &dp.DcList, &dp.Success, &dp.Reason, &jsonFile, &comment);
 		if err != nil {
-			mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+			log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 			loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 			return
 		}
@@ -87,9 +52,9 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 		dp.Comment = string(comment)
 
 		deployments = append(deployments, *dp)
-		mylog.Log.Debugf("query result: id=%d, name=%s", dp.Id, dp.Name)
+		log.Debugf("query result: id=%d, name=%s", dp.Id, dp.Name)
 	}
-	mylog.Log.Infof("queryOperationLogMySQL successfully, totally %d deployments", len(deployments))
+	log.Infof("queryOperationLogMySQL successfully, totally %d deployments", len(deployments))
 	return deployments
 }
 
@@ -99,7 +64,7 @@ func (loc *ListOperationLogController) queryUserNameByUserId(userId int32) (name
 
 	stmt, err := db.Prepare(SELECT_USER)
 	if err != nil {
-		mylog.Log.Errorf("queryUserNameByUserId Error: error=%s", err)
+		log.Errorf("queryUserNameByUserId Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -107,11 +72,11 @@ func (loc *ListOperationLogController) queryUserNameByUserId(userId int32) (name
 
 	err = stmt.QueryRow(userId).Scan(&name)
 	if err != nil {
-		mylog.Log.Errorf("queryUserNameByUserId Error: error=%s", err)
+		log.Errorf("queryUserNameByUserId Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
-	mylog.Log.Infof("queryUserNameByUserId successfully")
+	log.Infof("queryUserNameByUserId successfully")
 	return name
 }
 
@@ -121,7 +86,7 @@ func (loc *ListOperationLogController) queryDcNameByDcId(dcIdList []int32) (dcNa
 
 	stmt, err := db.Prepare(SELECT_DATACENTER)
 	if err != nil {
-		mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+		log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -130,13 +95,13 @@ func (loc *ListOperationLogController) queryDcNameByDcId(dcIdList []int32) (dcNa
 	for index, dcId := range dcIdList {
 		err = stmt.QueryRow(dcId).Scan(&dcNameList[index])
 		if err != nil {
-			mylog.Log.Errorf("queryOperationLogMySQL Error: error=%s", err)
+			log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 			loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 			return
 		}
 	}
 
-	mylog.Log.Infof("queryDcNameByDcId successfully")
+	log.Infof("queryDcNameByDcId successfully")
 	return dcNameList
 }
 
@@ -147,11 +112,11 @@ func (loc *ListOperationLogController) getOperationLog(deployment mydeploy.Deplo
 	userName := loc.queryUserNameByUserId(deployment.ActionOp)
 
 	dcIdListJSON := []byte(deployment.DcList)
-	mylog.Log.Debugf("dcIdListJSON=%s", deployment.DcList)
+	log.Debugf("dcIdListJSON=%s", deployment.DcList)
 	dcIdList := new(deploy.DcIdListType)
 	err := json.Unmarshal(dcIdListJSON, dcIdList)
 	if err != nil {
-		mylog.Log.Errorf("getOperationLog Error: error=%s", err)
+		log.Errorf("getOperationLog Error: error=%s", err)
 		loc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return nil
 
@@ -162,7 +127,7 @@ func (loc *ListOperationLogController) getOperationLog(deployment mydeploy.Deplo
 	opLog.DcName = dcNameList
 	opLog.Record = &deployment
 
-	mylog.Log.Infof("getOperationLog userName=%s, dcName=%v deploymentName=%s", opLog.UserName, opLog.DcName, opLog.Record.Name)
+	log.Infof("getOperationLog userName=%s, dcName=%v deploymentName=%s", opLog.UserName, opLog.DcName, opLog.Record.Name)
 
 	return opLog
 }
@@ -176,45 +141,27 @@ func (loc *ListOperationLogController) getOperationLogList(deployments []mydeplo
 		opLog := loc.getOperationLog(dp)
 		opLogList.OperationLog = append(opLogList.OperationLog, *opLog)
 
-		mylog.Log.Infof("ListOperationController getOperation: name=%s, userName=%s, len(dcName):%d", dp.Name, opLog.UserName, len(opLog.DcName))
+		log.Infof("ListOperationController getOperation: name=%s, userName=%s, len(dcName):%d", dp.Name, opLog.UserName, len(opLog.DcName))
 	}
 
 	opLogListJson, _ := json.Marshal(opLogList)
 	opLogListString := string(opLogListJson)
 
-	mylog.Log.Infof("ListOperationController getOperationLogList over: len(deployment)=%d", len(opLogList.OperationLog))
+	log.Infof("ListOperationController getOperationLogList over: len(deployment)=%d", len(opLogList.OperationLog))
 	return opLogListString
 
 }
 
-// getOperationLog list
-/*
-func (loc *ListOperationLogController) getOperationLogList(deployments []mydeploy.Deployment) (opString string){
-
-	opLog := loc.getOperationLog(deployments)
-	opJson, err := json.Marshal(opLog)
-	if err != nil {
-		mylog.Log.Errorf("getOperationLog Error: error=%s", err)
-		loc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		return
-	}
-
-	opString = string(opJson)
-	mylog.Log.Infof("ListOperationLogController getOperationLog successfully")
-	return opString
-}
-*/
 func (loc ListOperationLogController) Get() {
 	orgId := loc.Param("orgId")
 
 	sessionIdFromClient := loc.RequestHeader("Authorization")
-	mylog.Log.Debugf("ListOperationLogController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
+	log.Debugf("ListOperationLogController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 
 	// Validate sessionId with orgId
-	loc.validateSession(sessionIdFromClient, orgId)
-	if loc.Ye != nil {
-		loc.WriteBack()
+	loc.ValidateSession(sessionIdFromClient, orgId)
+	if loc.CheckError() {
 		return
 	}
 
@@ -226,15 +173,12 @@ func (loc ListOperationLogController) Get() {
 
 	// Get OperationLog
 	opString := loc.getOperationLogList(dp)
-	if loc.Ye != nil {
-		loc.WriteBack()
+	if loc.CheckError() {
 		return
 	}
 
-	loc.Ye = myerror.NewYceError(myerror.EOK, opString)
-	loc.WriteBack()
-
-	mylog.Log.Infof("ListOperationLogController get over!")
+	loc.WriteOk(opString)
+	log.Infof("ListOperationLogController get over!")
 
 	return
 
