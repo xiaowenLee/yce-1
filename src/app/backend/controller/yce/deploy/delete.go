@@ -407,7 +407,7 @@ func (ddc DeleteDeploymentController) Post() {
 		return
 	}
 
-	ddc.Ok()
+	ddc.WriteOk()
 	log.Infoln("Delete Deployment over!")
 	return
 

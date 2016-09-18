@@ -16,15 +16,12 @@ import (
 	"strconv"
 	"strings"
 	"sort"
+	yce "app/backend/controller/yce"
 )
 
-const (
-	REVISION_ANNOTATION string = "deployment.kubernetes.io/revision"
-)
 
 type HistoryDeployController struct {
-	Ye *myerror.YceError
-	*iris.Context
+	yce.Controller
 	apiServer  string
 	k8sClient  *client.Client
 	deployment *extensions.Deployment
@@ -32,12 +29,6 @@ type HistoryDeployController struct {
 	orgId      string
 	name       string          // deployment-name
 	list       *ReplicaSetList // ReplicaSets
-}
-
-func (hdc *HistoryDeployController) WriteBack() {
-	hdc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("Create ListDeployController Response Error: controller=%p, code=%d, note=%s", hdc, hdc.Ye.Code, myerror.Errors[hdc.Ye.Code].LogMsg)
-	hdc.Write(hdc.Ye.String())
 }
 
 type ReplicaType struct {
@@ -81,35 +72,13 @@ func (hdc *HistoryDeployController) encodeMapToString(labels map[string]string) 
 	return strings.Join(ss, ",")
 }
 
-func (hdc *HistoryDeployController) validateSessionId(sessionId, orgId string) {
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	// validate error
-	if err != nil {
-		mylog.Log.Errorf("Create ListDeployController Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
-		hdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// invalid sessionId
-	if !ok {
-		mylog.Log.Errorf("Create ListDeployController Failed: sessionId=%s, orgId=%s", sessionId, orgId)
-		hdc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("HistoryDeployController ValidateSessionId success")
-	return
-}
-
 // Get ReplicaSet List by deployment via LabelSelectorAsSelector func
 func (hdc *HistoryDeployController) getReplicaSetsByDeployment() []extensions.ReplicaSet {
 
 	namespace := hdc.deployment.Namespace
 	selector, err := unver.LabelSelectorAsSelector(hdc.deployment.Spec.Selector)
 	if err != nil {
-		mylog.Log.Errorf("LabelSelectorAsSelector Error: apiServer=%s, namespace=%s, deployment=%s, err=%s",
+		log.Errorf("LabelSelectorAsSelector Error: apiServer=%s, namespace=%s, deployment=%s, err=%s",
 			hdc.apiServer, namespace, hdc.deployment.Name, err)
 		hdc.Ye = myerror.NewYceError(myerror.EKUBE_LABEL_SELECTOR, "")
 		return nil
@@ -117,7 +86,7 @@ func (hdc *HistoryDeployController) getReplicaSetsByDeployment() []extensions.Re
 	options := api.ListOptions{LabelSelector: selector}
 	rsList, err := hdc.k8sClient.Extensions().ReplicaSets(namespace).List(options)
 
-	mylog.Log.Infof("HistoryDeployController GetReplicaSetByDeployment over!")
+	log.Infof("HistoryDeployController GetReplicaSetByDeployment over!")
 	return rsList.Items
 }
 
@@ -129,7 +98,7 @@ func (hdc *HistoryDeployController) getApiServerAndK8sClientByDcId() {
 	dcId, _ := strconv.Atoi(hdc.dcId)
 	err := dc.QueryDataCenterById(int32(dcId))
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: dcId=%d, err=%s", dcId, err)
+		log.Errorf("getApiServerById QueryDataCenterById Error: dcId=%d, err=%s", dcId, err)
 		hdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -145,13 +114,13 @@ func (hdc *HistoryDeployController) getApiServerAndK8sClientByDcId() {
 
 	c, err := client.New(config)
 	if err != nil {
-		mylog.Log.Errorf("createK8sClient Error: err=%s", err)
+		log.Errorf("createK8sClient Error: err=%s", err)
 		hdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 		return
 	}
 
 	hdc.k8sClient = c
-	mylog.Log.Infof("GetApiServerAndK8sClientByDcId over: apiServer=%s, k8sClient=%p",
+	log.Infof("GetApiServerAndK8sClientByDcId over: apiServer=%s, k8sClient=%p",
 		hdc.apiServer, hdc.k8sClient)
 }
 
@@ -161,7 +130,7 @@ func (hdc *HistoryDeployController) getDeploymentByName() {
 	// Get namespace(org.Name) by orgId
 	org, err := organization.GetOrganizationById(hdc.orgId)
 	if err != nil {
-		mylog.Log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", hdc.orgId, err)
+		log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", hdc.orgId, err)
 		hdc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 		return
 
@@ -170,7 +139,7 @@ func (hdc *HistoryDeployController) getDeploymentByName() {
 	namespace := org.Name
 	dp, err := hdc.k8sClient.Extensions().Deployments(namespace).Get(hdc.name)
 	if err != nil {
-		mylog.Log.Errorf("getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
+		log.Errorf("getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
 			hdc.apiServer, namespace, hdc.name, err)
 		hdc.Ye = myerror.NewYceError(myerror.EKUBE_GET_DEPLOYMENT, "")
 		return
@@ -178,7 +147,7 @@ func (hdc *HistoryDeployController) getDeploymentByName() {
 
 	hdc.deployment = dp
 
-	mylog.Log.Infof("GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
+	log.Infof("GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
 		hdc.apiServer, namespace, hdc.name, dp)
 }
 
@@ -190,7 +159,7 @@ func (hdc *HistoryDeployController) getReplicaSetList() {
 	// Get ReplicaSets By Deployment
 	rsList := hdc.getReplicaSetsByDeployment()
 	if rsList == nil {
-		mylog.Log.Errorf("GetReplicaSetList Error: hdc=%p, apiServer=%s, deployment-name=%s",
+		log.Errorf("GetReplicaSetList Error: hdc=%p, apiServer=%s, deployment-name=%s",
 			hdc, hdc.apiServer, hdc.name)
 		return
 	}
@@ -206,13 +175,13 @@ func (hdc *HistoryDeployController) getReplicaSetList() {
 		hr.Replicas.Current = rs.Status.Replicas
 		hr.Replicas.Desire = rs.Spec.Replicas
 
-		mylog.Log.Debugf("GetReplicaSetList replicaset: name=%s, namespace=%s, image=%s, revision=%s, current=%d, desired=%d",
+		log.Debugf("GetReplicaSetList replicaset: name=%s, namespace=%s, image=%s, revision=%s, current=%d, desired=%d",
 			hr.Name, hr.Namespace, hr.Image, hr.Revision, hr.Replicas.Current, hr.Replicas.Desire)
 
 		*hdc.list = append(*hdc.list, hr)
 	}
 
-	mylog.Log.Infof("GetReplicaList over: len(rsList)=%d", len(rsList))
+	log.Infof("GetReplicaList over: len(rsList)=%d", len(rsList))
 }
 
 // Encode ReplicaSetList to string
@@ -221,7 +190,7 @@ func (hdc *HistoryDeployController) encodeReplicaSetList() string {
 	sort.Sort(hdc.list)
 	data, err := json.Marshal(hdc.list)
 	if err != nil {
-		mylog.Log.Errorf("EncodeReplicaSetList Error: err=%s", err)
+		log.Errorf("EncodeReplicaSetList Error: err=%s", err)
 		hdc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
 	return string(data)
@@ -234,45 +203,39 @@ func (hdc HistoryDeployController) Get() {
 	hdc.name = hdc.Param("name")
 	sessionIdFromClient := hdc.RequestHeader("Authorization")
 
-	mylog.Log.Debugf("HistoryDeployController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.name)
+	log.Debugf("HistoryDeployController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.name)
 
-	// validateSessionId
-	hdc.validateSessionId(sessionIdFromClient, hdc.orgId)
-	if hdc.Ye != nil {
-		hdc.WriteBack()
+	// ValidateSessionId
+	hdc.ValidateSessionId(sessionIdFromClient, hdc.orgId)
+	if hdc.CheckError() {
 		return
 	}
 
 	// Get ApiServer and K8sClient
 	hdc.getApiServerAndK8sClientByDcId()
-	if hdc.Ye != nil {
-		hdc.WriteBack()
+	if hdc.CheckError() {
 		return
 	}
 
 	// Get Deployment by name
 	hdc.getDeploymentByName()
-	if hdc.Ye != nil {
-		hdc.WriteBack()
+	if hdc.CheckError() {
 		return
 	}
 
 	// Get ReplicaSets by deployment
 	hdc.getReplicaSetList()
-	if hdc.Ye != nil {
-		hdc.WriteBack()
+	if hdc.CheckError() {
 		return
 	}
 
 	// Return to browser
 	ret := hdc.encodeReplicaSetList()
-	if hdc.Ye != nil {
-		hdc.WriteBack()
+	if hdc.CheckError() {
 		return
 	}
 
-	hdc.Ye = myerror.NewYceError(myerror.EOK, ret)
-	hdc.WriteBack()
-	mylog.Log.Infoln("HistoryDeployController over!")
+	hdc.WriteOk(ret)
+	log.Infoln("HistoryDeployController over!")
 	return
 }

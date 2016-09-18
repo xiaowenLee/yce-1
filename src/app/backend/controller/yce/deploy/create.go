@@ -206,7 +206,7 @@ func (cdc CreateDeployController) Post() {
 
 	// ToDo: 数据库中两个dcList的格式不一致,要改过来,统一叫DcIdList
 	// ToDo: 发布出错时也要插入数据库
-	cdc.Ok("")
+	cdc.WriteOk("")
 	log.Infoln("CreateDeploymentController over!")
 	return
 }
