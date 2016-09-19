@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type DcList struct {
@@ -91,6 +92,8 @@ func (tc *TopologyController) getDcIdListByOrgId() {
 		return
 	}
 
+	tc.dcIdList, tc.Ye = yceutils.DecodeDcIdList(org.DcIdList)
+	/*
 	dcList := DcList{}
 	err = json.Unmarshal([]byte(org.DcList), &dcList)
 	if err != nil {
@@ -104,6 +107,7 @@ func (tc *TopologyController) getDcIdListByOrgId() {
 		tc.dcIdList = append(tc.dcIdList, int32(id))
 	}
 
+	*/
 	// Decode to DcIdList
 	log.Infof("TopologyController getDcIdListByOrgId: len(dcIdList)=%d", len(tc.dcIdList))
 	return

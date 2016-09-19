@@ -1,30 +1,30 @@
 package organization
 
 import (
-	mysql "app/backend/common/util/mysql"
 	mylog "app/backend/common/util/log"
+	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
 	"github.com/shopspring/decimal"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
-	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcList," +
+	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM organization WHERE id=?"
 
-	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcList," +
+	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM organization WHERE name=?"
 
 	ORG_INSERT = "INSERT INTO organization(name, cpuQuota, memQuota, budget, " +
-		"balance, status, dcList, createdAt, modifiedAt, modifiedOp, comment) " +
+		"balance, status, dcIdList, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	ORG_UPDATE = "UPDATE organization SET name=?, cpuQuota=?, memQuota=?, budget=?, " +
-		"balance=?, status=?, dcList=?, modifiedAt=?, modifiedOp=?, comment=? " +
+		"balance=?, status=?, dcIdList=?, modifiedAt=?, modifiedOp=?, comment=? " +
 		"WHERE id=?"
 
 	ORG_DELETE = "UPDATE organization SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
@@ -41,14 +41,14 @@ type Organization struct {
 	Budget     string `json:"buget"`
 	Balance    string `json:"balance"`
 	Status     int32  `json:"status"`
-	DcList     string `json:"dcList"`
+	DcIdList   string `json:"dcIdList"`
 	CreatedAt  string `json:"createdAt"`
 	ModifiedAt string `json:"modifiedAt"`
 	ModifiedOp int32  `json:"modifiedOp"`
 	Comment    string `json:"comment,omitempty"`
 }
 
-func NewOrganization(name, budget, balance, comment, dcList string, cpuQuota, memQuota, modifiedOp int32) *Organization {
+func NewOrganization(name, budget, balance, comment, dcIdList string, cpuQuota, memQuota, modifiedOp int32) *Organization {
 
 	return &Organization{
 		Name:       name,
@@ -57,7 +57,7 @@ func NewOrganization(name, budget, balance, comment, dcList string, cpuQuota, me
 		Budget:     budget,
 		Balance:    balance,
 		Status:     VALID,
-		DcList:     dcList,
+		DcIdList:   dcIdList,
 		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedAt: localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
@@ -78,7 +78,7 @@ func (o *Organization) QueryOrganizationById(id int32) error {
 
 	var comment []byte
 	// Query organization by id
-	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
+	err = stmt.QueryRow(id).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
 	if err != nil {
 		log.Errorf("QureyOrganizationById Error: err=%s", err)
 		return err
@@ -86,8 +86,8 @@ func (o *Organization) QueryOrganizationById(id int32) error {
 
 	o.Comment = string(comment)
 
-	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
 
@@ -104,7 +104,7 @@ func (o *Organization) QueryOrganizationByName(name string) error {
 
 	var comment []byte
 	// Query organization by id
-	err = stmt.QueryRow(name).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
+	err = stmt.QueryRow(name).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
 	if err != nil {
 		log.Errorf("QureyOrganizationById Error: err=%s", err)
 		return err
@@ -112,8 +112,8 @@ func (o *Organization) QueryOrganizationByName(name string) error {
 
 	o.Comment = string(comment)
 
-	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
 
@@ -121,8 +121,8 @@ func (o *Organization) QueryBudgetById(id int32) (budget decimal.Decimal, err er
 	o.QueryOrganizationById(id)
 	budget, err = decimal.NewFromString(o.Budget)
 
-	log.Infof("QueryBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("QueryBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return budget, err
 }
 
@@ -130,8 +130,8 @@ func (o *Organization) QueryBalanceById(id int32) (balance decimal.Decimal, err 
 	o.QueryOrganizationById(id)
 	balance, err = decimal.NewFromString(o.Balance)
 
-	log.Infof("QueryBalanceById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("QueryBalanceById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return balance, err
 }
 
@@ -151,14 +151,14 @@ func (o *Organization) InsertOrganization() error {
 	o.ModifiedAt = localtime.NewLocalTime().String()
 
 	// Insert a organization
-	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp, o.Comment)
+	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp, o.Comment)
 	if err != nil {
 		log.Errorf("InsertOrganization Error: err=%s", err)
 		return err
 	}
 
-	log.Infof("InsertOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("InsertOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
 
@@ -178,15 +178,15 @@ func (o *Organization) UpdateOrganization(op int32) error {
 	o.ModifiedOp = op
 
 	// Update a org: name, cpuQuota, memQuota, budget, balance, status, modifiedAt, modifiedOp, comment
-	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.ModifiedAt, o.ModifiedOp, o.Comment, o.Id)
+	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.ModifiedAt, o.ModifiedOp, o.Comment, o.Id)
 
 	if err != nil {
 		log.Errorf("UpdateOrganization Error: err=%s", err)
 		return err
 	}
 
-	log.Infof("UpdateOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("UpdateOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 
 	return nil
 }
@@ -194,16 +194,16 @@ func (o *Organization) UpdateOrganization(op int32) error {
 func (o *Organization) UpdateBudgetById(budget string, op int32) {
 	o.Budget = budget
 
-	log.Infof("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	o.UpdateOrganization(op)
 }
 
 func (o *Organization) UpdateBalanceById(balance string, op int32) {
 	o.Balance = balance
 
-	log.Infof("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("UpdateBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	o.UpdateOrganization(op)
 }
 
@@ -230,8 +230,8 @@ func (o *Organization) DeleteOrganization(op int32) error {
 		return err
 	}
 
-	log.Infof("DeleteBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
-		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	log.Infof("DeleteBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
 

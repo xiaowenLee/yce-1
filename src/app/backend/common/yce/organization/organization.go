@@ -10,8 +10,8 @@ import (
 )
 
 
-type DcList struct {
-	DataCenter []string `json:"dcList"`
+type DcIdList struct {
+	DataCenter []string `json:"dcIdList"`
 }
 
 func GetOrganizationById(orgId string) (*organization.Organization, error) {
@@ -38,20 +38,20 @@ func GetOrganizationById(orgId string) (*organization.Organization, error) {
 
 func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacenter.DataCenter, error) {
 	// Get datacenter-id-list for a organization(orgId)
-	var dcList DcList
+	var dcIdList DcIdList
 
 	orgId := org.Id
-	err := json.Unmarshal([]byte(org.DcList), &dcList)
+	err := json.Unmarshal([]byte(org.DcIdList), &dcIdList)
 	if err != nil {
 		mylog.Log.Errorf("GetDataCentersByOrg Error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
 
-	// Get datacenters by dcId which in dcList
-	dataCenters := make([]mydatacenter.DataCenter, len(dcList.DataCenter))
+	// Get datacenters by dcId which in dcIdList
+	dataCenters := make([]mydatacenter.DataCenter, len(dcIdList.DataCenter))
 
-	for i := 0; i < len(dcList.DataCenter); i++ {
-		dc, err := datacenter.GetDataCenterById(dcList.DataCenter[i])
+	for i := 0; i < len(dcIdList.DataCenter); i++ {
+		dc, err := datacenter.GetDataCenterById(dcIdList.DataCenter[i])
 		if err != nil {
 			mylog.Log.Errorf("GetDataCentersByOrg Error: orgId=%s, error=%s", orgId, err)
 			return nil, err

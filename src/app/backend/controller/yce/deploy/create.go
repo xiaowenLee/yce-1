@@ -3,17 +3,14 @@ package deploy
 import (
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/util/Placeholder"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
-	"strings"
 	yce "app/backend/controller/yce"
-	// yceutil "app/backend/controller/util"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 
@@ -21,69 +18,6 @@ type CreateDeploymentController struct {
 	yce.Controller
 	k8sClients []*client.Client
 	apiServers []string
-}
-
-// Get ApiServer by dcId
-func (cdc *CreateDeploymentController) getApiServerByDcId(dcId int32) string {
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
-		cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return ""
-	}
-
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	apiServer := host + ":" + port
-
-	log.Infof("CreateDeploymentController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
-	return apiServer
-}
-
-// Get ApiServer List for dcIdList
-func (cdc *CreateDeploymentController) getApiServerList(dcIdList []int32) {
-	// Foreach dcIdList
-	for _, dcId := range dcIdList {
-		// Get ApiServer
-		apiServer := cdc.getApiServerByDcId(dcId)
-		if strings.EqualFold(apiServer, "") {
-			log.Errorf("CreateDeploymentController getApiServerList Error")
-			cdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-			return
-		}
-
-		cdc.apiServers = append(cdc.apiServers, apiServer)
-	}
-
-	log.Infof("CreateDeploymentController getApiServerList success: len(apiSeverList)=%d", len(cdc.apiServers))
-	return
-}
-
-// Create k8sClients for every ApiServer
-func (cdc *CreateDeploymentController) createK8sClients() {
-
-	// Foreach every ApiServer to create it's k8sClient
-	cdc.k8sClients = make([]*client.Client, 0)
-
-	for _, server := range cdc.apiServers {
-		config := &restclient.Config{
-			Host: server,
-		}
-
-		c, err := client.New(config)
-		if err != nil {
-			log.Errorf("createK8sClient Error: err=%s", err)
-			cdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-			return
-		}
-
-		cdc.k8sClients = append(cdc.k8sClients, c)
-		cdc.apiServers = append(cdc.apiServers, server)
-		log.Infof("Append a new client to cdc.k8sClients array: c=%p, apiServer=%s", c, server)
-	}
-	log.Infof("CreateDeploymentController createK8sClients success: len(k8sCLients)=%d", len(cdc.k8sClients))
-	return
 }
 
 // Publish k8s.Deployment to every datacenter which in dcIdList
@@ -168,13 +102,13 @@ func (cdc CreateDeploymentController) Post() {
 
 
 	// Get DcIdList
-	cdc.getApiServerList(cd.DcIdList)
+	cdc.apiServers, cdc.Ye = yceutils.GetApiServerList(cd.DcIdList)
 	if cdc.CheckError() {
 		return
 	}
 
-	// Create k8s clients
-	cdc.createK8sClients()
+	// Create k8s client list
+	cdc.k8sClients, cdc.Ye = yceutils.CreateK8sClientList(cdc.apiServers)
 	if cdc.CheckError() {
 		return
 	}
@@ -187,11 +121,10 @@ func (cdc CreateDeploymentController) Post() {
 	}
 
 	// Encode cd.DcIdList to json
-	dcIdList := cdc.encodeDcIdList(cd.DcIdList)
+	dcIdList, _ := yceutils.EncodeDcIdList(cd.DcIdList)
 
 	// Encode k8s.deployment to json
 	kd, _ := json.Marshal(cd.Deployment)
-
 	oId, _ := strconv.Atoi(orgId)
 
 	// Insert into mysql.Deployment
@@ -200,8 +133,6 @@ func (cdc CreateDeploymentController) Post() {
 		return
 	}
 
-	// ToDo: 数据库中两个dcList的格式不一致,要改过来,统一叫DcIdList
-	// ToDo: 发布出错时也要插入数据库
 	cdc.WriteOk("")
 	log.Infoln("CreateDeploymentController over!")
 	return
