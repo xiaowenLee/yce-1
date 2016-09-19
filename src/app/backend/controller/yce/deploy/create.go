@@ -60,18 +60,6 @@ func (cdc *CreateDeploymentController) createMysqlDeployment(success bool, name,
 	return nil
 }
 
-// Encode JSON of dcIdList
-func (cdc *CreateDeploymentController) encodeDcIdList(dcIdList []int32) string {
-	dcIds := &deploy.DcIdListType{
-		DcIdList:dcIdList,
-	}
-
-	data, _ := json.Marshal(dcIds)
-
-	log.Infof("CreateDeploymentController encodeDcIdList: dcIdList=%s", string(data))
-	return string(data)
-}
-
 // POST /api/v1/organizations/{orgId}/users/{userId}/deployments
 func (cdc CreateDeploymentController) Post() {
 	sessionIdFromClient := cdc.RequestHeader("Authorization")

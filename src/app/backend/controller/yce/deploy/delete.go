@@ -177,14 +177,14 @@ func (ddc DeleteDeploymentController) Post() {
 		return
 	}
 
-	// getApiServer
+	// Get ApiServer
 	dcId := ddc.getDcId()
 	ddc.apiServer, ddc.Ye = yceutils.GetApiServerByDcId(dcId)
 	if ddc.CheckError() {
 		return
 	}
 
-	// getK8sClient
+	// Get K8sClient
 	ddc.k8sClient, ddc.Ye = yceutils.CreateK8sClient(ddc.apiServer)
 	if ddc.CheckError() {
 		return
