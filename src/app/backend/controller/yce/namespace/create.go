@@ -51,7 +51,7 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 		return
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createNamespaceDbItem success")
+	log.Infof("CreateNamespaceController createNamespaceDbItem success")
 
 }
 
@@ -60,7 +60,7 @@ func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
 		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
@@ -69,7 +69,7 @@ func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	mylog.Log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
+	log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
 	return apiServer
 }
 
@@ -80,14 +80,14 @@ func (cnc *CreateNamespaceController) getApiServerList(dcIdList []int32) {
 		// Get ApiServer
 		apiServer := cnc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			mylog.Log.Errorf("CreateDeployController getApiServerList Error")
+			log.Errorf("CreateDeployController getApiServerList Error")
 			return
 		}
 
 		cnc.apiServers = append(cnc.apiServers, apiServer)
 	}
 
-	mylog.Log.Infof("CreateNamespaceController getApiServerList: len(apiServer)=%d", len(cnc.apiServers))
+	log.Infof("CreateNamespaceController getApiServerList: len(apiServer)=%d", len(cnc.apiServers))
 
 	return
 }
@@ -105,17 +105,17 @@ func (cnc *CreateNamespaceController) createK8sClients() {
 
 		c, err := client.New(config)
 		if err != nil {
-			mylog.Log.Errorf("createK8sClient Error: err=%s", err)
+			log.Errorf("createK8sClient Error: err=%s", err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 			return
 		}
 
 		cnc.k8sClients = append(cnc.k8sClients, c)
 		cnc.apiServers = append(cnc.apiServers, server)
-		mylog.Log.Infof("Append a new client to cnc.k8sClients array: c=%p, apiServer=%s", c, server)
+		log.Infof("Append a new client to cnc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createK8sClients: len(k8sClient)=%d", len(cnc.k8sClients))
+	log.Infof("CreateNamespaceController createK8sClients: len(k8sClient)=%d", len(cnc.k8sClients))
 	return
 }
 
@@ -128,14 +128,14 @@ func (cnc *CreateNamespaceController) createNamespace() {
 	for index, cli := range cnc.k8sClients {
 		_, err := cli.Namespaces().Create(namespace)
 		if err != nil {
-			mylog.Log.Errorf("createNamespace Error: apiServer=%s, namespace=%s, err=%s",
+			log.Errorf("createNamespace Error: apiServer=%s, namespace=%s, err=%s",
 				cnc.apiServers[index], namespace, err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
 			return
 		}
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createNamespace success")
+	log.Infof("CreateNamespaceController createNamespace success")
 
 }
 
@@ -156,13 +156,13 @@ func (cnc *CreateNamespaceController) createResourceQuota() {
 	for index, cli := range cnc.k8sClients {
 		_, err := cli.ResourceQuotas(cnc.Param.Name).Create(resourceQuota)
 		if err != nil {
-			mylog.Log.Errorf("createResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
+			log.Errorf("createResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
 				cnc.apiServers[index], cnc.Param.Name, err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
 		}
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createResourceQuota: create Resource Quota success")
+	log.Infof("CreateNamespaceController createResourceQuota: create Resource Quota success")
 
 }
 
@@ -172,15 +172,17 @@ func (cnc *CreateNamespaceController) Post() {
 	cnc.Param = new(CreateNamespaceParam)
 	err := cnc.ReadJSON(cnc.Param)
 	if err != nil {
-		mylog.Log.Errorf("CreateNamespaceController ReadJSON Error: error=%s", err)
+		log.Errorf("CreateNamespaceController ReadJSON Error: error=%s", err)
 		cnc.Ye =  myerror.NewYceError(myerror.EJSON, "")
-		cnc.WriteBack()
+	}
+
+	if cnc.CheckError() {
 		return
 	}
 
 	// Validate Session
 	sessionIdFromClient := cnc.RequestHeader("Authorization")
-	mylog.Log.Debugf("CreateNamespaceController Params: sessionId=%s", sessionIdFromClient)
+	log.Debugf("CreateNamespaceController Params: sessionId=%s", sessionIdFromClient)
 
 	cnc.ValidateSession(sessionIdFromClient, cnc.Param.OrgId)
 	if cnc.CheckError() {
@@ -218,6 +220,6 @@ func (cnc *CreateNamespaceController) Post() {
 	}
 
 	cnc.WriteOk("")
-	mylog.Log.Infoln("CreateNamespaceController over!")
+	log.Infoln("CreateNamespaceController over!")
 	return
 }

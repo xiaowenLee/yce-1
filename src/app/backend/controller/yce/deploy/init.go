@@ -43,9 +43,11 @@ func (idc *InitDeploymentController) getOrgName(orgId string) {
 
 func (idc *InitDeploymentController) getDatacenters() {
 	// Get Datacenters by a organization
-	idc.Init.DataCenters, err = organization.GetDataCentersByOrganization(idc.org)
+	dcs, err := organization.GetDataCentersByOrganization(idc.org)
+	idc.Init.DataCenters = dcs
+
 	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		log.Errorf("Get Organization By orgId error: orgId=%d, error=%s", idc.org.Id, err)
 		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
@@ -54,9 +56,10 @@ func (idc *InitDeploymentController) getDatacenters() {
 
 func (idc *InitDeploymentController) getAllQuotas() {
 	// Get all quotas
-	idc.Init.Quotas, err = myqouta.QueryAllQuotas()
+	quotas, err := myqouta.QueryAllQuotas()
+	idc.Init.Quotas = quotas
 	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		log.Errorf("Get Organization By orgId error: orgId=%d, error=%s",idc.org.Id, err)
 		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}

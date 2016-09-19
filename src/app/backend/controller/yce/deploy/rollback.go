@@ -6,7 +6,6 @@ import (
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
-	myoption "app/backend/model/mysql/option"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"

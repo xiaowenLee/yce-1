@@ -3,6 +3,7 @@ package yce
 import (
 	"github.com/kataras/iris"
 	"app/backend/common/util/session"
+	myerror "app/backend/common/yce/error"
 )
 
 
@@ -39,7 +40,7 @@ func (c *Controller) ValidateSession(sessionId, orgId string) {
 	if !ok {
 		log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
 		c.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return c.Ye
+		return
 	}
 
 	log.Infof("Controller ValidateSession successfully")

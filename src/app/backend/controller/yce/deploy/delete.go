@@ -5,7 +5,6 @@ import (
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
-	myoption "app/backend/model/mysql/option"
 	myorganization "app/backend/model/mysql/organization"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
@@ -71,8 +70,6 @@ func (ddc *DeleteDeploymentController) getDcId() int32 {
 		ddc.Ye = myerror.NewYceError(myerror.EOOM, "")
 		return 0
 	}
-
-
 }
 
 // getDatacenter by DcId
@@ -199,7 +196,6 @@ func (ddc *DeleteDeploymentController) deleteReplicaSet() {
 			ddc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_REPLICASET, "")
 			return
 		}
-
 	}
 
 	log.Infof("DeleteDeploymentController deleteReplicaSet successfully")
@@ -314,49 +310,42 @@ func (ddc *DeleteDeploymentController) delete() {
 	// getDeployment By Name and DcId and namespace
 	ddc.getDeploymentByName()
 	if ddc.Ye != nil {
-		ddc.WriteBack()
 		return
 	}
 
 	// gerReplicaSet List referred to this Deployment
 	ddc.getReplicaSetListByDeployment()
 	if ddc.Ye != nil {
-		ddc.WriteBack()
 		return
 	}
 
 	// getPods referred to every replicase
 	ddc.getPodsByReplicaSet()
 	if ddc.Ye != nil {
-		ddc.WriteBack()
 		return
 	}
 
 	// delete Deployment
 	ddc.deleteDeployment()
 	if ddc.Ye != nil {
-		ddc.WriteBack()
 		return
 	}
 
 	// delete ReplicaSet
 	ddc.deleteReplicaSet()
 	if ddc.Ye != nil {
-		ddc.WriteBack()
 		return
 	}
 
 	// delete Pods
 	ddc.deletePods()
 	if ddc.Ye != nil {
-		ddc.WriteBack()
 		return
 	}
 
 	// write delete event to mysql
 	ddc.createMysqlDeployment()
 	if ddc.Ye != nil {
-		ddc.WriteBack()
 		return
 	}
 
@@ -405,7 +394,7 @@ func (ddc DeleteDeploymentController) Post() {
 		return
 	}
 
-	ddc.WriteOk()
+	ddc.WriteOk("")
 	log.Infoln("Delete Deployment over!")
 	return
 

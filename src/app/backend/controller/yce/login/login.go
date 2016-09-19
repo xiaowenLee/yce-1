@@ -4,6 +4,7 @@ import (
 	"app/backend/common/util/encrypt"
 	myerror "app/backend/common/yce/error"
 	myuser "app/backend/model/mysql/user"
+	mysession "app/backend/common/util/session"
 	"strconv"
 	yce "app/backend/controller/yce"
 )
@@ -30,12 +31,12 @@ func (lc *LoginController) check(name, password string) *myuser.User {
 
 	if err != nil {
 		//log.Errorf("Can not find the user: username=%s, err=%s", name, err)
-		mylog.Log.Errorf("Can not find the user: username=%s, err=%s", name, err)
+		log.Errorf("Can not find the user: username=%s, err=%s", name, err)
 		lc.Ye = myerror.NewYceError(myerror.EYCE_LOGIN, "")
 		return nil
 	}
 
-	mylog.Log.Infof("LoginController check success: name=%s", user.Name)
+	log.Infof("LoginController check success: name=%s", user.Name)
 	return user
 
 }
@@ -72,7 +73,7 @@ func (lc LoginController) Post() {
 
 	err := lc.ReadJSON(loginParams)
 	if err != nil {
-		mylog.Log.Errorf("LoginController ReadJSON Error=%s", err)
+		log.Errorf("LoginController ReadJSON Error=%s", err)
 		lc.Ye = myerror.NewYceError(myerror.EYCE_LOGIN, "")
 	}
 	if lc.CheckError() {

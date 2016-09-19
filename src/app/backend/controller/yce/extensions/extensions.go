@@ -3,13 +3,11 @@ package extensions
 import (
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
-	mylog "app/backend/common/util/log"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	"app/backend/common/yce/organization"
 	"strings"
 	"encoding/json"
-
 	"app/backend/model/yce/extensions"
 	"strconv"
 	"k8s.io/kubernetes/pkg/api"
@@ -163,11 +161,10 @@ func (lec ListExtensionsController) Get() {
 	log.Debugf("ListExtensionsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 	// ValidateSessionId
-	lec.ValidateSessionId(sessionIdFromClient, orgId)
+	lec.ValidateSession(sessionIdFromClient, orgId)
 	if lec.CheckError() {
 		return
 	}
-
 
 	// Get Datacenters by organizations
 	le := new(extensions.ListExtensions)

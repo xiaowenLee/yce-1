@@ -9,7 +9,6 @@ import (
 	myerror "app/backend/common/yce/error"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
-	myoption "app/backend/model/mysql/option"
 	"app/backend/common/yce/organization"
 	"strconv"
 	"app/backend/common/util/Placeholder"
@@ -154,7 +153,7 @@ func (sdc ScaleDeploymentController) Post() {
 	log.Debugf("ScaleDeploymentController Params: sessionId=%s, orgId=%s, name=%s", sessionIdFromClient, sdc.orgId, sdc.name)
 
 	// Validate the session
-	sdc.ValideSession(sessionIdFromClient, sdc.orgId)
+	sdc.ValidateSession(sessionIdFromClient, sdc.orgId)
 	if sdc.CheckError() {
 		return
 	}

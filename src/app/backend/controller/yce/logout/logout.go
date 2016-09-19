@@ -1,6 +1,7 @@
 package logout
 
 import (
+	mysession "app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	yce "app/backend/controller/yce"
 )

@@ -68,36 +68,6 @@ type Topology struct {
 	Relations []RelationsType `json:"relations"`
 }
 
-
-func (tc *TopologyController) WriteBack() {
-	tc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	log.Infof("TopologyController Response YceError: controller=%p, code=%d, note=%s", tc, tc.Ye.Code, myerror.Errors[tc.Ye.Code].LogMsg)
-	tc.Write(tc.Ye.String())
-}
-
-// Validate Session
-func (tc *TopologyController) validateSession(sessionId, orgId string) {
-	// Validate the session
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	if err != nil {
-		log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		tc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Session invalide
-	if !ok {
-		log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		tc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	log.Infof("TopologyController validate session success")
-	return
-}
-
 // Get OrgName by orgId
 func (tc *TopologyController) getOrgNameByOrgId() {
 	org := new(myorganization.Organization)

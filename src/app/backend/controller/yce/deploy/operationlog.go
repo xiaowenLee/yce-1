@@ -3,7 +3,6 @@ package deploy
 import (
 	myerror "app/backend/common/yce/error"
 	mydeploy "app/backend/model/mysql/deployment"
-	"app/backend/common/util/session"
 	"app/backend/common/util/mysql"
 	"app/backend/model/yce/deploy"
 	"strconv"

@@ -157,8 +157,8 @@ func (lsc ListServiceController) Get() {
 
 	log.Debugf("ListServiceController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
-	// ValidateSessionId
-	lsc.ValidateSessionId(sessionIdFromClient, orgId)
+	// ValidateSession
+	lsc.ValidateSession(sessionIdFromClient, orgId)
 	if lsc.CheckError() {
 		return
 	}

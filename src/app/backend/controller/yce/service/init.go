@@ -20,7 +20,7 @@ type InitServiceController struct {
 func (isc *InitServiceController) String() string {
 	data, err := json.Marshal(isc.Init)
 	if err != nil {
-		mylog.Log.Errorf("InitServiceController String() Marshal Error: err=%s", err)
+		log.Errorf("InitServiceController String() Marshal Error: err=%s", err)
 		return ""
 	}
 	return string(data)
@@ -29,7 +29,7 @@ func (isc *InitServiceController) String() string {
 func (isc InitServiceController) Get() {
 	sessionIdFromClient := isc.RequestHeader("Authorization")
 	orgId := isc.Param("orgId")
-	mylog.Log.Debugf("InitServiceController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
+	log.Debugf("InitServiceController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
 
 	// Validate OrgId error
 	isc.ValidateSession(sessionIdFromClient, orgId)
@@ -43,10 +43,10 @@ func (isc InitServiceController) Get() {
 	isc.org = org
 	isc.Init.OrgId = orgId
 	isc.Init.OrgName = isc.org.Name
-	mylog.Log.Debugf("InitServiceController Params: orgId=%s, orgName=%s", isc.Init.OrgId, isc.Init.OrgName)
+	log.Debugf("InitServiceController Params: orgId=%s, orgName=%s", isc.Init.OrgId, isc.Init.OrgName)
 
 	if err != nil {
-		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		isc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 	}
 	if isc.CheckError() {
@@ -56,7 +56,7 @@ func (isc InitServiceController) Get() {
 	// Get Datacenters by a organization
 	isc.Init.DataCenters, err = organization.GetDataCentersByOrganization(isc.org)
 	if err != nil {
-		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		isc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 	}
 	if isc.CheckError() {
@@ -68,7 +68,7 @@ func (isc InitServiceController) Get() {
 	// isc.Init.Quotas, err = myqouta.QueryAllQuotas()
 	isc.Init.NodePort = mynodeport.Recommand(isc.Init.DataCenters)
 	if err != nil {
-		mylog.Log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
+		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
 		isc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 	}
 	if isc.CheckError() {
@@ -76,7 +76,7 @@ func (isc InitServiceController) Get() {
 	}
 
 	isc.WriteOk(isc.String())
-	mylog.Log.Infoln("InitServiceController Get over!")
+	log.Infoln("InitServiceController Get over!")
 	return
 }
 

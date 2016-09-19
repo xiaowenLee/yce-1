@@ -1,11 +1,10 @@
 package deploy
 
 import (
-	"app/backend/common/util/Placeholder"
 	myerror "app/backend/common/yce/error"
+	"app/backend/common/util/Placeholder"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
-	myoption "app/backend/model/mysql/option"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
@@ -14,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	yce "app/backend/controller/yce"
+	// yceutil "app/backend/controller/util"
 )
 
 
@@ -148,8 +148,7 @@ func (cdc CreateDeploymentController) Post() {
 
 	// Validate OrgId error
 	cdc.ValidateSession(sessionIdFromClient, orgId)
-	if cdc.Ye != nil {
-		cdc.WriteBack()
+	if cdc.CheckError() {
 		return
 	}
 
@@ -173,7 +172,6 @@ func (cdc CreateDeploymentController) Post() {
 	if cdc.CheckError() {
 		return
 	}
-
 
 	// Create k8s clients
 	cdc.createK8sClients()

@@ -1,7 +1,6 @@
 package deploy
 
 import (
-	"app/backend/common/util/session"
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
@@ -203,8 +202,8 @@ func (hdc HistoryDeploymentController) Get() {
 
 	log.Debugf("HistoryDeploymentController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.name)
 
-	// ValidateSessionId
-	hdc.ValidateSessionId(sessionIdFromClient, hdc.orgId)
+	// ValidateSession
+	hdc.ValidateSession(sessionIdFromClient, hdc.orgId)
 	if hdc.CheckError() {
 		return
 	}

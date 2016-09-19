@@ -1,7 +1,7 @@
 package yce
 
 import (
-	myerror "app/backend/common/yce/error"
+	mylog "app/backend/common/util/log"
 )
 
 var log = mylog.Log

@@ -6,7 +6,6 @@ import (
 	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
 	mydeployment "app/backend/model/mysql/deployment"
-	myoption "app/backend/model/mysql/option"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
