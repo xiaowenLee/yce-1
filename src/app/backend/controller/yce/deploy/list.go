@@ -2,20 +2,11 @@ package deploy
 
 import (
 	myerror "app/backend/common/yce/error"
-	"app/backend/common/yce/organization"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	"app/backend/model/yce/deploy"
-	myuser "app/backend/model/mysql/user"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
-	unver "k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
-	"app/backend/common/util/mysql"
 	"strconv"
-	"strings"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
 )
@@ -26,6 +17,7 @@ type ListDeploymentController struct {
 	k8sClients []*client.Client
 }
 
+/*
 // get Datacenters owned by this Organization via OrgId
 func (ldc *ListDeploymentController) getDatacentersByOrgId(ld *deploy.ListDeployment, orgId string) {
 	org, err := organization.GetOrganizationById(orgId)
@@ -213,6 +205,7 @@ func (ldc *ListDeploymentController) getDeployAndPodList(userId int32, cli *clie
 	return dap
 
 }
+*/
 
 // List all deployments in this namespace
 func (ldc *ListDeploymentController) listDeployments(userId int32, namespace string, dcList *yceutils.DatacenterList) (dpString string) {
@@ -233,7 +226,7 @@ func (ldc *ListDeploymentController) listDeployments(userId int32, namespace str
 		deployment := new(deploy.Deployment)
 		deployment.DcId = dcList.DcIdList[index]
 		deployment.DcName = dcList.DcName[index]
-		deployment.Deployments = ldc.getDeployAndPodList(userId, cli, deploymentList)
+		deployment.Deployments, ldc.Ye = yceutils.GetDeployAndPodList(userId, cli, deploymentList)
 
 		dpList = append(dpList, *deployment)
 

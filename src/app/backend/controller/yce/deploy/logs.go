@@ -6,11 +6,11 @@ import (
 	myorganization "app/backend/model/mysql/organization"
 	"io/ioutil"
 	"k8s.io/kubernetes/pkg/api"
-	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type LogsPodController struct {
@@ -30,22 +30,11 @@ type LogsPodController struct {
 	podName string
 }
 
-type LogOptionType struct {
-	Container    string      `json:"container,omitempty"`    //暂时不做
-	Follow       bool        `json:"follow,omitempty"`       //false 暂时不做, 页面开关,默认为关闭
-	Previous     bool        `json:"previous,omitempty"`     //暂时不做
-	SinceSeconds *int64      `json:"sinceSeconds,omitempty"` //暂时不做
-	SinceTime    *unver.Time `json:"sinceTime,omitempty"`    //暂时不做
-	Timestamps   bool        `json:"timeStamps,omitempty"`    //true, 时间戳,默认打开
-	TailLines    *int64      `json:"tailLines,omitempty"`    //用户设定
-	LimitBytes   *int64      `json:"limitBytes,omitempty"`   //暂时不做
-}
-
 // json from client
 type LogsPodParam struct {
 	UserId       string             `json:"userId"`
 	DcIdList     []int32            `json:"dcIdList"`
-	LogOption    *LogOptionType 	`json:"logOption,omitempty"`
+	LogOption    *yceutils.LogOptionType 	`json:"logOption,omitempty"`
 }
 
 
@@ -198,7 +187,7 @@ func (lpc *LogsPodController) logs() string {
 func (lpc LogsPodController) Post() {
 
 	lpc.params = new(LogsPodParam)
-	lpc.params.LogOption = new(LogOptionType)
+	lpc.params.LogOption = new(yceutils.LogOptionType)
 
 	sessionIdFromClient := lpc.RequestHeader("Authorization")
 	lpc.orgId = lpc.Param("orgId")

@@ -112,7 +112,6 @@ func GetApiServerByDcId(DcId int32) (string, *myerror.YceError) {
 	}
 }
 
-
 // Get Deployment By Namespace
 func GetDeploymentByNamespace(c *client.Client, namespace string) ([]extensions.Deployment, *myerror.YceError) {
 	if CheckValidate(c) && CheckValidate(namespace) {
