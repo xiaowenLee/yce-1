@@ -23,49 +23,6 @@ func (idc *InitDeploymentController) String() string {
 	return string(data)
 }
 
-/*
-func (idc *InitDeploymentController) getOrgName(orgId string) {
-	org, err := organization.GetOrganizationById(orgId)
-
-	if err != nil {
-		log.Errorf("Get Organization By orgId error: orgId=%s, error=%s", orgId, err)
-		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-
-	idc.org = org
-	idc.Init.OrgId = orgId
-	idc.Init.OrgName = idc.org.Name
-	log.Debugf("InitDeploymentController Params: org=%p, orgId=%s", idc.org, idc.Init.OrgId, idc.Init.OrgName)
-
-}
-
-func (idc *InitDeploymentController) getDatacenters() {
-	// Get Datacenters by a organization
-	dcs, err := organization.GetDataCentersByOrganization(idc.org)
-	idc.Init.DataCenters = dcs
-
-	if err != nil {
-		log.Errorf("Get Organization By orgId error: orgId=%d, error=%s", idc.org.Id, err)
-		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	return
-}
-
-func (idc *InitDeploymentController) getAllQuotas() {
-	// Get all quotas
-	quotas, err := myqouta.QueryAllQuotas()
-	idc.Init.Quotas = quotas
-	if err != nil {
-		log.Errorf("Get Organization By orgId error: orgId=%d, error=%s",idc.org.Id, err)
-		idc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	return
-}
-*/
-
 // GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
 func (idc InitDeploymentController) Get() {
 	sessionIdFromClient := idc.RequestHeader("Authorization")
