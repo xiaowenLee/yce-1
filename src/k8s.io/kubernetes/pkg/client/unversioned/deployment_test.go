@@ -57,8 +57,8 @@ func TestDeploymentCreate(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	c.Validate(t, response, err)
-}
 
+}
 func TestDeploymentGet(t *testing.T) {
 	ns := api.NamespaceDefault
 	deployment := &extensions.Deployment{
