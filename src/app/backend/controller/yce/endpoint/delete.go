@@ -104,7 +104,6 @@ func (dec *DeleteEndpointsController) createK8sClients() {
 		}
 
 		dec.k8sClients = append(dec.k8sClients, c)
-		// why??
 		//dec.apiServers = append(dec.apiServers, server)
 		mylog.Log.Infof("Append a new client to dec.K8sClients array: c=%p, apiServer=%s", c, server)
 	}

@@ -66,6 +66,10 @@ const (
 	EJSON int32 = 1600
 	EARGS int32 = 1601
 	EOOM  int32 = 1602
+	EOOR  int32 = 1603
+	ENULL int32 = 1604
+	EINVALID_PARAM int32 = 1605
+
 )
 
 var Errors = map[int32]*Error{
@@ -299,5 +303,17 @@ var Errors = map[int32]*Error{
 	EOOM: &Error {
 		LogMsg: "Out of memory",
 		ErrMsg: "内存溢出",
+	},
+	EOOR: &Error {
+		LogMsg: "Out of Range",
+		ErrMsg: "数组越界",
+	},
+	ENULL: &Error {
+		LogMsg: "Null Pointer Error",
+		ErrMsg: "空指针",
+	},
+	EINVALID_PARAM: &Error {
+		LogMsg: "Invalid Param",
+		ErrMsg: "无效值",
 	},
 }
