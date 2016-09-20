@@ -26,15 +26,6 @@ type AppDisplayDeployment struct {
 	PodList api.PodList `json:"podList"`
 }
 
-/*
-type DeployAndPodList struct {
-	UserName string `json:"userName"`
-	Deploy *extensions.Deployment `json:"deploy"`
-	PodList *api.PodList `json:"podList"`
-}
-*/
-
-
 // Response List Deployments
 type Deployment struct {
 	DcId int32 `json:"dcId"`
@@ -42,7 +33,6 @@ type Deployment struct {
 	Deployments []yceutils.DeployAndPodList `json:"deployments"`
 }
 
-// GET
 type ListDeployment struct {
 	Organization *myorganization.Organization
 	DcIdList []int32
