@@ -5,11 +5,11 @@ import (
 	"testing"
 	"k8s.io/kubernetes/pkg/api"
 	"app/backend/model/yce/deploy"
-	"github.com/kubernetes/kubernetes/pkg/apis/extensions"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"encoding/json"
-	"net/http"
 	"fmt"
-	"github.com/kubernetes/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/api/unversioned"
+	mylog "app/backend/common/util/log"
 )
 
 func TestDeploymentCreate(t *testing.T) {
@@ -21,29 +21,53 @@ func TestDeploymentCreate(t *testing.T) {
 		AppName: "foo-nginx",
 		OrgName: "ops",
 		DcIdList: []int32{1},
-		Deployment: &extensions.Deployment{
+		Deployment: extensions.Deployment{
 			TypeMeta: unversioned.TypeMeta{
-
+				Kind: "Deployment",
+				APIVersion: "extensions/v1beta1",
 			},
 			ObjectMeta: api.ObjectMeta{
 				Name: "foo-nginx",
 				Namespace: "ops",
 			},
 			Spec: extensions.DeploymentSpec{
-
+				Replicas: 1,
+				Template: api.PodTemplateSpec{
+					ObjectMeta: api.ObjectMeta{
+						Labels: map[string]string{
+							"app": "foo-nginx",
+						},
+					},
+					Spec: api.PodSpec{
+						Containers: []api.Container{
+							api.Container{
+								Name: "foo-nginx",
+								Image: "nginx:1.7.9",
+							},
+						},
+					},
+				},
 			},
-			//TODO: the other must
 		},
 	}
 
 	// solution 2:
 	// expectString := string()
 
-	headers := make(map[string]string, 0)
+	headers := make(map[string]string, 1)
 	headers["Authorization"] = "0e45e2b2-c195-4518-b1f0-46aa895a7aa0"
 
-	newUrl := "/api/v1/organizations/1/users/1/deployments/new"
-	body, _ := json.Marshal(deployment)
+	//mylog.Log.Debugf("Headers: %v", headers)
+
+	newUrl := "http://localhost:8080/api/v1/organizations/1/users/1/deployments/new"
+	body, err := json.Marshal(deployment)
+
+	//mylog.Log.Debugf("Json Marshal: body=%s", string(body))
+
+	if err != nil {
+		mylog.Log.Debugf("Json Marshal: error=%s", err)
+		return
+	}
 
 	c := testclient.TestClient{
 		Request: testclient.Request{
@@ -52,10 +76,10 @@ func TestDeploymentCreate(t *testing.T) {
 			Body: body,
 		},
 	}
-	c.Get()
+	c.Post()
 
 	actual := string(c.Response.Body)
-	fmt.Println(actual)
+	fmt.Printf("Deployment Create actual resule: \n%s\n", actual)
 
 	//TODO: using validate() without human interference
 }

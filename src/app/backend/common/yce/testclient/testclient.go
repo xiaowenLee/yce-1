@@ -1,16 +1,14 @@
 package testclient
 
 import (
-	"testing"
 	//myhttpclient "app/backend/common/util/http"
-	"k8s.io/kubernetes/pkg/runtime"
+	//"k8s.io/kubernetes/pkg/runtime"
 	"net/http"
 	"io/ioutil"
-	"github.com/gogo/protobuf/io"
+	"io"
 	"strings"
+	mylog "app/backend/common/util/log"
 )
-
-
 
 type Request struct {
 	Header  map[string]string
@@ -44,8 +42,12 @@ func (t *TestClient) Validate(expect, actual string) {
 func (t *TestClient) Get() {
 
 	t.Request.r = strings.NewReader(string(t.Request.Body))
+
+	mylog.Log.Debugf("Get t.Request.r: %s\n", t.Request.r)
+
 	req, err := http.NewRequest("GET", t.Request.Path, t.Request.r)
 	if err != nil {
+		mylog.Log.Errorf("Get error=%s", err)
 		return
 	}
 
@@ -55,6 +57,7 @@ func (t *TestClient) Get() {
 
 	resp, err := t.Do(req)
 	if err != nil {
+		mylog.Log.Errorf("Get error=%s", err)
 		return
 	}
 
@@ -63,6 +66,7 @@ func (t *TestClient) Get() {
 	t.Response.StatusCode = http.StatusOK
 	t.Response.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
+		mylog.Log.Errorf("Get error=%s", err)
 		return
 	}
 
@@ -72,6 +76,7 @@ func (t *TestClient) Post() {
 	t.Request.r = strings.NewReader(string(t.Request.Body))
 	req, err := http.NewRequest("POST", t.Request.Path, t.Request.r)
 	if err != nil {
+		mylog.Log.Errorf("Post error=%s", err)
 		return
 	}
 
@@ -81,6 +86,7 @@ func (t *TestClient) Post() {
 
 	resp, err := t.Do(req)
 	if err != nil {
+		mylog.Log.Errorf("Post error=%s", err)
 		return
 	}
 
@@ -88,6 +94,7 @@ func (t *TestClient) Post() {
 
 	t.Response.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
+		mylog.Log.Errorf("Post error=%s", err)
 		return
 	}
 
@@ -97,6 +104,7 @@ func (t *TestClient) Delete() {
 	t.Request.r = strings.NewReader(string(t.Request.Body))
 	req, err := http.NewRequest("DELETE", t.Request.Path, t.Request.r)
 	if err != nil {
+		mylog.Log.Errorf("Delete error=%s", err)
 		return
 	}
 
@@ -107,12 +115,14 @@ func (t *TestClient) Delete() {
 
 	resp, err := t.Do(req)
 	if err != nil {
+		mylog.Log.Errorf("Delete error=%s", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	t.Response.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
+		mylog.Log.Errorf("Delete error=%s", err)
 		return
 	}
 
