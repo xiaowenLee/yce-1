@@ -2,13 +2,8 @@ package deploy
 
 import (
 	myerror "app/backend/common/yce/error"
-	"app/backend/common/yce/organization"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	"encoding/json"
-	"k8s.io/kubernetes/pkg/api"
-	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
 	"strings"
@@ -27,7 +22,7 @@ type HistoryDeploymentController struct {
 	orgId      string
 	orgName    string
 	deploymentName       string          // deployment-name
-	replicaSetList []ReplicaSetList      // ReplicaSets
+	replicaSetList *ReplicaSetList      // ReplicaSets
 }
 
 type ReplicaType struct {
@@ -71,6 +66,40 @@ func (hdc *HistoryDeploymentController) encodeMapToString(labels map[string]stri
 	return strings.Join(ss, ",")
 }
 
+// Foreach ReplicaSets to return
+func (hdc *HistoryDeploymentController) getReplicaSetList() {
+
+	hdc.replicaSetList = new(ReplicaSetList)
+
+	// Get ReplicaSets By Deployment
+	rsList, ye := yceutils.GetReplicaSetsByDeployment(hdc.k8sClient, hdc.deployment)
+
+	if ye != nil {
+		log.Errorf("GetReplicaSetList Error: hdc=%p, apiServer=%s, deployment-name=%s",
+			hdc, hdc.apiServer, hdc.deploymentName)
+		hdc.Ye = ye
+		return
+	}
+
+	for _, rs := range rsList {
+		hr := HistoryReturn{}
+
+		hr.Name = rs.Name
+		hr.Namespace = rs.Namespace
+		hr.Selector = hdc.encodeMapToString(rs.Spec.Selector.MatchLabels)
+		hr.Image = rs.Spec.Template.Spec.Containers[0].Image
+		hr.Revision = rs.Annotations[REVISION_ANNOTATION]
+		hr.Replicas.Current = rs.Status.Replicas
+		hr.Replicas.Desire = rs.Spec.Replicas
+
+		log.Debugf("GetReplicaSetList replicaset: name=%s, namespace=%s, image=%s, revision=%s, current=%d, desired=%d",
+			hr.Name, hr.Namespace, hr.Image, hr.Revision, hr.Replicas.Current, hr.Replicas.Desire)
+
+		*hdc.replicaSetList = append(*hdc.replicaSetList, hr)
+	}
+
+	log.Infof("GetReplicaList over: len(rsList)=%d", len(rsList))
+}
 
 // Encode ReplicaSetList to string
 func (hdc *HistoryDeploymentController) encodeReplicaSetList() string {
@@ -91,7 +120,7 @@ func (hdc HistoryDeploymentController) Get() {
 	hdc.deploymentName = hdc.Param("name")
 	sessionIdFromClient := hdc.RequestHeader("Authorization")
 
-	log.Debugf("HistoryDeploymentController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.name)
+	log.Debugf("HistoryDeploymentController Params: sessionId=%s, orgId=%s, dcId=%s, name=%s", sessionIdFromClient, hdc.orgId, hdc.dcId, hdc.deploymentName)
 
 	// ValidateSession
 	hdc.ValidateSession(sessionIdFromClient, hdc.orgId)
@@ -123,8 +152,8 @@ func (hdc HistoryDeploymentController) Get() {
 		return
 	}
 
-	// Get ReplicaSets by deployment
-	hdc.replicaSetList = yceutils.GetReplicaSetsByDeployment(hdc.k8sClient, hdc.deployment)
+	// Get ReplicaSetList(HistoryReturn)
+	hdc.getReplicaSetList()
 	if hdc.CheckError() {
 		return
 	}
