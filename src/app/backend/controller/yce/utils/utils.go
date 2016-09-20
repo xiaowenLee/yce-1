@@ -15,6 +15,7 @@ import (
 	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"reflect"
 	"strconv"
+	myqouta "app/backend/model/mysql/quota"
 )
 
 // Create K8s Client List by ApiServerList
@@ -376,8 +377,50 @@ type DatacenterList struct {
 	DcName   []string
 }
 
+// Get Datacenters by OrgId
+func GetDatacentersByOrgId(orgId string) ([]mydatacenter.DataCenter, *myerror.YceError) {
+	if CheckValidate(orgId) {
+		org, err := organization.GetOrganizationById(orgId)
+
+		if err != nil {
+			log.Errorf("GetDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+			ye := myerror.NewYceError(myerror.EYCE_ORGTODC, "")
+			return nil, ye
+
+		}
+
+		dcList, err := organization.GetDataCentersByOrganization(org)
+		if err != nil {
+			log.Errorf("GetDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+			ye := myerror.NewYceError(myerror.EYCE_ORGTODC, "")
+			return nil, ye
+		}
+
+
+		log.Infof("GetDatacentersByOrgId: len(Datacenters)=%d", len(dcList))
+		return dcList, nil
+	}
+
+	ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+	log.Errorf("GetDatacentersByOrgId Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+	return nil, ye
+}
+
+// Get All Quotas
+func GetAllQuotasOrderByCpu() ([]myqouta.Quota, *myerror.YceError) {
+	// Get all quotas
+	quotas, err := myqouta.QueryAllQuotasOrderByCpu()
+	if err != nil {
+		log.Errorf("GetAllQuotasOrderByCpu error: error=%s", err)
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+	return quotas, nil
+}
+
+
 // Get Datacenter List By OrgId
-func GetDatacentersByOrgId(orgId string) (*DatacenterList, *myerror.YceError) {
+func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError) {
 
 	if CheckValidate(orgId) {
 		org, err := organization.GetOrganizationById(orgId)

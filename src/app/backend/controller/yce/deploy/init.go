@@ -1,13 +1,11 @@
 package deploy
 
 import (
-	myerror "app/backend/common/yce/error"
-	"app/backend/common/yce/organization"
 	myorganization "app/backend/model/mysql/organization"
-	myqouta "app/backend/model/mysql/quota"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type InitDeploymentController struct {
@@ -25,6 +23,7 @@ func (idc *InitDeploymentController) String() string {
 	return string(data)
 }
 
+/*
 func (idc *InitDeploymentController) getOrgName(orgId string) {
 	org, err := organization.GetOrganizationById(orgId)
 
@@ -65,6 +64,7 @@ func (idc *InitDeploymentController) getAllQuotas() {
 	}
 	return
 }
+*/
 
 // GET /api/v1/organizations/{orgId}/users/{uid}/deployments/init
 func (idc InitDeploymentController) Get() {
@@ -80,17 +80,21 @@ func (idc InitDeploymentController) Get() {
 		return
 	}
 
-	idc.getOrgName(orgId)
+	idc.Init.OrgId = orgId
+	idc.Init.OrgName, idc.Ye = yceutils.GetOrgNameByOrgId(orgId)
 	if idc.CheckError() {
 		return
 	}
 
-	idc.getDatacenters()
+	// Get Datacenters
+	idc.Init.DataCenters, idc.Ye = yceutils.GetDatacentersByOrgId(orgId)
 	if idc.CheckError() {
 		return
 	}
 
-	idc.getAllQuotas()
+	// idc.getAllQuotas()
+	// Get All Quotas
+	idc.Init.Quotas, idc.Ye = yceutils.GetAllQuotasOrderByCpu()
 	if idc.CheckError() {
 		return
 	}
