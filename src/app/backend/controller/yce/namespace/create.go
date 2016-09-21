@@ -2,16 +2,13 @@ package namespace
 
 import (
 	myerror "app/backend/common/yce/error"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
 	api "k8s.io/kubernetes/pkg/api"
 	resource "k8s.io/kubernetes/pkg/api/resource"
 	"encoding/json"
-	"strconv"
-	"strings"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type CreateNamespaceController struct {
@@ -55,6 +52,7 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 
 }
 
+/*
 // Get ApiServer by dcId
 func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
@@ -118,6 +116,7 @@ func (cnc *CreateNamespaceController) createK8sClients() {
 	log.Infof("CreateNamespaceController createK8sClients: len(k8sClient)=%d", len(cnc.k8sClients))
 	return
 }
+*/
 
 // Create Namespace for every ApiServer
 func (cnc *CreateNamespaceController) createNamespace() {
@@ -195,14 +194,14 @@ func (cnc *CreateNamespaceController) Post() {
 		return
 	}
 
-	// Get DcIdList
-	cnc.getApiServerList(cnc.Param.DcIdList)
+	// Get ApiServer List
+	cnc.apiServers, cnc.Ye = yceutils.GetApiServerList(cnc.Param.DcIdList)
 	if cnc.CheckError() {
 		return
 	}
 
-	// Create k8s clients
-	cnc.createK8sClients()
+	// Create K8sClient List
+	cnc.k8sClients, cnc.Ye = yceutils.CreateK8sClientList(cnc.apiServers)
 	if cnc.CheckError() {
 		return
 	}

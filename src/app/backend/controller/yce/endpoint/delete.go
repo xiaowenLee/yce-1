@@ -54,6 +54,7 @@ func (dec DeleteEndpointsController) Delete() {
 	dcIdList = append(dcIdList, int32(datacenterId))
 	log.Debugf("DeleteEndpointController len(DcIdList)=%d", len(dcIdList))
 
+	// Get ApiServer List
 	dec.apiServers, dec.Ye = yceutils.GetApiServerList(dcIdList)
 	if dec.CheckError() {
 		return
