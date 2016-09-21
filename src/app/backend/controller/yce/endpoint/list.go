@@ -61,7 +61,7 @@ func (lec ListEndpointsController) Get() {
 		return
 	}
 
-	// Get Datacenters by organizations
+	// Get Datacenter List by orgId
 	ed :=  new(endpoint.ListEndpoints)
 	dcList, ye := yceutils.GetDatacenterListByOrgId(orgId)
 
@@ -75,7 +75,6 @@ func (lec ListEndpointsController) Get() {
 		return
 	}
 
-
 	// Get ApiServer List
 	lec.apiServers, lec.Ye = yceutils.GetApiServerList(ed.DcIdList)
 	if lec.CheckError() {
@@ -83,14 +82,17 @@ func (lec ListEndpointsController) Get() {
 	}
 
 	// Create K8sClient
-	// lec.createK8sClients()
 	lec.k8sClients, lec.Ye = yceutils.CreateK8sClientList(lec.apiServers)
 	if lec.CheckError() {
 		return
 	}
 
 	// List Endpoints
-	orgName := ed.Organization.Name
+	orgName, ye := yceutils.GetOrgNameByOrgId(orgId)
+	if ye != nil {
+		lec.Ye = ye
+	}
+
 	epString := lec.listEndpoints(orgName, ed)
 	if lec.CheckError() {
 		return
