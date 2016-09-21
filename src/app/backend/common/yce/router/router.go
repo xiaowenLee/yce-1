@@ -92,7 +92,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/new", *r.CreateService)
-	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/users/:userId/services/:svcName", *r.DeleteService)
+	iris.API("/api/v1/organizations/:orgId/services/:svcName", *r.DeleteService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/init", *r.InitEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)

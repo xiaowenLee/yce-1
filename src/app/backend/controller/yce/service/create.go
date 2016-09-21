@@ -2,92 +2,26 @@ package service
 
 import (
 	myerror "app/backend/common/yce/error"
-	mydatacenter "app/backend/model/mysql/datacenter"
-	mynodeport "app/backend/model/mysql/nodeport"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"app/backend/model/yce/service"
-	"strconv"
-	"strings"
-	"k8s.io/kubernetes/pkg/client/restclient"
-	"k8s.io/kubernetes/pkg/api"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
+	mynodeport "app/backend/model/mysql/nodeport"
+	"app/backend/model/yce/service"
+	"k8s.io/kubernetes/pkg/api"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
+	"strconv"
 )
 
 type CreateServiceController struct {
 	yce.Controller
 	k8sClients []*client.Client
 	apiServers []string
+
+	params service.CreateService
+
+	userId string
 }
 
-// Get ApiServer by dcId
-func (csc *CreateServiceController) getApiServerByDcId(dcId int32) string {
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
-		csc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return ""
-	}
 
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	apiServer := host + ":" + port
-
-	log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
-
-	return apiServer
-
-
-}
-
-// Get ApiServer List for dcIdList
-func (csc *CreateServiceController) getApiServerList(dcIdList []int32) {
-	// Foreach dcIdList
-	for _, dcId := range dcIdList {
-		// Get ApiServer
-		apiServer := csc.getApiServerByDcId(dcId)
-		if strings.EqualFold(apiServer, "") {
-			log.Errorf("CreateServiceController getApiServerList Error")
-			return
-		}
-
-		csc.apiServers = append(csc.apiServers, apiServer)
-	}
-
-	log.Infof("CreateServiceController getApiServerList: len(apiServer)=%d", len(csc.apiServers))
-	return
-}
-
-// Create k8sClient for every ApiServer
-func (csc *CreateServiceController) createK8sClients() {
-	// Foreach every ApiServer to create it's k8sClient
-	//csc.k8sClients = make([]*client.Client, len(csc.apiServers))
-	csc.k8sClients = make([]*client.Client, 0)
-
-
-	for _, server := range csc.apiServers {
-		config := &restclient.Config{
-			Host: server,
-		}
-
-		c, err := client.New(config)
-		if err != nil {
-			log.Errorf("CreateK8sClient Error: error=%s", err)
-			csc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-			return
-		}
-
-		csc.k8sClients = append(csc.k8sClients, c)
-		// why??
-		//csc.apiServers = append(csc.apiServers, server)
-		log.Infof("Append a new client to csc.K8sClients array: c=%p, apiServer=%s", c, server)
-	}
-
-	log.Infof("CreateServiceController createK8sClients: len(k8sClients)=%d", len(csc.k8sClients))
-	return
-}
-
-// why need return value?
 // Publish k8s.Service to every datacenter which in dcIdList
 func (csc *CreateServiceController) createService(namespace string, service *api.Service) {
 	// Foreach every K8sClient to create service
@@ -107,7 +41,7 @@ func (csc *CreateServiceController) createService(namespace string, service *api
 }
 
 // create NodePort(mysql) and insert it into db
-func (csc *CreateServiceController)createMysqlNodePort(success bool, nodePort int32, dcIdList []int32, svcName string, op int32) {
+func (csc *CreateServiceController) createMysqlNodePort(success bool, nodePort int32, dcIdList []int32, svcName string, op int32) {
 	for _, dcId := range dcIdList {
 		np := mynodeport.NewNodePort(nodePort, dcId, svcName, op)
 		err := np.InsertNodePort(op)
@@ -123,13 +57,37 @@ func (csc *CreateServiceController)createMysqlNodePort(success bool, nodePort in
 	return
 }
 
+func (csc *CreateServiceController) getParams() {
+	err := csc.ReadJSON(csc.params)
+	if err != nil {
+		log.Errorf("CreateServiceController ReadJSON Error: error=%s", err)
+		csc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return
+	}
+}
 
+func (csc *CreateServiceController) addNodePort() {
+	op, _ := strconv.Atoi(csc.userId)
+	cs := csc.params
+	for _, port := range cs.Service.Spec.Ports {
+		hasNodePort := mynodeport.PORT_START <= port.NodePort && port.NodePort <= mynodeport.PORT_LIMIT
+		if hasNodePort {
+			csc.createMysqlNodePort(hasNodePort, port.NodePort, cs.DcIdList, cs.Service.ObjectMeta.Name, int32(op))
+			if csc.CheckError() {
+				return
+			}
+		}
+		log.Infof("CreateServiceController addNodePort : nodeport=%d", port.NodePort)
+	}
+
+}
+
+// Post /api/v1/organizations/{:orgId}/user/{:userId}/services/new
 func (csc CreateServiceController) Post() {
 	sessionIdFromClient := csc.RequestHeader("Authorization")
 	orgId := csc.Param("orgId")
-	userId := csc.Param("userId")
-	log.Debugf("CreateServiceController Params: sessionId=%s, orgId=%s, userId=%s", sessionIdFromClient, orgId, userId)
-
+	csc.userId = csc.Param("userId")
+	log.Debugf("CreateServiceController Params: sessionId=%s, orgId=%s, userId=%s", sessionIdFromClient, orgId, csc.userId)
 
 	// Validate OrgId error
 	csc.ValidateSession(sessionIdFromClient, orgId)
@@ -137,46 +95,34 @@ func (csc CreateServiceController) Post() {
 		return
 	}
 
-	// Parse data: service.
-	cs := new(service.CreateService)
-	err := csc.ReadJSON(cs)
-	if err != nil {
-		log.Errorf("CreateServiceController ReadJSON Error: error=%s", err)
-		csc.Ye = myerror.NewYceError(myerror.EJSON, "")
-	}
+	// get Params from client
+	csc.getParams()
 	if csc.CheckError() {
 		return
 	}
 
-	// Get DcIdList
-	csc.getApiServerList(cs.DcIdList)
+	// Get apiServers
+	csc.apiServers, csc.Ye = yceutils.GetApiServerList(csc.params.DcIdList)
 	if csc.CheckError() {
 		return
 	}
 
 	// Get K8sClient
-	csc.createK8sClients()
+	csc.k8sClients, csc.Ye = yceutils.CreateK8sClientList(csc.apiServers)
 	if csc.CheckError() {
 		return
 	}
 
 	// Publish server to every datacenter
-	orgName := cs.OrgName
-	csc.createService(orgName, &cs.Service)
+	csc.createService(csc.params.OrgName, &csc.params.Service)
 	if csc.CheckError() {
 		return
 	}
 
-	// And NodePort to MySQL nodeport table
-	op, _ := strconv.Atoi(userId)
-	for _, v := range cs.Service.Spec.Ports {
-		hasNodePort := mynodeport.PORT_START <= v.NodePort && v.NodePort <= mynodeport.PORT_LIMIT
-		if hasNodePort {
-			csc.createMysqlNodePort(hasNodePort, v.NodePort, cs.DcIdList, cs.Service.ObjectMeta.Name, int32(op))
-			if csc.CheckError() {
-				return
-			}
-		}
+	// Add NodePort to MySQL nodeport table
+	csc.addNodePort()
+	if csc.CheckError() {
+		return
 	}
 
 	log.Infoln("CreateServiceController over!")
