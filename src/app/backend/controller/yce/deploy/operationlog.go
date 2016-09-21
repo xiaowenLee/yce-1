@@ -3,11 +3,13 @@ package deploy
 import (
 	myerror "app/backend/common/yce/error"
 	mydeploy "app/backend/model/mysql/deployment"
+	myuser "app/backend/model/mysql/user"
 	"app/backend/common/util/mysql"
 	"app/backend/model/yce/deploy"
 	"strconv"
 	"encoding/json"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type ListOperationLogController struct {
@@ -55,58 +57,11 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 	return deployments
 }
 
-// Query UserName by UserId
-func (loc *ListOperationLogController) queryUserNameByUserId(userId int32) (name string) {
-	db := mysql.MysqlInstance().Conn()
-
-	stmt, err := db.Prepare(SELECT_USER)
-	if err != nil {
-		log.Errorf("queryUserNameByUserId Error: error=%s", err)
-		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	defer stmt.Close()
-
-	err = stmt.QueryRow(userId).Scan(&name)
-	if err != nil {
-		log.Errorf("queryUserNameByUserId Error: error=%s", err)
-		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	log.Infof("queryUserNameByUserId successfully")
-	return name
-}
-
-// Query DcName By DcId
-func (loc *ListOperationLogController) queryDcNameByDcId(dcIdList []int32) (dcNameList []string) {
-	db := mysql.MysqlInstance().Conn()
-
-	stmt, err := db.Prepare(SELECT_DATACENTER)
-	if err != nil {
-		log.Errorf("queryOperationLogMySQL Error: error=%s", err)
-		loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	defer stmt.Close()
-	dcNameList = make([]string, len(dcIdList))
-	for index, dcId := range dcIdList {
-		err = stmt.QueryRow(dcId).Scan(&dcNameList[index])
-		if err != nil {
-			log.Errorf("queryOperationLogMySQL Error: error=%s", err)
-			loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-			return
-		}
-	}
-
-	log.Infof("queryDcNameByDcId successfully")
-	return dcNameList
-}
 
 // getOperationLogList
-
 func (loc *ListOperationLogController) getOperationLog(deployment mydeploy.Deployment) *deploy.OperationLogType {
 	opLog := new(deploy.OperationLogType)
-	userName := loc.queryUserNameByUserId(deployment.ActionOp)
+	userName := myuser.QueryUserNameByUserId(deployment.ActionOp)
 
 	dcIdListJSON := []byte(deployment.DcList)
 	log.Debugf("dcIdListJSON=%s", deployment.DcList)
@@ -119,7 +74,11 @@ func (loc *ListOperationLogController) getOperationLog(deployment mydeploy.Deplo
 
 	}
 
-	dcNameList := loc.queryDcNameByDcId(dcIdList.DcIdList)
+	dcNameList, ye := yceutils.GetDcNameListByDcIdList(dcIdList.DcIdList)
+	if ye != nil {
+		loc.Ye = ye
+		return nil
+	}
 	opLog.UserName = userName
 	opLog.DcName = dcNameList
 	opLog.Record = &deployment
@@ -166,8 +125,6 @@ func (loc ListOperationLogController) Get() {
 	oId, _ := strconv.Atoi(orgId)
 	dp := loc.queryOperationLogMySQL(int32(oId))
 
-
-
 	// Get OperationLog
 	opString := loc.getOperationLogList(dp)
 	if loc.CheckError() {
@@ -178,5 +135,4 @@ func (loc ListOperationLogController) Get() {
 	log.Infof("ListOperationLogController get over!")
 
 	return
-
 }

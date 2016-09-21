@@ -1,21 +1,21 @@
 package utils
 
 import (
-	"k8s.io/kubernetes/pkg/api"
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
+	myqouta "app/backend/model/mysql/quota"
 	myuser "app/backend/model/mysql/user"
 	"io/ioutil"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"reflect"
 	"strconv"
-	myqouta "app/backend/model/mysql/quota"
 )
 
 // Create K8s Client List by ApiServerList
@@ -212,7 +212,6 @@ func GetPodsByReplicaSets(c *client.Client, replicaSets []extensions.ReplicaSet)
 		return nil, ye
 	}
 
-
 }
 
 func GetNodeByPod(c *client.Client, pod *api.Pod) (*api.Node, *myerror.YceError) {
@@ -395,7 +394,6 @@ func GetDatacentersByOrgId(orgId string) ([]mydatacenter.DataCenter, *myerror.Yc
 			return nil, ye
 		}
 
-
 		log.Infof("GetDatacentersByOrgId: len(Datacenters)=%d", len(dcList))
 		return dcList, nil
 	}
@@ -416,7 +414,6 @@ func GetAllQuotasOrderByCpu() ([]myqouta.Quota, *myerror.YceError) {
 	}
 	return quotas, nil
 }
-
 
 // Get Datacenter List By OrgId
 func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError) {
@@ -514,6 +511,33 @@ func GetPodLogsByPodName(c *client.Client, LogOption *LogOptionType, podName, or
 
 }
 
+// original: queryDcNameByDcId(dcIdList []int32) (dcNameList []string)
+func GetDcNameListByDcIdList(dcIdList []int32) ([]string, *myerror.YceError) {
+	if CheckValidate(dcIdList) {
+		dcNameList := make([]string, 0)
+
+		for _, dcId := range dcIdList {
+			dc, ye := GetDatacenterByDcId(dcId)
+			if ye != nil {
+				log.Errorf("GetDcNameListByDcIdList Error: error=%s", ye)
+				return nil, ye
+			}
+			dcName := dc.Name
+			dcNameList = append(dcNameList, dcName)
+
+			log.Infof("GetDcNameListByDcIdList get Name: %s", dcName)
+		}
+		log.Infof("GetDcNameListByDcIdList len(dcNameList)=%d", len(dcNameList))
+
+		return dcNameList, nil
+	} else {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		log.Errorf("GetDcNameListByDcIdList Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+		return nil, ye
+	}
+
+}
+
 // getDatacenter by DcId
 func GetDatacenterByDcId(dcId int32) (*mydatacenter.DataCenter, *myerror.YceError) {
 	dc := new(mydatacenter.DataCenter)
@@ -529,7 +553,7 @@ func GetDatacenterByDcId(dcId int32) (*mydatacenter.DataCenter, *myerror.YceErro
 }
 
 // get OrgNameByOrgId
-func GetOrgNameByOrgId(OrgId string) (string, *myerror.YceError){
+func GetOrgNameByOrgId(OrgId string) (string, *myerror.YceError) {
 	if CheckValidate(OrgId) {
 		organization := new(myorganization.Organization)
 
@@ -639,19 +663,19 @@ func CheckValidate(value interface{}) bool {
 	return false
 
 	/*
-	if reflect.TypeOf(value).Kind() == reflect.Array && value != nil && len(value) > 0 {
-		flag = true
-	}
+		if reflect.TypeOf(value).Kind() == reflect.Array && value != nil && len(value) > 0 {
+			flag = true
+		}
 
-	if reflect.TypeOf(value).Kind() == reflect.Slice && value != nil && len(value) > 0 {
-		flag = true
-	}
+		if reflect.TypeOf(value).Kind() == reflect.Slice && value != nil && len(value) > 0 {
+			flag = true
+		}
 
-	if reflect.TypeOf(value).Kind() == reflect.Ptr && value != nil {
-		flag = true
-	}
+		if reflect.TypeOf(value).Kind() == reflect.Ptr && value != nil {
+			flag = true
+		}
 
-	return flag
+		return flag
 	*/
 }
 
