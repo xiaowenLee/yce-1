@@ -451,26 +451,30 @@ func (tc TopologyController) Get() {
 	}
 
 	// Get OrgName by OrgId
-	tc.getOrgNameByOrgId()
+	//tc.getOrgNameByOrgId()
+	tc.orgName, tc.Ye = yceutils.GetOrgNameByOrgId(orgIdStr)
 	if tc.CheckError() {
 		return
 	}
 
 	// Get DcIdList by OrgId
-	tc.getDcIdListByOrgId()
+	//tc.getDcIdListByOrgId()
+	tc.dcIdList, tc.Ye = yceutils.GetDcIdListByOrgId(orgIdStr)
 	if tc.CheckError() {
 		return
 	}
 
 	// Get k8s ApiServer by DcIdList
-	tc.getApiServerList()
+	//tc.getApiServerList()
+	tc.apiServers, tc.Ye = yceutils.GetApiServerList(tc.dcIdList)
 	if tc.CheckError() {
 		return
 	}
 
 
 	// Create k8s clients
-	tc.createK8sClients()
+	//tc.createK8sClients()
+	tc.k8sClients, tc.Ye = yceutils.CreateK8sClientList(tc.apiServers)
 	if tc.CheckError() {
 		return
 	}

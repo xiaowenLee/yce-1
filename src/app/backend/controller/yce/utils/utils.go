@@ -370,11 +370,6 @@ func DeleteDeployment(c *client.Client, deployment *extensions.Deployment) *myer
 
 }
 
-type DatacenterList struct {
-	DcIdList []int32
-	DcName   []string
-}
-
 // Get Datacenters by OrgId
 func GetDatacentersByOrgId(orgId string) ([]mydatacenter.DataCenter, *myerror.YceError) {
 	if CheckValidate(orgId) {
@@ -413,6 +408,11 @@ func GetAllQuotasOrderByCpu() ([]myqouta.Quota, *myerror.YceError) {
 		return nil, ye
 	}
 	return quotas, nil
+}
+
+type DatacenterList struct {
+	DcIdList []int32
+	DcName   []string
 }
 
 // Get Datacenter List By OrgId
@@ -456,6 +456,39 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 		return nil, ye
 	}
 
+}
+
+func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
+	if CheckValidate(orgId) {
+		org, err := organization.GetOrganizationById(orgId)
+
+		if err != nil {
+			log.Errorf("GetDcIdListByOrgId Error: orgId=%s, error=%s", orgId, err)
+			ye := myerror.NewYceError(myerror.EYCE_ORGTODC, "")
+			return nil, ye
+
+		}
+
+		dcList, err := organization.GetDataCentersByOrganization(org)
+		if err != nil {
+			log.Errorf("GetDcIdListByOrgId Error: orgId=%s, error=%s", orgId, err)
+			ye := myerror.NewYceError(myerror.EYCE_ORGTODC, "")
+			return nil, ye
+		}
+
+		DcIdList := make([]int32, 0)
+
+		for _, dc := range dcList {
+			DcIdList = append(DcIdList, dc.Id)
+		}
+
+		log.Infof("GetDcIdListByOrgId: len(DcIdList)=%d", len(DcIdList))
+		return DcIdList, nil
+	} else {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		log.Errorf("GetDcIdListByOrgId Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+		return nil, ye
+	}
 }
 
 // get Pod By podName
