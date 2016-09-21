@@ -3,13 +3,10 @@ package deploy
 import (
 	"app/backend/model/yce/deploy"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 
 	myerror "app/backend/common/yce/error"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
-	"app/backend/common/yce/organization"
 	"strconv"
 	"app/backend/common/util/Placeholder"
 	"github.com/kubernetes/kubernetes/pkg/util/json"
@@ -23,98 +20,18 @@ type ScaleDeploymentController struct{
 	apiServer string
 	orgId string
 	userId string
+	dcId string
 	name string
 	s *deploy.ScaleDeployment
-	deployment extensions.Deployment
+	deployment *extensions.Deployment
 }
 
 
-/*
-// get ApiServer And K8sClient By DcId
-func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
-	dc := new(mydatacenter.DataCenter)
-
-	//TODO: find a better way
-	var dcId int32
-	if len(sdc.s.DcIdList) > 0 {
-		dcId = sdc.s.DcIdList[0]
-	} else {
-		log.Errorf("ScaleDeployController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(sdc.s.DcIdList))
-		sdc.Ye = myerror.NewYceError(myerror.EOOM, "")
-		return
-	}
-
-	sdc.dcId = strconv.Itoa(int(dcId))
-
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		log.Errorf("ScaleDeployment getApiServerById QueryDataCenterById error: dcId=%d, error=%s", dcId, err)
-		sdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	sdc.apiServer = host + ":" + port
-
-	config := &restclient.Config{
-		Host: sdc.apiServer,
-	}
-
-	c, err := client.New(config)
-	if err != nil {
-		log.Errorf("ScaleDeployment create K8sClient error: apiServer=%s, error=%s", sdc.apiServer, err)
-		sdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-		return
-	}
-
-	sdc.k8sClient = c
-	log.Infof("ScaleDeployment GetApiServerAndK8sClientByDcID over: apiServer=%s, k8sClient=%p", sdc.apiServer, sdc.k8sClient)
-
-}
-
-// get Deployment By Name
-func (sdc *ScaleDeploymentController) getDeploymentByName() {
-	//get Organization by OrgId
-	org, err := organization.GetOrganizationById(sdc.orgId)
-	if err != nil {
-		log.Errorf("ScaleDeployment getDatacentersByOrgId Error: orgId=%s, error=%s", sdc.orgId, err)
-		sdc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
-		return
-	}
-
-	// get Deployments by deployment's name and namespace
-	namespace := org.Name
-	dp, err := sdc.k8sClient.Extensions().Deployments(namespace).Get(sdc.name)
-	if err != nil {
-		log.Errorf("ScaleDeployment getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
-			sdc.apiServer, namespace, sdc.name, err)
-		sdc.Ye = myerror.NewYceError(myerror.EKUBE_GET_DEPLOYMENT, "")
-		return
-	}
-
-	sdc.deployment = *dp
-
-	log.Infof("ScaleDeployment GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
-		sdc.apiServer, namespace, sdc.name, dp)
-}
-
-// encode DcIdList
-func (sdc *ScaleDeploymentController) encodeDcIdList() string {
-	dcIdList := &deploy.DcIdListType{
-		DcIdList:sdc.s.DcIdList,
-	}
-	data, _ := json.Marshal(dcIdList)
-
-	log.Infof("ScaleDeployController encodeDcIdList: dcIdList=%s", string(data))
-	return string(data)
-}
-*/
 
 // Scale directly
 func (sdc *ScaleDeploymentController) scaleSimple() {
 	sdc.deployment.Spec.Replicas = sdc.s.NewSize
-	_, err := sdc.k8sClient.Extensions().Deployments(sdc.deployment.Namespace).Update(&sdc.deployment)
+	_, err := sdc.k8sClient.Extensions().Deployments(sdc.deployment.Namespace).Update(sdc.deployment)
 	if err != nil {
 		log.Errorf("ScaleDeployment ScaleSimple Error: name=%s, namespace=%s, newsize=%d", sdc.deployment.Name, sdc.deployment.Namespace, sdc.s.NewSize)
 		sdc.Ye = myerror.NewYceError(myerror.EKUBE_SCALE_DEPLOYMENT, "")
@@ -181,6 +98,7 @@ func (sdc ScaleDeploymentController) Post() {
 		return
 	}
 	dcId := sdc.s.DcIdList[0]
+	sdc.dcId = strconv.Itoa(int(dcId))
 
 	// Get ApiServer
 	sdc.apiServer, sdc.Ye = yceutils.GetApiServerByDcId(dcId)
