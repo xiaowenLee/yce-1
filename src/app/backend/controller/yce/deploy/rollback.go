@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"app/backend/model/yce/deploy"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type RollbackDeploymentController struct {
@@ -34,6 +35,7 @@ type RollbackDeployParam struct {
 	Comments string `json: "comments"`
 }
 
+/*
 // Create k8sClient for every ApiServer
 func (rdc *RollbackDeploymentController) createK8sClients() {
 
@@ -119,6 +121,19 @@ func (rdc *RollbackDeploymentController) getApiServerAndK8sClientByDcId() {
 		rdc.apiServer, rdc.k8sClient)
 }
 
+// Encode DcIdList
+func (rdc *RollbackDeploymentController) encodeDcIdList() string{
+	dcIdList := &deploy.DcIdListType{
+		DcIdList:rdc.r.DcIdList,
+	}
+	data, _ := json.Marshal(dcIdList)
+
+	log.Infof("RollbackDeploymentController encodeDcIdList: dcIdList=%s", string(data))
+	return string(data)
+}
+
+*/
+
 // Rollback
 func (rdc *RollbackDeploymentController) rollback() {
 
@@ -168,17 +183,6 @@ func (rdc *RollbackDeploymentController) createMysqlDeployment(success bool, nam
 	return nil
 }
 
-// Encode DcIdList
-func (rdc *RollbackDeploymentController) encodeDcIdList() string{
-	dcIdList := &deploy.DcIdListType{
-		DcIdList:rdc.r.DcIdList,
-	}
-	data, _ := json.Marshal(dcIdList)
-
-	log.Infof("RollbackDeploymentController encodeDcIdList: dcIdList=%s", string(data))
-	return string(data)
-}
-
 
 // POST /api/v1/organizations/{orgId}/deployments/{name}/rollback
 func (rdc RollbackDeploymentController) Post() {
@@ -206,15 +210,42 @@ func (rdc RollbackDeploymentController) Post() {
 		return
 	}
 
-	// Get ApiServer and K8sClient
 	rdc.name = rdc.r.AppName
-	rdc.getApiServerAndK8sClientByDcId()
+
+	if len(rdc.r.DcIdList) {
+		log.Errorln("Empty DcIdList!")
+		rdc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+	}
+
+	if rdc.CheckError() {
+		return
+	}
+
+	dcId := rdc.r.DcIdList[0]
+
+	// Get ApiServer
+	rdc.apiServer, rdc.Ye = yceutils.GetApiServerByDcId(dcId)
+	if rdc.CheckError() {
+		return
+	}
+
+	// Create K8sClient
+	rdc.k8sClient, rdc.Ye = yceutils.CreateK8sClient(rdc.apiServer)
+	if rdc.CheckError() {
+		return
+	}
+
+	// Get Namespace
+	namespace, ye := yceutils.GetOrgNameByOrgId(rdc.orgId)
+	if ye != nil {
+		rdc.Ye = ye
+	}
 	if rdc.CheckError() {
 		return
 	}
 
 	// Get Deployment by name
-	rdc.getDeploymentByName()
+	rdc.deployment, rdc.Ye = yceutils.GetDeploymentByNameAndNamespace(rdc.k8sClient, rdc.name, namespace)
 	if rdc.CheckError() {
 		return
 	}
@@ -243,6 +274,5 @@ func (rdc RollbackDeploymentController) Post() {
 
 	rdc.WriteOk("")
 	log.Infoln("Rollback DeploymentController over!")
-
 	return
 }
