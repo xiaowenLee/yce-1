@@ -3,92 +3,21 @@ package deploy
 import (
 	"app/backend/common/util/Placeholder"
 	myerror "app/backend/common/yce/error"
-	mydatacenter "app/backend/model/mysql/datacenter"
-	myorganization "app/backend/model/mysql/organization"
 	mydeployment "app/backend/model/mysql/deployment"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	"strconv"
-	"strings"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type RollingDeploymentController struct {
 	yce.Controller
 	k8sClients *client.Client
 	apiServers string
-}
-
-// Get ApiServer by dcId
-func (rdc *RollingDeploymentController) getApiServerByDcId(dcId int32) string {
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		log.Errorf("RollingDeployment getApiServerById QueryDataCenterById Error: err=%s", err)
-		rdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return ""
-	}
-
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	apiServer := host + ":" + port
-
-	log.Infof("RollingDeployment getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
-	return apiServer
-}
-
-// Get ApiServer List for dcIdList
-func (rdc *RollingDeploymentController) getApiServer(dcIdList []int32) {
-	// Get ApiServer
-	// must be one dcId
-	var dcId int32
-	if len(dcIdList) > 0 {
-		dcId = dcIdList[0]
-	} else {
-		log.Errorf("RollingDeploymentController get DcIdList error: len(dcIdList)=%d, error=no value in DcIdList, index out of range", len(dcIdList))
-		rdc.Ye = myerror.NewYceError(myerror.EOOM, "")
-		return
-
-	}
-
-	apiServer := rdc.getApiServerByDcId(dcId)
-	if strings.EqualFold(apiServer, "") {
-		log.Errorf("RollingDeploymentController getApiServerList Error")
-		rdc.Ye = myerror.NewYceError(myerror.EOOM, "")
-		return
-	}
-
-	//rdc.apiServers = append(rdc.apiServers, apiServer)
-	rdc.apiServers = apiServer
-	log.Infof("RollingDeployment getApiServer: len(rdc.apiServers)=%d", len(rdc.apiServers))
-	return
-}
-
-// Create k8sClients for every ApiServer
-func (rdc *RollingDeploymentController) createK8sClients() {
-
-	server := rdc.apiServers
-	config := &restclient.Config{
-		Host: server,
-	}
-
-	c, err := client.New(config)
-	if err != nil {
-		log.Errorf("createK8sClient Error: err=%s", err)
-		rdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-		return
-	}
-
-	//rdc.k8sClients = append(rdc.k8sClients, c)
-	//rdc.apiServers = append(rdc.apiServers, server)
-	rdc.k8sClients = c
-	log.Infof("RollingDeployment CreateK8sClient: c=%p, apiServer=%s", c, server)
-
-	return
 }
 
 func (rdc *RollingDeploymentController) rollingUpdate(namespace, deployment string, rd *deploy.RollingDeployment) (dp *extensions.Deployment) {
@@ -152,29 +81,21 @@ func (rdc *RollingDeploymentController) createMysqlDeployment(success bool, name
 	return nil
 }
 
-//Encode dcIdList to JSON
-func (rdc *RollingDeploymentController) encodeDcIdList(dcIdList []int32) string{
-	dcIds := &deploy.DcIdListType{
-		DcIdList:dcIdList,
-	}
-
-	data, _ := json.Marshal(dcIds)
-	log.Infof("RollingDeploymentController encodeDcIdList: dcIdList=%s", string(data))
-	return string(data)
-}
 
 func (rdc RollingDeploymentController) Post() {
 	orgId := rdc.Param("orgId")
 	deploymentName := rdc.Param("deploymentName")
-	org := new(myorganization.Organization)
-
-
-	// Get orgName by orgId
-	orgIdInt, _ := strconv.Atoi(orgId)
-	org.QueryOrganizationById(int32(orgIdInt))
-	orgName := org.Name
 
 	sessionIdFromClient := rdc.RequestHeader("Authorization")
+
+	// Get orgName by orgId
+	orgName, ye := yceutils.GetOrgNameByOrgId(orgId)
+	if ye != nil {
+		rdc.Ye = ye
+	}
+	if rdc.CheckError() {
+		return
+	}
 	log.Debugf("RolllingDeployController Params: sessionId=%s, orgId=%s, orgName=%s", sessionIdFromClient, orgId, orgName)
 
 	rdc.ValidateSession(sessionIdFromClient, orgId)
@@ -194,13 +115,22 @@ func (rdc RollingDeploymentController) Post() {
 	}
 
 	// Get DcIdList
-	rdc.getApiServer(rd.DcIdList)
+	if len(rd.DcIdList) == 0 {
+		rdc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+	}
 	if rdc.CheckError() {
 		return
 	}
 
-	// create K8sClient
-	rdc.createK8sClients()
+	// Get ApiServer
+	dcId := rd.DcIdList[0]
+	rdc.apiServers, rdc.Ye = yceutils.GetApiServerByDcId(dcId)
+	if rdc.CheckError() {
+		return
+	}
+
+	// Create K8sClient
+	rdc.k8sClients, rdc.Ye = yceutils.CreateK8sClient(rdc.apiServers)
 	if rdc.CheckError() {
 		return
 	}
@@ -213,17 +143,22 @@ func (rdc RollingDeploymentController) Post() {
 
 	// Encode cd.DcIdList to json
 	//dcl, _ := json.Marshal(rd.DcIdList)
-	dcIdList := rdc.encodeDcIdList(rd.DcIdList)
+	dcIdList, ye := yceutils.EncodeDcIdList(rd.DcIdList)
+	if ye != nil {
+		rdc.Ye = ye
+	}
+	if rdc.CheckError() {
+		return
+	}
 
 	// Encode k8s.deployment to json
 	kd, _ := json.Marshal(dp)
-
 	oId, _ := strconv.Atoi(orgId)
-
 
 	// Insert into mysql.Deployment
 	userId, _ :=  strconv.Atoi(rd.UserId)
 	rdc.createMysqlDeployment(true, rd.AppName,  string(kd), "", dcIdList, rd.Comments, int32(userId), int32(oId))
+
 	if rdc.CheckError() {
 		return
 	}
