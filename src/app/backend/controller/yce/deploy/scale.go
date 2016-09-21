@@ -14,6 +14,7 @@ import (
 	"app/backend/common/util/Placeholder"
 	"github.com/kubernetes/kubernetes/pkg/util/json"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type ScaleDeploymentController struct{
@@ -22,13 +23,13 @@ type ScaleDeploymentController struct{
 	apiServer string
 	orgId string
 	userId string
-	dcId string
 	name string
 	s *deploy.ScaleDeployment
 	deployment extensions.Deployment
 }
 
 
+/*
 // get ApiServer And K8sClient By DcId
 func (sdc *ScaleDeploymentController) getApiServerAndK8sClientByDcId() {
 	dc := new(mydatacenter.DataCenter)
@@ -98,6 +99,17 @@ func (sdc *ScaleDeploymentController) getDeploymentByName() {
 		sdc.apiServer, namespace, sdc.name, dp)
 }
 
+// encode DcIdList
+func (sdc *ScaleDeploymentController) encodeDcIdList() string {
+	dcIdList := &deploy.DcIdListType{
+		DcIdList:sdc.s.DcIdList,
+	}
+	data, _ := json.Marshal(dcIdList)
+
+	log.Infof("ScaleDeployController encodeDcIdList: dcIdList=%s", string(data))
+	return string(data)
+}
+*/
 
 // Scale directly
 func (sdc *ScaleDeploymentController) scaleSimple() {
@@ -133,17 +145,6 @@ func (sdc *ScaleDeploymentController) createMysqlDeployment(success bool, name, 
 	return nil
 }
 
-// encode DcIdList
-func (sdc *ScaleDeploymentController) encodeDcIdList() string {
-	dcIdList := &deploy.DcIdListType{
-		DcIdList:sdc.s.DcIdList,
-	}
-	data, _ := json.Marshal(dcIdList)
-
-	log.Infof("ScaleDeployController encodeDcIdList: dcIdList=%s", string(data))
-	return string(data)
-}
-
 func (sdc ScaleDeploymentController) Post() {
 	sdc.orgId = sdc.Param("orgId")
 	sdc.name = sdc.Param("deploymentName")
@@ -170,14 +171,40 @@ func (sdc ScaleDeploymentController) Post() {
 		return
 	}
 
-	//get ApiServer and K8sClient
-	sdc.getApiServerAndK8sClientByDcId()
+	// Get DcIdList
+	if len(sdc.s.DcIdList) == 0 {
+		log.Errorln("Empty DcIdList!")
+		sdc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+	}
+
+	if sdc.CheckError() {
+		return
+	}
+	dcId := sdc.s.DcIdList[0]
+
+	// Get ApiServer
+	sdc.apiServer, sdc.Ye = yceutils.GetApiServerByDcId(dcId)
 	if sdc.CheckError() {
 		return
 	}
 
-	//get Deployment
-	sdc.getDeploymentByName()
+	// Create K8sClient
+	sdc.k8sClient, sdc.Ye = yceutils.CreateK8sClient(sdc.apiServer)
+	if sdc.CheckError() {
+		return
+	}
+
+	// Get Namespace
+	namespace, ye := yceutils.GetOrgNameByOrgId(sdc.orgId)
+	if ye != nil {
+		sdc.Ye = ye
+	}
+	if sdc.CheckError() {
+		return
+	}
+
+	// Get Deployment
+	sdc.deployment, sdc.Ye = yceutils.GetDeploymentByNameAndNamespace(sdc.k8sClient, sdc.name, namespace)
 	if sdc.CheckError() {
 		return
 	}
@@ -190,7 +217,14 @@ func (sdc ScaleDeploymentController) Post() {
 
 	// prepare for create mysql deployment
 	dd, _ := json.Marshal(sdc.deployment)
-	dcIdList := sdc.encodeDcIdList()
+	dcIdList, ye := yceutils.EncodeDcIdList(sdc.s.DcIdList)
+	if ye != nil {
+		sdc.Ye = ye
+	}
+	if sdc.CheckError() {
+		return
+	}
+
 	oId, _ := strconv.Atoi(sdc.orgId)
 
 	// create mysql deployment
@@ -203,5 +237,4 @@ func (sdc ScaleDeploymentController) Post() {
 	sdc.WriteOk("")
 	log.Infoln("ScaleDeploymentController over!")
 	return
-
 }
