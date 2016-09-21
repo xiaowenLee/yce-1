@@ -1,18 +1,13 @@
 package endpoint
 
 import (
-	"app/backend/common/util/session"
-	"app/backend/common/yce/organization"
 	"app/backend/model/yce/endpoint"
 	myerror "app/backend/common/yce/error"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	"encoding/json"
-	"strings"
-	"strconv"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type ListEndpointsController struct {
@@ -20,132 +15,6 @@ type ListEndpointsController struct {
 	apiServers []string
 	k8sClients []*client.Client
 }
-
-func (lec *ListEndpointsController) WriteBack() {
-	lec.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	log.Infof("Create ListEndpointsController Response Error: controller=%p, code=%d, note=%s", lec, lec.Ye.Code, myerror.Errors[lec.Ye.Code].LogMsg)
-	lec.Write(lec.Ye.String())
-}
-
-func (lec *ListEndpointsController) validateSessionId(sessionId, orgId string) {
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	// validate error
-	if err != nil {
-		log.Errorf("Create ListEndpointsController Error: sessionId=%s, orgId=%s, error=%s", sessionId, orgId, err)
-		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// invalid sessionId
-	if !ok {
-		log.Errorf("Create ListEndpoint Controller Failed: sessionId=%s, orgId=%s", sessionId, orgId)
-		lec.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	log.Infof("ListEndpointsController ValidateSession success")
-	return
-}
-
-
-func (lec *ListEndpointsController) getDatacentersByOrgId(ed *endpoint.ListEndpoints, orgId string) {
-	org, err := organization.GetOrganizationById(orgId)
-	ed.Organization = org
-	if err != nil {
-		log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
-		lec.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
-		return
-
-	}
-
-	dcList, err := organization.GetDataCentersByOrganization(ed.Organization)
-	if err != nil {
-		log.Errorf("getDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
-		lec.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
-		return
-	}
-
-	ed.DcIdList = make([]int32, len(dcList))
-	ed.DcName = make([]string, len(dcList))
-
-	for index, dc := range dcList {
-		ed.DcIdList[index] = dc.Id
-		ed.DcName[index] = dc.Name
-	}
-
-	log.Infof("ListEndpointsController len(DcName)=%d, len(dcIdList)=%d", len(ed.DcName), len(ed.DcIdList))
-
-}
-
-
-// Get ApiServer by dcId
-func (lec *ListEndpointsController) getApiServerByDcId(dcId int32) string {
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
-		lec.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return ""
-	}
-
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	apiServer := host + ":" + port
-
-	log.Infof("CreateServiceController getApiServerByDcId: apiServer=%s", apiServer)
-
-	return apiServer
-
-
-}
-
-func (lec *ListEndpointsController) getApiServerList(dcIdList []int32) {
-	for _, dcId := range dcIdList {
-		// Get ApiServer
-		apiServer := lec.getApiServerByDcId(dcId)
-		if strings.EqualFold(apiServer, "") {
-			log.Errorf("ListEndpointsController getApiServerList Error")
-			return
-		}
-
-		lec.apiServers = append(lec.apiServers, apiServer)
-	}
-
-	log.Infof("ListEndpointsController getApiServerList: len(apiServer)=%d", len(lec.apiServers))
-	return
-}
-
-
-func (lec *ListEndpointsController) createK8sClients() {
-	// Foreach every ApiServer to create it's k8sClient
-	//lec.k8sClients = make([]*client.Client, len(lec.apiServers))
-	lec.k8sClients = make([]*client.Client, 0)
-
-
-	for _, server := range lec.apiServers {
-		config := &restclient.Config{
-			Host: server,
-		}
-
-		c, err := client.New(config)
-		if err != nil {
-			log.Errorf("CreateK8sClient Error: error=%s", err)
-			lec.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-			return
-		}
-
-		lec.k8sClients = append(lec.k8sClients, c)
-		// why??
-		//lec.apiServers = append(lec.apiServers, server)
-		log.Infof("Append a new client to lec.K8sClients array: c=%p, apiServer=%s", c, server)
-	}
-
-	log.Infof("ListEndpointsController createK8sController: len(k8sClient)=%d", len(lec.k8sClients))
-	return
-}
-
 
 
 func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint.ListEndpoints) (epString string){
@@ -192,23 +61,30 @@ func (lec ListEndpointsController) Get() {
 		return
 	}
 
-
 	// Get Datacenters by organizations
 	ed :=  new(endpoint.ListEndpoints)
-	lec.getDatacentersByOrgId(ed, orgId)
+	dcList, ye := yceutils.GetDatacenterListByOrgId(orgId)
+
+	if ye != nil {
+		lec.Ye = ye
+	}
+
+	ed.DcIdList = dcList.DcIdList
+	ed.DcName = dcList.DcName
 	if lec.CheckError() {
 		return
 	}
 
 
-	// Get ApiServers by organizations
-	lec.getApiServerList(ed.DcIdList)
+	// Get ApiServer List
+	lec.apiServers, lec.Ye = yceutils.GetApiServerList(ed.DcIdList)
 	if lec.CheckError() {
 		return
 	}
 
-	// Get K8sClient
-	lec.createK8sClients()
+	// Create K8sClient
+	// lec.createK8sClients()
+	lec.k8sClients, lec.Ye = yceutils.CreateK8sClientList(lec.apiServers)
 	if lec.CheckError() {
 		return
 	}
