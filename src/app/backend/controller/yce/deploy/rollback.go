@@ -3,15 +3,11 @@ package deploy
 import (
 	"app/backend/common/util/Placeholder"
 	myerror "app/backend/common/yce/error"
-	"app/backend/common/yce/organization"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	mydeployment "app/backend/model/mysql/deployment"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
-	"app/backend/model/yce/deploy"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
 )
@@ -35,104 +31,6 @@ type RollbackDeployParam struct {
 	Comments string `json: "comments"`
 }
 
-/*
-// Create k8sClient for every ApiServer
-func (rdc *RollbackDeploymentController) createK8sClients() {
-
-	server := rdc.apiServer
-	config := &restclient.Config{
-		Host: server,
-	}
-
-	c, err := client.New(config)
-	if err != nil {
-		log.Errorf("RollbackDeployment createK8sClient Error: err=%s", err)
-		rdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-		return
-	}
-
-	rdc.k8sClient = c
-	log.Infof("RollbackDeployment createK8sClients: client=%p, apiServer=%s", c, server)
-
-	return
-}
-
-// Get Deployment by deployment-name
-func (rdc *RollbackDeploymentController) getDeploymentByName() {
-
-	// Get namespace(org.Name) by orgId
-	org, err := organization.GetOrganizationById(rdc.orgId)
-	if err != nil {
-		log.Errorf("RollbackDeployment getDatacentersByOrgId Error: orgId=%s, error=%s", rdc.orgId, err)
-		rdc.Ye = myerror.NewYceError(myerror.EYCE_ORGTODC, "")
-		return
-
-	}
-
-	namespace := org.Name
-	dp, err := rdc.k8sClient.Extensions().Deployments(namespace).Get(rdc.name)
-	if err != nil {
-		log.Errorf("RollbackDeployment getDeployByName Error: apiServer=%s, namespace=%s, deployment-name=%s, err=%s\n",
-			rdc.apiServer, namespace, rdc.name, err)
-		rdc.Ye = myerror.NewYceError(myerror.EKUBE_GET_DEPLOYMENT, "")
-		return
-	}
-
-	rdc.deployment = dp
-
-	log.Infof("RollbackDeployment GetDeploymentByName over: apiServer=%s, namespace=%s, name=%s, deployment=%p\n",
-		rdc.apiServer, namespace, rdc.name, dp)
-}
-
-// Get ApiServer by DcId
-func (rdc *RollbackDeploymentController) getApiServerAndK8sClientByDcId() {
-
-	// ApiServer
-	dc := new(mydatacenter.DataCenter)
-
-	//dcId, _ := strconv.Atoi(rdc.r.DcIdList.DcIdList[0])
-	dcId := rdc.r.DcIdList[0]
-	err := dc.QueryDataCenterById(dcId)
-	//err := dc.QueryDataCenterById(int32(dcId))
-	if err != nil {
-		log.Errorf("RollbackDeployment getApiServerById QueryDataCenterById Error: dcId=%d, err=%s", dcId, err)
-		rdc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	rdc.apiServer = host + ":" + port
-
-	// K8sClient
-	config := &restclient.Config{
-		Host: rdc.apiServer,
-	}
-
-	c, err := client.New(config)
-	if err != nil {
-		log.Errorf("createK8sClient Error: err=%s", err)
-		rdc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-		return
-	}
-
-	rdc.k8sClient = c
-	log.Infof("RollbackDeployment GetApiServerAndK8sClientByDcId over: apiServer=%s, k8sClient=%p",
-		rdc.apiServer, rdc.k8sClient)
-}
-
-// Encode DcIdList
-func (rdc *RollbackDeploymentController) encodeDcIdList() string{
-	dcIdList := &deploy.DcIdListType{
-		DcIdList:rdc.r.DcIdList,
-	}
-	data, _ := json.Marshal(dcIdList)
-
-	log.Infof("RollbackDeploymentController encodeDcIdList: dcIdList=%s", string(data))
-	return string(data)
-}
-
-*/
 
 // Rollback
 func (rdc *RollbackDeploymentController) rollback() {
@@ -212,7 +110,7 @@ func (rdc RollbackDeploymentController) Post() {
 
 	rdc.name = rdc.r.AppName
 
-	if len(rdc.r.DcIdList) {
+	if len(rdc.r.DcIdList) == 0 {
 		log.Errorln("Empty DcIdList!")
 		rdc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
 	}
@@ -260,7 +158,13 @@ func (rdc RollbackDeploymentController) Post() {
 	dd, _ := json.Marshal(rdc.deployment)
 
 	// Encode DcIdList to string
-	dcIdList := rdc.encodeDcIdList()
+	dcIdList, ye := yceutils.EncodeDcIdList(rdc.r.DcIdList)
+	if ye != nil {
+		rdc.Ye = ye
+	}
+	if rdc.CheckError() {
+		return
+	}
 
 	// Convert UserId from string to int32
 	userId, _ := strconv.Atoi(rdc.r.UserId)
