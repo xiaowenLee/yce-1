@@ -70,23 +70,13 @@ func (dec DeleteEndpointsController) Post() {
 		return
 	}
 
-	// Get DcIdList
-	/*
-		dcIdList := make([]int32, 0)
-		datacenterId, _ := strconv.Atoi(dcId)
-		dcIdList = append(dcIdList, int32(datacenterId))
-		log.Debugf("DeleteEndpointController len(DcIdList)=%d", len(dcIdList))
-	*/
-
 	// Get ApiServer List
-	//dec.apiServers, dec.Ye = yceutils.GetApiServerList(dcIdList)
 	dec.apiServer, dec.Ye = yceutils.GetApiServerByDcId(dec.params.DcId)
 	if dec.CheckError() {
 		return
 	}
 
 	// Create K8sClient List
-	//dec.k8sClients, dec.Ye = yceutils.CreateK8sClientList(dec.apiServers)
 	dec.k8sClient, dec.Ye = yceutils.CreateK8sClient(dec.apiServer)
 	if dec.CheckError() {
 		return
