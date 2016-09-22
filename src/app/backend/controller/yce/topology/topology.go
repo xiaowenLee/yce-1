@@ -68,7 +68,7 @@ type Topology struct {
 	Items     ItemType        `json:"items"`
 	Relations []RelationsType `json:"relations"`
 }
-
+/*
 // Get OrgName by orgId
 func (tc *TopologyController) getOrgNameByOrgId() {
 	org := new(myorganization.Organization)
@@ -108,6 +108,7 @@ func (tc *TopologyController) getDcIdListByOrgId() {
 	}
 
 	*/
+/*
 	// Decode to DcIdList
 	log.Infof("TopologyController getDcIdListByOrgId: len(dcIdList)=%d", len(tc.dcIdList))
 	return
@@ -175,7 +176,7 @@ func (tc *TopologyController) createK8sClients() {
 	log.Infof("TopologyController createK8sClient: len(k8sClient)=%d", len(tc.k8sClients))
 	return
 }
-
+*/
 /*==========================================================================
  Helper funcs
 ==========================================================================*/
@@ -289,7 +290,8 @@ begin:
 */
 func (tc *TopologyController) getTopology(c *client.Client, namespace string) bool {
 	// Get Deployments.List
-	dpList, err := getDeploymentsByNamespace(c, namespace)
+	//dpList, err := getDeploymentsByNamespace(c, namespace)
+	dpList, err := yceutils.GetDeploymentByNamespace(c, namespace)
 	if err != nil {
 		return false
 	}

@@ -2,7 +2,6 @@ package utils
 
 import (
 
-	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
