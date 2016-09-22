@@ -25,7 +25,7 @@ func (isc *InitServiceController) String() string {
 	}
 	return string(data)
 }
-
+//Get /api/v1/organizations/{:orgId}/users/{:userId}/services/init
 func (isc InitServiceController) Get() {
 	sessionIdFromClient := isc.RequestHeader("Authorization")
 	orgId := isc.Param("orgId")
