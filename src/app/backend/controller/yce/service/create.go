@@ -16,7 +16,7 @@ type CreateServiceController struct {
 	k8sClients []*client.Client
 	apiServers []string
 
-	params service.CreateService
+	params *service.CreateService
 
 	userId string
 }
@@ -88,6 +88,8 @@ func (csc CreateServiceController) Post() {
 	orgId := csc.Param("orgId")
 	csc.userId = csc.Param("userId")
 	log.Debugf("CreateServiceController Params: sessionId=%s, orgId=%s, userId=%s", sessionIdFromClient, orgId, csc.userId)
+
+	csc.params = new(service.CreateService)
 
 	// Validate OrgId error
 	csc.ValidateSession(sessionIdFromClient, orgId)

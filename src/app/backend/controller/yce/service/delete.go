@@ -13,11 +13,11 @@ type DeleteServiceController struct {
 	k8sClient *client.Client
 	apiServer string
 
-	params DeleteServiceParam
+	params *DeleteServiceParam
 }
 
 type DeleteServiceParam struct {
-	UserId   int32 `json:"userId"`
+	UserId   int32  `json:"userId"`
 	DcId     int32  `json:"dcId"`
 	NodePort int32  `json:"nodePort"`
 }
@@ -73,6 +73,7 @@ func (dsc DeleteServiceController) Post() {
 	sessionIdFromClient := dsc.RequestHeader("Authorization")
 	orgId := dsc.Param("orgId")
 	svcName := dsc.Param("svcName")
+	dsc.params = new(DeleteServiceParam)
 
 	//TODO: frontend change params json, url and method
 	dsc.getParams()

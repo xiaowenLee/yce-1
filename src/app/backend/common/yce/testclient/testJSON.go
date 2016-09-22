@@ -1,0 +1,7 @@
+package testclient
+
+const (
+	CreateDeploymentJSON = `
+
+	`
+)

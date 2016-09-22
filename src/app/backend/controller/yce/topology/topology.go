@@ -3,15 +3,10 @@ package topology
 import (
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
-	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	myerror "app/backend/common/yce/error"
-	myorganization "app/backend/model/mysql/organization"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	"strconv"
-	"strings"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
 	deployutil "k8s.io/kubernetes/pkg/controller/deployment/util"
@@ -70,203 +65,6 @@ type Topology struct {
 	Relations []RelationsType `json:"relations"`
 }
 
-// Get OrgName by orgId
-func (tc *TopologyController) getOrgNameByOrgId() {
-	org := new(myorganization.Organization)
-	err := org.QueryOrganizationById(tc.orgId)
-	if err != nil {
-		tc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-	tc.orgName = org.Name
-	log.Infof("TopologyController getOrgNameByOrgId: orgName=%s", tc.orgName)
-	return
-}
-
-// Get DcIdList by OrgId
-func (tc *TopologyController) getDcIdListByOrgId() {
-	org := new(myorganization.Organization)
-	err := org.QueryOrganizationById(tc.orgId)
-	if err != nil {
-		log.Errorf("TopologyController QueryOrganizationById error: error=%s", err)
-		tc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return
-	}
-
-	tc.dcIdList, tc.Ye = yceutils.DecodeDcIdList(org.DcIdList)
-	/*
-	dcList := DcList{}
-	err = json.Unmarshal([]byte(org.DcList), &dcList)
-	if err != nil {
-		log.Errorf("TopologyController getDcIdListByOrgId: unmarshal error: error=%s", err)
-		tc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		return
-	}
-
-	for _, dcId := range dcList.Items {
-		id, _ := strconv.Atoi(dcId)
-		tc.dcIdList = append(tc.dcIdList, int32(id))
-	}
-
-	*/
-	// Decode to DcIdList
-	log.Infof("TopologyController getDcIdListByOrgId: len(dcIdList)=%d", len(tc.dcIdList))
-	return
-}
-
-// Get ApiServer by dcId
-func (tc *TopologyController) getApiServerByDcId(dcId int32) string {
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
-		tc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return ""
-	}
-
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	apiServer := host + ":" + port
-
-	log.Infof("TopologyController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
-	return apiServer
-}
-
-// Get ApiServer List for dcIdList
-func (tc *TopologyController) getApiServerList() {
-	// Foreach dcIdList
-	for _, dcId := range tc.dcIdList {
-		// Get ApiServer
-		apiServer := tc.getApiServerByDcId(dcId)
-		if strings.EqualFold(apiServer, "") {
-			log.Errorf("TopologyController getApiServerList Error")
-			return
-		}
-
-		tc.apiServers = append(tc.apiServers, apiServer)
-	}
-	log.Infof("TopologyController getApiServerList: len(apiServer)=%d", len(tc.apiServers))
-	return
-}
-
-// Create k8sClients for every ApiServer
-func (tc *TopologyController) createK8sClients() {
-
-	// Foreach every ApiServer to create it's k8sClient
-	tc.k8sClients = make([]*client.Client, 0)
-
-	for _, server := range tc.apiServers {
-		config := &restclient.Config{
-			Host: server,
-		}
-
-		c, err := client.New(config)
-		if err != nil {
-			log.Errorf("createK8sClient Error: err=%s", err)
-			tc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-			return
-		}
-
-		tc.k8sClients = append(tc.k8sClients, c)
-		tc.apiServers = append(tc.apiServers, server)
-		log.Infof("Append a new client to tc.k8sClients array: c=%p, apiServer=%s", c, server)
-	}
-
-
-	log.Infof("TopologyController createK8sClient: len(k8sClient)=%d", len(tc.k8sClients))
-	return
-}
-
-/*==========================================================================
- Helper funcs
-==========================================================================*/
-
-func getDeploymentsByNamespace(c *client.Client, namespace string) ([]extensions.Deployment, error)  {
-
-	dps, err := c.Extensions().Deployments(namespace).List(api.ListOptions{})
-	if err != nil {
-		log.Errorf("getDeploymentsByNamespace Error: err=%s\n", err)
-		return nil, err
-	}
-
-	return dps.Items, nil
-}
-
-func getReplicaSetsByDeployment(c *client.Client, deployment *extensions.Deployment) ([]extensions.ReplicaSet, error) {
-
-	namespace := deployment.Namespace
-	selector, err := unver.LabelSelectorAsSelector(deployment.Spec.Selector)
-	if err != nil {
-		log.Errorf("getReplicaSetsByDeployment Error: err=%s\n", err)
-		return nil, err
-	}
-	options := api.ListOptions{LabelSelector: selector}
-	rsList, err := c.Extensions().ReplicaSets(namespace).List(options)
-
-	log.Infof("getReplicaSetsByDeployment: dp.Name=%s, len(rs.Items)=%d\n", deployment.Name, len(rsList.Items))
-
-	return rsList.Items, nil
-}
-
-func getPodsByReplicaSet(c *client.Client, namespace string, rs *extensions.ReplicaSet) ([]api.Pod, error) {
-	selector, err := unver.LabelSelectorAsSelector(rs.Spec.Selector)
-	if err != nil {
-		log.Infof("getPodsByReplicaSet Error: err=%s\n", err)
-		return nil, err
-	}
-	options := api.ListOptions{LabelSelector: selector}
-
-	podList, err := c.Pods(namespace).List(options)
-	if err != nil {
-		log.Errorf("getPodsByReplicaSet Error: err=%s\n", err)
-		return nil, err
-	}
-
-	log.Infof("getPodsByReplicaSet: rs.Name=%s, len(rs.Items)=%d\n", rs.Name, len(podList.Items))
-
-	return podList.Items, nil
-}
-
-func getNodeByPod(c *client.Client, pod *api.Pod) (*api.Node, error) {
-	name := pod.Spec.NodeName
-	node, err := c.Nodes().Get(name)
-	if err != nil {
-		log.Infof("getNodeByPod Error: err=%s\n", err)
-		return nil, err
-	}
-	return node, nil
-}
-
-func getServicesByNamespace(c *client.Client, namespace string) ([]api.Service, error) {
-	svcs, err := c.Services(namespace).List(api.ListOptions{})
-	if err != nil {
-		log.Infof("getServicesByNamespace Error: err=%s\n", err)
-		return nil, err
-	}
-
-	return svcs.Items, nil
-}
-
-func getPodByService(c *client.Client, namespace string, svc *api.Service) ([]api.Pod, error) {
-	selector := new(unver.LabelSelector)
-	selector.MatchLabels = svc.Spec.Selector
-
-	s, err := unver.LabelSelectorAsSelector(selector)
-	if err != nil {
-		log.Infof("getPodByService Error: err=%s\n", err)
-		return nil, err
-	}
-
-	options := api.ListOptions{LabelSelector: s}
-
-	podList, err := c.Pods(namespace).List(options)
-	if err != nil {
-		log.Fatalf("getPodByService Error: err=%s\n", err)
-		return nil, err
-	}
-
-	return podList.Items, nil
-}
 
 /*==========================================================================
  Topology
@@ -290,22 +88,27 @@ begin:
 */
 func (tc *TopologyController) getTopology(c *client.Client, namespace string) bool {
 	// Get Deployments.List
-	dpList, err := getDeploymentsByNamespace(c, namespace)
-	if err != nil {
+	dpList, ye := yceutils.GetDeploymentByNamespace(c, namespace)
+
+	if ye != nil {
+		tc.Ye = ye
+	}
+	if tc.CheckError()  {
 		return false
 	}
 
 	// Foreach Deployments.List
 	for _, dp := range dpList {
-		rsList, err := getReplicaSetsByDeployment(c, &dp)
-		if err != nil {
-			log.Errorf("getTopology Error: err=%s\n", err)
-			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_RS_BY_DEPLOYMENT, "")
+		//rsList, err := getReplicaSetsByDeployment(c, &dp)
+		rsList, ye := yceutils.GetReplicaSetsByDeployment(c, &dp)
+		if ye != nil {
+			tc.Ye = ye
+		}
+		if tc.CheckError() {
 			return false
 		}
 
 		// For all replicasets
-		// for _, rs := range rsList {
 		rs, err := deployutil.FindNewReplicaSet(&dp, rsList)
 		if err != nil {
 			log.Errorf("FindNewReplicaSet Error: err=%s", err)
@@ -321,14 +124,16 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 			ReplicaSet: *rs,
 		}
 
-		podList, err := getPodsByReplicaSet(c, namespace, rs)
-		if err != nil {
-			log.Errorf("getPodsByReplicaSet Error", err)
-			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_PODS_BY_RS, "")
+		podList, ye := yceutils.GetPodListByReplicaSet(c, rs)
+
+		if ye != nil {
+			tc.Ye = ye
+		}
+		if tc.CheckError() {
 			return false
 		}
 
-		for _, pod := range podList {
+		for _, pod := range podList.Items {
 			uid = string(pod.UID)
 			tc.topology.Items[uid] = PodType{
 				Kind: "Pod",
@@ -343,9 +148,11 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 
 			tc.topology.Relations = append(tc.topology.Relations, relation)
 
-			node, err := getNodeByPod(c, &pod)
-			if err != nil {
-				tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_NODE_BY_POD, "")
+			node, ye := yceutils.GetNodeByPod(c, &pod)
+			if ye != nil {
+				tc.Ye = ye
+			}
+			if tc.CheckError() {
 				return false
 			}
 
@@ -367,10 +174,11 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 	}
 
 	// Get Services.List
-	svcList, err := getServicesByNamespace(c, namespace)
-	if err != nil {
-		log.Errorf("getTopology Error: client=%p, namespace=%s, err=%s\n", c, namespace, err)
-		tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_SERVICES_BY_NAMESPACE, "")
+	svcList, ye := yceutils.GetServicesByNamespace(c, namespace)
+	if ye != nil {
+		tc.Ye = ye
+	}
+	if tc.CheckError() {
 		return false
 	}
 
@@ -382,13 +190,13 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 			Service: svc,
 		}
 
-		podList, err := getPodByService(c, namespace, &svc)
-		if err != nil {
-			log.Fatalf("getTopology Error: client=%p, namespace=%s, err=%s\n", c, namespace, err)
-			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_PODS_BY_SERVICE, "")
+		podList, ye := yceutils.GetPodsByService(c, &svc)
+		if ye != nil {
+			tc.Ye = ye
+		}
+		if tc.CheckError() {
 			return false
 		}
-
 		for _, pod := range podList {
 			uid = string(pod.UID)
 			if _, ok := tc.topology.Items[uid]; ok {
@@ -462,21 +270,18 @@ func (tc TopologyController) Get() {
 	}
 
 	// Get OrgName by OrgId
-	//tc.getOrgNameByOrgId()
 	tc.orgName, tc.Ye = yceutils.GetOrgNameByOrgId(orgIdStr)
 	if tc.CheckError() {
 		return
 	}
 
 	// Get DcIdList by OrgId
-	//tc.getDcIdListByOrgId()
 	tc.dcIdList, tc.Ye = yceutils.GetDcIdListByOrgId(orgIdStr)
 	if tc.CheckError() {
 		return
 	}
 
 	// Get k8s ApiServer by DcIdList
-	//tc.getApiServerList()
 	tc.apiServers, tc.Ye = yceutils.GetApiServerList(tc.dcIdList)
 	if tc.CheckError() {
 		return
@@ -484,7 +289,6 @@ func (tc TopologyController) Get() {
 
 
 	// Create k8s clients
-	//tc.createK8sClients()
 	tc.k8sClients, tc.Ye = yceutils.CreateK8sClientList(tc.apiServers)
 	if tc.CheckError() {
 		return

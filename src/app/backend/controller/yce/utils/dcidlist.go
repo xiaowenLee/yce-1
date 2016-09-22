@@ -5,6 +5,7 @@ import (
 	myerror "app/backend/common/yce/error"
 	"encoding/json"
 
+
 )
 
 type DcIdListType struct {
@@ -53,6 +54,7 @@ func EncodeDcIdList(dcIdList []int32) (string, *myerror.YceError) {
 	} else {
 		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
 		mylog.Log.Errorf("EncodeDcIdList Error: error=%s", ye.Message)
+
 		return "", ye
 	}
 

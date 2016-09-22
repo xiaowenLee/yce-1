@@ -1,6 +1,7 @@
 package utils
 
 import (
+
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
@@ -229,7 +230,6 @@ func GetNodeByPod(c *client.Client, pod *api.Pod) (*api.Node, *myerror.YceError)
 
 func GetServicesByNamespace(c *client.Client, namespace string) ([]api.Service, *myerror.YceError) {
 	if CheckValidate(c) && CheckValidate(namespace) {
-
 		svcs, err := c.Services(namespace).List(api.ListOptions{})
 		if err != nil {
 			ye := myerror.NewYceError(myerror.EKUBE_LIST_SERVICE, "")
@@ -245,6 +245,7 @@ func GetServicesByNamespace(c *client.Client, namespace string) ([]api.Service, 
 		return nil, ye
 	}
 }
+
 
 func GetEndpointsByNamespace(c *client.Client, namespace string) ([]api.Endpoints, *myerror.YceError) {
 	if CheckValidate(c) && CheckValidate(namespace) {
@@ -323,6 +324,7 @@ func DeleteReplicaSets(c *client.Client, replicaSets []extensions.ReplicaSet) *m
 }
 
 // delete Pods
+
 func DeletePods(c *client.Client, pods []api.Pod) *myerror.YceError {
 	if CheckValidate(c) && CheckValidate(pods) {
 		for _, pod := range pods {
@@ -430,6 +432,7 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 
 		dcList, err := organization.GetDataCentersByOrganization(org)
 		if err != nil {
+
 			log.Errorf("GetDatacenterListByOrgId Error: orgId=%s, error=%s", orgId, err)
 			ye := myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 			return nil, ye
@@ -448,6 +451,7 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 			DcName:   DcName,
 		}
 
+
 		log.Infof("GetDatacenterListByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(DcIdList), len(DcName))
 		return datacenterList, nil
 	} else {
@@ -457,6 +461,7 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 	}
 
 }
+
 
 func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 	if CheckValidate(orgId) {
@@ -527,17 +532,20 @@ func GetPodLogsByPodName(c *client.Client, LogOption *LogOptionType, podName, or
 
 		b, err := ioutil.ReadAll(reader)
 		if err != nil {
+
 			log.Errorf("GetPodLogsByPodName Error: podName=%s, error=%s", podName, err)
 			ye = myerror.NewYceError(myerror.EKUBE_LOGS_POD, "")
 			return "", ye
 		}
 
 		logs := string(b)
+
 		log.Infof("GetPodLogsByPodName successfully: len(bytes)=%d", len(b))
 
 		return logs, nil
 	} else {
 		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+
 		log.Errorf("GetPodLogsByPodName Error: error=%s", myerror.Errors[ye.Code].LogMsg)
 		return "", ye
 	}
@@ -633,6 +641,7 @@ func GetDeployAndPodList(userId int32, c *client.Client, deploymentList *extensi
 
 			newRs, err := deploymentutil.FindNewReplicaSet(dp.Deploy, rsList)
 			if err != nil {
+
 				log.Errorf("FindNewReplicaSet Error: error=%s", err)
 				ye := myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 				return nil, ye
@@ -683,6 +692,7 @@ func GetDeploymentByNameAndNamespace(c *client.Client, deploymentName, namespace
 }
 
 // check the value if it is validate
+
 func CheckValidate(value interface{}) bool {
 
 	if reflect.TypeOf(value).Kind() == reflect.String && value != "" {

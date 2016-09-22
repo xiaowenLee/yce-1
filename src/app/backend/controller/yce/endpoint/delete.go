@@ -13,8 +13,9 @@ type DeleteEndpointsController struct {
 	k8sClient *client.Client
 	apiServer string
 
-	params DeleteEndpointsParam
+	params *DeleteEndpointsParam
 }
+
 
 type DeleteEndpointsParam struct {
 	DcId int32 `json:dcId`
@@ -56,6 +57,7 @@ func (dec DeleteEndpointsController) Post() {
 	orgId := dec.Param("orgId")
 	//dcId := dec.Param("dcId")
 	epName := dec.Param("epName")
+	dec.params = new(DeleteEndpointsParam)
 
 	dec.getParams()
 	if dec.CheckError() {
