@@ -422,7 +422,7 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 		org, err := organization.GetOrganizationById(orgId)
 
 		if err != nil {
-			log.Errorf("GetDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+			log.Errorf("GetDatacenterListByOrgId Error: orgId=%s, error=%s", orgId, err)
 			ye := myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 			return nil, ye
 
@@ -430,7 +430,7 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 
 		dcList, err := organization.GetDataCentersByOrganization(org)
 		if err != nil {
-			log.Errorf("GetDatacentersByOrgId Error: orgId=%s, error=%s", orgId, err)
+			log.Errorf("GetDatacenterListByOrgId Error: orgId=%s, error=%s", orgId, err)
 			ye := myerror.NewYceError(myerror.EYCE_ORGTODC, "")
 			return nil, ye
 		}
@@ -448,11 +448,11 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 			DcName:   DcName,
 		}
 
-		log.Infof("GetDatacentersByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(DcIdList), len(DcName))
+		log.Infof("GetDatacenterListByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(DcIdList), len(DcName))
 		return datacenterList, nil
 	} else {
 		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
-		log.Errorf("GetDatacentersByOrgId Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+		log.Errorf("GetDatacenterListByOrgId Error: error=%s", myerror.Errors[ye.Code].LogMsg)
 		return nil, ye
 	}
 
