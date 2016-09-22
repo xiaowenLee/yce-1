@@ -5,13 +5,13 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/restclient"
+	//"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	myerror "app/backend/common/yce/error"
-	myorganization "app/backend/model/mysql/organization"
-	mydatacenter "app/backend/model/mysql/datacenter"
+	//myorganization "app/backend/model/mysql/organization"
+	//mydatacenter "app/backend/model/mysql/datacenter"
 	"strconv"
-	"strings"
+	//"strings"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
 	deployutil "k8s.io/kubernetes/pkg/controller/deployment/util"
@@ -292,17 +292,34 @@ begin:
 func (tc *TopologyController) getTopology(c *client.Client, namespace string) bool {
 	// Get Deployments.List
 	//dpList, err := getDeploymentsByNamespace(c, namespace)
-	dpList, err := yceutils.GetDeploymentByNamespace(c, namespace)
+	dpList, ye := yceutils.GetDeploymentByNamespace(c, namespace)
+	/*
 	if err != nil {
+		return false
+	}
+	*/
+	if ye != nil {
+		tc.Ye = ye
+	}
+	if tc.CheckError()  {
 		return false
 	}
 
 	// Foreach Deployments.List
 	for _, dp := range dpList {
-		rsList, err := getReplicaSetsByDeployment(c, &dp)
+		//rsList, err := getReplicaSetsByDeployment(c, &dp)
+		rsList, ye := yceutils.GetReplicaSetsByDeployment(c, &dp)
+		/*
 		if err != nil {
 			log.Errorf("getTopology Error: err=%s\n", err)
 			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_RS_BY_DEPLOYMENT, "")
+			return false
+		}
+		*/
+		if ye != nil {
+			tc.Ye = ye
+		}
+		if tc.CheckError() {
 			return false
 		}
 
@@ -323,14 +340,23 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 			ReplicaSet: *rs,
 		}
 
-		podList, err := getPodsByReplicaSet(c, namespace, rs)
+		//podList, err := getPodsByReplicaSet(c, namespace, rs)
+		podList, ye := yceutils.GetPodListByReplicaSet(c, rs)
+		/*
 		if err != nil {
 			log.Errorf("getPodsByReplicaSet Error", err)
 			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_PODS_BY_RS, "")
 			return false
 		}
+		*/
+		if ye != nil {
+			tc.Ye = ye
+		}
+		if tc.CheckError() {
+			return false
+		}
 
-		for _, pod := range podList {
+		for _, pod := range podList.Items {
 			uid = string(pod.UID)
 			tc.topology.Items[uid] = PodType{
 				Kind: "Pod",
@@ -345,9 +371,18 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 
 			tc.topology.Relations = append(tc.topology.Relations, relation)
 
-			node, err := getNodeByPod(c, &pod)
+			//node, err := getNodeByPod(c, &pod)
+			/*
 			if err != nil {
 				tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_NODE_BY_POD, "")
+				return false
+			}
+			*/
+			node, ye := yceutils.GetNodeByPod(c, &pod)
+			if ye != nil {
+				tc.Ye = ye
+			}
+			if tc.CheckError() {
 				return false
 			}
 
@@ -369,10 +404,19 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 	}
 
 	// Get Services.List
-	svcList, err := getServicesByNamespace(c, namespace)
+	//svcList, err := getServicesByNamespace(c, namespace)
+	svcList, ye := yceutils.GetServicesByNamespace(c, namespace)
+	/*
 	if err != nil {
 		log.Errorf("getTopology Error: client=%p, namespace=%s, err=%s\n", c, namespace, err)
 		tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_SERVICES_BY_NAMESPACE, "")
+		return false
+	}
+	*/
+	if ye != nil {
+		tc.Ye = ye
+	}
+	if tc.CheckError() {
 		return false
 	}
 
@@ -384,13 +428,20 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 			Service: svc,
 		}
 
-		podList, err := getPodByService(c, namespace, &svc)
+		/*podList, err := getPodByService(c, namespace, &svc)
 		if err != nil {
 			log.Fatalf("getTopology Error: client=%p, namespace=%s, err=%s\n", c, namespace, err)
 			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_PODS_BY_SERVICE, "")
 			return false
 		}
-
+		*/
+		podList, ye := yceutils.GetPodsByService(c, &svc)
+		if ye != nil {
+			tc.Ye = ye
+		}
+		if tc.CheckError() {
+			return false
+		}
 		for _, pod := range podList {
 			uid = string(pod.UID)
 			if _, ok := tc.topology.Items[uid]; ok {
