@@ -3,53 +3,43 @@ package mysql
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	// "log"
 	mylog "app/backend/common/util/log"
 	"sync"
 	"time"
+	config "app/backend/common/yce/config"
 )
 
 var log =  mylog.Log
 
-const (
-	MAX_POOL_SIZE        = 10
-	DATABASE_DRIVER      = "mysql"
-	DB_HOST              = "172.21.1.11:3306"
-	DB_USER              = "root"
-	DB_PASSWORD          = "root"
-	DB_NAME              = "yce"
-	DB_CONNECTION_SUFFIX = "?parseTime=true"
-	DELAY_MILLISECONDS   = 5000
-)
-
 type MysqlClient struct {
 	DB       *sql.DB
+	/*
 	host     string
 	user     string
 	password string
 	database string
 	pool     int
+	*/
 }
 
 var instance *MysqlClient
 
 var once sync.Once
 
+// func NewMysqlClient(host, user, password, database string, pool int) *MysqlClient {
 func MysqlInstance() *MysqlClient {
-	return instance
-}
-
-func NewMysqlClient(host, user, password, database string, pool int) *MysqlClient {
 	once.Do(func() {
-		instance = &MysqlClient{host: host, password: password, database: database, pool: pool}
+		instance = new(MysqlClient)
 	})
 	return instance
 }
 
 func (c *MysqlClient) Open() {
-	endpoint := DB_USER + ":" + DB_PASSWORD + "@tcp(" + DB_HOST + ")/" + DB_NAME + DB_CONNECTION_SUFFIX
+	// endpoint := DB_USER + ":" + DB_PASSWORD + "@tcp(" + DB_HOST + ")/" + DB_NAME + DB_CONNECTION_SUFFIX
 
-	db, err := sql.Open(DATABASE_DRIVER, endpoint)
+	endpoint := config.Instance().GetDbEndpoint()
+
+	db, err := sql.Open(config.DATABASE_DRIVER, endpoint)
 
 	if err != nil {
 		log.Fatalf("MysqlClient Open Error: err=%s", err)
@@ -57,8 +47,8 @@ func (c *MysqlClient) Open() {
 	}
 
 	// Set Connection Pool
-	db.SetMaxOpenConns(c.pool)
-	db.SetMaxIdleConns((int)(c.pool / 2))
+	db.SetMaxOpenConns(config.Instance().RedisMaxActiveConn)
+	db.SetMaxIdleConns(config.Instance().RedisMaxIdleConn)
 
 	c.DB = db
 
@@ -75,7 +65,7 @@ func (c *MysqlClient) Conn() *sql.DB {
 // Ping the connection, keep connection alive
 func (c *MysqlClient) Ping() {
 	select {
-	case <-time.After(time.Millisecond * time.Duration(DELAY_MILLISECONDS)):
+	case <-time.After(time.Millisecond * time.Duration(config.DELAY_MILLISECONDS)):
 		err := c.DB.Ping()
 		if err != nil {
 			log.Fatalf("MysqlClient Ping Error: err=%s", err)

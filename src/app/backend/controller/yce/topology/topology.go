@@ -14,6 +14,7 @@ import (
 	"strings"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	deployutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 )
 
 type DcList struct {
@@ -305,56 +306,66 @@ func (tc *TopologyController) getTopology(c *client.Client, namespace string) bo
 			return false
 		}
 
-		for _, rs := range rsList {
-			// Topology.Items
-			uid := string(rs.UID)
-			tc.topology.Items[uid] = ReplicaSetType{
-				Kind: "ReplicaSet",
+		// For all replicasets
+		// for _, rs := range rsList {
+		rs, err := deployutil.FindNewReplicaSet(&dp, rsList)
+		if err != nil {
+			log.Errorf("FindNewReplicaSet Error: err=%s", err)
+			tc.Ye = myerror.NewYceError(myerror.EKUBE_FIND_NEW_REPLICASET, "")
+			return false
+		}
+
+		// Topology.Items
+		uid := string(rs.UID)
+		tc.topology.Items[uid] = ReplicaSetType{
+			Kind: "ReplicaSet",
+			ApiVersion: "v1beta2",
+			ReplicaSet: *rs,
+		}
+
+		podList, err := getPodsByReplicaSet(c, namespace, rs)
+		if err != nil {
+			log.Errorf("getPodsByReplicaSet Error", err)
+			tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_PODS_BY_RS, "")
+			return false
+		}
+
+		for _, pod := range podList {
+			uid = string(pod.UID)
+			tc.topology.Items[uid] = PodType{
+				Kind: "Pod",
 				ApiVersion: "v1beta2",
-				ReplicaSet: rs,
+				Pod: pod,
 			}
 
-			podList, err := getPodsByReplicaSet(c, namespace, &rs)
+			relation := RelationsType {
+				Source: string(rs.UID),
+				Target: string(pod.UID),
+			}
+
+			tc.topology.Relations = append(tc.topology.Relations, relation)
+
+			node, err := getNodeByPod(c, &pod)
 			if err != nil {
-				log.Errorf("getPodsByReplicaSet Error", err)
-				tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_PODS_BY_RS, "")
+				tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_NODE_BY_POD, "")
 				return false
 			}
-			for _, pod := range podList {
-				uid = string(pod.UID)
-				tc.topology.Items[uid] = PodType{
-					Kind: "Pod",
-					ApiVersion: "v1beta2",
-					Pod: pod,
-				}
 
-				relation := RelationsType {
-					Source: string(rs.UID),
-					Target: string(pod.UID),
-				}
-
-				tc.topology.Relations = append(tc.topology.Relations, relation)
-
-				node, err := getNodeByPod(c, &pod)
-				if err != nil {
-					tc.Ye = myerror.NewYceError(myerror.EKUBE_GET_NODE_BY_POD, "")
-					return false
-				}
-
-				uid = string(node.UID)
-				tc.topology.Items[uid] = NodeType{
-					Kind: "Node",
-					ApiVersion: "v1beata2",
-					Node: *node,
-				}
-
-				relation = RelationsType {
-					Source: string(node.UID),
-					Target: string(pod.UID),
-				}
-				tc.topology.Relations = append(tc.topology.Relations, relation)
+			uid = string(node.UID)
+			tc.topology.Items[uid] = NodeType{
+				Kind: "Node",
+				ApiVersion: "v1beata2",
+				Node: *node,
 			}
+
+			relation = RelationsType {
+				Source: string(node.UID),
+				Target: string(pod.UID),
+			}
+			tc.topology.Relations = append(tc.topology.Relations, relation)
 		}
+		// }
+		// For all replicasets
 	}
 
 	// Get Services.List
