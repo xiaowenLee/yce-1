@@ -16,7 +16,7 @@ type ListExtensionsController struct {
 	k8sClients []*client.Client
 }
 
-
+//TODO: for condition that we cann't delete the endpoints which was created by the service with selector, now cancel the endpoints deletion
 func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, le *yceutils.DatacenterList) (extString string){
 	extList := make([]extensions.Extensions, len(lec.apiServers))
 
@@ -28,17 +28,19 @@ func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, l
 			return
 		}
 
+		/*
 		eps, err := cli.Endpoints(namespace).List(api.ListOptions{})
 		if err != nil {
 			log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
 			myerror.NewYceError(myerror.EYCE_LIST_EXTENSIONS, "")
 			return
 		}
+		*/
 
 		extList[index].DcId = le.DcIdList[index]
 		extList[index].DcName = le.DcName[index]
 		extList[index].ServiceList = *svcs
-		extList[index].EndpointList = *eps
+		//extList[index].EndpointList = *eps
 
 		log.Infof("list Service and Endpoints Successfully: namespace=%s, apiServer=%s", namespace, lec.apiServers)
 	}
