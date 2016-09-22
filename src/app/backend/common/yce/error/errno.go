@@ -43,6 +43,7 @@ const (
 	EKUBE_GET_PODS_BY_SERVICE        = 1225
 	EKUBE_LOGS_POD			 = 1226
 	EKUBE_SCALE_DEPLOYMENT		 = 1227
+	EKUBE_FIND_NEW_REPLICASET        = 1228
 
 
 	EIRIS int32 = 1300
@@ -215,6 +216,10 @@ var Errors = map[int32]*Error{
 	EKUBE_SCALE_DEPLOYMENT: &Error {
 		LogMsg: "Kuberentes Scale Deployment Error",
 		ErrMsg: "扩容Deployment失败",
+	},
+	EKUBE_FIND_NEW_REPLICASET: &Error {
+		LogMsg: "Kubernetes Find New ReplicaSet Error",
+		ErrMsg: "查找最新的ReplicaSet失败",
 	},
 
 	// 1300~1399 Iris错误

@@ -3,16 +3,7 @@ package redigo
 import (
 	redis "github.com/garyburd/redigo/redis"
 	"sync"
-	"time"
-)
-
-const (
-	REDIS_SERVER = "172.21.1.11:32379"
-
-	MAX_IDLE   = 1
-	MAX_ACTIVE = 10
-
-	IDEL_TIMEOUT = 180 * time.Second
+	config "app/backend/common/yce/config"
 )
 
 var once sync.Once
@@ -22,11 +13,11 @@ var instance *redis.Pool
 func NewRedisClient() *redis.Pool {
 	once.Do(func() {
 		instance = &redis.Pool{
-			MaxIdle:     MAX_IDLE,
-			MaxActive:   MAX_ACTIVE,
-			IdleTimeout: IDEL_TIMEOUT,
+			MaxIdle:     config.MAX_IDLE,
+			MaxActive:   config.MAX_ACTIVE,
+			IdleTimeout: config.IDEL_TIMEOUT,
 			Dial: func() (redis.Conn, error) {
-				c, err := redis.Dial("tcp", REDIS_SERVER)
+				c, err := redis.Dial("tcp", config.Instance().GetRedisEndpoint())
 				if err != nil {
 					return nil, err
 				}

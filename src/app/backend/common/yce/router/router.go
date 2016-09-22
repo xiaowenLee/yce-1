@@ -11,6 +11,9 @@ import (
 	myendpoint "app/backend/controller/yce/endpoint"
 	myextensions "app/backend/controller/yce/extensions"
 	mytopology "app/backend/controller/yce/topology"
+	mypath "app/backend/controller/yce/apis"
+	myhealthz "app/backend/controller/yce/healthz"
+	myversion "app/backend/controller/yce/version"
 	"github.com/kataras/iris"
 )
 
@@ -40,6 +43,9 @@ type Router struct {
 	DeleteEndpoint *myendpoint.DeleteEndpointsController
 	HistoryDeploy *mydeploy.HistoryDeploymentController
 	Topology *mytopology.TopologyController
+	Api *mypath.ApisController
+	Healthz *myhealthz.HealthzController
+	Version *myversion.VersionController
 }
 
 func NewRouter() *Router {
@@ -69,6 +75,9 @@ func NewRouter() *Router {
 	r.DeleteEndpoint = new(myendpoint.DeleteEndpointsController)
 	r.HistoryDeploy = new(mydeploy.HistoryDeploymentController)
 	r.Topology = new(mytopology.TopologyController)
+	r.Api = new(mypath.ApisController)
+	r.Healthz = new(myhealthz.HealthzController)
+	r.Version = new(myversion.VersionController)
 
 	return r
 }
@@ -101,6 +110,9 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/deployments/:name/history", *r.HistoryDeploy)
 	iris.API("/api/v1/organizations/:orgId/topology", *r.Topology)
+	iris.API("/", *r.Api)
+	iris.API("/version", *r.Version)
+	iris.API("/healthz", *r.Healthz)
 
 	iris.StaticServe("../frontend", "/static")
 }
