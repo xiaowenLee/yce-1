@@ -18,7 +18,7 @@ type Router struct {
 	Login            *mylogin.LoginController
 	Logout           *mylogout.LogoutController
 	Nav              *mynavList.NavListController
-	ListDeploy       *mydeploy.ListDeployController
+	ListDeploy       *mydeploy.ListDeploymentController
 	Registry         *myregistry.ListRegistryController
 	ListService      *myservice.ListServiceController
 	InitService      *myservice.InitServiceController
@@ -27,10 +27,10 @@ type Router struct {
 	InitEndpoints    *myendpoint.InitEndpointsController
 	CreateEndpoints  *myendpoint.CreateEndpointsController
 	ListExtensions   *myextensions.ListExtensionsController
-	InitDeploy       *mydeploy.InitDeployController
-	CreateDeploy     *mydeploy.CreateDeployController
-	RollingDeploy    *mydeploy.RollingDeployController
-	RollbackDeploy   *mydeploy.RollbackDeployController
+	InitDeploy       *mydeploy.InitDeploymentController
+	CreateDeploy     *mydeploy.CreateDeploymentController
+	RollingDeploy    *mydeploy.RollingDeploymentController
+	RollbackDeploy   *mydeploy.RollbackDeploymentController
 	ScaleDeploy      *mydeploy.ScaleDeploymentController
 	DeleteDeploy     *mydeploy.DeleteDeploymentController
 	LogsPod          *mydeploy.LogsPodController
@@ -38,7 +38,7 @@ type Router struct {
 	InitNamespace *mynamespace.InitNamespaceController
 	DeleteService *myservice.DeleteServiceController
 	DeleteEndpoint *myendpoint.DeleteEndpointsController
-	HistoryDeploy *mydeploy.HistoryDeployController
+	HistoryDeploy *mydeploy.HistoryDeploymentController
 	Topology *mytopology.TopologyController
 }
 
@@ -47,7 +47,7 @@ func NewRouter() *Router {
 	r.Login = new(mylogin.LoginController)
 	r.Logout = new(mylogout.LogoutController)
 	r.Nav = new(mynavList.NavListController)
-	r.ListDeploy = new(mydeploy.ListDeployController)
+	r.ListDeploy = new(mydeploy.ListDeploymentController)
 	r.Registry = new(myregistry.ListRegistryController)
 	r.ListService = new(myservice.ListServiceController)
 	r.InitService = new(myservice.InitServiceController)
@@ -56,10 +56,10 @@ func NewRouter() *Router {
 	r.InitEndpoints = new(myendpoint.InitEndpointsController)
 	r.CreateEndpoints = new(myendpoint.CreateEndpointsController)
 	r.ListExtensions = new(myextensions.ListExtensionsController)
-	r.InitDeploy = new(mydeploy.InitDeployController)
-	r.CreateDeploy = new(mydeploy.CreateDeployController)
-	r.RollingDeploy = new(mydeploy.RollingDeployController)
-	r.RollbackDeploy = new(mydeploy.RollbackDeployController)
+	r.InitDeploy = new(mydeploy.InitDeploymentController)
+	r.CreateDeploy = new(mydeploy.CreateDeploymentController)
+	r.RollingDeploy = new(mydeploy.RollingDeploymentController)
+	r.RollbackDeploy = new(mydeploy.RollbackDeploymentController)
 	r.ScaleDeploy = new(mydeploy.ScaleDeploymentController)
 	r.DeleteDeploy = new(mydeploy.DeleteDeploymentController)
 	r.LogsPod = new(mydeploy.LogsPodController)
@@ -67,7 +67,7 @@ func NewRouter() *Router {
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
 	r.DeleteService = new(myservice.DeleteServiceController)
 	r.DeleteEndpoint = new(myendpoint.DeleteEndpointsController)
-	r.HistoryDeploy = new(mydeploy.HistoryDeployController)
+	r.HistoryDeploy = new(mydeploy.HistoryDeploymentController)
 	r.Topology = new(mytopology.TopologyController)
 
 	return r
@@ -92,11 +92,11 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/new", *r.CreateService)
-	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/users/:userId/services/:svcName", *r.DeleteService)
+	iris.API("/api/v1/organizations/:orgId/services/:svcName", *r.DeleteService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/init", *r.InitEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)
-	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/endpoints/:epName", *r.DeleteEndpoint)
+	iris.API("/api/v1/organizations/:orgId/endpoints/:epName", *r.DeleteEndpoint)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
 	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/deployments/:name/history", *r.HistoryDeploy)

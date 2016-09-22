@@ -34,6 +34,3 @@ type CreateService struct {
 	Service api.Service `json:"service"`
 }
 
-type NodePortType struct {
-	NodePort int32 `json:"nodePort"`
-}

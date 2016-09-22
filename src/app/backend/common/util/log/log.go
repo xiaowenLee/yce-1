@@ -42,7 +42,7 @@ type Logger struct {
 	mu     sync.Mutex
 }
 
-var Log = NewLogger(os.Stdout, TRACE)
+var Log = NewLogger(os.Stdout, INFO)
 
 func getShortFileName(file string) string {
 	index := strings.LastIndex(file, "/")

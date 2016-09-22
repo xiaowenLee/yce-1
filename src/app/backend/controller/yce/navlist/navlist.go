@@ -1,11 +1,11 @@
 package navlist
 
 import (
-	"github.com/kataras/iris"
+	yce "app/backend/controller/yce"
 )
 
 type NavListController struct {
-	*iris.Context
+	yce.Controller
 }
 
 var navList = `
@@ -37,6 +37,5 @@ var navList = `
 `
 
 func (nlc NavListController) Get() {
-	nlc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	nlc.Write(navList)
+	nlc.WriteOk(navList)
 }

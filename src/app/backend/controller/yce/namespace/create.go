@@ -1,29 +1,18 @@
 package namespace
 
 import (
-	"github.com/kataras/iris"
-	"app/backend/common/util/session"
-	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	mydatacenter "app/backend/model/mysql/datacenter"
 	myorganization "app/backend/model/mysql/organization"
 	api "k8s.io/kubernetes/pkg/api"
 	resource "k8s.io/kubernetes/pkg/api/resource"
 	"encoding/json"
-	"strconv"
-	"strings"
-)
-
-const (
-	CPU_MULTIPLIER int64 = 1024
-	MEM_MULTIPLIER int64 = 1024*1024*1024
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type CreateNamespaceController struct {
-	*iris.Context
-	Ye *myerror.YceError
+	yce.Controller
 	Param  *CreateNamespaceParam
 	k8sClients []*client.Client
 	apiServers []string
@@ -39,34 +28,6 @@ type CreateNamespaceParam struct {
 	Budget string `json:"budget"`
 	Balance string `json:"balance"`
 	DcIdList []int32 `json:"dcIdList"`
-}
-
-func (cnc *CreateNamespaceController) WriteBack() {
-	cnc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("CreateDeployController Response YceError: controller=%p, code=%d, note=%s", cnc, cnc.Ye.Code, myerror.Errors[cnc.Ye.Code].LogMsg)
-	cnc.Write(cnc.Ye.String())
-}
-
-func (cnc *CreateNamespaceController) validateSession(sessionId, orgId string) {
-	// Validate the session
-	ss := session.SessionStoreInstance()
-
-	ok, err := ss.ValidateOrgId(sessionId, orgId)
-	if err != nil {
-		mylog.Log.Errorf("Validate Session error: sessionId=%s, error=%s", sessionId, err)
-		cnc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	// Session invalide
-	if !ok {
-		mylog.Log.Errorf("Validate Session failed: sessionId=%s, error=%s", sessionId, err)
-		cnc.Ye = myerror.NewYceError(myerror.EYCE_SESSION, "")
-		return
-	}
-
-	mylog.Log.Infof("CreateNamespaceController validate sessionId success")
-	return
 }
 
 // Parse Namespace struct, insert into MySQL
@@ -87,16 +48,17 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 		return
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createNamespaceDbItem success")
+	log.Infof("CreateNamespaceController createNamespaceDbItem success")
 
 }
 
+/*
 // Get ApiServer by dcId
 func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterById(dcId)
 	if err != nil {
-		mylog.Log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
+		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
 		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
@@ -105,7 +67,7 @@ func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
 	port := strconv.Itoa(int(dc.Port))
 	apiServer := host + ":" + port
 
-	mylog.Log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
+	log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
 	return apiServer
 }
 
@@ -116,14 +78,14 @@ func (cnc *CreateNamespaceController) getApiServerList(dcIdList []int32) {
 		// Get ApiServer
 		apiServer := cnc.getApiServerByDcId(dcId)
 		if strings.EqualFold(apiServer, "") {
-			mylog.Log.Errorf("CreateDeployController getApiServerList Error")
+			log.Errorf("CreateDeployController getApiServerList Error")
 			return
 		}
 
 		cnc.apiServers = append(cnc.apiServers, apiServer)
 	}
 
-	mylog.Log.Infof("CreateNamespaceController getApiServerList: len(apiServer)=%d", len(cnc.apiServers))
+	log.Infof("CreateNamespaceController getApiServerList: len(apiServer)=%d", len(cnc.apiServers))
 
 	return
 }
@@ -141,19 +103,20 @@ func (cnc *CreateNamespaceController) createK8sClients() {
 
 		c, err := client.New(config)
 		if err != nil {
-			mylog.Log.Errorf("createK8sClient Error: err=%s", err)
+			log.Errorf("createK8sClient Error: err=%s", err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
 			return
 		}
 
 		cnc.k8sClients = append(cnc.k8sClients, c)
 		cnc.apiServers = append(cnc.apiServers, server)
-		mylog.Log.Infof("Append a new client to cnc.k8sClients array: c=%p, apiServer=%s", c, server)
+		log.Infof("Append a new client to cnc.k8sClients array: c=%p, apiServer=%s", c, server)
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createK8sClients: len(k8sClient)=%d", len(cnc.k8sClients))
+	log.Infof("CreateNamespaceController createK8sClients: len(k8sClient)=%d", len(cnc.k8sClients))
 	return
 }
+*/
 
 // Create Namespace for every ApiServer
 func (cnc *CreateNamespaceController) createNamespace() {
@@ -164,14 +127,14 @@ func (cnc *CreateNamespaceController) createNamespace() {
 	for index, cli := range cnc.k8sClients {
 		_, err := cli.Namespaces().Create(namespace)
 		if err != nil {
-			mylog.Log.Errorf("createNamespace Error: apiServer=%s, namespace=%s, err=%s",
+			log.Errorf("createNamespace Error: apiServer=%s, namespace=%s, err=%s",
 				cnc.apiServers[index], namespace, err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
 			return
 		}
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createNamespace success")
+	log.Infof("CreateNamespaceController createNamespace success")
 
 }
 
@@ -192,13 +155,13 @@ func (cnc *CreateNamespaceController) createResourceQuota() {
 	for index, cli := range cnc.k8sClients {
 		_, err := cli.ResourceQuotas(cnc.Param.Name).Create(resourceQuota)
 		if err != nil {
-			mylog.Log.Errorf("createResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
+			log.Errorf("createResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
 				cnc.apiServers[index], cnc.Param.Name, err)
 			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
 		}
 	}
 
-	mylog.Log.Infof("CreateNamespaceController createResourceQuota: create Resource Quota success")
+	log.Infof("CreateNamespaceController createResourceQuota: create Resource Quota success")
 
 }
 
@@ -208,58 +171,54 @@ func (cnc *CreateNamespaceController) Post() {
 	cnc.Param = new(CreateNamespaceParam)
 	err := cnc.ReadJSON(cnc.Param)
 	if err != nil {
-		mylog.Log.Errorf("CreateNamespaceController ReadJSON Error: error=%s", err)
+		log.Errorf("CreateNamespaceController ReadJSON Error: error=%s", err)
 		cnc.Ye =  myerror.NewYceError(myerror.EJSON, "")
-		cnc.WriteBack()
+	}
+
+	if cnc.CheckError() {
 		return
 	}
 
 	// Validate Session
 	sessionIdFromClient := cnc.RequestHeader("Authorization")
-	mylog.Log.Debugf("CreateNamespaceController Params: sessionId=%s", sessionIdFromClient)
+	log.Debugf("CreateNamespaceController Params: sessionId=%s", sessionIdFromClient)
 
-	cnc.validateSession(sessionIdFromClient, cnc.Param.OrgId)
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	cnc.ValidateSession(sessionIdFromClient, cnc.Param.OrgId)
+	if cnc.CheckError() {
 		return
 	}
 
 	// Create Organization struct and insert it into MySQL
 	cnc.createNamespaceDbItem()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
-	// Get DcIdList
-	cnc.getApiServerList(cnc.Param.DcIdList)
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	// Get ApiServer List
+	cnc.apiServers, cnc.Ye = yceutils.GetApiServerList(cnc.Param.DcIdList)
+	if cnc.CheckError() {
 		return
 	}
 
-	// Create k8s clients
-	cnc.createK8sClients()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	// Create K8sClient List
+	cnc.k8sClients, cnc.Ye = yceutils.CreateK8sClientList(cnc.apiServers)
+	if cnc.CheckError() {
 		return
 	}
 
 	// Create Namespace
 	cnc.createNamespace()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
 	// Create ResourceQuota
 	cnc.createResourceQuota()
-	if cnc.Ye != nil {
-		cnc.WriteBack()
+	if cnc.CheckError() {
 		return
 	}
 
-	cnc.Ye = myerror.NewYceError(myerror.EOK, "")
-	mylog.Log.Infoln("CreateNamespaceController over!")
+	cnc.WriteOk("")
+	log.Infoln("CreateNamespaceController over!")
 	return
 }

@@ -194,3 +194,11 @@ func (u *User) EncodeJson() (string, error) {
 	}
 	return string(data), nil
 }
+
+// Query UserName by UserId
+func QueryUserNameByUserId(userId int32) (name string) {
+	u := new(User)
+	u.QueryUserById(userId)
+	mylog.Log.Infof("queryUserNameByUserId successfully")
+	return u.Name
+}
