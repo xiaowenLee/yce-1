@@ -57,6 +57,8 @@ func (c *Controller) CheckError() bool {
 }
 
 func (c *Controller) WriteOk(msg string) {
+	c.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	c.Ye = myerror.NewYceError(myerror.EOK, msg)
-	c.WriteError()
+	log.Infof("Controller Response OK: controller=%p, code=%d, msg=%s", c, c.Ye.Code, myerror.Errors[c.Ye.Code].LogMsg)
+	c.Write(c.Ye.String())
 }
