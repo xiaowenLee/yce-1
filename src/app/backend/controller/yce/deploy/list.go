@@ -52,7 +52,7 @@ func (ldc *ListDeploymentController) listDeployments(userId int32, namespace str
 		return
 	}
 
-	log.Infoln("ListDeploymentController listDeployments success: len(Deployment)=%d", len(dpList))
+	log.Infof("ListDeploymentController listDeployments success: len(Deployment)=%d", len(dpList))
 	return dpString
 }
 
