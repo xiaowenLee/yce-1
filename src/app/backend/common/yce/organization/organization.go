@@ -10,14 +10,11 @@ import (
 )
 
 
-type DcIdList struct {
-	DataCenter []string `json:"dcIdList"`
+type DcIdListType struct {
+	DcIdList []int32 `json:"dcIdList"`
 }
 
 func GetOrganizationById(orgId string) (*organization.Organization, error) {
-	//mysqlclient := mysql.MysqlInstance()
-	//mysqlclient.Open()
-
 	myorganization := new(organization.Organization)
 	oid, err := strconv.Atoi(orgId)
 	if err != nil {
@@ -38,7 +35,7 @@ func GetOrganizationById(orgId string) (*organization.Organization, error) {
 
 func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacenter.DataCenter, error) {
 	// Get datacenter-id-list for a organization(orgId)
-	var dcIdList DcIdList
+	var dcIdList DcIdListType
 
 	orgId := org.Id
 	err := json.Unmarshal([]byte(org.DcIdList), &dcIdList)
@@ -48,16 +45,16 @@ func GetDataCentersByOrganization(org *organization.Organization) ([]mydatacente
 	}
 
 	// Get datacenters by dcId which in dcIdList
-	dataCenters := make([]mydatacenter.DataCenter, len(dcIdList.DataCenter))
+	dataCenters := make([]mydatacenter.DataCenter, 0)
 
-	for i := 0; i < len(dcIdList.DataCenter); i++ {
-		dc, err := datacenter.GetDataCenterById(dcIdList.DataCenter[i])
+	for i := 0; i < len(dcIdList.DcIdList); i++ {
+		dc, err := datacenter.GetDataCenterById(dcIdList.DcIdList[i])
 		if err != nil {
 			mylog.Log.Errorf("GetDataCentersByOrg Error: orgId=%s, error=%s", orgId, err)
 			return nil, err
 		}
-		dataCenters[i] = *dc
+		dataCenters = append(dataCenters, *dc)
 	}
-	mylog.Log.Debugf("GetDataCentersByOrganization len(datacenters)=%d", len(dataCenters))
+	mylog.Log.Infof("GetDataCentersByOrganization len(datacenters)=%d", len(dataCenters))
 	return dataCenters, nil
 }
