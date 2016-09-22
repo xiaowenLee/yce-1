@@ -59,6 +59,9 @@ const (
 	EYCE_DELETE_DEPLOYMENT int32 = 1409
 	EYCE_LOGS_POD	     int32 = 1410
 	EYCE_LOGOUT	     int32 = 1411
+	EYCE_DELETE_SERVICE int32 = 1412
+	EYCE_DELETE_ENDPOINTS int32 = 1413
+
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -276,6 +279,14 @@ var Errors = map[int32]*Error{
 		LogMsg: "Get Logout Params Error",
 		ErrMsg: "用户退出参数错误",
 	},
+	EYCE_DELETE_SERVICE: &Error {
+		LogMsg: "Delete Service Error",
+		ErrMsg: "删除服务失败",
+	},
+	EYCE_DELETE_ENDPOINTS: &Error {
+		LogMsg: "Delete Endpoints Error",
+		ErrMsg: "删除访问点失败",
+	},
 
 	// 1500~1599 Registr错误
 	EREGISTRY: &Error{
@@ -305,7 +316,7 @@ var Errors = map[int32]*Error{
 		ErrMsg: "内存溢出",
 	},
 	EOOR: &Error {
-		LogMsg: "Out of Range",
+		LogMsg: "Index out of Range",
 		ErrMsg: "数组越界",
 	},
 	ENULL: &Error {

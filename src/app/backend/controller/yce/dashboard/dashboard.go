@@ -1,16 +1,15 @@
 package dashboard
 
 import (
-	"github.com/kataras/iris"
+	yce "app/backend/controller/yce"
 )
 
 type DashboardController struct {
-	*iris.Context
+	yce.Controller
 }
 
 
 func (dc DashboardController) Get() {
-
 }
 
 

@@ -2,28 +2,20 @@ package registry
 
 import (
 	"encoding/json"
-	"github.com/kataras/iris"
 	"io/ioutil"
 
 	myhttps "app/backend/common/util/https"
 	myerror "app/backend/common/yce/error"
 	myregistry "app/backend/model/yce/registry"
-	mylog "app/backend/common/util/log"
+	yce "app/backend/controller/yce"
 )
 
 
 type ListRegistryController struct {
-	*iris.Context
+	yce.Controller
 	c        *myhttps.HttpsClient
 	BaseUrl  string
 	Registry *myregistry.Registry
-	Ye *myerror.YceError
-}
-
-func (lrc *ListRegistryController) WriteBack() {
-	lrc.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	mylog.Log.Infof("ListRegistryController Response YceError: controller=%p, code=%d, note=%s", lrc, lrc.Ye.Code, myerror.Errors[lrc.Ye.Code].LogMsg)
-	lrc.Write(lrc.Ye.String())
 }
 
 // curl --cacert /etc/docker/certs.d/registry.test.com\:5000/domain.crt
@@ -41,7 +33,7 @@ func (lrc *ListRegistryController) getRepositories() ([]string) {
 	resp, err := client.Get(url)
 
 	if err != nil {
-		mylog.Log.Errorf("ListRegistryController getRespositories Error: err=%s", err)
+		log.Errorf("ListRegistryController getRespositories Error: err=%s", err)
 		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY_GET, "")
 		return []string{}
 	}
@@ -52,12 +44,12 @@ func (lrc *ListRegistryController) getRepositories() ([]string) {
 
 	err = json.Unmarshal(body, repository)
 	if err != nil {
-		mylog.Log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
+		log.Errorf("ListRegistryController getRepositories Error: err=%s", err)
 		lrc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return []string{}
 	}
 
-	mylog.Log.Infoln("ListRegistryController getRepositories over")
+	log.Infoln("ListRegistryController getRepositories over")
 	return repository.Repositories
 
 }
@@ -74,7 +66,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 	resp, err := client.Get(url)
 
 	if err != nil {
-		mylog.Log.Errorf("ListRegistryController getTagsList client.Get Error: err=%s", err)
+		log.Errorf("ListRegistryController getTagsList client.Get Error: err=%s", err)
 		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY_GET, "")
 		return nil
 	}
@@ -82,7 +74,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		mylog.Log.Errorf("ListRegistryController getTagsList ioutil.ReadAll Error: err=%s", err)
+		log.Errorf("ListRegistryController getTagsList ioutil.ReadAll Error: err=%s", err)
 		lrc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return nil
 	}
@@ -91,14 +83,14 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 
 	err = json.Unmarshal(body, image)
 	if err != nil {
-		mylog.Log.Errorf("ListRegistryController getTagsList json.Unmarshal Error: err=%s", err)
+		log.Errorf("ListRegistryController getTagsList json.Unmarshal Error: err=%s", err)
 		return nil
 	}
 
 	// Add Prefix
 	image.Name = myregistry.REGISTRY_HOST + ":" + myregistry.REGISTRY_PORT + "/" + image.Name
 
-	mylog.Log.Infof("ListRegistryController getTagsList success: name=%s, len(tags)=%d", name, len(image.Tags))
+	log.Debugf("ListRegistryController getTagsList success: name=%s, len(tags)=%d", name, len(image.Tags))
 	return image
 }
 
@@ -112,18 +104,19 @@ func (lrc ListRegistryController) Get() {
 	lrc.Registry = r
 
 
-	mylog.Log.Debugf("ListRegistryController Params: BaseURL=%s, Registry=%p", lrc.BaseUrl, lrc.Registry)
+	log.Debugf("ListRegistryController Params: BaseURL=%s, Registry=%p", lrc.BaseUrl, lrc.Registry)
 
 	// Get repositories in the registry
 	list := lrc.getRepositories()
-	if lrc.Ye != nil {
-		lrc.WriteBack()
+	if lrc.CheckError() {
 		return
 	}
 
 	if 0 == len(list) {
 		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY, "")
-		lrc.WriteBack()
+	}
+
+	if lrc.CheckError() {
 		return
 	}
 
@@ -135,15 +128,15 @@ func (lrc ListRegistryController) Get() {
 
 	if 0 == len(lrc.Registry.Images) {
 		lrc.Ye = myerror.NewYceError(myerror.EREGISTRY, "")
-		lrc.WriteBack()
+	}
+
+	if lrc.CheckError() {
 		return
 	}
 
 	images, _ := lrc.Registry.GetImagesList()
-	mylog.Log.Infof("ListRegistryController GetImagesList success: images=%s", images)
+	log.Debugf("ListRegistryController GetImagesList success: images=%s", images)
 
-	lrc.Ye = myerror.NewYceError(myerror.EOK, images)
-	lrc.WriteBack()
-
-	mylog.Log.Infoln("ListRegistryController Get over!")
+	lrc.WriteOk(images)
+	log.Infoln("ListRegistryController Get over!")
 }

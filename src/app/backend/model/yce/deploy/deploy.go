@@ -7,6 +7,7 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	myorganization "app/backend/model/mysql/organization"
 	mydeployment "app/backend/model/mysql/deployment"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 // AppDeployment for Frontend fulfillment
@@ -25,21 +26,13 @@ type AppDisplayDeployment struct {
 	PodList api.PodList `json:"podList"`
 }
 
-type DeployAndPodList struct {
-	UserName string `json:"userName"`
-	Deploy *extensions.Deployment `json:"deploy"`
-	PodList *api.PodList `json:"podList"`
-}
-
-
 // Response List Deployments
 type Deployment struct {
 	DcId int32 `json:"dcId"`
 	DcName string `json:"dcName"`
-	Deployments []DeployAndPodList `json:"deployments"`
+	Deployments []yceutils.DeployAndPodList `json:"deployments"`
 }
 
-// GET
 type ListDeployment struct {
 	Organization *myorganization.Organization
 	DcIdList []int32

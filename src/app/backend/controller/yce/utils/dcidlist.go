@@ -4,6 +4,8 @@ import (
 	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
 	"encoding/json"
+
+
 )
 
 type DcIdListType struct {
@@ -13,9 +15,9 @@ type DcIdListType struct {
 
 
 // Encode DcIdList []int32 to dcIdList Json []string form
-func StringDcIdList(dcIdList []int32) (string, myerror.YceError) {
+func StringDcIdList(dcIdList []int32) (string, *myerror.YceError) {
 
-	if checkValidate(dcIdList) {
+	if CheckValidate(dcIdList) {
 		dcIdListByte, err := EncodeDcIdList(dcIdList)
 		if err != nil {
 			mylog.Log.Errorf("StringDcIdList Error: error=%s", err)
@@ -28,15 +30,15 @@ func StringDcIdList(dcIdList []int32) (string, myerror.YceError) {
 		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
 		mylog.Log.Errorf("StringDcIdList Error: error=%s", ye.Message)
 
-		return nil, ye
+		return "", ye
 	}
 
 }
 
 // Encode dcIdList []int32 to dcIdList Json []byte form
-func EncodeDcIdList(dcIdList []int32) ([]byte, myerror.YceError) {
+func EncodeDcIdList(dcIdList []int32) (string, *myerror.YceError) {
 
-	if checkValidate(dcIdList) {
+	if CheckValidate(dcIdList) {
 		dcList := &DcIdListType{
 			DcIdList: dcIdList,
 		}
@@ -45,21 +47,22 @@ func EncodeDcIdList(dcIdList []int32) ([]byte, myerror.YceError) {
 		if err != nil {
 			ye := myerror.NewYceError(myerror.EJSON, "")
 			mylog.Log.Errorf("EncodeDcIdList Error: error=%s", ye.Message)
-			return nil, ye
+			return "", ye
 		} else {
-			return dcIdListByte, nil
+			return string(dcIdListByte), nil
 		}
 	} else {
 		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
 		mylog.Log.Errorf("EncodeDcIdList Error: error=%s", ye.Message)
-		return nil, ye
+
+		return "", ye
 	}
 
 }
 
 // Decode dcIdList from Json string form to []int32
-func DecodeDcIdList(dcIdListString string) ([]int32, myerror.YceError) {
-	if checkValidate(dcIdListString) {
+func DecodeDcIdList(dcIdListString string) ([]int32, *myerror.YceError) {
+	if CheckValidate(dcIdListString) {
 		dcIdListByte := []byte(dcIdListString)
 		dcIdList := new(DcIdListType)
 
