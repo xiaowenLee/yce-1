@@ -90,7 +90,7 @@ func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) 
 	// Add Prefix
 	image.Name = myregistry.REGISTRY_HOST + ":" + myregistry.REGISTRY_PORT + "/" + image.Name
 
-	log.Infof("ListRegistryController getTagsList success: name=%s, len(tags)=%d", name, len(image.Tags))
+	log.Debugf("ListRegistryController getTagsList success: name=%s, len(tags)=%d", name, len(image.Tags))
 	return image
 }
 
