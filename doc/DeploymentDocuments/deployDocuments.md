@@ -16,7 +16,7 @@ YCE目前是Yao的alpha版本, 此版本的部署需要:
 
 - MySQL镜像, 地址为img.reg.3g:15000/mysql:5.7.13
 - Redis镜像, 主节点地址为img.reg.3g:15000/redis:3.0.7, 从节点地址为img.reg.3g:15000/redis-slave:3.0.3
-- YCE镜像, 地址为img.reg.3g:15000/yce-alpha:test-$(shell date +%F) 
+- YCE镜像, 地址为img.reg.3g:15000/yce-alpha:test-$(shell date +%F), 首次部署的yce镜像版本为yce-alpha:test-2016-09-26, 写在yce/yce-deployment.yaml里
 
 YCE的正常运作需要这些程序共同运行, 启动脚本及yaml文件均放置在一个名为deploy的目录下, 目录结构及说明:
 
