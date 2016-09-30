@@ -6,6 +6,12 @@ YCE部署指南
 ---------------
 YCE目前是Yao的alpha版本, 此版本的部署需要:
 
+安装git, go, Docker, Kubernetes等开发环境。其中:
+* git的版本为1.9.1
+* go的版本为go 1.6.2 linux/amd64
+* 其中Docker的版本为docker 1.11.1
+* Kubernetes的版本为1.2.0
+
 镜像包括:
 
 - MySQL镜像, 地址为img.reg.3g:15000/mysql:5.7.13
@@ -53,7 +59,7 @@ YCE的正常运作需要这些程序共同运行, 启动脚本及yaml文件均�
  |-- delete.sh                                 // 顺序删除每个节点上的已有镜像
 
 
-其中Makefile用于简化部署和删除, `make build`: 一键构建, `make deploy`: 一键部署,  `make clean`: 一键删除.
+其中Makefile用于简化部署和删除, `make init`: 初始化, `make build`: 一键构建, `make deploy`: 一键部署,  `make clean`: 一键删除.
 
 另外,在yce、mysql、redis下除了包含相应的部署和服务yaml文件外,还包含了相应的手动启动/停止脚本: *-up.sh / *-down.sh
 
@@ -62,6 +68,7 @@ YCE的正常运作需要这些程序共同运行, 启动脚本及yaml文件均�
 
 首次部署:
 
+1. `make init`: 建立frontend和backend代码目录,初始化git并添加远程仓库地址。注意:要先手动配置git账户信息。
 1. `make build`: 从远程仓库获取最新代码; 编译为二进制可执行文件; 打成Docker镜像; 推到镜像仓库;
 2. `make deploy`: 部署MySQL镜像; 导入初始数据库; 部署redis集群; 部署yce; 
 
