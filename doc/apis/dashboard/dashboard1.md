@@ -24,29 +24,30 @@ datacenters里没有总额和现在已用多少的资源配额。 应该加一�
 {
     "code": 0,
     "msg": "",
-    "data": [{
+    "data": {
         "overall": {
             "cpu": {
-                "budget": 10,
-                "balance": 6
+                "quota": 10,
+                "used": 6
             }, 
             "mem": {
-                "budget": 10,
-                "balance": 4
+                "quota": 10,
+                "used": 4
             }
         },
-        "datacenter": [{
+        "datacenters": [{
             "dcId": 1,
+            "dcName": "办公网",
             "cpu": {
-                "budget": 10,
-                "balance": 6
+                "quota": 10,
+                "used": 6
             }, 
             "mem": {
-                "budget": 10,
-                "balance": 4
+                "quota": 10,
+                "used": 4
             }
         }]
-    }]
+    }
 }
 ```
 
@@ -78,10 +79,14 @@ datacenters里没有总额和现在已用多少的资源配额。 应该加一�
     "msg": "",
     "data": [{
         "dcId": 1,
-        "deployment": [{
+        "dcName": "办公网",
+        "deployments": [{
             "deploymentName": "yce",
-            "rs": 1,
-            "pod": 4
+            "rsName": "test-yce",
+            "podName": [
+                "test-yce-gxbvs",
+                "test-yce-sdgsg"
+            ] 
         }]
     }]
 }
@@ -120,10 +125,11 @@ datacenters里没有总额和现在已用多少的资源配额。 应该加一�
     "msg": "",
     "data": [{
         "dcId": 1,
-        "create": 1,
-        "scale": 2,
-        "rollingupgrade": 3,
-        "rollback": 4
+        "dcName": "办公网",
+        "create": [1,2,3,4,5,6,7],
+        "scale": [2,3,4,5,6,7,8],
+        "rollingupgrade": [1,2,3,4,5,6,7],
+        "rollback": [1,2,3,4,5,6,7]
     }]
 
 }
@@ -135,8 +141,27 @@ datacenters里没有总额和现在已用多少的资源配额。 应该加一�
 请求头: Authorization: SessionId
 
 发送数据为时间区间, 默认为1个月:
+```
+{
+   period: 1 
+}
+```
 
 返回数据定义:
+```
+{
+    "code": 0,
+    "msg": "",
+    "data": [{
+        "dcId": 1,
+        "create": 1,
+        "scale": 2,
+        "rollingupgrade": 3,
+        "rollback": 4
+    }]
+
+}
+```
 
 
 高级选项:
