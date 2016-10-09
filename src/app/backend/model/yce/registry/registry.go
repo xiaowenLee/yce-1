@@ -8,8 +8,8 @@ import (
 var log =  mylog.Log
 
 const (
-	REGISTRY_HOST = "registry.docker"
-	REGISTRY_PORT = "5000"
+	REGISTRY_HOST = "img.reg.3g"
+	REGISTRY_PORT = "15000"
 	REGISTRY_CERT = "domain.crt"
 )
 
