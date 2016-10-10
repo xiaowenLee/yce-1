@@ -679,6 +679,7 @@ func GetNewReplicaSetByDeployment(c *client.Client, deployment *extensions.Deplo
 
 	rsNew, err := deploymentutil.FindNewReplicaSet(deployment, rsList)
 	if err != nil {
+
 		log.Errorf("GetReplicaSetsByDeployment Error: error=%s", err)
 		ye := myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 		return nil, ye
