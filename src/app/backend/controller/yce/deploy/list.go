@@ -2,13 +2,13 @@ package deploy
 
 import (
 	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
 
 type ListDeploymentController struct {
@@ -63,7 +63,6 @@ func (ldc ListDeploymentController) Get() {
 	userId := ldc.Param("userId")
 
 	log.Debugf("ListDeploymentController Params: sessionId=%s, orgid=%s, userId=%s", sessionIdFromClient, orgId, userId)
-
 
 	// ValidateSession
 	ldc.ValidateSession(sessionIdFromClient, orgId)

@@ -10,8 +10,6 @@ func Test_LocalTime(*testing.T) {
 	fmt.Printf("%s\n", l.String())
 }
 
-
-
 func Test_Sub(*testing.T) {
 	start := "2016-09-12T08:51:02Z"
 

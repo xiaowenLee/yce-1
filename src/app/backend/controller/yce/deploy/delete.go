@@ -3,13 +3,13 @@ package deploy
 import (
 	"app/backend/common/util/Placeholder"
 	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 	mydeployment "app/backend/model/mysql/deployment"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
 
 type DeleteDeploymentController struct {
@@ -38,7 +38,6 @@ type DeleteDeploymentParam struct {
 	DcIdList []int32 `json:"dcIdList"`
 	Comments string  `json:"comments"`
 }
-
 
 // parse params from json
 func (ddc *DeleteDeploymentController) getParams() {
@@ -163,7 +162,6 @@ func (ddc DeleteDeploymentController) Post() {
 	ddc.deploymentName = ddc.Param("deploymentName")
 
 	log.Debugf("DeleteDeploymentController Params: sessionId=%s, orgId=%s, deploymentName=%s", sessionIdFromClient, ddc.orgId, ddc.deploymentName)
-
 
 	// validate sessionId
 	ddc.ValidateSession(sessionIdFromClient, ddc.orgId)

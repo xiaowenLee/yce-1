@@ -1,21 +1,20 @@
 package service
 
 import (
-	myorganizaiton "app/backend/model/mysql/organization"
-	mynodeport "app/backend/model/mysql/nodeport"
 	myerror "app/backend/common/yce/error"
-	"app/backend/model/yce/service"
 	"app/backend/common/yce/organization"
-	"encoding/json"
 	yce "app/backend/controller/yce"
+	mynodeport "app/backend/model/mysql/nodeport"
+	myorganizaiton "app/backend/model/mysql/organization"
+	"app/backend/model/yce/service"
+	"encoding/json"
 )
 
 type InitServiceController struct {
 	yce.Controller
-	org *myorganizaiton.Organization
+	org  *myorganizaiton.Organization
 	Init service.InitService
 }
-
 
 func (isc *InitServiceController) String() string {
 	data, err := json.Marshal(isc.Init)
@@ -25,6 +24,7 @@ func (isc *InitServiceController) String() string {
 	}
 	return string(data)
 }
+
 //Get /api/v1/organizations/{:orgId}/users/{:userId}/services/init
 func (isc InitServiceController) Get() {
 	sessionIdFromClient := isc.RequestHeader("Authorization")
@@ -79,5 +79,3 @@ func (isc InitServiceController) Get() {
 	log.Infoln("InitServiceController Get over!")
 	return
 }
-
-

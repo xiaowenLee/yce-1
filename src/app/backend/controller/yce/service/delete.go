@@ -17,21 +17,21 @@ type DeleteServiceController struct {
 }
 
 type DeleteServiceParam struct {
-	UserId   int32  `json:"userId"`
-	DcId     int32  `json:"dcId"`
-	NodePort int32  `json:"nodePort"`
+	UserId   int32 `json:"userId"`
+	DcId     int32 `json:"dcId"`
+	NodePort int32 `json:"nodePort"`
 }
 
 // Publish k8s.Service to every datacenter which in dcIdList
 func (dsc *DeleteServiceController) deleteService(namespace, svcName string) {
-		err := dsc.k8sClient.Services(namespace).Delete(svcName)
-		if err != nil {
-			log.Errorf("deleteService Error: apiServer=%s, namespace=%s, error=%s", dsc.apiServer, namespace, err)
-			dsc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_SERVICE, "")
-			return
-		}
+	err := dsc.k8sClient.Services(namespace).Delete(svcName)
+	if err != nil {
+		log.Errorf("deleteService Error: apiServer=%s, namespace=%s, error=%s", dsc.apiServer, namespace, err)
+		dsc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_SERVICE, "")
+		return
+	}
 
-		log.Infof("Delete Service successfully: namespace=%s, apiServer=%s", namespace, dsc.apiServer)
+	log.Infof("Delete Service successfully: namespace=%s, apiServer=%s", namespace, dsc.apiServer)
 
 	return
 }

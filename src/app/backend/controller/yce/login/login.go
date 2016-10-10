@@ -2,13 +2,12 @@ package login
 
 import (
 	"app/backend/common/util/encrypt"
-	myerror "app/backend/common/yce/error"
-	myuser "app/backend/model/mysql/user"
 	mysession "app/backend/common/util/session"
-	"strconv"
+	myerror "app/backend/common/yce/error"
 	yce "app/backend/controller/yce"
+	myuser "app/backend/model/mysql/user"
+	"strconv"
 )
-
 
 type LoginController struct {
 	yce.Controller

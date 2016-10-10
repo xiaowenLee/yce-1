@@ -1,14 +1,13 @@
 package organization
 
 import (
-	"strconv"
-	"app/backend/model/mysql/organization"
-	"app/backend/common/yce/datacenter"
 	mylog "app/backend/common/util/log"
+	"app/backend/common/yce/datacenter"
 	mydatacenter "app/backend/model/mysql/datacenter"
+	"app/backend/model/mysql/organization"
 	"encoding/json"
+	"strconv"
 )
-
 
 type DcIdListType struct {
 	DcIdList []int32 `json:"dcIdList"`
@@ -27,7 +26,6 @@ func GetOrganizationById(orgId string) (*organization.Organization, error) {
 		mylog.Log.Errorf("GetOrganizationByOrgID Error: orgId=%s, error=%s", orgId, err)
 		return nil, err
 	}
-
 
 	return myorganization, nil
 

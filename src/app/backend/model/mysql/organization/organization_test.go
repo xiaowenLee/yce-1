@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"testing"
-	"github.com/shopspring/decimal"
 )
+
 func Test_NewOrganization(*testing.T) {
 	o := NewOrganization("dev", "1000000.00", "1000000.00", "add dev org", "", 1000, 2000, 1)
 	fmt.Printf("%v\n", o)
@@ -33,7 +33,6 @@ func Test_InsertOrganization(*testing.T) {
 	fmt.Printf("%v\n", org)
 
 }
-
 
 func Test_DeleteOrganization(*testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)

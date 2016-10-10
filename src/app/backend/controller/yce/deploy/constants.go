@@ -21,7 +21,7 @@ const (
 
 	// List operation log
 	SELECT_DEPLOYMENT = "SELECT id, name, actionType, actionVerb, actionUrl, actionAt, actionOp, dcList, success, reason, json, comment FROM deployment WHERE orgId=? ORDER BY id DESC LIMIT 30"
-	SELECT_USER = "SELECT name FROM user WHERE id=?"
+	SELECT_USER       = "SELECT name FROM user WHERE id=?"
 	SELECT_DATACENTER = "SELECT name FROM datacenter WHERE id=?"
 
 	// Rollback a deployment
@@ -31,18 +31,17 @@ const (
 	ROLLBACK_REVISION_ANNOTATION string = "deployment.kubernetes.io/revision"
 	ROLLBACK_IMAGE                      = "image"
 	ROLLBACK_USERID                     = "userId"
-	ROLLBACK_CHANGE_CAUSE string = "kubernetes.io/change-cause"
+	ROLLBACK_CHANGE_CAUSE        string = "kubernetes.io/change-cause"
 
 	// Rolling update a deployment
-	ROLLING_TYPE = myoption.ROLLINGUPGRADE
-	ROLLING_VERBE = "POST"
-	ROLLING_URL = "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
+	ROLLING_TYPE           = myoption.ROLLINGUPGRADE
+	ROLLING_VERBE          = "POST"
+	ROLLING_URL            = "/api/v1/organization/<orgId>/deployments/<deploymentName>/rolling"
 	ROLLING_MAXUNAVAILABLE = 2
-	ROLLING_MAXSURGE = 2
+	ROLLING_MAXSURGE       = 2
 
 	// Scale a deployment
-	SCALE_ACTION_TYPE                = myoption.SCALING
-	SCALE_ACTION_VERBE               = "POST"
-	SCALE_ACTION_URL                 = "/api/v1/organizations/<orgId>/datacenters/<dcId>/deployments/<name>/scale"
-
+	SCALE_ACTION_TYPE  = myoption.SCALING
+	SCALE_ACTION_VERBE = "POST"
+	SCALE_ACTION_URL   = "/api/v1/organizations/<orgId>/datacenters/<dcId>/deployments/<name>/scale"
 )

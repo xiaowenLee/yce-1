@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-	"github.com/kataras/iris"
 	"app/backend/common/util/mysql"
-	myrouter "app/backend/common/yce/router"
 	mysession "app/backend/common/util/session"
 	config "app/backend/common/yce/config"
+	myrouter "app/backend/common/yce/router"
+	"github.com/kataras/iris"
+	"log"
 )
 
 func init() {

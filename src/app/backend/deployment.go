@@ -1,15 +1,14 @@
 package main
 
 import (
-	"os"
-	"log"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"log"
+	"os"
 )
-
 
 var logger *log.Logger
 
@@ -87,9 +86,8 @@ const (
 	SERVER string = "http://172.21.1.11:8080"
 )
 
-
 func main() {
-	config := &restclient.Config {
+	config := &restclient.Config{
 		Host: SERVER,
 	}
 

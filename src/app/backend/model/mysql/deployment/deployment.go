@@ -1,12 +1,12 @@
 package deployment
 
 import (
+	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, " +

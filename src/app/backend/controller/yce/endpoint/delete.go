@@ -16,7 +16,6 @@ type DeleteEndpointsController struct {
 	params *DeleteEndpointsParam
 }
 
-
 type DeleteEndpointsParam struct {
 	DcId int32 `json:dcId`
 }

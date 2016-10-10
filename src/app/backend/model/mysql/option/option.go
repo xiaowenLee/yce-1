@@ -7,11 +7,11 @@ const (
 	ONLINE                    // 上线
 	ROLLINGBACK               // 回滚
 	ROLLINGUPGRADE            // 滚动升级
-	SCALING			  // 扩容
+	SCALING                   // 扩容
 	CANCEL                    // 取消上线,下线
 	PAUSE                     // 暂停上线
 	RESUME                    // 恢复上线
-	DELETE			  // 删除
+	DELETE                    // 删除
 
 )
 

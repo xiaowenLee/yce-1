@@ -15,65 +15,64 @@ const (
 	EREDIS     int32 = 1100
 	EREDIS_GET int32 = 1101
 
-	EKUBE                      int32 = 1200
-	EKUBE_CLIENT               int32 = 1201
-	EKUBE_CREATE_DEPLOYMENT          = 1202
-	EKUBE_LIST_PODS                  = 1203
-	EKUBE_CREATE_SERVICE             = 1206
-	EKUBE_LIST_ENDPOINTS             = 1207
-	EKUBE_CREATE_NAMESPACE           = 1204
-	EKUBE_CREATE_RESOURCEQUOTA       = 1205
-	EKUBE_LIST_SERVICE               = 1208
-	EKUBE_CREATE_ENDPOINTS           = 1209
-	EKUBE_LIST_DEPLOYMENTS           = 1210
-	EKUBE_ROLLING_DEPLOYMENTS        = 1211
-	EKUBE_LABEL_SELECTOR             = 1212
-	EKUBE_GET_DEPLOYMENT             = 1213
-	EKUBE_ROLLBACK_DEPLOYMENT        = 1214
-	EKUBE_DELETE_SERVICE		 = 1215
-	EKUBE_DELETE_ENDPOINT 		 = 1216
-	EKUBE_LIST_REPLICASET		 = 1217
-	EKUBE_DELETE_REPLICASET		 = 1218
-	EKUBE_DELETE_DEPLOYMENT		 = 1219
-	EKUBE_DELETE_POD		 = 1220
-	EKUBE_GET_RS_BY_DEPLOYMENT       = 1221
-	EKUBE_GET_PODS_BY_RS             = 1222
-	EKUBE_GET_NODE_BY_POD            = 1223
-	EKUBE_GET_SERVICES_BY_NAMESPACE  = 1224
-	EKUBE_GET_PODS_BY_SERVICE        = 1225
-	EKUBE_LOGS_POD			 = 1226
-	EKUBE_SCALE_DEPLOYMENT		 = 1227
-	EKUBE_FIND_NEW_REPLICASET        = 1228
-
+	EKUBE                           int32 = 1200
+	EKUBE_CLIENT                    int32 = 1201
+	EKUBE_CREATE_DEPLOYMENT               = 1202
+	EKUBE_LIST_PODS                       = 1203
+	EKUBE_CREATE_SERVICE                  = 1206
+	EKUBE_LIST_ENDPOINTS                  = 1207
+	EKUBE_CREATE_NAMESPACE                = 1204
+	EKUBE_CREATE_RESOURCEQUOTA            = 1205
+	EKUBE_LIST_SERVICE                    = 1208
+	EKUBE_CREATE_ENDPOINTS                = 1209
+	EKUBE_LIST_DEPLOYMENTS                = 1210
+	EKUBE_ROLLING_DEPLOYMENTS             = 1211
+	EKUBE_LABEL_SELECTOR                  = 1212
+	EKUBE_GET_DEPLOYMENT                  = 1213
+	EKUBE_ROLLBACK_DEPLOYMENT             = 1214
+	EKUBE_DELETE_SERVICE                  = 1215
+	EKUBE_DELETE_ENDPOINT                 = 1216
+	EKUBE_LIST_REPLICASET                 = 1217
+	EKUBE_DELETE_REPLICASET               = 1218
+	EKUBE_DELETE_DEPLOYMENT               = 1219
+	EKUBE_DELETE_POD                      = 1220
+	EKUBE_GET_RS_BY_DEPLOYMENT            = 1221
+	EKUBE_GET_PODS_BY_RS                  = 1222
+	EKUBE_GET_NODE_BY_POD                 = 1223
+	EKUBE_GET_SERVICES_BY_NAMESPACE       = 1224
+	EKUBE_GET_PODS_BY_SERVICE             = 1225
+	EKUBE_LOGS_POD                        = 1226
+	EKUBE_SCALE_DEPLOYMENT                = 1227
+	EKUBE_FIND_NEW_REPLICASET             = 1228
 
 	EIRIS int32 = 1300
 
-	EYCE                 int32 = 1400
-	EYCE_LOGIN           int32 = 1401
-	EYCE_SESSION         int32 = 1402
-	EYCE_SESSION_DEL     int32 = 1403
-	EYCE_ORG_EXIST       int32 = 1404
-	EYCE_NODEPORT_EXIST  int32 = 1405
-	EYCE_ORGTODC         int32 = 1406
-	EYCE_LIST_EXTENSIONS int32 = 1407
-	EYCE_DELETE_NODEPORT int32 = 1408
+	EYCE                   int32 = 1400
+	EYCE_LOGIN             int32 = 1401
+	EYCE_SESSION           int32 = 1402
+	EYCE_SESSION_DEL       int32 = 1403
+	EYCE_ORG_EXIST         int32 = 1404
+	EYCE_NODEPORT_EXIST    int32 = 1405
+	EYCE_ORGTODC           int32 = 1406
+	EYCE_LIST_EXTENSIONS   int32 = 1407
+	EYCE_DELETE_NODEPORT   int32 = 1408
 	EYCE_DELETE_DEPLOYMENT int32 = 1409
-	EYCE_LOGS_POD	     int32 = 1410
-	EYCE_LOGOUT	     int32 = 1411
-	EYCE_DELETE_SERVICE int32 = 1412
-	EYCE_DELETE_ENDPOINTS int32 = 1413
-
+	EYCE_LOGS_POD          int32 = 1410
+	EYCE_LOGOUT            int32 = 1411
+	EYCE_DELETE_SERVICE    int32 = 1412
+	EYCE_DELETE_ENDPOINTS  int32 = 1413
+	EYCE_NOTFOUND 		   int32 = 1414
+	EYCE_DUP_NAME		   int32 = 1415
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
 
-	EJSON int32 = 1600
-	EARGS int32 = 1601
-	EOOM  int32 = 1602
-	EOOR  int32 = 1603
-	ENULL int32 = 1604
+	EJSON          int32 = 1600
+	EARGS          int32 = 1601
+	EOOM           int32 = 1602
+	EOOR           int32 = 1603
+	ENULL          int32 = 1604
 	EINVALID_PARAM int32 = 1605
-
 )
 
 var Errors = map[int32]*Error{
@@ -165,43 +164,43 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Rollback Deployment Error",
 		ErrMsg: "回滚失败",
 	},
-	EKUBE_DELETE_SERVICE: &Error {
+	EKUBE_DELETE_SERVICE: &Error{
 		LogMsg: "Kubernetes Delete Service Error",
 		ErrMsg: "删除服务失败",
 	},
-	EKUBE_DELETE_ENDPOINT: &Error {
+	EKUBE_DELETE_ENDPOINT: &Error{
 		LogMsg: "Kubernetes Delete Endpoint Error",
 		ErrMsg: "删除访问点失败",
 	},
-	EKUBE_LIST_REPLICASET: &Error {
+	EKUBE_LIST_REPLICASET: &Error{
 		LogMsg: "Kubernetes List ReplicaSet Error",
 		ErrMsg: "获取ReplicaSet列表失败",
 	},
-	EKUBE_DELETE_REPLICASET: &Error {
+	EKUBE_DELETE_REPLICASET: &Error{
 		LogMsg: "Kubernete Delete ReplicaSet Error",
 		ErrMsg: "删除ReplicaSet失败",
 	},
-	EKUBE_DELETE_DEPLOYMENT: &Error {
+	EKUBE_DELETE_DEPLOYMENT: &Error{
 		LogMsg: "Kubernetes Delete Deployment Error",
 		ErrMsg: "删除应用失败",
 	},
-	EKUBE_DELETE_POD: &Error {
+	EKUBE_DELETE_POD: &Error{
 		LogMsg: "Kubernetes Delete Deployment Error",
 		ErrMsg: "删除实例失败",
 	},
-	EKUBE_GET_RS_BY_DEPLOYMENT: &Error {
+	EKUBE_GET_RS_BY_DEPLOYMENT: &Error{
 		LogMsg: "Kuberetes get Replicaset by Deployment Error",
 		ErrMsg: "通过Deployment获取Rs失败",
 	},
-	EKUBE_GET_PODS_BY_RS: &Error {
+	EKUBE_GET_PODS_BY_RS: &Error{
 		LogMsg: "Kuberentes Get Pods by Replicaset Error",
 		ErrMsg: "通过Rs获取Pods失败",
 	},
-	EKUBE_GET_NODE_BY_POD: &Error {
+	EKUBE_GET_NODE_BY_POD: &Error{
 		LogMsg: "Kubernetes Get Node by Pod Error",
 		ErrMsg: "通过Pod获取Node失败",
 	},
-	EKUBE_GET_SERVICES_BY_NAMESPACE: &Error {
+	EKUBE_GET_SERVICES_BY_NAMESPACE: &Error{
 		LogMsg: "Kubernetes Get Services by Namespaces Error",
 		ErrMsg: "通过命名空间获取服务列表失败",
 	},
@@ -209,15 +208,15 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Get Pods by Service Error",
 		ErrMsg: "通过服务列表获取pods失败",
 	},
-	EKUBE_LOGS_POD: &Error {
+	EKUBE_LOGS_POD: &Error{
 		LogMsg: "Kubernetes Logs Pod Error",
 		ErrMsg: "获取Pod日志失败",
 	},
-	EKUBE_SCALE_DEPLOYMENT: &Error {
+	EKUBE_SCALE_DEPLOYMENT: &Error{
 		LogMsg: "Kuberentes Scale Deployment Error",
 		ErrMsg: "扩容Deployment失败",
 	},
-	EKUBE_FIND_NEW_REPLICASET: &Error {
+	EKUBE_FIND_NEW_REPLICASET: &Error{
 		LogMsg: "Kubernetes Find New ReplicaSet Error",
 		ErrMsg: "查找最新的ReplicaSet失败",
 	},
@@ -267,16 +266,16 @@ var Errors = map[int32]*Error{
 		LogMsg: "Get Service and Endpoint list error",
 		ErrMsg: "获取服务和访问点列表失败",
 	},
-	EYCE_DELETE_NODEPORT: &Error {
+	EYCE_DELETE_NODEPORT: &Error{
 		LogMsg: "Delete NodePort Error",
 		ErrMsg: "删除NodePort失败",
 	},
 
-	EYCE_DELETE_DEPLOYMENT : &Error {
+	EYCE_DELETE_DEPLOYMENT: &Error{
 		LogMsg: "Delete Deployment Error",
 		ErrMsg: "删除应用失败",
 	},
-	EYCE_LOGS_POD: &Error {
+	EYCE_LOGS_POD: &Error{
 		LogMsg: "Get Pod Logs Error",
 		ErrMsg: "获取实例日志失败",
 	},
@@ -284,13 +283,21 @@ var Errors = map[int32]*Error{
 		LogMsg: "Get Logout Params Error",
 		ErrMsg: "用户退出参数错误",
 	},
-	EYCE_DELETE_SERVICE: &Error {
+	EYCE_DELETE_SERVICE: &Error{
 		LogMsg: "Delete Service Error",
 		ErrMsg: "删除服务失败",
 	},
-	EYCE_DELETE_ENDPOINTS: &Error {
+	EYCE_DELETE_ENDPOINTS: &Error{
 		LogMsg: "Delete Endpoints Error",
 		ErrMsg: "删除访问点失败",
+	},
+	EYCE_NOTFOUND: &Error {
+		LogMsg: "Not Found",
+		ErrMsg: "资源未找到",
+	},
+	EYCE_DUP_NAME: &Error {
+		LogMsg: "Duplicated Resources Name",
+		ErrMsg: "资源名重复",
 	},
 
 	// 1500~1599 Registr错误
@@ -316,19 +323,19 @@ var Errors = map[int32]*Error{
 	},
 
 	// 1602 内存溢出
-	EOOM: &Error {
+	EOOM: &Error{
 		LogMsg: "Out of memory",
 		ErrMsg: "内存溢出",
 	},
-	EOOR: &Error {
+	EOOR: &Error{
 		LogMsg: "Index out of Range",
 		ErrMsg: "数组越界",
 	},
-	ENULL: &Error {
+	ENULL: &Error{
 		LogMsg: "Null Pointer Error",
 		ErrMsg: "空指针",
 	},
-	EINVALID_PARAM: &Error {
+	EINVALID_PARAM: &Error{
 		LogMsg: "Invalid Param",
 		ErrMsg: "无效值",
 	},

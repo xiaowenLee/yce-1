@@ -8,7 +8,6 @@ import (
 
 	//temporarily
 	"errors"
-
 )
 
 var log = mylog.Log
@@ -29,8 +28,8 @@ const (
 
 	NP_SELECT_NEW = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE port=? AND dcId=? ORDER BY port DESC"
 
-	VALID = 1
-	INVALID = 0
+	VALID      = 1
+	INVALID    = 0
 	PORT_START = 30000
 	PORT_LIMIT = 32767
 )
@@ -48,21 +47,21 @@ type NodePort struct {
 
 func NewNodePort(port, dcId int32, svcName string, modifiedOp int32) *NodePort {
 	return &NodePort{
-		Port: port,
-		DcId: dcId,
-		SvcName: svcName,
-		Status: VALID,
-		CreatedAt: localtime.NewLocalTime().String(),
+		Port:       port,
+		DcId:       dcId,
+		SvcName:    svcName,
+		Status:     VALID,
+		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedAt: localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
-		Comment: "",
+		Comment:    "",
 	}
 }
 
 // 推荐一个未使用的或VALID的端口
 // TODO: check the recommand algorithm
 func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
-	availablePorts := make(map[int32] int, 1)
+	availablePorts := make(map[int32]int, 1)
 	np = new(NodePort)
 
 	for _, v := range datacenters {
@@ -119,7 +118,6 @@ func (np *NodePort) QueryNewNodePort(datacenters []mydatacenter.DataCenter) {
 
 }
 
-
 func (np *NodePort) QueryValidNodePort(dcId int32) error {
 	db := mysql.MysqlInstance().Conn()
 
@@ -170,7 +168,6 @@ func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error {
 	return nil
 }
 
-
 // 根据NodePort号和所属DcId号查找相应的serviceId, 存在返回ServiceId和Nil, 不存在返回""和err
 func (np *NodePort) QueryServiceNameByPortAndDcId(port, dcId int32) (string, error) {
 	err := np.QueryNodePortByPortAndDcId(port, dcId)
@@ -205,11 +202,10 @@ func (np *NodePort) InsertNodePort(op int32) error {
 	svcName := np.SvcName
 	status := np.Status
 
-
 	err = np.QueryNodePortByPortAndDcId(np.Port, np.DcId)
 
 	// if port with dcId exist and it's INVALID
-	if err == nil && np.Status == 0{
+	if err == nil && np.Status == 0 {
 		log.Errorf("InserNodePort Error: error=%s", "Port exists")
 		return errors.New("Port Exists")
 	} else {
@@ -260,7 +256,6 @@ func (np *NodePort) UpdateNodePort(op int32) error {
 	}
 	defer stmt.Close()
 
-
 	np.ModifiedAt = localtime.NewLocalTime().String()
 	np.ModifiedOp = op
 
@@ -275,7 +270,6 @@ func (np *NodePort) UpdateNodePort(op int32) error {
 	log.Debugf("UpdateNodePort: Port=%d, DcId=%d, SvcName=%s, Status=%d, CreatedAt=%s, ModifiedAt=%s, ModifiedOp=%d, Comment=%s", np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	return nil
 }
-
 
 // 删除port对应的信息(修改status为VALID),  该记录不存在或该记录存在删除成功返回nil, 删除失败返回err
 func (np *NodePort) DeleteNodePort(op int32) error {

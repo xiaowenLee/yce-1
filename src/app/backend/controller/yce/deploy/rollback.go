@@ -3,13 +3,13 @@ package deploy
 import (
 	"app/backend/common/util/Placeholder"
 	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 	mydeployment "app/backend/model/mysql/deployment"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
 
 type RollbackDeploymentController struct {
@@ -23,14 +23,13 @@ type RollbackDeploymentController struct {
 }
 
 type RollbackDeployParam struct {
-	AppName  string `json: "appName"`
+	AppName  string  `json: "appName"`
 	DcIdList []int32 `json: "dcIdList"`
-	UserId   string `json: "userId"`
-	Image    string `json: "image"`
-	Revision string `json: "revision"`
-	Comments string `json: "comments"`
+	UserId   string  `json: "userId"`
+	Image    string  `json: "image"`
+	Revision string  `json: "revision"`
+	Comments string  `json: "comments"`
 }
-
 
 // Rollback
 func (rdc *RollbackDeploymentController) rollback() {
@@ -80,7 +79,6 @@ func (rdc *RollbackDeploymentController) createMysqlDeployment(success bool, nam
 		actionUrl, actionOp, dcList)
 	return nil
 }
-
 
 // POST /api/v1/organizations/{orgId}/deployments/{name}/rollback
 func (rdc RollbackDeploymentController) Post() {

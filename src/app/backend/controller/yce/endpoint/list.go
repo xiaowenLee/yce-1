@@ -1,13 +1,13 @@
 package endpoint
 
 import (
-	"app/backend/model/yce/endpoint"
 	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
+	"app/backend/model/yce/endpoint"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
 
 type ListEndpointsController struct {
@@ -16,8 +16,7 @@ type ListEndpointsController struct {
 	k8sClients []*client.Client
 }
 
-
-func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint.ListEndpoints) (epString string){
+func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint.ListEndpoints) (epString string) {
 	epList := make([]endpoint.Endpoints, len(lec.apiServers))
 	// Foreach every K8sClient to create service
 	for index, cli := range lec.k8sClients {
@@ -48,7 +47,6 @@ func (lec *ListEndpointsController) listEndpoints(namespace string, ed *endpoint
 	return epString
 }
 
-
 //GET /api/v1/organizations/{orgId}/users/{userId}/endpoints
 func (lec ListEndpointsController) Get() {
 	sessionIdFromClient := lec.RequestHeader("Authorization")
@@ -62,7 +60,7 @@ func (lec ListEndpointsController) Get() {
 	}
 
 	// Get Datacenter List by orgId
-	ed :=  new(endpoint.ListEndpoints)
+	ed := new(endpoint.ListEndpoints)
 	dcList, ye := yceutils.GetDatacenterListByOrgId(orgId)
 
 	if ye != nil {
