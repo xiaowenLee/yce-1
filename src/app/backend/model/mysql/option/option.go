@@ -15,6 +15,18 @@ const (
 
 )
 
+var OptionsMap = map[OptionType]string{
+	GET: "get",
+	ONLINE: "online",
+	ROLLINGBACK: "rollback",
+	ROLLINGUPGRADE: "rollingupgrade",
+	DELETE: "delete",
+	SCALING: "scale",
+	CANCEL: "cancel",
+	PAUSE: "pause",
+	RESUME: "resume",
+}
+
 type Option struct {
 	Id         int32  `json:"id"`
 	Name       string `json:"name"`
