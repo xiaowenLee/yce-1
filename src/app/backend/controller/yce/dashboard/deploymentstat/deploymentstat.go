@@ -7,6 +7,7 @@ import (
 
 	myerror "app/backend/common/yce/error"
 	"encoding/json"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
 type StatDeploymentController struct {
@@ -17,8 +18,63 @@ type StatDeploymentController struct {
 	orgName    string
 }
 
-func (sdc *StatDeploymentController) get
+// get deployment statistics including new ReplicaSet's name and Pods' name.
+func (sdc *StatDeploymentController) statDeployment(dp *extensions.Deployment, cli *client.Client) *DeploymentsType {
+	dps := new(DeploymentsType)
 
+	// get rsName
+	rsNew, ye := yceutils.GetNewReplicaSetByDeployment(cli, dp)
+	if ye != nil {
+		sdc.Ye = ye
+		return nil
+	}
+	log.Debugf("StatDeploymentController statDeployment: rsName=%s", rsNew.Name)
+
+	// get podName
+	podList, ye := yceutils.GetPodListByReplicaSet(cli, rsNew)
+	if ye != nil {
+		sdc.Ye = ye
+		return nil
+	}
+	log.Debugf("StatDeploymentController statDeployment: len(podList)=%d", len(podList.Items))
+
+	dps.DeploymentName = dp.Name
+	dps.RsName = rsNew.Name
+	dps.PodName = make([]string, 0)
+	for _, pod := range podList.Items {
+		dps.PodName = append(dps.PodName, pod.Name)
+	}
+	return dps
+}
+
+// get datacenters statistics especially datacenter's Id and name
+func (sdc *StatDeploymentController) getDatacenterStat(index int, dpList []extensions.Deployment, cli *client.Client) *DatacentersType {
+	dcs := new(DatacentersType)
+	dcs.Deployments = make([]DeploymentsType, 0)
+
+	dcList, ye := yceutils.GetDatacentersByOrgId(sdc.orgId)
+	if ye != nil {
+		sdc.Ye = ye
+		return nil
+	}
+	log.Debugf("StatDeploymentController getDatacenterStat: len(dcList)=%d", len(dcList))
+
+	dcs.DcId = dcList[index].Id
+	dcs.DcName = dcList[index].Name
+
+	for _, dp := range dpList {
+
+		dps := sdc.statDeployment(&dp, cli)
+		if sdc.CheckError() {
+			return nil
+		}
+
+		dcs.Deployments = append(dcs.Deployments, *dps)
+	}
+	return dcs
+}
+
+// get DeploymentStat. It's the main purpose.
 func (sdc *StatDeploymentController) getDeploymentStat() string {
 
 	dpStat := new(DeploymentStatType)
@@ -31,60 +87,24 @@ func (sdc *StatDeploymentController) getDeploymentStat() string {
 			sdc.Ye = ye
 			return ""
 		}
-		log.Debugf("StatDeploymentController GetDeploymentByNamespace: len(dpList)=%d", len(dpList))
+		log.Debugf("StatDeploymentController getDeploymentStat: len(dpList)=%d", len(dpList))
 
-		dcs := new(DatacentersType)
-		dcs.Deployments = make([]DeploymentsType, 0)
-		for _, dp := range dpList {
-
-			dps := new(DeploymentsType)
-
-			// get rsName
-			rsNew, ye := yceutils.GetNewReplicaSetByDeployment(cli, &dp)
-			if ye != nil {
-				sdc.Ye = ye
-				return ""
-			}
-			log.Debugf("StatDeploymentController GetDeploymentByNamespace: rsName=%s", rsNew.Name)
-
-			// get podName
-			podList, ye := yceutils.GetPodListByReplicaSet(cli, rsNew)
-			if ye != nil {
-				sdc.Ye = ye
-				return ""
-			}
-			log.Debugf("StatDeploymentController GetDeploymentByNamespace: len(podList)=%d", len(podList.Items))
-
-			dps.DeploymentName = dp.Name
-			dps.RsName = rsNew.Name
-			dps.PodName = make([]string, 0)
-			for _, pod := range podList.Items {
-				dps.PodName = append(dps.PodName, pod.Name)
-			}
-
-			dcList, ye := yceutils.GetDatacentersByOrgId(sdc.orgId)
-			if ye != nil {
-				sdc.Ye = ye
-				return ""
-			}
-
-			dcs.DcId = dcList[index].Id
-			dcs.DcName = dcList[index].Name
-			dcs.Deployments = append(dcs.Deployments, *dps)
+		dcs := sdc.getDatacenterStat(index, dpList, cli)
+		if sdc.CheckError() {
+			return ""
 		}
 
 		dpStat.DeploymentStat = append(dpStat.DeploymentStat, *dcs)
 	}
 
-
 	// encode to json then convert to string
 	dpStatJSON, err := json.Marshal(dpStat.DeploymentStat)
 	if err != nil {
-		log.Errorf("StatDeploymentController GetDeploymentStat Error: error=%s", err)
+		log.Errorf("StatDeploymentController getDeploymentStat Error: error=%s", err)
 		sdc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
 	}
-	log.Infoln("StatDeploymentController GetDeploymentStat Success")
+	log.Infoln("StatDeploymentController getDeploymentStat Success")
 	log.Debugln(dpStatJSON)
 	dpStatString := string(dpStatJSON)
 
@@ -136,7 +156,6 @@ func (sdc StatDeploymentController) Get() {
 	if sdc.CheckError() {
 		return
 	}
-
 
 	// write back
 	sdc.WriteOk(dpStatString)
