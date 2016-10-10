@@ -11,7 +11,7 @@ const (
 
 
 	// For MySQL
-	MAX_POOL_SIZE        = 10
+	MAX_POOL_SIZE        = 20
 	DATABASE_DRIVER      = "mysql"
 	DB_HOST              = "mysql.yce:3306"
 	DB_USER              = "root"
