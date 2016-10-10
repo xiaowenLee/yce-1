@@ -14,6 +14,7 @@ import (
 	mypath "app/backend/controller/yce/apis"
 	myhealthz "app/backend/controller/yce/healthz"
 	myversion "app/backend/controller/yce/version"
+	mydeploymentstat "app/backend/controller/yce/dashboard/deploymentstat"
 	"github.com/kataras/iris"
 )
 
@@ -46,6 +47,7 @@ type Router struct {
 	Api *mypath.ApisController
 	Healthz *myhealthz.HealthzController
 	Version *myversion.VersionController
+	StatDeployment *mydeploymentstat.StatDeploymentController
 }
 
 func NewRouter() *Router {
@@ -78,6 +80,7 @@ func NewRouter() *Router {
 	r.Api = new(mypath.ApisController)
 	r.Healthz = new(myhealthz.HealthzController)
 	r.Version = new(myversion.VersionController)
+	r.StatDeployment = new(mydeploymentstat.StatDeploymentController)
 
 	return r
 }
@@ -113,6 +116,7 @@ func (r *Router) Registe() {
 	iris.API("/", *r.Api)
 	iris.API("/version", *r.Version)
 	iris.API("/healthz", *r.Healthz)
+	iris.API("/api/v1/organizations/:orgId/deploymentstat", *r.StatDeployment)
 
 	iris.StaticServe("../frontend", "/static")
 }
