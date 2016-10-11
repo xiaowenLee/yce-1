@@ -17,6 +17,7 @@ import (
 	mytopology "app/backend/controller/yce/topology"
 	myversion "app/backend/controller/yce/version"
 	"github.com/kataras/iris"
+	myoperationstat "app/backend/controller/yce/dashboard/operationstat"
 )
 
 type Router struct {
@@ -50,7 +51,9 @@ type Router struct {
 	Version          *myversion.VersionController
 	StatDeployment   *mydeploymentstat.StatDeploymentController
 	StatResource     *myresourcestat.StatResourceController
+	OperationStat    *myoperationstat.OperationStatController
 }
+
 
 func NewRouter() *Router {
 	r := new(Router)
@@ -84,6 +87,7 @@ func NewRouter() *Router {
 	r.Version = new(myversion.VersionController)
 	r.StatDeployment = new(mydeploymentstat.StatDeploymentController)
 	r.StatResource = new(myresourcestat.StatResourceController)
+	r.OperationStat = new(myoperationstat.OperationStatController)
 
 	return r
 }
@@ -121,6 +125,7 @@ func (r *Router) Registe() {
 	iris.API("/healthz", *r.Healthz)
 	iris.API("/api/v1/organizations/:orgId/deploymentstat", *r.StatDeployment)
 	iris.API("/api/v1/organizations/:orgId/resourcestat", *r.StatResource)
+	iris.API("/api/v1/organizations/:orgId/operationstat", *r.OperationStat)
 
 	iris.StaticServe("../frontend", "/static")
 }

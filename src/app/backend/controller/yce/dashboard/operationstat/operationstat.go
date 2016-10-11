@@ -4,7 +4,6 @@ import (
 	yce "app/backend/controller/yce"
 	"strconv"
 	myerror "app/backend/common/yce/error"
-	"os"
 )
 
 
@@ -35,11 +34,11 @@ func (osc OperationStatController) Get() {
 
 	ops := NewOperationStatistics()
 
-	str, err := ops.Transform(id)
+	str, err := ops.Transform(int32(id))
 
 	if err != nil {
 		log.Errorf("OperationStatController Transform from mysql to json Error: err=%s", err)
-		os.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		osc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 	}
 
 	if osc.CheckError() {
