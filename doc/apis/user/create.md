@@ -2,21 +2,42 @@
 -----------
 
 #### 创建初始化
-目的: 检查用户名是否重复
-请求URL: /api/v1/user/init 
+目的: 为创建用户做准备, 获取组织列表供管理员为用户选择
+请求URL: /api/v1/organizations/list
+请求头: Authorization:SessionId
+请求方法: GET 
+
+返回数据:
+```
+{
+    "code": 0,
+    "msg": "xxx",
+    "data": {
+        "organizations": [
+            "dev",
+            "ops"
+        ] 
+    }
+}
+```
+
+
+#### 用户名检查
+目的: 当管理员输入用户名完毕后(离开输入框), 检查用户名是否重复
+请求URL: /api/v1/user/init
 请求头: Authorization:SessionId
 请求方法: POST
 
 携带数据:
 ```
 {
-    "name": "xxx",
+    "userName": "xxx",
     "orgName": "yyy",   // 
     "orgId": 1          //表示创建者(管理员)所在的组织,用来验证管理员会话, 从本地存储中获取
 }
 ```
 
-返回在该组织里是否存在, "code": 1414 为已存在, "code": 0为未被占用.
+返回在该组织里是否存在, "code": 1414 为用户名已存在, 不能使用该名称, 需提示。 "code": 0为未被占用, 可以使用该名称, 无需提示。
 
 程序实现逻辑:
 
@@ -32,7 +53,7 @@
 携带数据:
 ```
 {
-    "name": "xxx",
+    "userName": "xxx",
     "password": "xxx",  // 暂时有默认值
     "orgName": "dev",       // 创建用户时选择
     "orgId": "1",          // 表示创建者所在的组织, 用来验证管理员会话 

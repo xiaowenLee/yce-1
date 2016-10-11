@@ -748,6 +748,23 @@ func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceEr
 	return true, nil
 }
 
+func GetOrgNameList() ([]string, *myerror.YceError) {
+
+	orgList, err := myorganization.QueryAllOrganizations()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	orgNameList := make([]string, 0)
+
+	for _, org := range orgList {
+		orgNameList = append(orgNameList, org.Name)
+	}
+
+	return orgNameList, nil
+}
+
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {
 

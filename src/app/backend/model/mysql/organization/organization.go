@@ -14,6 +14,9 @@ const (
 	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM organization WHERE id=?"
+	ORG_SELECT_ALL = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
+		"createdAt, modifiedAt, modifiedOp, comment " +
+		"FROM organization"
 
 	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
@@ -89,6 +92,48 @@ func (o *Organization) QueryOrganizationById(id int32) error {
 	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
+}
+
+func QueryAllOrganizations() ([]Organization, error) {
+	organizations := make([]Organization, 0)
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-all-statement
+	stmt, err := db.Prepare(ORG_SELECT_ALL)
+	if err != nil {
+		log.Errorf("QueryAllOrganizations Error: err=%s", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Errorf("QueryAllOrganizations Error: err=%s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		o := new(Organization)
+
+		var comment []byte
+		err = rows.Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance,
+			&o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
+		o.Comment = string(comment)
+		if err != nil {
+			log.Errorf("QueryAllOrganizations Error: err=%s", err)
+			return nil, err
+		}
+		organizations = append(organizations, *o)
+
+		log.Infof("QueryAllOrganizations: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+			o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+
+	}
+
+	log.Infof("QueryAllOrganizations: len(organizations)=%d", len(organizations))
+	return organizations, nil
 }
 
 func (o *Organization) QueryOrganizationByName(name string) error {
