@@ -70,7 +70,12 @@ func Test_QueryOperationStat(*testing.T) {
 	config.Instance().Load()
 	mysql.MysqlInstance().Open()
 
-	ops, _ := QueryOperationStat()
+	// days := []string{"2016-10-11", "2016-10-10", "2016-10-09", "2016-10-08", "2016-10-07", "2016-10-06", "2016-10-05"}
+
+	var orgId int32
+	orgId = 1
+
+	ops, _ := QueryOperationStat(orgId)
 
 	for k, v := range ops {
 		log.Infof("OperationStat: key=%s, value=%v", k, v)

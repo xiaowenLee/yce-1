@@ -1,31 +1,8 @@
 package deployment
 
 import (
-	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-)
-
-var log = mylog.Log
-
-const (
-	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
-		"FROM deployment where id=?"
-
-	DEPLOYMENT_BYNAME = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
-		"FROM deployment where name=? ORDER BY id DESC LIMIT 30"
-
-	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	DEPLOYMENT_ACTIONTYPE_STAT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
-		"FROM deployment where actionType=?"
-	VALID   = 1
-	INVALID = 0
->>>>>>> a7a204ff83126d54dc9fa22d5c035ecd20b87340
 )
 
 type Deployment struct {
@@ -204,7 +181,7 @@ func StatDeploymentByActionType(actionType int) (count int32, err error) {
 	return count, nil
 }
 
-func QueryOperationStat() (OperationStat, error) {
+func QueryOperationStat(orgId int32) (OperationStat, error) {
 
 	ops := make(OperationStat)
 
@@ -217,7 +194,7 @@ func QueryOperationStat() (OperationStat, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(orgId, orgId, orgId, orgId, orgId)
 	if err != nil {
 		log.Errorf("QueryOperationStat Error: err=%s", err)
 		return nil, err

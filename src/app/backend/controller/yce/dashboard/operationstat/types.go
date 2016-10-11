@@ -3,8 +3,8 @@ package operationstat
 import (
 	mydeployment "app/backend/model/mysql/deployment"
 	mylog "app/backend/common/util/log"
-	"sort"
-	"time"
+	myday "app/backend/common/util/day"
+	"encoding/json"
 )
 
 var log =  mylog.Log
@@ -21,33 +21,15 @@ type StatisticsType struct {
 	Delete StatType `json:"delete"`
 }
 
-func (d DateType) Len() int {
-	return len(d)
-}
-
-func (d DateType) Swap(i, j int) {
-	d[i], d[j] = d[j], d[i]
-}
-
-func (d DateType) Less(i, j int) bool {
-	ti, _ := time.Parse(d[i], "2011-01-19")
-	tj, _ := time.Parse(d[j], "2011-01-19")
-
-	return ti <= tj
-}
-
 type OperationStatistics struct {
 	Date DateType `json:"date"`
 	Statistics StatisticsType `json:"statistics"`
-}
-
-func getLastDay(d DateType) DateType {
-
+	mapping map[string]int32
 }
 
 func NewOperationStatistics() *OperationStatistics {
-
 	oss := new(OperationStatistics)
+
 	oss.Date = make(DateType, 0)
 	oss.Statistics = *new(StatisticsType)
 	oss.Statistics.Online = make(StatType, 0)
@@ -56,18 +38,78 @@ func NewOperationStatistics() *OperationStatistics {
 	oss.Statistics.Scale = make(StatType, 0)
 	oss.Statistics.Delete = make(StatType, 0)
 
+	oss.mapping = make(map[string]int32)
+
 	return oss
 }
 
-func  Transform() (string, error) {
+func (ops *OperationStatistics) bindDateArray() string {
+	str := ""
+	for _, day := range ops.Date {
+		str += day + ","
+	}
+	return str
+}
 
-	ops, err := mydeployment.QueryOperationStat()
+func (ops *OperationStatistics) InitOperationStatistics() {
+	d := myday.NewToday()
+	ds := d.GetLastDaysString(LAST_N_DAYS)
+
+	for index, v := range ds {
+		ops.Date = append(ops.Date, v)
+		ops.mapping[v] = int32(index)
+	}
+
+	for i := 0; i < LAST_N_DAYS; i++ {
+		ops.Statistics.Online = append(ops.Statistics.Online, 0)
+		ops.Statistics.Rollingupgrade = append(ops.Statistics.Rollingupgrade, 0)
+		ops.Statistics.Rollback = append(ops.Statistics.Rollback, 0)
+		ops.Statistics.Scale = append(ops.Statistics.Scale, 0)
+		ops.Statistics.Delete = append(ops.Statistics.Delete, 0)
+	}
+}
+
+func  (ops *OperationStatistics) Transform(orgId int32) (string, error) {
+	ost, err := mydeployment.QueryOperationStat(orgId)
 
 	if err != nil {
 		return "", err
 	}
 
 	oss := NewOperationStatistics()
+	oss.InitOperationStatistics()
 
-	return "", nil
+	for date, v := range ost {
+		if index, ok := oss.mapping[date]; ok {
+			for op, total := range v {
+				switch op {
+				case 2:
+					oss.Statistics.Online[index] = total
+					break
+				case 3:
+					oss.Statistics.Rollback[index] = total
+					break
+				case 4:
+					oss.Statistics.Rollingupgrade[index] = total
+					break
+				case 8:
+					oss.Statistics.Scale[index] = total
+					break
+				case 9:
+					oss.Statistics.Delete[index] = total
+					break
+
+				}
+			}
+		}
+	}
+
+	data, err := json.Marshal(oss)
+
+	if err != nil {
+		log.Errorf("OperationStatistics Transform Json Error: err=%s", err)
+		return "", err
+	}
+
+	return string(data), nil
 }

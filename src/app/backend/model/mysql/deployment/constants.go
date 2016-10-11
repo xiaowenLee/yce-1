@@ -30,7 +30,7 @@ WHERE date_format(d.actionAt, '%Y-%m-%d') IN
     FROM deployment d
     WHERE date_sub(curdate(), INTERVAL 7 DAY) <= date_format(d.actionAt, '%Y-%m-%d')
   )
-  AND d.actionType = 2
+  AND d.actionType = 2 AND d.orgId = ?
 GROUP BY date_format(d.actionAt, '%Y-%m-%d')
 
 UNION
@@ -43,7 +43,7 @@ WHERE date_format(d.actionAt, '%Y-%m-%d') IN
     FROM deployment d
     WHERE date_sub(curdate(), INTERVAL 7 DAY) <= date_format(d.actionAt, '%Y-%m-%d')
   )
-  AND d.actionType = 3
+  AND d.actionType = 3 AND d.orgId = ?
 GROUP BY date_format(d.actionAt, '%Y-%m-%d')
 
 UNION
@@ -56,7 +56,7 @@ WHERE date_format(d.actionAt, '%Y-%m-%d') IN
     FROM deployment d
     WHERE date_sub(curdate(), INTERVAL 7 DAY) <= date_format(d.actionAt, '%Y-%m-%d')
   )
-  AND d.actionType = 4
+  AND d.actionType = 4 AND d.orgId = ?
 GROUP BY date_format(d.actionAt, '%Y-%m-%d')
 
 UNION
@@ -69,7 +69,7 @@ WHERE date_format(d.actionAt, '%Y-%m-%d') IN
     FROM deployment d
     WHERE date_sub(curdate(), INTERVAL 7 DAY) <= date_format(d.actionAt, '%Y-%m-%d')
   )
-  AND d.actionType = 8
+  AND d.actionType = 8 AND d.orgId = ?
 GROUP BY date_format(d.actionAt, '%Y-%m-%d')
 
 UNION
@@ -82,6 +82,53 @@ WHERE date_format(d.actionAt, '%Y-%m-%d') IN
     FROM deployment d
     WHERE date_sub(curdate(), INTERVAL 7 DAY) <= date_format(d.actionAt, '%Y-%m-%d')
   )
-  AND d.actionType = 9
+  AND d.actionType = 9 AND d.orgId = ?
 GROUP BY date_format(d.actionAt, '%Y-%m-%d')
 `
+
+/*
+var OPERATION_LOG = `
+SELECT date_format(d.actionAt, '%Y-%m-%d') AS date, sum(d.actionType) AS total, 2 AS op
+FROM deployment d
+WHERE date_format(d.actionAt, '%Y-%m-%d') IN
+  ( ? )
+  AND d.actionType = 2 AND d.orgId = ?
+GROUP BY date_format(d.actionAt, '%Y-%m-%d')
+
+UNION
+
+SELECT date_format(d.actionAt, '%Y-%m-%d') AS date, sum(d.actionType) AS total, 3 AS op
+FROM deployment d
+WHERE date_format(d.actionAt, '%Y-%m-%d') IN
+  ( ? )
+  AND d.actionType = 3 AND d.orgId = ?
+GROUP BY date_format(d.actionAt, '%Y-%m-%d')
+
+UNION
+
+SELECT date_format(d.actionAt, '%Y-%m-%d') AS date, sum(d.actionType) AS total, 4 AS op
+FROM deployment d
+WHERE date_format(d.actionAt, '%Y-%m-%d') IN
+  ( ? )
+  AND d.actionType = 4 AND d.orgId = ?
+GROUP BY date_format(d.actionAt, '%Y-%m-%d')
+
+UNION
+
+SELECT date_format(d.actionAt, '%Y-%m-%d') AS date, sum(d.actionType) AS total, 8 AS op
+FROM deployment d
+WHERE date_format(d.actionAt, '%Y-%m-%d') IN
+  ( ? )
+  AND d.actionType = 8 AND d.orgId = ?
+GROUP BY date_format(d.actionAt, '%Y-%m-%d')
+
+UNION
+
+SELECT date_format(d.actionAt, '%Y-%m-%d') AS date, sum(d.actionType) AS total, 9 AS op
+FROM deployment d
+WHERE date_format(d.actionAt, '%Y-%m-%d') IN
+  ( ? )
+  AND d.actionType = 9 AND d.orgId = ?
+GROUP BY date_format(d.actionAt, '%Y-%m-%d')
+`
+*/
