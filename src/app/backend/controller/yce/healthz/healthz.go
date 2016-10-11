@@ -12,4 +12,3 @@ type HealthzController struct {
 func (hc HealthzController) Get() {
 	hc.Write("OK")
 }
-

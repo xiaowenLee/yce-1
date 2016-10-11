@@ -3,6 +3,8 @@ package deploy
 import (
 	"app/backend/common/util/Placeholder"
 	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 	mydeployment "app/backend/model/mysql/deployment"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
@@ -10,8 +12,6 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	"strconv"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
 
 type RollingDeploymentController struct {
@@ -80,7 +80,6 @@ func (rdc *RollingDeploymentController) createMysqlDeployment(success bool, name
 		actionUrl, actionOp, dcList)
 	return nil
 }
-
 
 func (rdc RollingDeploymentController) Post() {
 	orgId := rdc.Param("orgId")
@@ -156,8 +155,8 @@ func (rdc RollingDeploymentController) Post() {
 	oId, _ := strconv.Atoi(orgId)
 
 	// Insert into mysql.Deployment
-	userId, _ :=  strconv.Atoi(rd.UserId)
-	rdc.createMysqlDeployment(true, rd.AppName,  string(kd), "", dcIdList, rd.Comments, int32(userId), int32(oId))
+	userId, _ := strconv.Atoi(rd.UserId)
+	rdc.createMysqlDeployment(true, rd.AppName, string(kd), "", dcIdList, rd.Comments, int32(userId), int32(oId))
 
 	if rdc.CheckError() {
 		return

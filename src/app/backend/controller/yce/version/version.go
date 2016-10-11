@@ -12,4 +12,3 @@ type VersionController struct {
 func (vc VersionController) Get() {
 	vc.Write(VERSION)
 }
-

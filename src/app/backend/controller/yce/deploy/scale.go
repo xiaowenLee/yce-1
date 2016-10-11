@@ -2,31 +2,29 @@ package deploy
 
 import (
 	"app/backend/model/yce/deploy"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
 
-	myerror "app/backend/common/yce/error"
-	mydeployment "app/backend/model/mysql/deployment"
-	"strconv"
 	"app/backend/common/util/Placeholder"
-	"github.com/kubernetes/kubernetes/pkg/util/json"
+	myerror "app/backend/common/yce/error"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	mydeployment "app/backend/model/mysql/deployment"
+	"github.com/kubernetes/kubernetes/pkg/util/json"
+	"strconv"
 )
 
-type ScaleDeploymentController struct{
+type ScaleDeploymentController struct {
 	yce.Controller
-	k8sClient *client.Client
-	apiServer string
-	orgId string
-	userId string
-	dcId string
-	name string
-	s *deploy.ScaleDeployment
+	k8sClient  *client.Client
+	apiServer  string
+	orgId      string
+	userId     string
+	dcId       string
+	name       string
+	s          *deploy.ScaleDeployment
 	deployment *extensions.Deployment
 }
-
-
 
 // Scale directly
 func (sdc *ScaleDeploymentController) scaleSimple() {

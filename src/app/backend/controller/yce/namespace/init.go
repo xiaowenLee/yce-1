@@ -2,8 +2,8 @@ package namespace
 
 import (
 	myerror "app/backend/common/yce/error"
-	myorganization "app/backend/model/mysql/organization"
 	yce "app/backend/controller/yce"
+	myorganization "app/backend/model/mysql/organization"
 )
 
 type InitNamespaceController struct {
@@ -11,10 +11,9 @@ type InitNamespaceController struct {
 }
 
 type InitNamespaceParams struct {
-	Name string `json:"name"`
-	OrgId  string `json:"orgId"`
+	Name  string `json:"name"`
+	OrgId string `json:"orgId"`
 }
-
 
 // POST /api/v1/organizations/init
 func (inc *InitNamespaceController) Post() {

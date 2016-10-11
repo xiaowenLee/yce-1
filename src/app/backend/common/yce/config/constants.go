@@ -5,10 +5,9 @@ const (
 	REDIS_HOST = "redis.yce:32379"
 	// REDIS_PORT = "32379"
 	// REDIS_SERVER = "redis.yce:32379"
-	MAX_IDLE   = 1
-	MAX_ACTIVE = 10
+	MAX_IDLE     = 1
+	MAX_ACTIVE   = 10
 	IDEL_TIMEOUT = 180
-
 
 	// For MySQL
 	MAX_POOL_SIZE        = 20

@@ -1,15 +1,15 @@
 package deploy_test
 
 import (
+	mylog "app/backend/common/util/log"
 	testclient "app/backend/common/yce/testclient"
-	"testing"
-	"k8s.io/kubernetes/pkg/api"
 	"app/backend/model/yce/deploy"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	"encoding/json"
 	"fmt"
+	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
-	mylog "app/backend/common/util/log"
+	"k8s.io/kubernetes/pkg/apis/extensions"
+	"testing"
 )
 
 func TestDeploymentCreate(t *testing.T) {
@@ -18,16 +18,16 @@ func TestDeploymentCreate(t *testing.T) {
 
 	// solution 1:
 	deployment := &deploy.CreateDeployment{
-		AppName: "foo-nginx",
-		OrgName: "ops",
+		AppName:  "foo-nginx",
+		OrgName:  "ops",
 		DcIdList: []int32{1},
 		Deployment: extensions.Deployment{
 			TypeMeta: unversioned.TypeMeta{
-				Kind: "Deployment",
+				Kind:       "Deployment",
 				APIVersion: "extensions/v1beta1",
 			},
 			ObjectMeta: api.ObjectMeta{
-				Name: "foo-nginx",
+				Name:      "foo-nginx",
 				Namespace: "ops",
 			},
 			Spec: extensions.DeploymentSpec{
@@ -41,7 +41,7 @@ func TestDeploymentCreate(t *testing.T) {
 					Spec: api.PodSpec{
 						Containers: []api.Container{
 							api.Container{
-								Name: "foo-nginx",
+								Name:  "foo-nginx",
 								Image: "nginx:1.7.9",
 							},
 						},
@@ -72,8 +72,8 @@ func TestDeploymentCreate(t *testing.T) {
 	c := testclient.TestClient{
 		Request: testclient.Request{
 			Header: headers,
-			Path: newUrl,
-			Body: body,
+			Path:   newUrl,
+			Body:   body,
 		},
 	}
 	c.Post()
@@ -83,5 +83,3 @@ func TestDeploymentCreate(t *testing.T) {
 
 	//TODO: using validate() without human interference
 }
-
-

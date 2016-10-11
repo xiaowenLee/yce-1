@@ -1,7 +1,6 @@
 package utils
 
 import (
-
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
@@ -246,7 +245,6 @@ func GetServicesByNamespace(c *client.Client, namespace string) ([]api.Service, 
 	}
 }
 
-
 func GetEndpointsByNamespace(c *client.Client, namespace string) ([]api.Endpoints, *myerror.YceError) {
 	if CheckValidate(c) && CheckValidate(namespace) {
 		eps, err := c.Endpoints(namespace).List(api.ListOptions{})
@@ -451,7 +449,6 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 			DcName:   DcName,
 		}
 
-
 		log.Infof("GetDatacenterListByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(DcIdList), len(DcName))
 		return datacenterList, nil
 	} else {
@@ -461,7 +458,6 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 	}
 
 }
-
 
 func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 	if CheckValidate(orgId) {
@@ -635,21 +631,21 @@ func GetDeployAndPodList(userId int32, c *client.Client, deploymentList *extensi
 
 			rsList, ye := GetReplicaSetsByDeployment(c, dp.Deploy)
 			if ye != nil {
-				log.Errorf("FindNewReplicaSet Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+				log.Errorf("GetDeployAndPodList Error: error=%s", myerror.Errors[ye.Code].LogMsg)
 				return nil, ye
 			}
 
 			newRs, err := deploymentutil.FindNewReplicaSet(dp.Deploy, rsList)
 			if err != nil {
 
-				log.Errorf("FindNewReplicaSet Error: error=%s", err)
+				log.Errorf("GetDeployAndPodList Error: error=%s", err)
 				ye := myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 				return nil, ye
 			}
 
 			PodList, ye := GetPodListByReplicaSet(c, newRs)
 			if ye != nil {
-				log.Errorf("FindNewReplicaSet Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+				log.Errorf("GetDeployAndPodList Error: error=%s", myerror.Errors[ye.Code].LogMsg)
 				return nil, ye
 			}
 
@@ -663,10 +659,28 @@ func GetDeployAndPodList(userId int32, c *client.Client, deploymentList *extensi
 		return dap, nil
 	} else {
 		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
-		log.Errorf("GetOrgNameByOrgId Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+		log.Errorf("GetDeployAndPodList Error: error=%s", myerror.Errors[ye.Code].LogMsg)
 		return nil, ye
 	}
 
+}
+
+func GetNewReplicaSetByDeployment(c *client.Client, deployment *extensions.Deployment) (*extensions.ReplicaSet, *myerror.YceError) {
+	rsList, ye := GetReplicaSetsByDeployment(c, deployment)
+	if ye != nil {
+		log.Errorf("GetReplicaSetsByDeployment Error: error=%s", myerror.Errors[ye.Code].LogMsg)
+		return nil, ye
+	}
+
+	rsNew, err := deploymentutil.FindNewReplicaSet(deployment, rsList)
+	if err != nil {
+
+		log.Errorf("GetReplicaSetsByDeployment Error: error=%s", err)
+		ye := myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
+		return nil, ye
+	}
+
+	return rsNew, nil
 }
 
 // Get Deployment by deployment-name
@@ -720,6 +734,17 @@ func CheckValidate(value interface{}) bool {
 
 		return flag
 	*/
+}
+
+func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
+	err := myuser.QueryUserByNameAndOrgId(name, orgId)
+	// not found
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
+		return false, ye
+	}
+	// found
+	return true, nil
 }
 
 //TODO: Get Namespace List By Datacenter Id List

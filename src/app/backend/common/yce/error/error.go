@@ -1,11 +1,11 @@
 package error
 
 import (
-	"encoding/json"
 	mylog "app/backend/common/util/log"
+	"encoding/json"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 type YceError struct {
 	Code    int32  `json:"code"`
@@ -47,10 +47,8 @@ func (ye *YceError) String() string {
 	return string(errJSON)
 }
 
-
-func (ye *YceError) SetError(code int32, message, data string ) {
+func (ye *YceError) SetError(code int32, message, data string) {
 	ye.Code = code
 	ye.Message = message
 	ye.Data = data
 }
-

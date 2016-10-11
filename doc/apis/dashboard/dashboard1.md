@@ -31,8 +31,9 @@ organization里存放的有CPU和MEM各自的总额。total会存在数据库里
    {
        "code": 0,
        "msg": "操作成功",
-       "data": {
-           "overall": {                 // 总览
+       "data": [{                      // 总览
+               "dcId": 0,
+               "dcName": "总览",
                "cpu": {
                    "total": 20,         // 总额
                    "used":  6           // 已用
@@ -42,7 +43,7 @@ organization里存放的有CPU和MEM各自的总额。total会存在数据库里
                    "used": 24
                }
            },
-           "datacenters": [{            // 分数据中心显示
+           {                            // 分数据中心显示
                "dcId": 1,
                "dcName": "办公网",
                "cpu": {
@@ -52,7 +53,7 @@ organization里存放的有CPU和MEM各自的总额。total会存在数据库里
                "mem": {
                    "total": 32,
                    "used": 8 
-              } 
+               } 
            },
            {
                "dcId": 2,
@@ -65,8 +66,8 @@ organization里存放的有CPU和MEM各自的总额。total会存在数据库里
                    "total": 32,
                    "used": 16 
                }
-           }]
-       }
+           }
+       }]
    }
  ```
 

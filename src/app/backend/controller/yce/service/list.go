@@ -1,13 +1,13 @@
 package service
 
 import (
-	"app/backend/model/yce/service"
 	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
+	"app/backend/model/yce/service"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/api"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
 
 type ListServiceController struct {
@@ -16,8 +16,7 @@ type ListServiceController struct {
 	k8sClients []*client.Client
 }
 
-
-func (lsc *ListServiceController) listService(namespace string, sd *service.ListService) (svcString string){
+func (lsc *ListServiceController) listService(namespace string, sd *service.ListService) (svcString string) {
 	//TODO: use slice instead of array
 	svcList := make([]service.Service, len(lsc.apiServers))
 	// Foreach every K8sClient to create service
@@ -30,7 +29,6 @@ func (lsc *ListServiceController) listService(namespace string, sd *service.List
 		}
 
 		//TODO: check consistency
-
 
 		svcList[index].DcId = sd.DcIdList[index]
 		svcList[index].DcName = sd.DcName[index]
@@ -51,7 +49,6 @@ func (lsc *ListServiceController) listService(namespace string, sd *service.List
 	return svcString
 }
 
-
 //GET /api/v1/organizations/{orgId}/users/{userId}/services
 func (lsc ListServiceController) Get() {
 	sessionIdFromClient := lsc.RequestHeader("Authorization")
@@ -65,7 +62,6 @@ func (lsc ListServiceController) Get() {
 		return
 	}
 
-
 	// Get Datacenters by organizations
 	sd := new(service.ListService)
 
@@ -76,7 +72,6 @@ func (lsc ListServiceController) Get() {
 	if lsc.CheckError() {
 		return
 	}
-
 
 	sd.DcIdList = dcList.DcIdList
 	sd.DcName = dcList.DcName

@@ -52,6 +52,7 @@ func Test_InsertDeployment(*testing.T) {
 	dp.QueryDeploymentById(1)
 	fmt.Printf("%v\n", dp)
 }
+*/
 
 func Test_StatDeploymentByActionType(*testing.T) {
 	mysql.NewMysqlClient(mysql.DB_HOST, mysql.DB_USER, mysql.DB_PASSWORD, mysql.DB_NAME, mysql.MAX_POOL_SIZE)

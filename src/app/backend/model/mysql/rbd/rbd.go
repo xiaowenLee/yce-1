@@ -1,13 +1,13 @@
 package rbd
 
 import (
+	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	RBD_SELECT = "SELECT id, name, pool, size, filesystem, " +

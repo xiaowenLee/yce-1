@@ -2,8 +2,8 @@ package config
 
 import (
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -16,10 +16,9 @@ const (
 
 	ENV_REDIS_HOST = "REDIS_HOST"
 	// ENV_REDIS_PORT = "REDIS_PORT"
-	ENV_REDIS_MAX_IDLE_CONN = "REDIS_MAX_IDLE_CONN"
+	ENV_REDIS_MAX_IDLE_CONN   = "REDIS_MAX_IDLE_CONN"
 	ENV_REDIS_MAX_ACTIVE_CONN = "REDIS_MAX_ACTIVE_CONN"
-	ENV_REDIS_IDLE_TIMEOUT = "REDIS_IDLE_TIMEOUT"
-
+	ENV_REDIS_IDLE_TIMEOUT    = "REDIS_IDLE_TIMEOUT"
 )
 
 var once sync.Once
@@ -27,7 +26,7 @@ var once sync.Once
 var instance *Config
 
 func Instance() *Config {
-	once.Do(func(){
+	once.Do(func() {
 		instance = new(Config)
 	})
 	return instance
@@ -41,9 +40,9 @@ type Config struct {
 
 	RedisHost string `json:"redisHost"`
 	// RedisPort string `json:"redisPort"`
-	RedisMaxIdleConn int `json:"redisMaxIdleConn"`
-	RedisMaxActiveConn int `json:"redisMaxActiveConf"`
-	RedisIdleTimeout time.Duration `json:"redisIdleTimeout"`
+	RedisMaxIdleConn   int           `json:"redisMaxIdleConn"`
+	RedisMaxActiveConn int           `json:"redisMaxActiveConf"`
+	RedisIdleTimeout   time.Duration `json:"redisIdleTimeout"`
 }
 
 func (conf *Config) Load() {
@@ -70,9 +69,9 @@ func (conf *Config) Load() {
 		conf.RedisHost = REDIS_HOST
 	}
 	/*
-	if conf.RedisPort = os.Getenv(ENV_REDIS_PORT); strings.EqualFold(conf.RedisPort, "") {
-		conf.RedisPort = REDIS_PORT
-	}
+		if conf.RedisPort = os.Getenv(ENV_REDIS_PORT); strings.EqualFold(conf.RedisPort, "") {
+			conf.RedisPort = REDIS_PORT
+		}
 	*/
 
 	if redisMaxIdleConn := os.Getenv(ENV_REDIS_MAX_IDLE_CONN); strings.EqualFold(redisMaxIdleConn, "") {

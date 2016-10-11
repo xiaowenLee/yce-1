@@ -5,7 +5,7 @@ import "encoding/json"
 
 type SpecType struct {
 	Name string `json:"name"`
-	Age int32 `json:"age"`
+	Age  int32  `json:"age"`
 }
 
 type A struct {
@@ -14,19 +14,19 @@ type A struct {
 
 type B struct {
 	A
-	Kind string `json:"kind"`
+	Kind    string `json:"kind"`
 	Version string `json:"version"`
 }
 
 func main() {
 
 	b := B{
-		Kind: "Node",
+		Kind:    "Node",
 		Version: "v1beta3",
 		A: A{
 			Spec: SpecType{
 				Name: "litanhua",
-				Age: 32,
+				Age:  32,
 			},
 		},
 	}

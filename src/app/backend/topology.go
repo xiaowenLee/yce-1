@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
@@ -9,7 +10,6 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
 	"os"
-	"fmt"
 )
 
 /*==========================================================================
@@ -31,25 +31,25 @@ var topology *Topology
 ==========================================================================*/
 type PodType struct {
 	api.Pod
-	Kind string `json:"kind"`
+	Kind       string `json:"kind"`
 	ApiVersion string `json:"apiVersion"`
 }
 
 type ServiceType struct {
 	api.Service
-	Kind string `json:"kind"`
+	Kind       string `json:"kind"`
 	ApiVersion string `json:"apiVersion"`
 }
 
 type ReplicaSetType struct {
 	extensions.ReplicaSet
-	Kind string `json:"kind"`
+	Kind       string `json:"kind"`
 	ApiVersion string `json:"apiVersion"`
 }
 
 type NodeType struct {
 	api.Node
-	Kind string `json:"kind"`
+	Kind       string `json:"kind"`
 	ApiVersion string `json:"apiVersion"`
 }
 
@@ -69,7 +69,7 @@ type Topology struct {
  Helper funcs
 ==========================================================================*/
 
-func getDeploymentsByNamespace(c *client.Client, namespace string) ([]extensions.Deployment, error)  {
+func getDeploymentsByNamespace(c *client.Client, namespace string) ([]extensions.Deployment, error) {
 	dps, err := c.Extensions().Deployments(namespace).List(api.ListOptions{})
 	if err != nil {
 		logger.Fatalf("getDeploymentsByNamespace Error: err=%s\n", err)
@@ -194,7 +194,7 @@ func getTopology(c *client.Client, namespace string) bool {
 			// Topology.Items
 			uid := string(rs.UID)
 			topology.Items[uid] = ReplicaSetType{
-				Kind: "ReplicaSet",
+				Kind:       "ReplicaSet",
 				ApiVersion: "v1beta2",
 				ReplicaSet: rs,
 			}
@@ -206,12 +206,12 @@ func getTopology(c *client.Client, namespace string) bool {
 			for _, pod := range podList {
 				uid = string(pod.UID)
 				topology.Items[uid] = PodType{
-					Kind: "Pod",
+					Kind:       "Pod",
 					ApiVersion: "v1beta2",
-					Pod: pod,
+					Pod:        pod,
 				}
 
-				relation := RelationsType {
+				relation := RelationsType{
 					Source: string(rs.UID),
 					Target: string(pod.UID),
 				}
@@ -225,12 +225,12 @@ func getTopology(c *client.Client, namespace string) bool {
 
 				uid = string(node.UID)
 				topology.Items[uid] = NodeType{
-					Kind: "Node",
+					Kind:       "Node",
 					ApiVersion: "v1beata2",
-					Node: *node,
+					Node:       *node,
 				}
 
-				relation = RelationsType {
+				relation = RelationsType{
 					Source: string(node.UID),
 					Target: string(pod.UID),
 				}
@@ -249,9 +249,9 @@ func getTopology(c *client.Client, namespace string) bool {
 	for _, svc := range svcList {
 		uid := string(svc.UID)
 		topology.Items[uid] = ServiceType{
-			Kind: "Service",
+			Kind:       "Service",
 			ApiVersion: "v1beta1",
-			Service: svc,
+			Service:    svc,
 		}
 
 		podList, err := getPodByService(c, namespace, &svc)
@@ -264,13 +264,13 @@ func getTopology(c *client.Client, namespace string) bool {
 			uid = string(pod.UID)
 			if _, ok := topology.Items[uid]; ok {
 				topology.Items[uid] = PodType{
-					Kind: "Pod",
+					Kind:       "Pod",
 					ApiVersion: "v1beta1",
-					Pod: pod,
+					Pod:        pod,
 				}
 			}
 
-			relation := RelationsType {
+			relation := RelationsType{
 				Source: string(svc.UID),
 				Target: string(pod.UID),
 			}
@@ -299,7 +299,7 @@ func init() {
 }
 
 func main() {
-	config := &restclient.Config {
+	config := &restclient.Config{
 		Host: SERVER,
 	}
 

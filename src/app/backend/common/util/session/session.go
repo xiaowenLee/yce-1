@@ -1,9 +1,9 @@
 package session
 
 import (
+	mylog "app/backend/common/util/log"
 	"encoding/json"
 	"errors"
-	mylog "app/backend/common/util/log"
 
 	localtime "app/backend/common/util/time"
 	"github.com/pborman/uuid"
@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	DEFAULT_EXPIRATION = "604800" // 7*24*60*60s

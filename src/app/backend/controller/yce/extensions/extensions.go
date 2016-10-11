@@ -2,12 +2,12 @@ package extensions
 
 import (
 	myerror "app/backend/common/yce/error"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"encoding/json"
-	"app/backend/model/yce/extensions"
-	"k8s.io/kubernetes/pkg/api"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	"app/backend/model/yce/extensions"
+	"encoding/json"
+	"k8s.io/kubernetes/pkg/api"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
 )
 
 type ListExtensionsController struct {
@@ -17,7 +17,7 @@ type ListExtensionsController struct {
 }
 
 //TODO: for condition that we cann't delete the endpoints which was created by the service with selector, now cancel the endpoints deletion
-func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, le *yceutils.DatacenterList) (extString string){
+func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, le *yceutils.DatacenterList) (extString string) {
 	extList := make([]extensions.Extensions, len(lec.apiServers))
 
 	for index, cli := range lec.k8sClients {
@@ -29,12 +29,12 @@ func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, l
 		}
 
 		/*
-		eps, err := cli.Endpoints(namespace).List(api.ListOptions{})
-		if err != nil {
-			log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
-			myerror.NewYceError(myerror.EYCE_LIST_EXTENSIONS, "")
-			return
-		}
+			eps, err := cli.Endpoints(namespace).List(api.ListOptions{})
+			if err != nil {
+				log.Errorf("listEndpoints Error: apiServer=%s, namespace=%s, error=%s", lec.apiServers[index], namespace, err)
+				myerror.NewYceError(myerror.EYCE_LIST_EXTENSIONS, "")
+				return
+			}
 		*/
 
 		extList[index].DcId = le.DcIdList[index]
@@ -105,4 +105,3 @@ func (lec ListExtensionsController) Get() {
 
 	return
 }
-

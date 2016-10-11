@@ -158,7 +158,6 @@ func (dc *DataCenter) DeleteDataCenter(op int32) error {
 	}
 	defer stmt.Close()
 
-
 	// Update modifiedAt and modifiedOp
 	dc.ModifiedAt = localtime.NewLocalTime().String()
 	dc.ModifiedOp = op

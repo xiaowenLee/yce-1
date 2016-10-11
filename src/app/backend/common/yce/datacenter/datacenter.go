@@ -5,7 +5,7 @@ import (
 	"app/backend/model/mysql/datacenter"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 func GetDataCenterById(dcId int32) (*datacenter.DataCenter, error) {
 

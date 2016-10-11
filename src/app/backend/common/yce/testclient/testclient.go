@@ -3,35 +3,34 @@ package testclient
 import (
 	//myhttpclient "app/backend/common/util/http"
 	//"k8s.io/kubernetes/pkg/runtime"
-	"net/http"
-	"io/ioutil"
-	"io"
-	"strings"
 	mylog "app/backend/common/util/log"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
 type Request struct {
-	Header  map[string]string
-	Path string
+	Header map[string]string
+	Path   string
 	//Body io.Reader
 	Body []byte
-	r io.Reader
+	r    io.Reader
 	//Body runtime.Object
 	//RawBody *string
 }
 
 type Response struct {
 	StatusCode int
-	Body []byte
+	Body       []byte
 	//Body       runtime.Object
 	//RawBody    *string
 }
 
-
 type TestClient struct {
 	//myhttpclient.HttpClient
 	http.Client
-	Request Request
+	Request  Request
 	Response Response
 }
 
@@ -112,7 +111,6 @@ func (t *TestClient) Delete() {
 		req.Header.Add(k, v)
 	}
 
-
 	resp, err := t.Do(req)
 	if err != nil {
 		mylog.Log.Errorf("Delete error=%s", err)
@@ -126,12 +124,7 @@ func (t *TestClient) Delete() {
 		return
 	}
 
-
 }
-
-
-
-
 
 /*
 import (

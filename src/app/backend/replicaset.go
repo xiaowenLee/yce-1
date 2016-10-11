@@ -1,21 +1,21 @@
 package main
 
 import (
+	"k8s.io/kubernetes/pkg/api"
+	unver "k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/kubernetes/pkg/client/restclient"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
 	"os"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/client/restclient"
-	unver "k8s.io/kubernetes/pkg/api/unversioned"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	"strings"
 )
 
 var logger *log.Logger
 
 const (
-	SERVER string = "http://172.21.1.11:8080"
-	RevisionAnnotation = "deployment.kubernetes.io/revision"
+	SERVER             string = "http://172.21.1.11:8080"
+	RevisionAnnotation        = "deployment.kubernetes.io/revision"
 )
 
 func init() {
@@ -35,7 +35,7 @@ func getReplicaSetsByDeployment(c *client.Client, deployment *extensions.Deploym
 	return rsList.Items, nil
 }
 
-func getDeploymentByReplicaSet(namespace string, c *client.Client, rs *extensions.ReplicaSet) ([]extensions.Deployment, error){
+func getDeploymentByReplicaSet(namespace string, c *client.Client, rs *extensions.ReplicaSet) ([]extensions.Deployment, error) {
 
 	selector, err := unver.LabelSelectorAsSelector(rs.Spec.Selector)
 	if err != nil {
@@ -66,7 +66,7 @@ func getDeploymentByReplicaSetName(namespace string, c *client.Client, rs *exten
 
 func main() {
 
-	config := &restclient.Config {
+	config := &restclient.Config{
 		Host: SERVER,
 	}
 

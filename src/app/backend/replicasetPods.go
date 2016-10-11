@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
@@ -87,7 +86,7 @@ func GetNewReplicaSetTemplate(deployment *extensions.Deployment) api.PodTemplate
 
 func main() {
 
-	config := &restclient.Config {
+	config := &restclient.Config{
 		Host: SERVER,
 	}
 
@@ -129,22 +128,22 @@ func main() {
 	}
 
 	/*
-	rsList, err := c.Extensions().ReplicaSets(api.NamespaceDefault).List(api.ListOptions{})
-	if err != nil {
-		logger.Fatalf("Could not list deployments: err=%s\n", err)
-	}
-
-	// Foreach replicaSet
-	for _, rs := range rsList.Items {
-		logger.Printf("ReplicaSet:\t%s\n", rs.Name)
-		podList, err := getPodsByReplicaSet(c, &rs)
+		rsList, err := c.Extensions().ReplicaSets(api.NamespaceDefault).List(api.ListOptions{})
 		if err != nil {
-			logger.Fatalf("GetPodsByReplicaSet Error: err=%s\n", err)
+			logger.Fatalf("Could not list deployments: err=%s\n", err)
 		}
 
-		for _, pod := range podList {
-			logger.Printf("\tPodName:\t%s\n", pod.Name)
+		// Foreach replicaSet
+		for _, rs := range rsList.Items {
+			logger.Printf("ReplicaSet:\t%s\n", rs.Name)
+			podList, err := getPodsByReplicaSet(c, &rs)
+			if err != nil {
+				logger.Fatalf("GetPodsByReplicaSet Error: err=%s\n", err)
+			}
+
+			for _, pod := range podList {
+				logger.Printf("\tPodName:\t%s\n", pod.Name)
+			}
 		}
-	}
 	*/
 }
