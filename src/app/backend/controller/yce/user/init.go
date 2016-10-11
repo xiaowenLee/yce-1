@@ -15,6 +15,7 @@ type OrgNames struct {
 	OrgNameList []string `json:"orgNameList"`
 }
 
+// get Organization Names
 func (iuc *InitUserController) getOrgNames() string {
 	orgNames := new(OrgNames)
 	orgNames.OrgNameList, iuc.Ye = yceutils.GetOrgNameList()
