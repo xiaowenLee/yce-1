@@ -3,7 +3,7 @@
 
 #### 创建初始化
 目的: 检查用户名是否重复
-请求URL: /api/v1/organizations/1/user/init //organizations 表示创建者(管理员)所在的组织,用来验证管理员会话
+请求URL: /api/v1/user/init 
 请求头: Authorization:SessionId
 请求方法: POST
 
@@ -11,7 +11,8 @@
 ```
 {
     "name": "xxx",
-    "orgName": "yyy"
+    "orgName": "yyy",   // 
+    "orgId": 1          //表示创建者(管理员)所在的组织,用来验证管理员会话, 从本地存储中获取
 }
 ```
 
@@ -24,7 +25,7 @@
 去user表里选择同时满足orgId和name的用户,如果有,返回存在,如果没有,返回不存在
 
 #### 创建
-请求URL: /api/v1/organization/1/user/new
+请求URL: /api/v1/organization/{:orgId}/user/new
 请求头: Authorization:SessionId
 请求方法: POST
 
@@ -32,9 +33,10 @@
 ```
 {
     "name": "xxx",
-    "password": "xxx", // 暂时有默认值
+    "password": "xxx",  // 暂时有默认值
     "orgName": 1,       // 创建用户时选择
-    "createdOp": 1
+    "createdOp": 1, 
+    "orgId": 1          // 表示创建者所在的组织, 用来验证管理员会话 
 }
 ```
 

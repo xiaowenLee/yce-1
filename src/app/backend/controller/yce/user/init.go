@@ -5,67 +5,69 @@ import (
 	yceutils "app/backend/controller/yce/utils"
 	myerror "app/backend/common/yce/error"
 	myorganization "app/backend/model/mysql/organization"
-	myuser "app/backend/model/user/organization"
 )
 
-type InitUserCreationController struct {
+type InitUserController struct {
 	yce.Controller
-	params *InitUserCreationParams
-	orgId int32
+	params *InitUserParams
+	orgId string
 }
 
-type InitUserCreationParams struct {
+type InitUserParams struct {
 	UserName string `json:"userName"`
 	OrgName string `json:"orgName"`
+	OrgId string `json:"orgId"`
 }
 
-func (iucc *InitUserCreationController) checkDuplicatedName() {
+// check whether the name is existed
+func (iuc *InitUserController) checkDuplicatedName() {
 	org := new(myorganization.Organization)
-	err := org.QueryOrganizationByName(iucc.params.OrgName)
+	err := org.QueryOrganizationByName(iuc.params.OrgName)
 	if err != nil {
-		iucc.Ye = myerror.NewYceError(myerror.EMYSQL, "")
-		return ""
+		iuc.Ye = myerror.NewYceError(myerror.EMYSQL, "")
+		return
 	}
 
-	user := new(myuser.User)
-	ok, ye := yceutils.QueryDuplicatedNameAndOrgId(iucc.params.UserName, org.Id)
+	_, ye := yceutils.QueryDuplicatedNameAndOrgId(iuc.params.UserName, org.Id)
 	// not found, can insert
 	if ye != nil {
-		iucc.Ye = myerror.NewYceError(myerror.EOK, "")
+		//iuc.Ye = myerror.NewYceError(myerror.EOK, "")
+		return
 	} else {
 		// found, cann't insert
-		iucc.Ye = myerror.NewYceError(myerror.EYCE_DUP_NAME, "")
-	}
-
-	if iucc.CheckError() {
+		iuc.Ye = myerror.NewYceError(myerror.EYCE_EXISTED_NAME, "")
 		return
 	}
+
 
 }
 
-func (iucc InitUserCreationController) Post() {
-	SessionIdFromClient := iucc.RequestHeader("Authorization")
-	iucc.params = new(InitUserCreationParams)
+func (iuc InitUserController) Post() {
+	SessionIdFromClient := iuc.RequestHeader("Authorization")
+	iuc.params = new(InitUserParams)
 
-	err = iucc.ReadJSON(iucc.params)
+	err := iuc.ReadJSON(iuc.params)
 	if err != nil {
-		iucc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		iuc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
-	if iucc.CheckError() {
+	if iuc.CheckError() {
 		return
 	}
 
-	iucc.ValidateSession(SessionIdFromClient, iucc.orgId)
-	if iucc.CheckError() {
+	iuc.orgId = iuc.params.OrgId
+
+	iuc.ValidateSession(SessionIdFromClient, iuc.orgId)
+	if iuc.CheckError() {
 		return
 	}
 
 	// check if duplicated user name
-	iucc.checkDuplicatedName()
-	if iucc.CheckError() {
+	iuc.checkDuplicatedName()
+	if iuc.CheckError() {
 		return
 	}
 
-	log.Infoln("InitUserCreationController Post Over")
+	iuc.WriteOk("")
+	log.Infoln("InitUserController Post Over")
 }
 
