@@ -736,6 +736,7 @@ func CheckValidate(value interface{}) bool {
 	*/
 }
 
+/*
 func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
 	err := myuser.QueryUserByNameAndOrgId(name, orgId)
 	// not found
@@ -746,6 +747,7 @@ func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceEr
 	// found
 	return true, nil
 }
+*/
 
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {
