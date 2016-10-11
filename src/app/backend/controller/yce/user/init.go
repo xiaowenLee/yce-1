@@ -1,22 +1,22 @@
 package user
 
 import (
+	myerror "app/backend/common/yce/error"
 	"app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
-	myerror "app/backend/common/yce/error"
 	myorganization "app/backend/model/mysql/organization"
 )
 
 type InitUserController struct {
 	yce.Controller
 	params *InitUserParams
-	orgId string
+	orgId  string
 }
 
 type InitUserParams struct {
 	UserName string `json:"userName"`
-	OrgName string `json:"orgName"`
-	OrgId string `json:"orgId"`
+	OrgName  string `json:"orgName"`
+	OrgId    string `json:"orgId"`
 }
 
 // check whether the name is existed
@@ -24,7 +24,7 @@ func (iuc *InitUserController) checkDuplicatedName() {
 	org := new(myorganization.Organization)
 	err := org.QueryOrganizationByName(iuc.params.OrgName)
 	if err != nil {
-		iuc.Ye = myerror.NewYceError(myerror.EMYSQL, "")
+		iuc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
 
@@ -38,7 +38,6 @@ func (iuc *InitUserController) checkDuplicatedName() {
 		iuc.Ye = myerror.NewYceError(myerror.EYCE_EXISTED_NAME, "")
 		return
 	}
-
 
 }
 
@@ -70,4 +69,3 @@ func (iuc InitUserController) Post() {
 	iuc.WriteOk("")
 	log.Infoln("InitUserController Post Over")
 }
-

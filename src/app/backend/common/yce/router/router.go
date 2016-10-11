@@ -52,6 +52,7 @@ type Router struct {
 	StatDeployment   *mydeploymentstat.StatDeploymentController
 	StatResource     *myresourcestat.StatResourceController
 	InitUser 	 *myuser.InitUserController
+	CreateUser 	 *myuser.CreateUserController
 }
 
 func NewRouter() *Router {
@@ -87,6 +88,7 @@ func NewRouter() *Router {
 	r.StatDeployment = new(mydeploymentstat.StatDeploymentController)
 	r.StatResource = new(myresourcestat.StatResourceController)
 	r.InitUser = new(myuser.InitUserController)
+	r.CreateUser = new(myuser.CreateUserController)
 
 	return r
 }
@@ -125,6 +127,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/deploymentstat", *r.StatDeployment)
 	iris.API("/api/v1/organizations/:orgId/resourcestat", *r.StatResource)
 	iris.API("/api/v1/user/init", *r.InitUser)
+	iris.API("/api/v1/user/new", *r.CreateUser)
 
 	iris.StaticServe("../frontend", "/static")
 }
