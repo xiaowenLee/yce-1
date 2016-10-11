@@ -1,7 +1,6 @@
 package utils
 
 import (
-
 	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
 	mydatacenter "app/backend/model/mysql/datacenter"
@@ -246,7 +245,6 @@ func GetServicesByNamespace(c *client.Client, namespace string) ([]api.Service, 
 	}
 }
 
-
 func GetEndpointsByNamespace(c *client.Client, namespace string) ([]api.Endpoints, *myerror.YceError) {
 	if CheckValidate(c) && CheckValidate(namespace) {
 		eps, err := c.Endpoints(namespace).List(api.ListOptions{})
@@ -451,7 +449,6 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 			DcName:   DcName,
 		}
 
-
 		log.Infof("GetDatacenterListByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(DcIdList), len(DcName))
 		return datacenterList, nil
 	} else {
@@ -461,7 +458,6 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 	}
 
 }
-
 
 func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 	if CheckValidate(orgId) {
@@ -669,7 +665,6 @@ func GetDeployAndPodList(userId int32, c *client.Client, deploymentList *extensi
 
 }
 
-
 func GetNewReplicaSetByDeployment(c *client.Client, deployment *extensions.Deployment) (*extensions.ReplicaSet, *myerror.YceError) {
 	rsList, ye := GetReplicaSetsByDeployment(c, deployment)
 	if ye != nil {
@@ -684,7 +679,6 @@ func GetNewReplicaSetByDeployment(c *client.Client, deployment *extensions.Deplo
 		ye := myerror.NewYceError(myerror.EKUBE_LIST_DEPLOYMENTS, "")
 		return nil, ye
 	}
-
 
 	return rsNew, nil
 }
@@ -740,6 +734,17 @@ func CheckValidate(value interface{}) bool {
 
 		return flag
 	*/
+}
+
+func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
+	err := myuser.QueryUserByNameAndOrgId(name, orgId)
+	// not found
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
+		return false, ye
+	}
+	// found
+	return true, nil
 }
 
 //TODO: Get Namespace List By Datacenter Id List

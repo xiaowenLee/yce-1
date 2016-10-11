@@ -27,7 +27,6 @@ func (src *StatResourceController) statDatacenter(datacenter *mydatacenter.DataC
 	dc.DcId = datacenter.Id
 	dc.DcName = datacenter.Name
 
-
 	// get deployments in this datacenters
 	dpList, ye := yceutils.GetDeploymentByNamespace(cli, src.orgName)
 	if ye != nil {

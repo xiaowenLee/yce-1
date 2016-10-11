@@ -227,7 +227,6 @@ func QueryAllQuotas() ([]Quota, error) {
 
 }
 
-
 func QueryAllQuotasOrderByCpu() ([]Quota, error) {
 	// New quotas pint array
 	quotas := make([]Quota, 0)

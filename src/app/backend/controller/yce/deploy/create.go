@@ -1,18 +1,17 @@
 package deploy
 
 import (
-	myerror "app/backend/common/yce/error"
 	"app/backend/common/util/Placeholder"
+	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 	mydeployment "app/backend/model/mysql/deployment"
 	"app/backend/model/yce/deploy"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"strconv"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
-
 
 type CreateDeploymentController struct {
 	yce.Controller
@@ -87,7 +86,6 @@ func (cdc CreateDeploymentController) Post() {
 	}
 
 	log.Infof("CreateDeploymentController ReadJSON success: cd=%p", cd)
-
 
 	// Get DcIdList
 	cdc.apiServers, cdc.Ye = yceutils.GetApiServerList(cd.DcIdList)

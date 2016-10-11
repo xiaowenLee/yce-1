@@ -1,9 +1,9 @@
 package redigo
 
 import (
+	config "app/backend/common/yce/config"
 	redis "github.com/garyburd/redigo/redis"
 	"sync"
-	config "app/backend/common/yce/config"
 )
 
 var once sync.Once

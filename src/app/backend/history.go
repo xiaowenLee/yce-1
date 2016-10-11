@@ -8,8 +8,8 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"log"
 	"os"
-	"time"
 	"strings"
+	"time"
 )
 
 var logger *log.Logger
@@ -89,7 +89,6 @@ func displayDeployment(dp *extensions.Deployment) {
 
 	labels := encodeMapToString(dp.Labels)
 	logger.Printf("Labels:\t\t%s\n", labels)
-
 
 	// Annotations
 	annotations := encodeMapToString(dp.Annotations)

@@ -2,11 +2,11 @@ package endpoint
 
 import (
 	myerror "app/backend/common/yce/error"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"app/backend/model/yce/endpoint"
-	"k8s.io/kubernetes/pkg/api"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	"app/backend/model/yce/endpoint"
+	"k8s.io/kubernetes/pkg/api"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
 )
 
 type CreateEndpointsController struct {
@@ -14,7 +14,6 @@ type CreateEndpointsController struct {
 	k8sClients []*client.Client
 	apiServers []string
 }
-
 
 // why need return value?
 // Publish k8s.Service to every datacenter which in dcIdList
@@ -35,13 +34,11 @@ func (cec *CreateEndpointsController) createEndpoints(namespace string, endpoint
 	return
 }
 
-
 func (cec CreateEndpointsController) Post() {
 	sessionIdFromClient := cec.RequestHeader("Authorization")
 	orgId := cec.Param("orgId")
 
 	log.Debugf("CreateEndpointsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
-
 
 	// Validate OrgId error
 	cec.ValidateSession(sessionIdFromClient, orgId)

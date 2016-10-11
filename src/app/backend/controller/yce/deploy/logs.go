@@ -2,10 +2,10 @@ package deploy
 
 import (
 	myerror "app/backend/common/yce/error"
-	"k8s.io/kubernetes/pkg/api"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	"k8s.io/kubernetes/pkg/api"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
 )
 
 type LogsPodController struct {
@@ -27,11 +27,10 @@ type LogsPodController struct {
 
 // json from client
 type LogsPodParam struct {
-	UserId       string             `json:"userId"`
-	DcIdList     []int32            `json:"dcIdList"`
-	LogOption    *yceutils.LogOptionType 	`json:"logOption,omitempty"`
+	UserId    string                  `json:"userId"`
+	DcIdList  []int32                 `json:"dcIdList"`
+	LogOption *yceutils.LogOptionType `json:"logOption,omitempty"`
 }
-
 
 // parse params from json
 func (lpc *LogsPodController) getParams() {
@@ -47,7 +46,6 @@ func (lpc *LogsPodController) getParams() {
 	log.Debugf("LogsPodController getParams successfully: dcId=%d, userId=%s", lpc.params.DcIdList[0], lpc.params.UserId)
 	log.Debugf("LogsPodController getParams: LogOption=%v", lpc.params.LogOption)
 }
-
 
 // logs all
 func (lpc *LogsPodController) logs() string {
@@ -73,7 +71,6 @@ func (lpc LogsPodController) Post() {
 	lpc.podName = lpc.Param("podName")
 
 	log.Debugf("LogsPodController Params: sessionId=%s, orgId=%s, podName=%s", sessionIdFromClient, lpc.orgId, lpc.podName)
-
 
 	// Validate sessionId
 	lpc.ValidateSession(sessionIdFromClient, lpc.orgId)

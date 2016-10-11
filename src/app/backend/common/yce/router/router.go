@@ -1,21 +1,21 @@
 package router
 
 import (
+	mypath "app/backend/controller/yce/apis"
+	mydeploymentstat "app/backend/controller/yce/dashboard/deploymentstat"
+	myresourcestat "app/backend/controller/yce/dashboard/resourcestat"
 	mydeploy "app/backend/controller/yce/deploy"
+	myendpoint "app/backend/controller/yce/endpoint"
+	myextensions "app/backend/controller/yce/extensions"
+	myhealthz "app/backend/controller/yce/healthz"
 	mylogin "app/backend/controller/yce/login"
 	mylogout "app/backend/controller/yce/logout"
 	mynamespace "app/backend/controller/yce/namespace"
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
 	myservice "app/backend/controller/yce/service"
-	myendpoint "app/backend/controller/yce/endpoint"
-	myextensions "app/backend/controller/yce/extensions"
 	mytopology "app/backend/controller/yce/topology"
-	mypath "app/backend/controller/yce/apis"
-	myhealthz "app/backend/controller/yce/healthz"
 	myversion "app/backend/controller/yce/version"
-	mydeploymentstat "app/backend/controller/yce/dashboard/deploymentstat"
-	myresourcestat "app/backend/controller/yce/dashboard/resourcestat"
 	"github.com/kataras/iris"
 )
 
@@ -40,16 +40,16 @@ type Router struct {
 	DeleteDeploy     *mydeploy.DeleteDeploymentController
 	LogsPod          *mydeploy.LogsPodController
 	ListOperationLog *mydeploy.ListOperationLogController
-	InitNamespace *mynamespace.InitNamespaceController
-	DeleteService *myservice.DeleteServiceController
-	DeleteEndpoint *myendpoint.DeleteEndpointsController
-	HistoryDeploy *mydeploy.HistoryDeploymentController
-	Topology *mytopology.TopologyController
-	Api *mypath.ApisController
-	Healthz *myhealthz.HealthzController
-	Version *myversion.VersionController
-	StatDeployment *mydeploymentstat.StatDeploymentController
-	StatResource *myresourcestat.StatResourceController
+	InitNamespace    *mynamespace.InitNamespaceController
+	DeleteService    *myservice.DeleteServiceController
+	DeleteEndpoint   *myendpoint.DeleteEndpointsController
+	HistoryDeploy    *mydeploy.HistoryDeploymentController
+	Topology         *mytopology.TopologyController
+	Api              *mypath.ApisController
+	Healthz          *myhealthz.HealthzController
+	Version          *myversion.VersionController
+	StatDeployment   *mydeploymentstat.StatDeploymentController
+	StatResource     *myresourcestat.StatResourceController
 }
 
 func NewRouter() *Router {

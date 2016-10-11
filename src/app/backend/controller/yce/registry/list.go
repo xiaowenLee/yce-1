@@ -6,10 +6,9 @@ import (
 
 	myhttps "app/backend/common/util/https"
 	myerror "app/backend/common/yce/error"
-	myregistry "app/backend/model/yce/registry"
 	yce "app/backend/controller/yce"
+	myregistry "app/backend/model/yce/registry"
 )
-
 
 type ListRegistryController struct {
 	yce.Controller
@@ -26,7 +25,7 @@ type ListRegistryController struct {
 //   "ceph/mds"
 //   ]
 // }
-func (lrc *ListRegistryController) getRepositories() ([]string) {
+func (lrc *ListRegistryController) getRepositories() []string {
 	url := lrc.BaseUrl + "/v2/_catalog"
 
 	client := lrc.c.Client
@@ -57,7 +56,7 @@ func (lrc *ListRegistryController) getRepositories() ([]string) {
 // curl --cacert /etc/docker/certs.d/registry.test.com\:5000/domain.crt -X
 //	 GET https://registry.test.com:5000/v2/yeepay/nginx/tags/list
 // {"name":"yeepay/nginx","tags":["latest"]}
-func (lrc *ListRegistryController) getTagsList(name string) (*myregistry.Image) {
+func (lrc *ListRegistryController) getTagsList(name string) *myregistry.Image {
 
 	// foreech repositories
 	url := lrc.BaseUrl + "/v2/" + name + "/tags/list"
@@ -102,7 +101,6 @@ func (lrc ListRegistryController) Get() {
 	lrc.c = myhttps.NewHttpsClient(r.Host, r.Port, r.Cert)
 	lrc.BaseUrl = "https://" + r.Host + ":" + r.Port
 	lrc.Registry = r
-
 
 	log.Debugf("ListRegistryController Params: BaseURL=%s, Registry=%p", lrc.BaseUrl, lrc.Registry)
 

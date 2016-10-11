@@ -4,15 +4,11 @@ import (
 	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
 	"encoding/json"
-
-
 )
 
 type DcIdListType struct {
 	DcIdList []int32 `json:"dcIdList"`
 }
-
-
 
 // Encode DcIdList []int32 to dcIdList Json []string form
 func StringDcIdList(dcIdList []int32) (string, *myerror.YceError) {

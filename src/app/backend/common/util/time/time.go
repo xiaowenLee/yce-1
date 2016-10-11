@@ -1,8 +1,8 @@
 package time
 
 import (
-	"time"
 	"strconv"
+	"time"
 )
 
 type LocalTime struct {
@@ -44,7 +44,3 @@ func DurationFromUTC(t string) string {
 
 	return durationString
 }
-
-
-
-

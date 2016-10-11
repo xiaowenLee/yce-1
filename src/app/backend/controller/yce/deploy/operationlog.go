@@ -1,15 +1,15 @@
 package deploy
 
 import (
-	myerror "app/backend/common/yce/error"
-	mydeploy "app/backend/model/mysql/deployment"
-	myuser "app/backend/model/mysql/user"
 	"app/backend/common/util/mysql"
-	"app/backend/model/yce/deploy"
-	"strconv"
-	"encoding/json"
+	myerror "app/backend/common/yce/error"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	mydeploy "app/backend/model/mysql/deployment"
+	myuser "app/backend/model/mysql/user"
+	"app/backend/model/yce/deploy"
+	"encoding/json"
+	"strconv"
 )
 
 type ListOperationLogController struct {
@@ -40,7 +40,7 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 		dp := new(mydeploy.Deployment)
 		var comment []byte
 		var jsonFile []byte
-		err := rows.Scan(&dp.Id, &dp.Name, &dp.ActionType, &dp.ActionVerb, &dp.ActionUrl, &dp.ActionAt, &dp.ActionOp, &dp.DcList, &dp.Success, &dp.Reason, &jsonFile, &comment);
+		err := rows.Scan(&dp.Id, &dp.Name, &dp.ActionType, &dp.ActionVerb, &dp.ActionUrl, &dp.ActionAt, &dp.ActionOp, &dp.DcList, &dp.Success, &dp.Reason, &jsonFile, &comment)
 		if err != nil {
 			log.Errorf("queryOperationLogMySQL Error: error=%s", err)
 			loc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
@@ -56,7 +56,6 @@ func (loc *ListOperationLogController) queryOperationLogMySQL(orgId int32) (depl
 	log.Infof("queryOperationLogMySQL successfully, totally %d deployments", len(deployments))
 	return deployments
 }
-
 
 // getOperationLogList
 func (loc *ListOperationLogController) getOperationLog(deployment mydeploy.Deployment) *deploy.OperationLogType {
@@ -92,8 +91,7 @@ func (loc *ListOperationLogController) getOperationLogList(deployments []mydeplo
 	opLogList := new(deploy.OperationLogList)
 	opLogList.OperationLog = make([]deploy.OperationLogType, 0)
 
-
-	for _, dp := range deployments{
+	for _, dp := range deployments {
 		opLog := loc.getOperationLog(dp)
 		opLogList.OperationLog = append(opLogList.OperationLog, *opLog)
 
@@ -113,7 +111,6 @@ func (loc ListOperationLogController) Get() {
 
 	sessionIdFromClient := loc.RequestHeader("Authorization")
 	log.Debugf("ListOperationLogController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
-
 
 	// Validate sessionId with orgId
 	loc.ValidateSession(sessionIdFromClient, orgId)

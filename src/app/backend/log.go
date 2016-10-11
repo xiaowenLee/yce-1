@@ -1,11 +1,11 @@
 package main
 
 import (
-	"k8s.io/kubernetes/pkg/api"
 	"fmt"
+	"io"
+	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
-	"io"
 	//"bytes"
 	"io/ioutil"
 )
@@ -19,13 +19,13 @@ type logType struct {
 }
 
 func (l logType) Get() {
-//ns := api.NamespaceDefault
+	//ns := api.NamespaceDefault
 	ns := "ops"
 	podName := "nginx-test-818178620-ucju9"
 
 	opts := &api.PodLogOptions{
 		//Follow:     true,
-		Follow: false,
+		Follow:     false,
 		Timestamps: true,
 	}
 
@@ -50,41 +50,39 @@ func (l logType) Get() {
 		fmt.Println(err)
 	}
 
-
-
 	/*
-	buf := new(bytes.Buffer)
-	len, err := buf.ReadFrom(reader)
-	if err != nil {
-		fmt.Println(err)
-	}
+		buf := new(bytes.Buffer)
+		len, err := buf.ReadFrom(reader)
+		if err != nil {
+			fmt.Println(err)
+		}
 
-	fmt.Println(len)
-	s := buf.String()
-	fmt.Println(s)
+		fmt.Println(len)
+		s := buf.String()
+		fmt.Println(s)
 	*/
 
 	/*
-	body, err := c.Pods(ns).GetLogs(podName, opts).Stream()
-	if err != nil {
-		fmt.Println(err)
-	}
+		body, err := c.Pods(ns).GetLogs(podName, opts).Stream()
+		if err != nil {
+			fmt.Println(err)
+		}
 
 
-	l.Out = new(io.Writer)
-	len, err := io.Copy(l.Out, body)
-	if err != nil {
-		fmt.Println(err)
-	}
+		l.Out = new(io.Writer)
+		len, err := io.Copy(l.Out, body)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 
 
 
-	b := make([]byte, 100)
-	l.Out.Write(b)
+		b := make([]byte, 100)
+		l.Out.Write(b)
 
-	fmt.Println(len)
-	fmt.Println(string(b))
+		fmt.Println(len)
+		fmt.Println(string(b))
 	*/
 }
 
@@ -92,6 +90,3 @@ func main() {
 	l := new(logType)
 	l.Get()
 }
-
-
-

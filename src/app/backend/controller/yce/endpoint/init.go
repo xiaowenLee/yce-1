@@ -1,21 +1,20 @@
 package endpoint
 
 import (
-	myorganizaiton "app/backend/model/mysql/organization"
-	myerror "app/backend/common/yce/error"
 	mylog "app/backend/common/util/log"
-	"app/backend/model/yce/endpoint"
+	myerror "app/backend/common/yce/error"
 	"app/backend/common/yce/organization"
-	"encoding/json"
 	yce "app/backend/controller/yce"
+	myorganizaiton "app/backend/model/mysql/organization"
+	"app/backend/model/yce/endpoint"
+	"encoding/json"
 )
 
 type InitEndpointsController struct {
 	yce.Controller
-	org *myorganizaiton.Organization
+	org  *myorganizaiton.Organization
 	Init endpoint.InitEndpoints
 }
-
 
 func (iec *InitEndpointsController) String() string {
 	data, err := json.Marshal(iec.Init)
@@ -30,7 +29,6 @@ func (iec InitEndpointsController) Get() {
 	sessionIdFromClient := iec.RequestHeader("Authorization")
 	orgId := iec.Param("orgId")
 	mylog.Log.Debugf("InitEndpointsController Params: sessionId=%s, orgId=%s", sessionIdFromClient, orgId)
-
 
 	// Validate OrgId error
 	iec.ValidateSession(sessionIdFromClient, orgId)
@@ -53,7 +51,6 @@ func (iec InitEndpointsController) Get() {
 	iec.Init.OrgId = orgId
 	iec.Init.OrgName = iec.org.Name
 	mylog.Log.Debugf("InitEndpointsController Params: orgName=%s", iec.Init.OrgName)
-
 
 	// Get Datacenters by a organization
 	iec.Init.DataCenters, err = organization.GetDataCentersByOrganization(iec.org)

@@ -1,18 +1,19 @@
 package user
 
 import (
+	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	USER_PASSWORD = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? and password=?"
 
 	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
+	USER_CHECK_DUPLICATE = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? AND orgId=?"
 
 	USER_INSERT = "INSERT INTO " +
 		"user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) " +
@@ -89,6 +90,28 @@ func (u *User) QueryUserById(id int32) error {
 		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
 		log.Errorf("QueryUserById Error: err=%s", err)
+		return err
+	}
+
+	return nil
+}
+
+func (u *User) QueryUserByNameAndOrgId(name string, orgId int32) error {
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-statement
+	stmt, err := db.Prepare(USER_CHECK_DUPLICATE)
+	if err != nil {
+		log.Fatalf("QueryUserByNameAndOrgId Error: err=%s", err)
+		return err
+	}
+	defer stmt.Close()
+
+	// Query user by name and orgId
+	err = stmt.QueryRow(name, orgId).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
+		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+	if err != nil {
+		log.Errorf("QueryUserByNameAndOrgId Error: err=%s", err)
 		return err
 	}
 

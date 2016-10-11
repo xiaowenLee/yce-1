@@ -2,27 +2,26 @@ package deploy
 
 import (
 	myerror "app/backend/common/yce/error"
+	yce "app/backend/controller/yce"
+	yceutils "app/backend/controller/yce/utils"
 	"encoding/json"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
-	yce "app/backend/controller/yce"
-	yceutils "app/backend/controller/yce/utils"
 )
-
 
 type HistoryDeploymentController struct {
 	yce.Controller
-	apiServer  string
-	k8sClient  *client.Client
-	deployment *extensions.Deployment
-	dcId       string
-	orgId      string
-	orgName    string
-	deploymentName       string          // deployment-name
-	replicaSetList *ReplicaSetList      // ReplicaSets
+	apiServer      string
+	k8sClient      *client.Client
+	deployment     *extensions.Deployment
+	dcId           string
+	orgId          string
+	orgName        string
+	deploymentName string          // deployment-name
+	replicaSetList *ReplicaSetList // ReplicaSets
 }
 
 type ReplicaType struct {

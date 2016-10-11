@@ -21,7 +21,6 @@ type CreateServiceController struct {
 	userId string
 }
 
-
 // Publish k8s.Service to every datacenter which in dcIdList
 func (csc *CreateServiceController) createService(namespace string, service *api.Service) {
 	// Foreach every K8sClient to create service

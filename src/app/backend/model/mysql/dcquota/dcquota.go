@@ -1,13 +1,13 @@
 package dcquota
 
 import (
+	mylog "app/backend/common/util/log"
 	"app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
-	mylog "app/backend/common/util/log"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	DCQUOTA_SELECT = "SELECT id, dcId, orgId, podNumLimit, podCpuMax, podMemMax, podCpuMin, " +

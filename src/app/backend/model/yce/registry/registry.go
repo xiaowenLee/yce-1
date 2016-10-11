@@ -1,11 +1,11 @@
 package registry
 
 import (
-	"encoding/json"
 	mylog "app/backend/common/util/log"
+	"encoding/json"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	REGISTRY_HOST = "img.reg.3g"

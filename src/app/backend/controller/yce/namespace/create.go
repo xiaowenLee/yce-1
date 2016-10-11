@@ -2,31 +2,30 @@ package namespace
 
 import (
 	myerror "app/backend/common/yce/error"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
-	myorganization "app/backend/model/mysql/organization"
-	api "k8s.io/kubernetes/pkg/api"
-	resource "k8s.io/kubernetes/pkg/api/resource"
-	"encoding/json"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	myorganization "app/backend/model/mysql/organization"
+	"encoding/json"
+	api "k8s.io/kubernetes/pkg/api"
+	resource "k8s.io/kubernetes/pkg/api/resource"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
 )
 
 type CreateNamespaceController struct {
 	yce.Controller
-	Param  *CreateNamespaceParam
+	Param      *CreateNamespaceParam
 	k8sClients []*client.Client
 	apiServers []string
 }
 
-
 type CreateNamespaceParam struct {
-	OrgId string `json:"orgId"`
-	UserId int32 `json:"userId"`
-	Name string `json:"name"`
-	CpuQuota int32 `json:"cpuQuota"`
-	MemQuota int32 `json:"memQuota"`
-	Budget string `json:"budget"`
-	Balance string `json:"balance"`
+	OrgId    string  `json:"orgId"`
+	UserId   int32   `json:"userId"`
+	Name     string  `json:"name"`
+	CpuQuota int32   `json:"cpuQuota"`
+	MemQuota int32   `json:"memQuota"`
+	Budget   string  `json:"budget"`
+	Balance  string  `json:"balance"`
 	DcIdList []int32 `json:"dcIdList"`
 }
 
@@ -145,8 +144,8 @@ func (cnc *CreateNamespaceController) createResourceQuota() {
 	resourceQuota.ObjectMeta.Name = cnc.Param.Name + "-quota"
 
 	// translate into "resource.Quantity"
-	cpuQuota := resource.NewQuantity(int64(cnc.Param.CpuQuota) * CPU_MULTIPLIER, resource.DecimalSI)
-	memQuota := resource.NewQuantity(int64(cnc.Param.MemQuota) * MEM_MULTIPLIER, resource.BinarySI)
+	cpuQuota := resource.NewQuantity(int64(cnc.Param.CpuQuota)*CPU_MULTIPLIER, resource.DecimalSI)
+	memQuota := resource.NewQuantity(int64(cnc.Param.MemQuota)*MEM_MULTIPLIER, resource.BinarySI)
 
 	resourceQuota.Spec.Hard[api.ResourceCPU] = *cpuQuota
 	resourceQuota.Spec.Hard[api.ResourceMemory] = *memQuota
@@ -172,7 +171,7 @@ func (cnc *CreateNamespaceController) Post() {
 	err := cnc.ReadJSON(cnc.Param)
 	if err != nil {
 		log.Errorf("CreateNamespaceController ReadJSON Error: error=%s", err)
-		cnc.Ye =  myerror.NewYceError(myerror.EJSON, "")
+		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
 
 	if cnc.CheckError() {

@@ -1,18 +1,18 @@
 package rbd
 
 import (
+	mylog "app/backend/common/util/log"
 	"app/backend/common/util/placeholder"
 	"bufio"
 	"bytes"
 	"encoding/json"
-	mylog "app/backend/common/util/log"
+	"log"
 	"os/exec"
 	"strconv"
 	"strings"
-	"log"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 const (
 	RBD_CREATE         = "rbd create <image> -s <size> -p <pool>"

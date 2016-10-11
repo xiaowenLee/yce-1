@@ -1,24 +1,24 @@
 package mysql
 
 import (
+	mylog "app/backend/common/util/log"
+	config "app/backend/common/yce/config"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	mylog "app/backend/common/util/log"
 	"sync"
 	"time"
-	config "app/backend/common/yce/config"
 )
 
-var log =  mylog.Log
+var log = mylog.Log
 
 type MysqlClient struct {
-	DB       *sql.DB
+	DB *sql.DB
 	/*
-	host     string
-	user     string
-	password string
-	database string
-	pool     int
+		host     string
+		user     string
+		password string
+		database string
+		pool     int
 	*/
 }
 
