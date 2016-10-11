@@ -4,15 +4,50 @@
 此项功能是用于后台管理员操作的功能,跟普通用户无关
 ----------------------------
 
+
+### 为创建组织准备
+为创建组织准备: 请求数据中心列表、账户余额信息、资源套餐信息
+请求URL: GET /api/v1/organizations/init
+请求头: Authorization: ${SessionId}
+
+返回数据:
+```
+{
+    "code": 0,
+    "msg": "...",
+    "data": {
+        "dcList": [{
+            "dcId": 1,
+            "dcName": "xx"
+        }],
+        "account": {        // 首次数据库里查找不到, 返回0, 要求充值 或者 首次注册赠送500元
+            "budget": 100,
+            "balance": 50
+        },
+        "quotaPkg": [{
+            "cpu": 100,
+            "mem": 200,
+            "cost": 200
+        }]
+    }
+}
+```
+
 ### 校验新的名字是否可用(是否已经存在)
 
 在创建命名空间的页面,在填写完组织名称后,发起后台校验,成功或失败,都在页面上给于提示
 
-请求URL: POST /api/v1/organizations/init
+请求URL: POST /api/v1/organizations/check
 
 请求头中包含: Authorization: ${sessionId}
 
-请求体重提交: {"name": "xxx", "orgId": "xxx"}
+请求体重提交: 
+```
+{
+    "orgName": "xxx",   // 待创建的组织名称
+    "orgId": "xxx"      // 管理员的orgId, 用来认证会话
+}
+```
 
 返回值:
 
@@ -25,14 +60,13 @@
 {
     "code": 0,
     "message": "....",
-    "code": ""
 }
 ```
 
 失败时:
 ```json
 {
-    "code": 1404,
+    "code": 1414,
     "message": "该名称已被占用"
 
 }
@@ -40,12 +74,14 @@
 
 程序逻辑实现:
 
-在organization表中判断是否已经存在该组织名,如果存在,返回错误,如果不存在,返回成功
+在organization表中判断是否已经存在该组织名,如果存在,返回错误,如果不存在,返回成功 
+
+注意: 如果是可选数据中心, 那么查重时需要同时确定dcId以及orgName来确定是否重复。
 
 
 ### 创建命名空间
 
-请求URL: POST /api/v1/organizations/
+请求URL: POST /api/v1/organizations/new
 
 请求头中包含: Authorization: ${sessionId}
 
@@ -53,8 +89,8 @@
 ```json
 {
     "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
-    "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串
-    "name": "dev",        // 组织名称也是K8s里namespace的名称
+    "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串, 管理员
+    "orgName": "dev",        // 组织名称也是K8s里namespace的名称
     "cpuQuota": 100,      // CPU配额
     "memQuota": 200,      // 内存配额
     "budget": 10000,      // 预算
@@ -121,3 +157,28 @@
 2. FOREACH每个数据中心,分别创建namespace和resourceQuota
 
 3. LimitRange和数据中心配额表下个版本再添加
+
+
+### 获取组织列表
+
+请求URL: GET /api/v1/organizations/list
+请求头: Authorization: ${sessionId}
+请求返回:
+```
+{
+    "code": 0,
+    "msg": "...",
+    "data": [{
+        "orgId": 1,
+        "orgName": "xxx",
+        "dcList": [{
+            "dcId": 1,
+            "dcName": "xxx" 
+        }] 
+        "cpuQuota": xxx,
+        "memQuota": xxx,
+        "budget": xxx,
+        "balance": xxx
+    }]
+}
+```
