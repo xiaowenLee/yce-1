@@ -55,6 +55,7 @@ type Router struct {
 	CheckUser 	 *myuser.CheckUserController
 	CheckNamespace	 *mynamespace.CheckNamespaceController
 	InitNamespace    *mynamespace.InitNamespaceController
+	ListNamespace    *mynamespace.ListNamespaceController
 }
 
 func NewRouter() *Router {
@@ -93,6 +94,7 @@ func NewRouter() *Router {
 	r.CreateUser = new(myuser.CreateUserController)
 	r.CheckNamespace = new(mynamespace.CheckNamespaceController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
+	r.ListNamespace = new(mynamespace.ListNamespaceController)
 
 	return r
 }
@@ -134,6 +136,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/user/new", *r.CreateUser)
 	iris.API("/api/v1/organization/check", *r.CheckNamespace)
 	iris.API("/api/v1/organization/init", *r.InitNamespace)
+	iris.API("/api/v1/organization", *r.ListNamespace)
 
 	iris.StaticServe("../frontend", "/static")
 }

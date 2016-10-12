@@ -80,34 +80,9 @@ func (inc *InitNamespaceController) prepare() string {
 	return resultString
 }
 
-// POST /api/v1/organizations/init
 func (inc InitNamespaceController) Get() {
-	/*
-	initNamespaceParams := new(InitNamespaceParams)
-	err := inc.ReadJSON(initNamespaceParams)
-	if err != nil {
-		log.Errorf("InitNamespaceController ReadJSON Error: error=%s", err)
-		inc.Ye = myerror.NewYceError(myerror.EJSON, "")
-	}
-	if inc.CheckError() {
-		return
-	}
 
-	org := new(myorganization.Organization)
-	err = org.QueryOrganizationByName(initNamespaceParams.Name)
-
-	// Exists
-	if err == nil {
-		inc.Ye = myerror.NewYceError(myerror.EYCE_ORG_EXIST, "")
-	}
-
-	if inc.CheckError() {
-		return
-	}
-
-	// Not Exists
-
-	*/
+	//TODO: admin authorication
 
 	inc.params = new(InitNamespaceParams)
 	if inc.CheckError() {
