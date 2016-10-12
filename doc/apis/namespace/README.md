@@ -7,7 +7,7 @@
 
 ### 为创建组织或更新组织做准备
 为创建组织或更新组织准备: 请求数据中心列表、账户余额信息、资源套餐信息
-请求URL: GET /api/v1/organizations/init
+请求URL: GET /api/v1/organization/init     // URL里面暂为organization
 请求头: Authorization: ${SessionId}
 
 返回数据:
@@ -37,7 +37,7 @@
 
 在创建命名空间的页面,在填写完组织名称后,发起后台校验,成功或失败,都在页面上给于提示. 逻辑是只要数据库里有就不建议取这个名字。
 
-请求URL: POST /api/v1/organizations/check
+请求URL: POST /api/v1/organization/check
 
 请求头中包含: Authorization: ${sessionId}
 
@@ -55,40 +55,27 @@
 
 返回值的格式:
 
-成功时:
 ```json
 {
     "code": 0,
     "message": "....",
-    "data": ","
-}
-```
-
-失败时:
-```json
-{
-    "code": 1414,
-    "message": "该名称已被占用"
-    "data": {
-      "dcIdList": [
-          1 
-      ],
-      "dcNameList": [
-          "xxx" //已被这些数据中心所使用, 图片变灰不可用, 要求修改名字 
-      ]
-    }
+    "data": [{
+      "id": 1,
+      "name": "xxx",        // 返回的这些数据中心表示已有该组织, 不能创建该组织, 所以将其图标不可用
+      ...
+   }]
 }
 ```
 
 程序逻辑实现:
 
-在organization表中判断是否已经存在该组织名,如果存在,返回错误;如果不存在,返回成功 
+在organization表中判断是否已经存在该组织名, 并返回所拥有的数据中心列表。 前端根据这个列表决定哪些数据中心不可用。
 
 
 
 ### 创建命名空间
 
-请求URL: POST /api/v1/organizations/new
+请求URL: POST /api/v1/organization/new
 
 请求头中包含: Authorization: ${sessionId}
 
@@ -105,15 +92,11 @@
 返回值:
 
 * 组织Id
-
 * 组织名称
-
 * 该组织下每个数据中心的k8s:
-    ** 命名空间名称
-    ** 资源使用配额: CPU和内存
-
+    * 命名空间名称
+    * 资源使用配额: CPU和内存
 * 预算
-
 * 余额
 
 返回值格式:
@@ -165,7 +148,7 @@
 ### 更新组织信息,主要是购买资源
 
 资源及账户信息在list的时候返回
-请求URL: POST /api/v1/organizations/update
+请求URL: POST /api/v1/organization/update
 请求头: Authorization: SessionId
 
 携带数据:
@@ -188,7 +171,7 @@
 
 ### 获取组织列表
 
-请求URL: GET /api/v1/organizations
+请求URL: GET /api/v1/organization
 请求头: Authorization: ${sessionId}
 请求返回:
 ```

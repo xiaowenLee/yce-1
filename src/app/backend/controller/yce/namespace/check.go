@@ -28,7 +28,8 @@ func (cnc *CheckNamespaceController) checkDuplicatedName() string {
 
 	// found
 	orgId := strconv.Itoa(int(org.Id))
-	dcList, ye := yceutils.GetDatacenterListByOrgId(orgId)
+	//dcList, ye := yceutils.GetDatacenterListByOrgId(orgId)
+	dcList, ye := yceutils.GetDatacentersByOrgId(orgId)
 	// found but error
 	if ye != nil {
 		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
