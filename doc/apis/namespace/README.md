@@ -5,8 +5,8 @@
 ----------------------------
 
 
-### 为创建组织准备
-为创建组织准备: 请求数据中心列表、账户余额信息、资源套餐信息
+### 为创建组织或更新组织做准备
+为创建组织或更新组织准备: 请求数据中心列表、账户余额信息、资源套餐信息
 请求URL: GET /api/v1/organizations/init
 请求头: Authorization: ${SessionId}
 
@@ -35,7 +35,7 @@
 
 ### 校验新的名字是否可用(是否已经存在)
 
-在创建命名空间的页面,在填写完组织名称后,发起后台校验,成功或失败,都在页面上给于提示
+在创建命名空间的页面,在填写完组织名称后,发起后台校验,成功或失败,都在页面上给于提示. 逻辑是只要数据库里有就不建议取这个名字。
 
 请求URL: POST /api/v1/organizations/check
 
@@ -60,6 +60,7 @@
 {
     "code": 0,
     "message": "....",
+    "data": ","
 }
 ```
 
@@ -68,15 +69,21 @@
 {
     "code": 1414,
     "message": "该名称已被占用"
-
+    "data": {
+      "dcIdList": [
+          1 
+      ],
+      "dcNameList": [
+          "xxx" //已被这些数据中心所使用, 图片变灰不可用, 要求修改名字 
+      ]
+    }
 }
 ```
 
 程序逻辑实现:
 
-在organization表中判断是否已经存在该组织名,如果存在,返回错误,如果不存在,返回成功 
+在organization表中判断是否已经存在该组织名,如果存在,返回错误;如果不存在,返回成功 
 
-注意: 如果是可选数据中心, 那么查重时需要同时确定dcId以及orgName来确定是否重复。
 
 
 ### 创建命名空间
@@ -91,10 +98,6 @@
     "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
     "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串, 管理员
     "orgName": "dev",        // 组织名称也是K8s里namespace的名称
-    "cpuQuota": 100,      // CPU配额
-    "memQuota": 200,      // 内存配额
-    "budget": 10000,      // 预算
-    "balance": 10000,     // 余额
     "dcIdList": [1, 2]      // 数据中心列表
 }
 ```
@@ -159,9 +162,33 @@
 3. LimitRange和数据中心配额表下个版本再添加
 
 
+### 更新组织信息,主要是购买资源
+
+资源及账户信息在list的时候返回
+请求URL: POST /api/v1/organizations/update
+请求头: Authorization: SessionId
+
+携带数据:
+```
+{
+    "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
+    "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串, 管理员
+    "orgName": xxx,       // 组织名称
+    "dcIdList": [1, 2]    // 数据中心列表
+    "orgName": "dev",     // 组织名称也是K8s里namespace的名称
+    "cpuQuota": 100,      // CPU配额
+    "memQuota": 200,      // 内存配额
+    "budget": 10000,      // 预算
+    "balance": 10000,     // 余额
+}
+```
+
+    
+
+
 ### 获取组织列表
 
-请求URL: GET /api/v1/organizations/list
+请求URL: GET /api/v1/organizations
 请求头: Authorization: ${sessionId}
 请求返回:
 ```

@@ -10,13 +10,13 @@ import (
 	myhealthz "app/backend/controller/yce/healthz"
 	mylogin "app/backend/controller/yce/login"
 	mylogout "app/backend/controller/yce/logout"
-	mynamespace "app/backend/controller/yce/namespace"
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
 	myservice "app/backend/controller/yce/service"
 	mytopology "app/backend/controller/yce/topology"
 	myversion "app/backend/controller/yce/version"
 	myuser "app/backend/controller/yce/user"
+	mynamespace "app/backend/controller/yce/namespace"
 	"github.com/kataras/iris"
 )
 
@@ -54,6 +54,7 @@ type Router struct {
 	InitUser 	 *myuser.InitUserController
 	CreateUser 	 *myuser.CreateUserController
 	CheckUser 	 *myuser.CheckUserController
+	CheckNamespace	 *mynamespace.CheckNamespaceController
 }
 
 func NewRouter() *Router {
@@ -91,6 +92,7 @@ func NewRouter() *Router {
 	r.InitUser = new(myuser.InitUserController)
 	r.CheckUser = new(myuser.CheckUserController)
 	r.CreateUser = new(myuser.CreateUserController)
+	r.CheckNamespace = new(mynamespace.CheckNamespaceController)
 
 	return r
 }
@@ -120,7 +122,6 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)
 	iris.API("/api/v1/organizations/:orgId/endpoints/:epName", *r.DeleteEndpoint)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
-	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/deployments/:name/history", *r.HistoryDeploy)
 	iris.API("/api/v1/organizations/:orgId/topology", *r.Topology)
 	iris.API("/", *r.Api)
@@ -131,6 +132,8 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/user/init", *r.InitUser)
 	iris.API("/api/v1/user/check", *r.CheckUser)
 	iris.API("/api/v1/user/new", *r.CreateUser)
+	iris.API("/api/v1/organization/check", *r.CheckNamespace)
+	iris.API("/api/v1/organization/init", *r.InitNamespace)
 
 	iris.StaticServe("../frontend", "/static")
 }
