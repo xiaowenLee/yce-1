@@ -3,7 +3,7 @@
 
 #### 创建初始化
 目的: 为创建用户做准备, 获取组织列表供管理员为用户选择
-请求URL: /api/v1/organizations/list
+请求URL: /api/v1/user/init
 请求头: Authorization:SessionId
 请求方法: GET 
 
@@ -12,19 +12,17 @@
 {
     "code": 0,
     "msg": "xxx",
-    "data": {
-        "organizations": [
+    "data": [
             "dev",
             "ops"
         ] 
-    }
 }
 ```
 
 
 #### 用户名检查
 目的: 当管理员输入用户名完毕后(离开输入框), 检查用户名是否重复
-请求URL: /api/v1/user/init
+请求URL: /api/v1/user/check
 请求头: Authorization:SessionId
 请求方法: POST
 
@@ -33,7 +31,7 @@
 {
     "userName": "xxx",
     "orgName": "yyy",   // 
-    "orgId": 1          //表示创建者(管理员)所在的组织,用来验证管理员会话, 从本地存储中获取
+    "orgId": "1"          //表示创建者(管理员)所在的组织,用来验证管理员会话, 从本地存储中获取
 }
 ```
 
@@ -46,7 +44,7 @@
 去user表里选择同时满足orgId和name的用户,如果有,返回存在,如果没有,返回不存在
 
 #### 创建
-请求URL: /api/v1/organization/{:orgId}/user/new
+请求URL: /api/v1/user/new
 请求头: Authorization:SessionId
 请求方法: POST
 
