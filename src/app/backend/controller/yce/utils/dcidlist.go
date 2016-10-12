@@ -10,6 +10,10 @@ type DcIdListType struct {
 	DcIdList []int32 `json:"dcIdList"`
 }
 
+type DcNameListType struct {
+	DcNameList []string `json:"dcNameList"`
+}
+
 // Encode DcIdList []int32 to dcIdList Json []string form
 func StringDcIdList(dcIdList []int32) (string, *myerror.YceError) {
 
