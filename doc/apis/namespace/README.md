@@ -43,6 +43,7 @@
 请求头中包含: Authorization: ${sessionId}
 
 请求体重提交: 
+
 ```
 {
     "orgName": "xxx",   // 待创建的组织名称
@@ -60,10 +61,13 @@
 {
     "code": 0,
     "message": "....",
-    "data": [{
-      "id": 1,
-      "name": "xxx",        // 返回的这些数据中心表示已有该组织, 不能创建该组织, 所以将其图标不可用
-      ...
+    "data": {
+      "dcIdList": [
+      1
+      ],
+      "dcNameList": [
+        "xxx"  
+      ]       // 返回的这些数据中心表示已有该组织, 不能创建该组织, 所以将其图标不可用
    }]
 }
 ```
@@ -85,8 +89,12 @@
 {
     "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
     "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串, 管理员
-    "orgName": "dev",        // 组织名称也是K8s里namespace的名称
-    "dcIdList": [1, 2]      // 数据中心列表
+    "name": "dev",        // 组织名称也是K8s里namespace的名称
+    "dcIdList": [1],      // 数据中心列表
+    "cpuQuota": 0,        // blow 4 items will be modified in update.go
+    "memQuota": 0,
+    "budget":   0,
+    "balance":  0
 }
 ```
 
@@ -179,17 +187,12 @@
 {
     "code": 0,
     "msg": "...",
-    "data": [{
-        "orgId": 1,
-        "orgName": "xxx",
-        "dcList": [{
-            "dcId": 1,
-            "dcName": "xxx" 
+    "data": {
+        "organizations": [{
+            "id": 1,
+            "name": "xxx",
+            ... 
         }] 
-        "cpuQuota": xxx,
-        "memQuota": xxx,
-        "budget": xxx,
-        "balance": xxx
-    }]
+    }
 }
 ```
