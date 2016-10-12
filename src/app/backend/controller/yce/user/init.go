@@ -36,7 +36,7 @@ func (iuc *InitUserController) getOrgNames() string {
 
 func (iuc InitUserController) Get() {
 	//TODO: rethink of session authroization. Here it is omitted.
-	// SessionIdFromClient := iuc.RequestHeaders("Authrozation")
+	// SessionIdFromClient := iuc.RequestHeaders("Authorization")
 
 	orgNames := iuc.getOrgNames()
 	if iuc.CheckError() {
