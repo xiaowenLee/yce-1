@@ -30,8 +30,11 @@ var navList = `
             ]
         },
         {"id": 5, "name": "集群拓扑", "state": "main.topology", "includeState": "main.topology","className":"fa-share-alt"},
-        {"id": 6, "name": "云盘管理", "state": "main.rbdManage", "includeState": "main.rbdManage","className":"fa-cloud"},
-        {"id": 7, "name": "计费&充值", "state": "main.costManage", "includeState": "main.costManage","className":"fa-credit-card"}
+
+        {"id": 6, "name": "用户管理", "state": "main.costManage", "includeState": "main.costManage","className":"fa-credit-card"},
+        {"id": 6, "name": "数据中心管理", "state": "main.costManage", "includeState": "main.costManage","className":"fa-credit-card"},
+        {"id": 6, "name": "组织管理", "state": "main.costManage", "includeState": "main.costManage","className":"fa-credit-card"}
+        {"id": 6, "name": "绿色通道", "state": "main.costManage", "includeState": "main.costManage","className":"fa-credit-card"}
     ]
 }
 `
