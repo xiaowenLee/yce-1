@@ -35,7 +35,7 @@ func (ldc *ListDeploymentController) listDeployments(userId int32, namespace str
 
 		deployment := new(deploy.Deployment)
 		deployment.DcId = dcList.DcIdList[index]
-		deployment.DcName = dcList.DcName[index]
+		deployment.DcName = dcList.DcNameList[index]
 		deployment.Deployments, ldc.Ye = yceutils.GetDeployAndPodList(userId, cli, deploymentList)
 
 		dpList = append(dpList, *deployment)

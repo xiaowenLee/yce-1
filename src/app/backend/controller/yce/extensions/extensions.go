@@ -38,7 +38,7 @@ func (lec *ListExtensionsController) listServiceAndEndpoints(namespace string, l
 		*/
 
 		extList[index].DcId = le.DcIdList[index]
-		extList[index].DcName = le.DcName[index]
+		extList[index].DcName = le.DcNameList[index]
 		extList[index].ServiceList = *svcs
 		//extList[index].EndpointList = *eps
 

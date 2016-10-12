@@ -68,7 +68,7 @@ func (lec ListEndpointsController) Get() {
 	}
 
 	ed.DcIdList = dcList.DcIdList
-	ed.DcName = dcList.DcName
+	ed.DcName = dcList.DcNameList
 	if lec.CheckError() {
 		return
 	}
