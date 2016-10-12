@@ -91,7 +91,7 @@
     "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串, 管理员
     "name": "dev",        // 组织名称也是K8s里namespace的名称
     "dcIdList": [1],      // 数据中心列表
-    "cpuQuota": 0,        // blow 4 items will be modified in update.go
+    "cpuQuota": 0,        // blow 4 items will be modified in update.go, omitempty
     "memQuota": 0,
     "budget":   0,
     "balance":  0
