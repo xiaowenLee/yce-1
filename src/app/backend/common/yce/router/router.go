@@ -41,7 +41,6 @@ type Router struct {
 	DeleteDeploy     *mydeploy.DeleteDeploymentController
 	LogsPod          *mydeploy.LogsPodController
 	ListOperationLog *mydeploy.ListOperationLogController
-	InitNamespace    *mynamespace.InitNamespaceController
 	DeleteService    *myservice.DeleteServiceController
 	DeleteEndpoint   *myendpoint.DeleteEndpointsController
 	HistoryDeploy    *mydeploy.HistoryDeploymentController
@@ -55,6 +54,7 @@ type Router struct {
 	CreateUser 	 *myuser.CreateUserController
 	CheckUser 	 *myuser.CheckUserController
 	CheckNamespace	 *mynamespace.CheckNamespaceController
+	InitNamespace    *mynamespace.InitNamespaceController
 }
 
 func NewRouter() *Router {
@@ -79,7 +79,6 @@ func NewRouter() *Router {
 	r.DeleteDeploy = new(mydeploy.DeleteDeploymentController)
 	r.LogsPod = new(mydeploy.LogsPodController)
 	r.ListOperationLog = new(mydeploy.ListOperationLogController)
-	r.InitNamespace = new(mynamespace.InitNamespaceController)
 	r.DeleteService = new(myservice.DeleteServiceController)
 	r.DeleteEndpoint = new(myendpoint.DeleteEndpointsController)
 	r.HistoryDeploy = new(mydeploy.HistoryDeploymentController)
@@ -93,6 +92,7 @@ func NewRouter() *Router {
 	r.CheckUser = new(myuser.CheckUserController)
 	r.CreateUser = new(myuser.CreateUserController)
 	r.CheckNamespace = new(mynamespace.CheckNamespaceController)
+	r.InitNamespace = new(mynamespace.InitNamespaceController)
 
 	return r
 }

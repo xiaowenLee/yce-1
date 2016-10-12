@@ -13,6 +13,9 @@ const (
 	DC_SELECT = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM datacenter WHERE id=?"
 
+	DC_SELECT_ALL = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment " +
+		"FROM datacenter"
+
 	DC_INSERT = "INSERT INTO " +
 		"datacenter(name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -54,6 +57,49 @@ func NewDataCenter(name, host, secret, comment string, port, modifiedOp int32) *
 		ModifiedOp: modifiedOp,
 		Comment:    comment,
 	}
+}
+
+func QueryAllDatacenters() ([]DataCenter, error) {
+	datacenters := make([]DataCenter, 0)
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-all-statement
+	stmt, err := db.Prepare(DC_SELECT_ALL)
+	if err != nil {
+		log.Errorf("QueryAllDatacenters Error: err=%s", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Errorf("QueryAllDatacenters Error: err=%s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		dc := new(DataCenter)
+		var secret []byte
+		var comment []byte
+		err = rows.Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status,
+			&dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &comment)
+		dc.Comment = string(comment)
+		dc.Secret = string(secret)
+		if err != nil {
+			log.Errorf("QueryAllDatacenters Error: err=%s", err)
+			return nil, err
+		}
+		datacenters = append(datacenters, *dc)
+
+		log.Infof("QueryAllDatacenters: id=%d, name=%s, host=%d, port=%d, secret=%s, status=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+			dc.Id,  dc.Name,  dc.Host,  dc.Port,  dc.Secret,  dc.Status, dc.CreatedAt,  dc.ModifiedAt,  dc.ModifiedOp,  comment)
+
+	}
+
+	log.Infof("QueryAllDatacenters: len(datacenters)=%d", len(datacenters))
+	return datacenters, nil
 }
 
 func (dc *DataCenter) QueryDataCenterById(id int32) error {

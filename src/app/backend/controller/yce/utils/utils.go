@@ -493,6 +493,16 @@ func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 	}
 }
 
+func QueryAllDatacenters() ([]mydatacenter.DataCenter, *myerror.YceError) {
+	dcList, err := mydatacenter.QueryAllDatacenters()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	return dcList, nil
+}
+
 // get Pod By podName
 type LogOptionType struct {
 	Container    string      `json:"container,omitempty"`    //暂时不做
