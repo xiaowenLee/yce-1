@@ -716,6 +716,24 @@ func GetDeploymentByNameAndNamespace(c *client.Client, deploymentName, namespace
 
 }
 
+// Get all namespaces for every K8sApiserver
+func GetAllNamespaces(c *client.Client) ([]string, *myerror.YceError) {
+
+	namespaces := make([]string, 0)
+
+	nss, err := c.Namespaces().List(api.ListOptions{})
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EKUBE_GET_ALL_NAMESPACES, "")
+		return nil, ye
+	}
+
+	for _, ns := range nss.Items {
+		namespaces = append(namespaces, ns)
+	}
+
+	return namespaces
+}
+
 // check the value if it is validate
 
 func CheckValidate(value interface{}) bool {

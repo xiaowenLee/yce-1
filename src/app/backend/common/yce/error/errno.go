@@ -220,6 +220,10 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Find New ReplicaSet Error",
 		ErrMsg: "查找最新的ReplicaSet失败",
 	},
+	EKUBE_GET_ALL_NAMESPACES: &Error{
+		LogMsg: "Kubernetes Get all namespaces Error",
+		ErrMsg: "获取全部namespace失败",
+	},
 
 	// 1300~1399 Iris错误
 	EIRIS: &Error{

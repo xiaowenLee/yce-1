@@ -237,3 +237,4 @@ func (dc *DataCenter) EncodeJson() string {
 	}
 	return string(data)
 }
+
