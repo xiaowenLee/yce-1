@@ -747,7 +747,7 @@ func CheckValidate(value interface{}) bool {
 	*/
 }
 
-func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
+func QueryDuplicatedUserNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
 	u := new(myuser.User)
 	err := u.QueryUserByNameAndOrgId(name, orgId)
 
@@ -801,6 +801,26 @@ func GetOrgNameList() ([]string, *myerror.YceError) {
 	}
 
 	return orgNameList, nil
+}
+
+func GetAllOrganizations() ([]myorganization.Organization, *myerror.YceError) {
+	orgList, err := myorganization.QueryAllOrganizations()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	return orgList, nil
+}
+
+func GetUsers() ([]myuser.User, *myerror.YceError) {
+	userList, err := myuser.QueryAllUsers()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	return userList, nil
 }
 
 //TODO: Get Namespace List By Datacenter Id List

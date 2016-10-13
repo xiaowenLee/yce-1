@@ -15,6 +15,7 @@ const (
 	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
 	USER_CHECK_DUPLICATE_NAME = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? "
 	USER_CHECK_DUPLICATE = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? AND orgId=?"
+	USER_SELECT_ALL = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp, comment FROM user"
 
 	USER_INSERT = "INSERT INTO " +
 		"user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) " +
@@ -50,6 +51,52 @@ func NewUser(name, password, comment string, orgId, status, modifiedOp int32) *U
 		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
 	}
+}
+
+func QueryAllUsers() ([]User, error) {
+	users := make([]User, 0)
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-all-statement
+	stmt, err := db.Prepare(USER_SELECT_ALL)
+	if err != nil {
+		log.Errorf("QueryAllUsers Error: err=%s", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Errorf("QueryAllUsers Error: err=%s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		u := new(User)
+
+		var comment []byte
+		var password string
+		//TODO: didn't pass password back to frontend now
+		err = rows.Scan(&u.Id, &u.Name, &password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp, &comment)
+		u.Comment = string(comment)
+
+		if err != nil {
+			log.Errorf("QueryAllUsers Error: err=%s", err)
+			return nil, err
+		}
+		users = append(users, *u)
+
+		log.Infof("QueryAllUsers: id=%d, name=%s, orgId=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+			u.Id, u.Name, u.OrgId, u.Status, u.CreatedAt, u.ModifiedAt, u.ModifiedOp)
+
+	}
+
+	log.Infof("QueryAllUsers: len(users)=%d", len(users))
+	return users, nil
+
+
 }
 
 func (u *User) QueryUserByNameAndPassword(name, password string) error {
