@@ -8,6 +8,8 @@ type NavListController struct {
 	yce.Controller
 }
 
+// Get
+
 func (nlc NavListController) Get() {
 	nlc.WriteOk(navList)
 }
