@@ -23,14 +23,22 @@ func (nlc NavListController) Get() {
 
 	// Validate OrgId error
 	nlc.ValidateSession(sessionIdFromClient, orgId)
-	if cdc.CheckError() {
+	if nlc.CheckError() {
 		return
 	}
 
 	id, _ := strconv.Atoi(userId)
 
 	user := new(myuser.User)
-	user.QueryUserById(id)
+	err := user.QueryUserById(int32(id))
+	if err != nil {
+		log.Errorf("NavListController QueryUserById Error: err=%s", err)
+		nlc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+	}
+
+	if nlc.CheckError() {
+		return
+	}
 
 	navList := user.NavList
 

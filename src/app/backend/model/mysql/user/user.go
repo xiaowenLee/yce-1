@@ -1,8 +1,8 @@
 package user
 
 import (
-	mylog "app/backend/common/util/log"
 	localtime "app/backend/common/util/time"
+	mysql "app/backend/common/util/mysql"
 	"encoding/json"
 )
 
@@ -206,10 +206,11 @@ func (u *User) EncodeJson() (string, error) {
 func QueryUserNameByUserId(userId int32) (name string) {
 	u := new(User)
 	u.QueryUserById(userId)
-	mylog.Log.Infof("queryUserNameByUserId successfully")
+	log.Infof("queryUserNameByUserId successfully")
 	return u.Name
 }
 
+/*
 // Query NavList
 func QueryNavListById(userId int32) (string, error) {
 	db := mysql.MysqlInstance().Conn()
@@ -234,3 +235,4 @@ func QueryNavListById(userId int32) (string, error) {
 
 	return navList, nil
 }
+*/

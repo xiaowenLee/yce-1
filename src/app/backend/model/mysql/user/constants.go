@@ -14,7 +14,7 @@ const (
 
 	USER_DELETE = "UPDATE user SET status=?, modifiedAt=?, modifiedOp=?, navList=? WHERE id=?"
 
-	USER_NAVLIST = "SELECT navList FROM user WHERE id=?"
+	// USER_NAVLIST = "SELECT navList FROM user WHERE id=?"
 
 	VALID   = 1
 	INVALID = 0

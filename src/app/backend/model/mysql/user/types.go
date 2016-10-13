@@ -1,7 +1,7 @@
 package user
 
 import (
-	mysql "app/backend/common/util/mysql"
+	mylog "app/backend/common/util/log"
 )
 
 var log = mylog.Log
