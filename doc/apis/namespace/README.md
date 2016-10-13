@@ -169,3 +169,18 @@
     }
 }
 ```
+
+显示内容:
+ID, 组织名称, CPU, MEM, 账户余额, 创建时间, 数据中心, 操作
+
+数据均从data.organizations的数组里每个元素中取, 其中: 
+ID: id
+组织名称: name
+CPU:  cpuQuota
+MEM:  memQuota
+账户余额: balance
+创建时间: createdAt
+数据中心: dcIdList
+操作: 更新、删除
+
+dcIdList为JSON, 参考应用管理的页面, 将数据中心ID与它的名字对应起来

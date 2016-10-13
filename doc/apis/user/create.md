@@ -59,3 +59,15 @@
 }
 ```
 
+#### 用户列表
+请求URL: /api/v1/user
+请求头: Authorization:SessionId
+请求方法: GET 
+
+返回数据:
+```
+{
+    "code": 0,
+    "msg": "
+}
+```
