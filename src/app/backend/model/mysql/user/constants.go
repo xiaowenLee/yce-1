@@ -13,7 +13,8 @@ const (
 	USER_UPDATE = "UPDATE user SET password=?, orgId=?, modifiedAt=?, modifiedOp=?, navList=? WHERE id=?"
 
 	USER_DELETE = "UPDATE user SET status=?, modifiedAt=?, modifiedOp=?, navList=? WHERE id=?"
-
+	USER_SELECT_ALL = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp, comment FROM user"
+	USER_CHECK_DUPLICATE_NAME = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? "
 	// USER_NAVLIST = "SELECT navList FROM user WHERE id=?"
 
 	VALID   = 1

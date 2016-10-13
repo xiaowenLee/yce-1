@@ -7,24 +7,6 @@ import (
 )
 
 
-const (
-	USER_PASSWORD = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? and password=?"
-
-	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
-	USER_CHECK_DUPLICATE_NAME = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? "
-	USER_CHECK_DUPLICATE = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? AND orgId=?"
-	USER_SELECT_ALL = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp, comment FROM user"
-
-	USER_INSERT = "INSERT INTO " +
-		"user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-
-	USER_UPDATE = "UPDATE user SET password=?, orgId=?, modifiedAt=?, modifiedOp=? WHERE id=?"
-	USER_DELETE = "UPDATE user SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
-	VALID       = 1
-	INVALID     = 0
-)
-
 type User struct {
 	Id         int32  `json:"id"`
 	Name       string `json:"name"`
