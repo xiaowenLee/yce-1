@@ -38,7 +38,7 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 		return
 	}
 
-	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, cnc.Param.Balance, "", string(dcIdList),
+	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, cnc.Param.Balance, "", dcIdList,
 		cnc.Param.CpuQuota, cnc.Param.MemQuota, cnc.Param.UserId)
 
 	err := org.InsertOrganization()
