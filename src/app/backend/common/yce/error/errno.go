@@ -11,6 +11,7 @@ const (
 	EMYSQL        int32 = 1000
 	EMYSQL_QUERY  int32 = 1001
 	EMYSQL_INSERT int32 = 1002
+	EMYSQL_DELETE int32 = 1003
 
 	EREDIS     int32 = 1100
 	EREDIS_GET int32 = 1101
@@ -44,6 +45,9 @@ const (
 	EKUBE_LOGS_POD                        = 1226
 	EKUBE_SCALE_DEPLOYMENT                = 1227
 	EKUBE_FIND_NEW_REPLICASET             = 1228
+	EKUBE_DELETE_NAMESPACE		      = 1229
+	EKUBE_DELETE_RESOURCEQUOTA	      = 1230
+	EKUBE_UPDATE_RESOURCEQUOTA            = 1231
 
 	EIRIS int32 = 1300
 
@@ -94,6 +98,10 @@ var Errors = map[int32]*Error{
 	EMYSQL_INSERT: &Error{
 		LogMsg: "MySQL Insert Error",
 		ErrMsg: "MySQL插入出错",
+	},
+	EMYSQL_DELETE: &Error {
+		LogMsg: "MySQL Delete Error",
+		ErrMsg: "MySQL删除出错",
 	},
 
 	// 1100~1199 Redis错误
@@ -219,6 +227,18 @@ var Errors = map[int32]*Error{
 	EKUBE_FIND_NEW_REPLICASET: &Error{
 		LogMsg: "Kubernetes Find New ReplicaSet Error",
 		ErrMsg: "查找最新的ReplicaSet失败",
+	},
+	EKUBE_DELETE_NAMESPACE: &Error {
+		LogMsg: "Kubernetes Delete Namespace Error",
+		ErrMsg: "删除组织失败",
+	},
+	EKUBE_DELETE_RESOURCEQUOTA: &Error {
+		LogMsg: "Kubernetes Delete ResourceQuota Error",
+		ErrMsg: "删除资源配额失败",
+	},
+	EKUBE_UPDATE_RESOURCEQUOTA: &Error {
+		LogMsg: "Kubernetes Update ResourceQuota Error",
+		ErrMsg: "更新资源配额失败",
 	},
 
 	// 1300~1399 Iris错误

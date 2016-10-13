@@ -191,3 +191,18 @@ ID, 组织名称, CPU, MEM, 账户余额, 创建时间, 数据中心, 操作
 * 操作: 更新、删除
 
 dcIdList为JSON, 从里面取值到dcList里获取相应的名字对应起来
+
+### 删除组织
+请求URL: POST /api/v1/organization/delete 待讨论
+请求头: Authorization: ${sessionId}
+
+携带数据: 待讨论
+```
+{
+    "orgName": "xxx",
+    "orgId": "3",
+    "op": 1
+}
+
+```
+

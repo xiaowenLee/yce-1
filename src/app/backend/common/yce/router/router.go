@@ -60,6 +60,7 @@ type Router struct {
 	ListNamespace    *mynamespace.ListNamespaceController
 	CreateNamespace  *mynamespace.CreateNamespaceController
 	UpdateNamespace  *mynamespace.UpdateNamespaceController
+	DeleteNamespace  *mynamespace.DeleteNamespaceController
 	OperationStat    *myoperationstat.OperationStatController
 }
 
@@ -104,6 +105,7 @@ func NewRouter() *Router {
 	r.ListNamespace = new(mynamespace.ListNamespaceController)
 	r.CreateNamespace = new(mynamespace.CreateNamespaceController)
 	r.UpdateNamespace = new(mynamespace.UpdateNamespaceController)
+	r.DeleteNamespace = new(mynamespace.DeleteNamespaceController)
 	r.OperationStat = new(myoperationstat.OperationStatController)
 
 	return r
@@ -150,6 +152,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organization", *r.ListNamespace)
 	iris.API("/api/v1/organization/new", *r.CreateNamespace)
 	iris.API("/api/v1/organization/update", *r.UpdateNamespace)
+	iris.API("/api/v1/organization/delete", *r.DeleteNamespace)
 	iris.API("/api/v1/organizations/:orgId/operationstat", *r.OperationStat)
 
 	iris.StaticServe("../frontend", "/static")

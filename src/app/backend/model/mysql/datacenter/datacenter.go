@@ -14,7 +14,7 @@ const (
 		"FROM datacenter WHERE id=?"
 
 	DC_SELECT_ALL = "SELECT id, name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter"
+		"FROM datacenter where status=1"
 
 	DC_INSERT = "INSERT INTO " +
 		"datacenter(name, host, port, secret, status, createdAt, modifiedAt, modifiedOp, comment) " +

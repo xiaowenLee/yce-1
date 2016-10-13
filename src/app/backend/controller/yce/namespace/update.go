@@ -68,7 +68,7 @@ func (unc *UpdateNamespaceController) updateResourceQuota() {
 		if err != nil {
 			log.Errorf("updateResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
 				unc.apiServers[index], unc.params.Name, err)
-			unc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
+			unc.Ye = myerror.NewYceError(myerror.EKUBE_UPDATE_RESOURCEQUOTA, "")
 		}
 
 		log.Infof("UpdateNamespaceController resourceQuota: cpu=%s, mem=%s", r.Spec.Hard.Cpu().String(), r.Spec.Hard.Memory().String())
@@ -79,21 +79,13 @@ func (unc *UpdateNamespaceController) updateResourceQuota() {
 }
 
 func (unc *UpdateNamespaceController) getDcIdList() {
-	org := new(myorganization.Organization)
-	err := org.QueryOrganizationByName(unc.params.Name)
-	if err != nil {
-		unc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+	dcIdList, ye := yceutils.GetDcIdListByOrgName(unc.params.Name)
+	if ye != nil {
+		unc.Ye = ye
 		return
 	}
 
-	//err = json.Unmarshal([]byte(org.DcIdList), unc.params.DcIdList)
-	unc.params.DcIdList, unc.Ye = yceutils.DecodeDcIdList(org.DcIdList)
-	/*
-	if err != nil {
-		unc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		return
-	}
-	*/
+	unc.params.DcIdList = dcIdList
 }
 
 func (unc UpdateNamespaceController) Post() {

@@ -460,6 +460,22 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 
 }
 
+func GetDcIdListByOrgName(orgName string) ([]int32, *myerror.YceError) {
+	org := new(myorganization.Organization)
+	err := org.QueryOrganizationByName(orgName)
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	dcIdList, ye := DecodeDcIdList(org.DcIdList)
+	if ye != nil {
+		return nil, ye
+	}
+
+	return dcIdList, nil
+}
+
 func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 	if CheckValidate(orgId) {
 		org, err := organization.GetOrganizationById(orgId)
