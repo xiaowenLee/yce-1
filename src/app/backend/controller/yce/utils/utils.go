@@ -728,10 +728,10 @@ func GetAllNamespaces(c *client.Client) ([]string, *myerror.YceError) {
 	}
 
 	for _, ns := range nss.Items {
-		namespaces = append(namespaces, ns)
+		namespaces = append(namespaces, ns.Name)
 	}
 
-	return namespaces
+	return namespaces, nil
 }
 
 // check the value if it is validate

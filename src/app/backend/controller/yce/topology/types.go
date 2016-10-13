@@ -2,6 +2,7 @@ package topology
 
 import (
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 	mylog "app/backend/common/util/log"
 )
 

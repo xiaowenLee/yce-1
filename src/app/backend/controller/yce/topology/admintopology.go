@@ -1,12 +1,18 @@
 package topology
 
+/*
+import (
+	"encoding/json"
+	"strconv"
+)
+
+
 import (
 	myerror "app/backend/common/yce/error"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	"encoding/json"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	deployutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"strconv"
@@ -23,27 +29,6 @@ type AdminTopologyController struct {
 	topology   *Topology
 	dcIdList   []int32
 }
-
-/*==========================================================================
- Topology
-==========================================================================*/
-/*
-
-begin:
-	ops --> Deployments.List
-	Foreach deployment in Deployments.List
-		rs := findNewReplicaSet()
-		rs --> Select Pods.List
-		Foreach pod in Pods.List(){
-			Pod.Name --> Node: pod <---> node
-			rs <---> pod
-		}
-	ops --> Services.List
-	Foreach service in Services.List
-		service --> Select Pods.List
-		service <---> pod
-:end
-*/
 
 func (atc *AdminTopologyController) getAllDcIdList() error {
 	dcs, err := mydatacenter.QueryAllDatacenters()
@@ -284,3 +269,4 @@ func (atc AdminTopologyController) Get() {
 
 	return
 }
+*/

@@ -44,6 +44,7 @@ const (
 	EKUBE_LOGS_POD                        = 1226
 	EKUBE_SCALE_DEPLOYMENT                = 1227
 	EKUBE_FIND_NEW_REPLICASET             = 1228
+	EKUBE_GET_ALL_NAMESPACES              = 1229
 
 	EIRIS int32 = 1300
 
