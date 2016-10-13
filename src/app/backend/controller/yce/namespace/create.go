@@ -5,7 +5,6 @@ import (
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
 	myorganization "app/backend/model/mysql/organization"
-	"encoding/json"
 	api "k8s.io/kubernetes/pkg/api"
 	resource "k8s.io/kubernetes/pkg/api/resource"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
@@ -32,8 +31,9 @@ type CreateNamespaceParam struct {
 // Parse Namespace struct, insert into MySQL
 func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 
-	dcIdList, err := json.Marshal(cnc.Param.DcIdList)
-	if err != nil {
+	//dcIdList, err := json.Marshal(cnc.Param.DcIdList)
+	dcIdList, ye := yceutils.EncodeDcIdList(cnc.Param.DcIdList)
+	if ye != nil {
 		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return
 	}
@@ -41,7 +41,7 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, cnc.Param.Balance, "", string(dcIdList),
 		cnc.Param.CpuQuota, cnc.Param.MemQuota, cnc.Param.UserId)
 
-	err = org.InsertOrganization()
+	err := org.InsertOrganization()
 	if err != nil {
 		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
 		return
