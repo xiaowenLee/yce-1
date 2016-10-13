@@ -760,16 +760,29 @@ func QueryDuplicatedUserNameAndOrgId(name string, orgId int32) (bool, *myerror.Y
 	return true, nil
 }
 
+func QueryDuplicatedUserName(name string) (bool, *myerror.YceError) {
+	u := new(myuser.User)
+	err := u.QueryUserByUserName(name)
+
+	// not found
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
+		return false, ye
+	}
+	// found
+	return true, nil
+}
+
 func QueryDuplicatedOrgName(name string) (*myorganization.Organization, *myerror.YceError) {
 	org := new(myorganization.Organization)
 	err := org.QueryOrganizationByName(name)
-	// not found
+	// not found, could use this name
 	if err != nil {
 		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
 		return nil, ye
 	}
 
-	// found
+	// found, cann't user this name
 	return org, nil
 }
 
@@ -790,7 +803,28 @@ func GetOrgNameList() ([]string, *myerror.YceError) {
 	return orgNameList, nil
 }
 
+func GetAllOrganizations() ([]myorganization.Organization, *myerror.YceError) {
+	orgList, err := myorganization.QueryAllOrganizations()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	return orgList, nil
+}
+
+func GetUsers() ([]myuser.User, *myerror.YceError) {
+	userList, err := myuser.QueryAllUsers()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	return userList, nil
+}
+
+
+
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {
-
 }
