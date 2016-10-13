@@ -28,7 +28,8 @@ func (cuc *CheckUserController) checkDuplicatedName() {
 		return
 	}
 
-	_, ye := yceutils.QueryDuplicatedUserNameAndOrgId(cuc.params.UserName, org.Id)
+	//_, ye := yceutils.QueryDuplicatedUserNameAndOrgId(cuc.params.UserName, org.Id)
+	_, ye := yceutils.QueryDuplicatedUserName(cuc.params.UserName)
 	// not found, can insert
 	if ye != nil {
 		//cuc.Ye = myerror.NewYceError(myerror.EOK, "")

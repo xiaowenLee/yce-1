@@ -760,6 +760,19 @@ func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceEr
 	return true, nil
 }
 
+func QueryDuplicatedUserName(name string) (bool, *myerror.YceError) {
+	u := new(myuser.User)
+	err := u.QueryUserByUserName(name)
+
+	// not found
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
+		return false, ye
+	}
+	// found
+	return true, nil
+}
+
 func QueryDuplicatedOrgName(name string) (*myorganization.Organization, *myerror.YceError) {
 	org := new(myorganization.Organization)
 	err := org.QueryOrganizationByName(name)

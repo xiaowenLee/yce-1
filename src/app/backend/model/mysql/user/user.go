@@ -13,6 +13,7 @@ const (
 	USER_PASSWORD = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? and password=?"
 
 	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
+	USER_CHECK_DUPLICATE_NAME = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? "
 	USER_CHECK_DUPLICATE = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? AND orgId=?"
 
 	USER_INSERT = "INSERT INTO " +
@@ -90,6 +91,28 @@ func (u *User) QueryUserById(id int32) error {
 		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
 		log.Errorf("QueryUserById Error: err=%s", err)
+		return err
+	}
+
+	return nil
+}
+
+func (u *User) QueryUserByUserName(name string) error {
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-statement
+	stmt, err := db.Prepare(USER_CHECK_DUPLICATE_NAME)
+	if err != nil {
+		log.Fatalf("QueryUserByUserName Error: err=%s", err)
+		return err
+	}
+	defer stmt.Close()
+
+	// Query user by name
+	err = stmt.QueryRow(name).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
+		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+	if err != nil {
+		log.Errorf("QueryUserByName Error: err=%s", err)
 		return err
 	}
 
