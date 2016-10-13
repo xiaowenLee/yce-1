@@ -1,30 +1,8 @@
 package deployment
 
 import (
-	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
-)
-
-var log = mylog.Log
-
-const (
-	DEPLOYMENT_SELECT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
-		"FROM deployment where id=?"
-
-	DEPLOYMENT_BYNAME = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
-		"FROM deployment where name=? ORDER BY id DESC LIMIT 30"
-
-	DEPLOYMENT_INSERT = "INSERT INTO deployment(name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	DEPLOYMENT_ACTIONTYPE_STAT = "SELECT id, name, actionType, actionVerb, actionUrl, " +
-		"actionAt, actionOp, dcList, success, reason, json, comment, orgId " +
-		"FROM deployment where actionType=?"
-	VALID   = 1
-	INVALID = 0
 )
 
 type Deployment struct {
@@ -42,6 +20,10 @@ type Deployment struct {
 	Comment    string `json:"comment,omitempty"`
 	OrgId      int32  `json:"orgId"`
 }
+
+type Statistics map[int32]int32
+
+type OperationStat map[string]Statistics // day-->op-->total
 
 func NewDeployment(name, actionVerb, actionUrl, dcList, reason, json, comment string, actionType, actionOp, success int32, orgId int32) *Deployment {
 	return &Deployment{
@@ -191,9 +173,54 @@ func StatDeploymentByActionType(actionType int) (count int32, err error) {
 		}
 
 		count++
-		//log.Infof("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s, orgId=%d", d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment, d.OrgId)
+
+		log.Debugf("QueryDeploymentByAppName: id=%d, name=%s, actionType=%d, actionVerb=%s, actionUrl=%s, actionAt=%s, actionOp=%d, dcList=%s, success=%d, reason=%s, json=%s, comment=%s, orgId=%d", d.Id, d.Name, d.ActionType, d.ActionVerb, d.ActionUrl, d.ActionAt, d.ActionOp, d.DcList, d.Success, d.Reason, d.Json, d.Comment, d.OrgId)
 
 	}
 
 	return count, nil
+}
+
+func QueryOperationStat(orgId int32) (OperationStat, error) {
+
+	ops := make(OperationStat)
+
+	db := mysql.MysqlInstance().Conn()
+	//Prepare select-statement
+	stmt, err := db.Prepare(OPERATION_LOG)
+	if err != nil {
+		log.Errorf("QueryDeploymentById Error: err=%s", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(orgId, orgId, orgId, orgId, orgId)
+	if err != nil {
+		log.Errorf("QueryOperationStat Error: err=%s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var date string
+		var op, total int32
+		err = rows.Scan(&date, &total, &op)
+		if err != nil {
+			log.Errorf("QueryOperationStat Scan Error: err=%s", err)
+			return nil, err
+		}
+		log.Infof("QueryOperationStat Scan: date=%s, total=%d, op=%d", date, total, op)
+		// date exist in OperationStat
+		if statistics, ok := ops[date]; ok {
+			statistics[op] = total
+
+		} else {
+			s := make(Statistics)
+			s[op] = total
+			ops[date] = s
+		}
+	}
+
+	log.Infof("QueryOperationStat: len(OperationStat)=%d", len(ops))
+	return ops, nil
 }

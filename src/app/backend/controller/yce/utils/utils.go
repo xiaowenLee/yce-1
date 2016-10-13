@@ -747,9 +747,10 @@ func CheckValidate(value interface{}) bool {
 	*/
 }
 
-func QueryDuplicatedUserNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
+func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
 	u := new(myuser.User)
 	err := u.QueryUserByNameAndOrgId(name, orgId)
+
 	// not found
 	if err != nil {
 		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
