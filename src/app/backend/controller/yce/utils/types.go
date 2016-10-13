@@ -11,3 +11,9 @@ type OrgIdAndNameType struct {
 	OrgName string `json:"orgName"`
 }
 
+type DcIdAndNameType struct {
+	DcId int32 `json:"dcId"`
+	DcName string `json:"dcName"`
+}
+
+

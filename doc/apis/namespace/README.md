@@ -165,7 +165,12 @@
             "id": 1,
             "name": "xxx",
             ... 
-        }] 
+        }],
+        "dcList": [{
+            "dcId": 1,
+            "dcName": "xxx
+        }]
+        
     }
 }
 ```
@@ -184,4 +189,4 @@ ID, 组织名称, CPU, MEM, 账户余额, 创建时间, 数据中心, 操作
 * 数据中心: dcIdList
 * 操作: 更新、删除
 
-dcIdList为JSON, 参考应用管理的页面, 将数据中心ID与它的名字对应起来
+dcIdList为JSON, 从里面取值到dcList里获取相应的名字对应起来
