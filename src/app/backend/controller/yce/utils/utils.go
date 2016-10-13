@@ -411,9 +411,10 @@ func GetAllQuotasOrderByCpu() ([]myqouta.Quota, *myerror.YceError) {
 }
 
 type DatacenterList struct {
-	DcIdList []int32
-	DcName   []string
+	DcIdList []int32 	`json:"dcIdList"`
+	DcNameList   []string	`json:"dcNameList"`
 }
+
 
 // Get Datacenter List By OrgId
 func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError) {
@@ -437,19 +438,19 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 		}
 
 		DcIdList := make([]int32, 0)
-		DcName := make([]string, 0)
+		DcNameList := make([]string, 0)
 
 		for _, dc := range dcList {
 			DcIdList = append(DcIdList, dc.Id)
-			DcName = append(DcName, dc.Name)
+			DcNameList = append(DcNameList, dc.Name)
 		}
 
 		datacenterList := &DatacenterList{
 			DcIdList: DcIdList,
-			DcName:   DcName,
+			DcNameList:   DcNameList,
 		}
 
-		log.Infof("GetDatacenterListByOrgId: len(DcIdList)=%d, len(DcName)=%d", len(DcIdList), len(DcName))
+		log.Infof("GetDatacenterListByOrgId: len(DcIdList)=%d, len(DcNameList)=%d", len(DcIdList), len(DcNameList))
 		return datacenterList, nil
 	} else {
 		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
@@ -490,6 +491,16 @@ func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 		log.Errorf("GetDcIdListByOrgId Error: error=%s", myerror.Errors[ye.Code].LogMsg)
 		return nil, ye
 	}
+}
+
+func QueryAllDatacenters() ([]mydatacenter.DataCenter, *myerror.YceError) {
+	dcList, err := mydatacenter.QueryAllDatacenters()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	return dcList, nil
 }
 
 // get Pod By podName
@@ -736,9 +747,10 @@ func CheckValidate(value interface{}) bool {
 	*/
 }
 
-/*
 func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceError) {
-	err := myuser.QueryUserByNameAndOrgId(name, orgId)
+	u := new(myuser.User)
+	err := u.QueryUserByNameAndOrgId(name, orgId)
+
 	// not found
 	if err != nil {
 		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
@@ -747,7 +759,36 @@ func QueryDuplicatedNameAndOrgId(name string, orgId int32) (bool, *myerror.YceEr
 	// found
 	return true, nil
 }
-*/
+
+func QueryDuplicatedOrgName(name string) (*myorganization.Organization, *myerror.YceError) {
+	org := new(myorganization.Organization)
+	err := org.QueryOrganizationByName(name)
+	// not found
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
+		return nil, ye
+	}
+
+	// found
+	return org, nil
+}
+
+func GetOrgNameList() ([]string, *myerror.YceError) {
+
+	orgList, err := myorganization.QueryAllOrganizations()
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	orgNameList := make([]string, 0)
+
+	for _, org := range orgList {
+		orgNameList = append(orgNameList, org.Name)
+	}
+
+	return orgNameList, nil
+}
 
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {

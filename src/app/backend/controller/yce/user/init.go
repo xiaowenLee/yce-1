@@ -1,71 +1,49 @@
 package user
 
 import (
-	"app/backend/controller/yce"
+	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	"encoding/json"
 	myerror "app/backend/common/yce/error"
-	myorganization "app/backend/model/mysql/organization"
-	myuser "app/backend/model/user/organization"
 )
 
-type InitUserCreationController struct {
+type InitUserController struct {
 	yce.Controller
-	params *InitUserCreationParams
-	orgId int32
 }
 
-type InitUserCreationParams struct {
-	UserName string `json:"userName"`
-	OrgName string `json:"orgName"`
+type OrgNames struct {
+	OrgNameList []string `json:"orgNameList"`
 }
 
-func (iucc *InitUserCreationController) checkDuplicatedName() {
-	org := new(myorganization.Organization)
-	err := org.QueryOrganizationByName(iucc.params.OrgName)
-	if err != nil {
-		iucc.Ye = myerror.NewYceError(myerror.EMYSQL, "")
+// get Organization Names
+func (iuc *InitUserController) getOrgNames() string {
+	orgNames := new(OrgNames)
+	orgNames.OrgNameList, iuc.Ye = yceutils.GetOrgNameList()
+	if iuc.Ye != nil {
 		return ""
 	}
 
-	user := new(myuser.User)
-	ok, ye := yceutils.QueryDuplicatedNameAndOrgId(iucc.params.UserName, org.Id)
-	// not found, can insert
-	if ye != nil {
-		iucc.Ye = myerror.NewYceError(myerror.EOK, "")
-	} else {
-		// found, cann't insert
-		iucc.Ye = myerror.NewYceError(myerror.EYCE_DUP_NAME, "")
-	}
-
-	if iucc.CheckError() {
-		return
-	}
-
-}
-
-func (iucc InitUserCreationController) Post() {
-	SessionIdFromClient := iucc.RequestHeader("Authorization")
-	iucc.params = new(InitUserCreationParams)
-
-	err = iucc.ReadJSON(iucc.params)
+	orgNamesJSON, err := json.Marshal(orgNames.OrgNameList)
 	if err != nil {
-		iucc.Ye = myerror.NewYceError(myerror.EJSON, "")
-	}
-	if iucc.CheckError() {
-		return
+		iuc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return ""
 	}
 
-	iucc.ValidateSession(SessionIdFromClient, iucc.orgId)
-	if iucc.CheckError() {
-		return
-	}
+	orgNamesString := string(orgNamesJSON)
 
-	// check if duplicated user name
-	iucc.checkDuplicatedName()
-	if iucc.CheckError() {
-		return
-	}
-
-	log.Infoln("InitUserCreationController Post Over")
+	return orgNamesString
 }
 
+func (iuc InitUserController) Get() {
+	//TODO: rethink of session authroization. Here it is omitted.
+	// SessionIdFromClient := iuc.RequestHeaders("Authorization")
+
+	orgNames := iuc.getOrgNames()
+	if iuc.CheckError() {
+		return
+	}
+
+	iuc.WriteOk(orgNames)
+	log.Infoln("InitUserController Get Over")
+
+}

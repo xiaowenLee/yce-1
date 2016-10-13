@@ -13,6 +13,7 @@ type DcIdListType struct {
 	DcIdList []int32 `json:"dcIdList"`
 }
 
+//TODO: move all funcitons to yceutils
 func GetOrganizationById(orgId string) (*organization.Organization, error) {
 	myorganization := new(organization.Organization)
 	oid, err := strconv.Atoi(orgId)

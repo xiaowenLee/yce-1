@@ -74,7 +74,7 @@ func (lsc ListServiceController) Get() {
 	}
 
 	sd.DcIdList = dcList.DcIdList
-	sd.DcName = dcList.DcName
+	sd.DcName = dcList.DcNameList
 
 	// Get ApiServers by DcIdList
 	lsc.apiServers, lsc.Ye = yceutils.GetApiServerList(sd.DcIdList)

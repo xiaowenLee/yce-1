@@ -13,7 +13,7 @@ const (
 	USER_PASSWORD = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? and password=?"
 
 	USER_SELECT = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? "
-	USER_CHECK_DUPLICATE = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE id=? AND orgId=?"
+	USER_CHECK_DUPLICATE = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? AND orgId=?"
 
 	USER_INSERT = "INSERT INTO " +
 		"user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment) " +

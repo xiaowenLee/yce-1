@@ -10,12 +10,13 @@ import (
 	myhealthz "app/backend/controller/yce/healthz"
 	mylogin "app/backend/controller/yce/login"
 	mylogout "app/backend/controller/yce/logout"
-	mynamespace "app/backend/controller/yce/namespace"
 	mynavList "app/backend/controller/yce/navlist"
 	myregistry "app/backend/controller/yce/registry"
 	myservice "app/backend/controller/yce/service"
 	mytopology "app/backend/controller/yce/topology"
 	myversion "app/backend/controller/yce/version"
+	myuser "app/backend/controller/yce/user"
+	mynamespace "app/backend/controller/yce/namespace"
 	"github.com/kataras/iris"
 	myoperationstat "app/backend/controller/yce/dashboard/operationstat"
 )
@@ -41,7 +42,6 @@ type Router struct {
 	DeleteDeploy     *mydeploy.DeleteDeploymentController
 	LogsPod          *mydeploy.LogsPodController
 	ListOperationLog *mydeploy.ListOperationLogController
-	InitNamespace    *mynamespace.InitNamespaceController
 	DeleteService    *myservice.DeleteServiceController
 	DeleteEndpoint   *myendpoint.DeleteEndpointsController
 	HistoryDeploy    *mydeploy.HistoryDeploymentController
@@ -51,6 +51,13 @@ type Router struct {
 	Version          *myversion.VersionController
 	StatDeployment   *mydeploymentstat.StatDeploymentController
 	StatResource     *myresourcestat.StatResourceController
+	InitUser 	 *myuser.InitUserController
+	CreateUser 	 *myuser.CreateUserController
+	CheckUser 	 *myuser.CheckUserController
+	CheckNamespace	 *mynamespace.CheckNamespaceController
+	InitNamespace    *mynamespace.InitNamespaceController
+	ListNamespace    *mynamespace.ListNamespaceController
+	CreateNamespace  *mynamespace.CreateNamespaceController
 	OperationStat    *myoperationstat.OperationStatController
 }
 
@@ -77,7 +84,6 @@ func NewRouter() *Router {
 	r.DeleteDeploy = new(mydeploy.DeleteDeploymentController)
 	r.LogsPod = new(mydeploy.LogsPodController)
 	r.ListOperationLog = new(mydeploy.ListOperationLogController)
-	r.InitNamespace = new(mynamespace.InitNamespaceController)
 	r.DeleteService = new(myservice.DeleteServiceController)
 	r.DeleteEndpoint = new(myendpoint.DeleteEndpointsController)
 	r.HistoryDeploy = new(mydeploy.HistoryDeploymentController)
@@ -87,6 +93,13 @@ func NewRouter() *Router {
 	r.Version = new(myversion.VersionController)
 	r.StatDeployment = new(mydeploymentstat.StatDeploymentController)
 	r.StatResource = new(myresourcestat.StatResourceController)
+	r.InitUser = new(myuser.InitUserController)
+	r.CheckUser = new(myuser.CheckUserController)
+	r.CreateUser = new(myuser.CreateUserController)
+	r.CheckNamespace = new(mynamespace.CheckNamespaceController)
+	r.InitNamespace = new(mynamespace.InitNamespaceController)
+	r.ListNamespace = new(mynamespace.ListNamespaceController)
+	r.CreateNamespace = new(mynamespace.CreateNamespaceController)
 	r.OperationStat = new(myoperationstat.OperationStatController)
 
 	return r
@@ -117,7 +130,6 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)
 	iris.API("/api/v1/organizations/:orgId/endpoints/:epName", *r.DeleteEndpoint)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
-	iris.API("/api/v1/organizations/init", *r.InitNamespace)
 	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/deployments/:name/history", *r.HistoryDeploy)
 	iris.API("/api/v1/organizations/:orgId/topology", *r.Topology)
 	iris.API("/", *r.Api)
@@ -125,6 +137,13 @@ func (r *Router) Registe() {
 	iris.API("/healthz", *r.Healthz)
 	iris.API("/api/v1/organizations/:orgId/deploymentstat", *r.StatDeployment)
 	iris.API("/api/v1/organizations/:orgId/resourcestat", *r.StatResource)
+	iris.API("/api/v1/user/init", *r.InitUser)
+	iris.API("/api/v1/user/check", *r.CheckUser)
+	iris.API("/api/v1/user/new", *r.CreateUser)
+	iris.API("/api/v1/organization/check", *r.CheckNamespace)
+	iris.API("/api/v1/organization/init", *r.InitNamespace)
+	iris.API("/api/v1/organization", *r.ListNamespace)
+	iris.API("/api/v1/organization/new", *r.CreateNamespace)
 	iris.API("/api/v1/organizations/:orgId/operationstat", *r.OperationStat)
 
 	iris.StaticServe("../frontend", "/static")

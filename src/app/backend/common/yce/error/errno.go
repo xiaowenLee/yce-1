@@ -61,8 +61,8 @@ const (
 	EYCE_LOGOUT            int32 = 1411
 	EYCE_DELETE_SERVICE    int32 = 1412
 	EYCE_DELETE_ENDPOINTS  int32 = 1413
-	EYCE_NOTFOUND 		   int32 = 1414
-	EYCE_DUP_NAME		   int32 = 1415
+	EYCE_NOTFOUND 	       int32 = 1414
+	EYCE_EXISTED_NAME      int32 = 1415
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -295,7 +295,7 @@ var Errors = map[int32]*Error{
 		LogMsg: "Not Found",
 		ErrMsg: "资源未找到",
 	},
-	EYCE_DUP_NAME: &Error {
+	EYCE_EXISTED_NAME: &Error {
 		LogMsg: "Duplicated Resources Name",
 		ErrMsg: "资源名重复",
 	},

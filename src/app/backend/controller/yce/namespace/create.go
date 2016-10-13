@@ -5,7 +5,6 @@ import (
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
 	myorganization "app/backend/model/mysql/organization"
-	"encoding/json"
 	api "k8s.io/kubernetes/pkg/api"
 	resource "k8s.io/kubernetes/pkg/api/resource"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
@@ -19,21 +18,22 @@ type CreateNamespaceController struct {
 }
 
 type CreateNamespaceParam struct {
-	OrgId    string  `json:"orgId"`
-	UserId   int32   `json:"userId"`
+	UserId   int32   `json:"userId"`         // ModifiedOp, default is admin
 	Name     string  `json:"name"`
-	CpuQuota int32   `json:"cpuQuota"`
-	MemQuota int32   `json:"memQuota"`
-	Budget   string  `json:"budget"`
-	Balance  string  `json:"balance"`
 	DcIdList []int32 `json:"dcIdList"`
+	OrgId    string  `json:"orgId"`        // auto increase in MySQL
+	CpuQuota int32   `json:"cpuQuota,omitempty"`     // blow 4 items will be modified in update.go
+	MemQuota int32   `json:"memQuota,omitempty"`
+	Budget   string  `json:"budget,omitempty"`
+	Balance  string  `json:"balance,omitempty"`
 }
 
 // Parse Namespace struct, insert into MySQL
 func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 
-	dcIdList, err := json.Marshal(cnc.Param.DcIdList)
-	if err != nil {
+	//dcIdList, err := json.Marshal(cnc.Param.DcIdList)
+	dcIdList, ye := yceutils.EncodeDcIdList(cnc.Param.DcIdList)
+	if ye != nil {
 		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return
 	}
@@ -41,7 +41,7 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 	org := myorganization.NewOrganization(cnc.Param.Name, cnc.Param.Budget, cnc.Param.Balance, "", string(dcIdList),
 		cnc.Param.CpuQuota, cnc.Param.MemQuota, cnc.Param.UserId)
 
-	err = org.InsertOrganization()
+	err := org.InsertOrganization()
 	if err != nil {
 		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
 		return
@@ -51,71 +51,7 @@ func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 
 }
 
-/*
-// Get ApiServer by dcId
-func (cnc *CreateNamespaceController) getApiServerByDcId(dcId int32) string {
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterById(dcId)
-	if err != nil {
-		log.Errorf("getApiServerById QueryDataCenterById Error: err=%s", err)
-		cnc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-		return ""
-	}
 
-	host := dc.Host
-	port := strconv.Itoa(int(dc.Port))
-	apiServer := host + ":" + port
-
-	log.Infof("CreateDeployController getApiServerByDcId: apiServer=%s, dcId=%d", apiServer, dcId)
-	return apiServer
-}
-
-// Get ApiServer List for dcIdList
-func (cnc *CreateNamespaceController) getApiServerList(dcIdList []int32) {
-	// Foreach dcIdList
-	for _, dcId := range cnc.Param.DcIdList {
-		// Get ApiServer
-		apiServer := cnc.getApiServerByDcId(dcId)
-		if strings.EqualFold(apiServer, "") {
-			log.Errorf("CreateDeployController getApiServerList Error")
-			return
-		}
-
-		cnc.apiServers = append(cnc.apiServers, apiServer)
-	}
-
-	log.Infof("CreateNamespaceController getApiServerList: len(apiServer)=%d", len(cnc.apiServers))
-
-	return
-}
-
-// Create k8sClients for every ApiServer
-func (cnc *CreateNamespaceController) createK8sClients() {
-
-	// Foreach every ApiServer to create it's k8sClient
-	cnc.k8sClients = make([]*client.Client, 0)
-
-	for _, server := range cnc.apiServers {
-		config := &restclient.Config{
-			Host: server,
-		}
-
-		c, err := client.New(config)
-		if err != nil {
-			log.Errorf("createK8sClient Error: err=%s", err)
-			cnc.Ye = myerror.NewYceError(myerror.EKUBE_CLIENT, "")
-			return
-		}
-
-		cnc.k8sClients = append(cnc.k8sClients, c)
-		cnc.apiServers = append(cnc.apiServers, server)
-		log.Infof("Append a new client to cnc.k8sClients array: c=%p, apiServer=%s", c, server)
-	}
-
-	log.Infof("CreateNamespaceController createK8sClients: len(k8sClient)=%d", len(cnc.k8sClients))
-	return
-}
-*/
 
 // Create Namespace for every ApiServer
 func (cnc *CreateNamespaceController) createNamespace() {
@@ -142,11 +78,13 @@ func (cnc *CreateNamespaceController) createNamespace() {
 func (cnc *CreateNamespaceController) createResourceQuota() {
 	resourceQuota := new(api.ResourceQuota)
 	resourceQuota.ObjectMeta.Name = cnc.Param.Name + "-quota"
+	resourceQuota.Spec.Hard = make(api.ResourceList, 0)
 
 	// translate into "resource.Quantity"
 	cpuQuota := resource.NewQuantity(int64(cnc.Param.CpuQuota)*CPU_MULTIPLIER, resource.DecimalSI)
 	memQuota := resource.NewQuantity(int64(cnc.Param.MemQuota)*MEM_MULTIPLIER, resource.BinarySI)
 
+	//TODO: didn't create quota or limits
 	resourceQuota.Spec.Hard[api.ResourceCPU] = *cpuQuota
 	resourceQuota.Spec.Hard[api.ResourceMemory] = *memQuota
 
@@ -165,7 +103,7 @@ func (cnc *CreateNamespaceController) createResourceQuota() {
 }
 
 // Post /api/v1/organizations
-func (cnc *CreateNamespaceController) Post() {
+func (cnc CreateNamespaceController) Post() {
 	// Parse create organization params
 	cnc.Param = new(CreateNamespaceParam)
 	err := cnc.ReadJSON(cnc.Param)

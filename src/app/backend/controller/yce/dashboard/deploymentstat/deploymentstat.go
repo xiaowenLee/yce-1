@@ -48,9 +48,8 @@ func (sdc *StatDeploymentController) statDeployment(dp *extensions.Deployment, c
 }
 
 // get datacenters statistics especially datacenter's Id and name
-func (sdc *StatDeploymentController) getDatacenterStat(index int, dpList []extensions.Deployment, cli *client.Client) *DatacentersType {
-	dcs := new(DatacentersType)
-	dcs.Deployments = make([]DeploymentsType, 0)
+func (sdc *StatDeploymentController) getDatacenterStat(index int, dpList []extensions.Deployment, cli *client.Client) []DeploymentsType {
+	dcs := make([]DeploymentsType, 0)
 
 	dcList, ye := yceutils.GetDatacentersByOrgId(sdc.orgId)
 	if ye != nil {
@@ -59,9 +58,6 @@ func (sdc *StatDeploymentController) getDatacenterStat(index int, dpList []exten
 	}
 	log.Debugf("StatDeploymentController getDatacenterStat: len(dcList)=%d", len(dcList))
 
-	dcs.DcId = dcList[index].Id
-	dcs.DcName = dcList[index].Name
-
 	for _, dp := range dpList {
 
 		dps := sdc.statDeployment(&dp, cli)
@@ -69,8 +65,11 @@ func (sdc *StatDeploymentController) getDatacenterStat(index int, dpList []exten
 			return nil
 		}
 
-		dcs.Deployments = append(dcs.Deployments, *dps)
+		dps.DcId = dcList[index].Id
+		dps.DcName = dcList[index].Name
+		dcs = append(dcs, *dps)
 	}
+
 	return dcs
 }
 
@@ -78,7 +77,7 @@ func (sdc *StatDeploymentController) getDatacenterStat(index int, dpList []exten
 func (sdc *StatDeploymentController) getDeploymentStat() string {
 
 	dpStat := new(DeploymentStatType)
-	dpStat.DeploymentStat = make([]DatacentersType, 0)
+	dpStat.DeploymentStat = make([]DeploymentsType, 0)
 
 	for index, cli := range sdc.k8sClients {
 		// get deployments
@@ -94,7 +93,9 @@ func (sdc *StatDeploymentController) getDeploymentStat() string {
 			return ""
 		}
 
-		dpStat.DeploymentStat = append(dpStat.DeploymentStat, *dcs)
+		for _, dc := range dcs {
+			dpStat.DeploymentStat = append(dpStat.DeploymentStat, dc)
+		}
 	}
 
 	// encode to json then convert to string
