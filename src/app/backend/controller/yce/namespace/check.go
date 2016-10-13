@@ -4,8 +4,6 @@ import (
 	yce "app/backend/controller/yce"
 	myerror "app/backend/common/yce/error"
 	yceutils "app/backend/controller/yce/utils"
-	"github.com/kubernetes/kubernetes/pkg/util/json"
-	"strconv"
 )
 
 type CheckNamespaceController struct {
@@ -19,31 +17,16 @@ type CheckNamespaceParams struct {
 	OrgId   string `json:"orgId"`
 }
 
-func (cnc *CheckNamespaceController) checkDuplicatedName() string {
-	org, ye := yceutils.QueryDuplicatedOrgName(cnc.params.OrgName)
+func (cnc *CheckNamespaceController) checkDuplicatedName() {
+	_, ye := yceutils.QueryDuplicatedOrgName(cnc.params.OrgName)
 	// not found
 	if ye != nil {
-		return ""
+		return
 	}
 
 	// found
-	orgId := strconv.Itoa(int(org.Id))
-	//dcList, ye := yceutils.GetDatacenterListByOrgId(orgId)
-	dcList, ye := yceutils.GetDatacentersByOrgId(orgId)
-	// found but error
-	if ye != nil {
-		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		return ""
-	}
-
-	dcListJSON, err := json.Marshal(dcList)
-	if err != nil {
-		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		return ""
-	}
-
-	dcNameString := string(dcListJSON)
-	return dcNameString
+	cnc.Ye = myerror.NewYceError(myerror.EYCE_EXISTED_NAME, "")
+	return
 }
 
 
@@ -72,11 +55,11 @@ func (cnc CheckNamespaceController) Post() {
 
 
 	//checkDuplicatedName
-	checkResult := cnc.checkDuplicatedName()
+	cnc.checkDuplicatedName()
 	if cnc.CheckError() {
 		return
 	}
 
-	cnc.WriteOk(checkResult)
+	cnc.WriteOk("")
 	log.Infoln("CheckNamespaceController Post Over!")
 }
