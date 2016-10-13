@@ -75,6 +75,10 @@
             "name": "abc.de",
             ....
         }] 
+        "orgList": [{
+            "orgId": 1,
+            "orgName": "xxx" 
+        }]
     }
 }
 ```

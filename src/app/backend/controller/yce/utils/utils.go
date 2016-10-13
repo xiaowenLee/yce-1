@@ -823,7 +823,8 @@ func GetUsers() ([]myuser.User, *myerror.YceError) {
 	return userList, nil
 }
 
+
+
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {
-
 }
