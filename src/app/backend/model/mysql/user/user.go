@@ -1,13 +1,11 @@
 package user
 
 import (
-	mylog "app/backend/common/util/log"
-	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
+	mysql "app/backend/common/util/mysql"
 	"encoding/json"
 )
 
-var log = mylog.Log
 
 const (
 	USER_PASSWORD = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? and password=?"
@@ -37,9 +35,10 @@ type User struct {
 	ModifiedAt string `json:"modifiedAt"`
 	ModifiedOp int32  `json:"modifiedOp"`
 	Comment    string `json:"comment"`
+	NavList    string `json:"navList"`
 }
 
-func NewUser(name, password, comment string, orgId, status, modifiedOp int32) *User {
+func NewUser(name, password, comment, navList string, orgId, status, modifiedOp int32) *User {
 
 	return &User{
 		Name:       name,
@@ -47,6 +46,7 @@ func NewUser(name, password, comment string, orgId, status, modifiedOp int32) *U
 		OrgId:      orgId,
 		Status:     status,
 		Comment:    comment,
+		NavList:    navList,
 		ModifiedAt: localtime.NewLocalTime().String(),
 		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,
@@ -112,7 +112,7 @@ func (u *User) QueryUserByNameAndPassword(name, password string) error {
 
 	// Query Id by name and password
 	err = stmt.QueryRow(name, password).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
-		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp, &u.NavList)
 
 	if err != nil {
 		log.Errorf("QueryUserByNameAndPassword Error: err=%s", err)
@@ -135,7 +135,7 @@ func (u *User) QueryUserById(id int32) error {
 
 	// Query user by id
 	err = stmt.QueryRow(id).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
-		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp, &u.NavList)
 	if err != nil {
 		log.Errorf("QueryUserById Error: err=%s", err)
 		return err
@@ -179,7 +179,7 @@ func (u *User) QueryUserByNameAndOrgId(name string, orgId int32) error {
 
 	// Query user by name and orgId
 	err = stmt.QueryRow(name, orgId).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
-		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
+		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp, &u.NavList)
 	if err != nil {
 		log.Errorf("QueryUserByNameAndOrgId Error: err=%s", err)
 		return err
@@ -205,7 +205,7 @@ func (u *User) InsertUser(op int32) error {
 
 	// Insert a user
 	_, err = stmt.Exec(u.Name, u.Password, u.OrgId, u.Status,
-		u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment)
+		u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment, u.NavList)
 
 	if err != nil {
 		log.Errorf("InsertUser Error: err=%s", err)
@@ -232,7 +232,8 @@ func (u *User) UpdateUser(op int32) error {
 	u.ModifiedOp = op
 
 	// Update a user: password or orgId
-	_, err = stmt.Exec(u.Password, u.OrgId, u.ModifiedAt, u.ModifiedOp, u.Id)
+	_, err = stmt.Exec(u.Password, u.OrgId, u.ModifiedAt, u.ModifiedOp, u.NavList, u.Id)
+
 	if err != nil {
 		log.Errorf("UpdateUser Error: err=%s", err)
 		return err
@@ -259,7 +260,7 @@ func (u *User) DeleteUser(op int32) error {
 
 	// Set user status  INVALID
 	u.Status = INVALID
-	_, err = stmt.Exec(u.Status, u.ModifiedAt, u.ModifiedOp, u.Id)
+	_, err = stmt.Exec(u.Status, u.ModifiedAt, u.ModifiedOp, u.NavList, u.Id)
 	if err != nil {
 		log.Errorf("DeleteUser Error: err=%s", err)
 		return err
@@ -292,6 +293,33 @@ func (u *User) EncodeJson() (string, error) {
 func QueryUserNameByUserId(userId int32) (name string) {
 	u := new(User)
 	u.QueryUserById(userId)
-	mylog.Log.Infof("queryUserNameByUserId successfully")
+	log.Infof("queryUserNameByUserId successfully")
 	return u.Name
 }
+
+/*
+// Query NavList
+func QueryNavListById(userId int32) (string, error) {
+	db := mysql.MysqlInstance().Conn()
+
+	// Preaper user-paswrod statement
+	stmt, err := db.Prepare(USER_NAVLIST)
+	if err != nil {
+		log.Fatalf("QueryUserNavList Error: err=%s", err)
+		return nil
+	}
+	defer stmt.Close()
+
+	navList := ""
+
+	// Query Id by name and password
+	err = stmt.QueryRow(userId).Scan(&navList)
+
+	if err != nil {
+		log.Errorf("QueryUserNavListById Error: err=%s", err)
+		return "", err
+	}
+
+	return navList, nil
+}
+*/

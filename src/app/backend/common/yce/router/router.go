@@ -111,7 +111,7 @@ func (r *Router) Registe() {
 
 	iris.API("/api/v1/users/login", *r.Login)
 	iris.API("/api/v1/users/logout", *r.Logout)
-	iris.API("/api/v1/navlist", *r.Nav)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/navList", *r.Nav)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.ListDeploy)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/init", *r.InitDeploy)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/new", *r.CreateDeploy)
