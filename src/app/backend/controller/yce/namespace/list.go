@@ -29,14 +29,6 @@ func (lnc *ListNamespaceController) getDcList() {
 	}
 
 	for _, dc := range datacenters {
-		/*
-		d := new(yceutils.DcIdAndNameType)
-		d.DcId = dc.Id
-		d.DcName = dc.Name
-
-		lnc.params.DcList = append(lnc.params.DcList, *d)
-		*/
-
 		lnc.params.DcList[dc.Id] = dc.Name
 	}
 

@@ -94,3 +94,16 @@ ID, 用户名, 所属组织, 创建时间, 操作
 * 操作: 更新、删除
 
 所属组织名称根据orgId获取orgName
+
+#### 删除用户
+请求URL: /api/v1/user/delete
+请求方法: POST
+请求头: Authorization:SessionId
+携带数据:
+```
+{
+    "op": 1,
+    "userName": "xxx"
+}
+```
+
