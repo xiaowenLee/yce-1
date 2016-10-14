@@ -31,6 +31,11 @@ type CreateNamespaceParam struct {
 // Parse Namespace struct, insert into MySQL
 func (cnc *CreateNamespaceController) createNamespaceDbItem() {
 
+	if cnc.Param.DcIdList == nil {
+		cnc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
+
 	//dcIdList, err := json.Marshal(cnc.Param.DcIdList)
 	dcIdList, ye := yceutils.EncodeDcIdList(cnc.Param.DcIdList)
 	if ye != nil {
@@ -111,7 +116,6 @@ func (cnc CreateNamespaceController) Post() {
 		log.Errorf("CreateNamespaceController ReadJSON Error: error=%s", err)
 		cnc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
-
 	if cnc.CheckError() {
 		return
 	}
