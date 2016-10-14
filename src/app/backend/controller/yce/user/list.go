@@ -16,23 +16,20 @@ type ListUserController struct {
 
 type UserList struct {
 	Users []myuser.User `json:"users"`
-	OrgList []yceutils.OrgIdAndNameType `json:"orgList"`
+	OrgList  map[int32]string `json:"orgList"`
 }
 
 func (luc *ListUserController) getOrgNames() {
-	orgList, ye := yceutils.GetAllOrganizations()
+	organizations, ye := yceutils.GetAllOrganizations()
 	if ye != nil {
 		luc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
 
-	for _, org := range orgList {
-		o := new(yceutils.OrgIdAndNameType)
-		o.OrgId = org.Id
-		o.OrgName = org.Name
-
-		luc.params.OrgList = append(luc.params.OrgList, *o)
+	for _, org := range organizations {
+		luc.params.OrgList[org.Id] = org.Name
 	}
+
 }
 
 func (luc *ListUserController) getUsers() string {
@@ -63,6 +60,7 @@ func (luc *ListUserController) getUsers() string {
 
 func (luc ListUserController) Get() {
 	luc.params = new(UserList)
+	luc.params.OrgList = make(map[int32]string, 0)
 	users := luc.getUsers()
 	if luc.CheckError() {
 		return

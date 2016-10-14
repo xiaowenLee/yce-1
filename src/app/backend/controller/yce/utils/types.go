@@ -5,7 +5,6 @@ import (
 )
 
 var log = mylog.Log
-
 type OrgIdAndNameType struct {
 	OrgId int32 `json:"orgId"`
 	OrgName string `json:"orgName"`

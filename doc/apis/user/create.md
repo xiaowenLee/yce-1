@@ -76,8 +76,7 @@
             ....
         }] 
         "orgList": [{
-            "orgId": 1,
-            "orgName": "xxx" 
+            "orgId": orgName,    // map例如: "1": "dev"
         }]
     }
 }

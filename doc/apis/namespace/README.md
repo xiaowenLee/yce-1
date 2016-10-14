@@ -168,8 +168,7 @@
             ... 
         }],
         "dcList": [{
-            "dcId": 1,
-            "dcName": "xxx
+            "dcId": dcName,    //  map例如: "1": "电信" 
         }]
         
     }
