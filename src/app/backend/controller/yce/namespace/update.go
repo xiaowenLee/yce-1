@@ -138,6 +138,6 @@ func (unc UpdateNamespaceController) Post() {
 	}
 
 	unc.WriteOk("")
-	log.Infoln("UpdateNamespaceController Post Over!")
+	log.Infoln("UpdateNamespaceController Update Over!")
 	return
 }

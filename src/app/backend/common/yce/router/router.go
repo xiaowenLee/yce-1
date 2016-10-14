@@ -56,6 +56,7 @@ type Router struct {
 	CheckUser 	 *myuser.CheckUserController
 	ListUser         *myuser.ListUserController
 	DeleteUser	 *myuser.DeleteUserController
+	UpdateUser       *myuser.UpdateUserController
 	CheckNamespace	 *mynamespace.CheckNamespaceController
 	InitNamespace    *mynamespace.InitNamespaceController
 	ListNamespace    *mynamespace.ListNamespaceController
@@ -102,6 +103,7 @@ func NewRouter() *Router {
 	r.CreateUser = new(myuser.CreateUserController)
 	r.ListUser = new(myuser.ListUserController)
 	r.DeleteUser = new(myuser.DeleteUserController)
+	r.UpdateUser = new(myuser.UpdateUserController)
 	r.CheckNamespace = new(mynamespace.CheckNamespaceController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
 	r.ListNamespace = new(mynamespace.ListNamespaceController)
@@ -150,6 +152,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/user/new", *r.CreateUser)
 	iris.API("/api/v1/user", *r.ListUser)
 	iris.API("/api/v1/user/delete", *r.DeleteUser)
+	iris.API("/api/v1/user/update", *r.UpdateUser)
 	iris.API("/api/v1/organization/check", *r.CheckNamespace)
 	iris.API("/api/v1/organization/init", *r.InitNamespace)
 	iris.API("/api/v1/organization", *r.ListNamespace)
