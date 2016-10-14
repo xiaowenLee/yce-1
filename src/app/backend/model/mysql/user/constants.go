@@ -308,13 +308,6 @@ const (
 {
     "list": [
         {
-            "id": 1,
-            "name": "Dashboard",
-            "state": "main.dashboard",
-            "includeState": "main.dashboard",
-            "className": "fa-dashboard"
-        },
-        {
             "id": 4,
             "name": "镜像管理",
             "state": "main.imageManage",
