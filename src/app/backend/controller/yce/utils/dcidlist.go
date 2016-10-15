@@ -39,10 +39,10 @@ func StringDcIdList(dcIdList []int32) (string, *myerror.YceError) {
 func EncodeDcIdList(dcIdList []int32) (string, *myerror.YceError) {
 
 	if CheckValidate(dcIdList) {
-		dcList := &DcIdListType{
+		dclist := &DcIdListType{
 			DcIdList: dcIdList,
 		}
-		dcIdListByte, err := json.Marshal(dcList)
+		dcIdListByte, err := json.Marshal(dclist)
 
 		if err != nil {
 			ye := myerror.NewYceError(myerror.EJSON, "")
@@ -60,7 +60,7 @@ func EncodeDcIdList(dcIdList []int32) (string, *myerror.YceError) {
 
 }
 
-// Decode dcIdList from Json string form to []int32
+// Decode dcIdList from Json string form to []string
 func DecodeDcIdList(dcIdListString string) ([]int32, *myerror.YceError) {
 	if CheckValidate(dcIdListString) {
 		dcIdListByte := []byte(dcIdListString)

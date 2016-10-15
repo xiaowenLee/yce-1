@@ -19,6 +19,7 @@ import (
 	mynamespace "app/backend/controller/yce/namespace"
 	"github.com/kataras/iris"
 	myoperationstat "app/backend/controller/yce/dashboard/operationstat"
+	mydatacenter "app/backend/controller/yce/datacenter"
 )
 
 type Router struct {
@@ -64,6 +65,11 @@ type Router struct {
 	UpdateNamespace  *mynamespace.UpdateNamespaceController
 	DeleteNamespace  *mynamespace.DeleteNamespaceController
 	OperationStat    *myoperationstat.OperationStatController
+	CreateDatacenter *mydatacenter.CreateDatacenterController
+	ListDatacenter   *mydatacenter.ListDatacenterController
+	DeleteDatacenter *mydatacenter.DeleteDatacenterController
+	UpdateDatacenter *mydatacenter.UpdateDatacenterController
+	CheckDatacenter  *mydatacenter.CheckDatacenterController
 }
 
 
@@ -111,6 +117,11 @@ func NewRouter() *Router {
 	r.UpdateNamespace = new(mynamespace.UpdateNamespaceController)
 	r.DeleteNamespace = new(mynamespace.DeleteNamespaceController)
 	r.OperationStat = new(myoperationstat.OperationStatController)
+	r.CreateDatacenter = new(mydatacenter.CreateDatacenterController)
+	r.DeleteDatacenter = new(mydatacenter.DeleteDatacenterController)
+	r.ListDatacenter = new(mydatacenter.ListDatacenterController)
+	r.UpdateDatacenter = new(mydatacenter.UpdateDatacenterController)
+	r.CheckDatacenter = new(mydatacenter.CheckDatacenterController)
 
 	return r
 }
@@ -160,6 +171,11 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organization/update", *r.UpdateNamespace)
 	iris.API("/api/v1/organization/delete", *r.DeleteNamespace)
 	iris.API("/api/v1/organizations/:orgId/operationstat", *r.OperationStat)
+	iris.API("/api/v1/datacenter/new", *r.CreateDatacenter)
+	iris.API("/api/v1/datacenter/delete", *r.DeleteDatacenter)
+	iris.API("/api/v1/datacenter", *r.ListDatacenter)
+	iris.API("/api/v1/datacenter/update", *r.UpdateDatacenter)
+	iris.API("/api/v1/datacenter/check", *r.CheckDatacenter)
 
 	iris.StaticServe("../frontend", "/static")
 }

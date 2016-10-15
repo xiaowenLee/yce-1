@@ -9,7 +9,7 @@
 
 内容需讨论
 
-#### 数据中心名检查
+#### 数据中心检查
 目的: 当管理员输入数据中心名完毕后(离开输入框), 检查数据中心名是否重复
 请求URL: /api/v1/datacenter/check
 请求头: Authorization:SessionId
@@ -28,6 +28,8 @@
 程序实现逻辑:
 
 去datacenter表里选择满足name的数据中心,如果有,返回存在,如果没有,返回不存在
+
+还应该检查Datacenter Host:Port对是否重复. 重复了会导致查询上的问题,但不影响实际部署 
 
 #### 创建
 请求URL: /api/v1/datacenter/new

@@ -798,8 +798,21 @@ func QueryDuplicatedOrgName(name string) (*myorganization.Organization, *myerror
 		return nil, ye
 	}
 
-	// found, cann't user this name
+	// found, cann't use this name
 	return org, nil
+}
+
+func QueryDuplicatedDcName(name string) (*mydatacenter.DataCenter, *myerror.YceError) {
+	dc := new(mydatacenter.DataCenter)
+	err := dc.QueryDataCenterByName(name)
+	//not found, could use this name
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	// found, cann't use this name
+	return dc, nil
 }
 
 func GetOrgNameList() ([]string, *myerror.YceError) {
