@@ -32,7 +32,6 @@ func (ldc *ListDeploymentController) listDeployments(userId int32, namespace str
 		}
 
 		//TODO: check consistency
-
 		deployment := new(deploy.Deployment)
 		deployment.DcId = dcList.DcIdList[index]
 		deployment.DcName = dcList.DcNameList[index]

@@ -12,6 +12,7 @@ type AccountType struct {
 }
 
 type QuotaPkgType struct {
+	Name string `json:"name"`
 	Cpu int32 `json:"cpu"`
 	Mem int32 `json:"mem"`
 	Cost float32 `json:"cost"`

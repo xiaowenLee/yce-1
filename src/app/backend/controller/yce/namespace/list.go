@@ -16,7 +16,8 @@ type ListNamespaceController struct {
 
 type NamespaceList struct {
 	Organizations []myorganization.Organization `json:"organizations"`
-	DcList        []yceutils.DcIdAndNameType `json:"dcList"`
+	//DcList        []yceutils.DcIdAndNameType `json:"dcList"`
+	DcList 	     map[int32]string `json:"dcList"`
 }
 
 
@@ -28,11 +29,7 @@ func (lnc *ListNamespaceController) getDcList() {
 	}
 
 	for _, dc := range datacenters {
-		d := new(yceutils.DcIdAndNameType)
-		d.DcId = dc.Id
-		d.DcName = dc.Name
-
-		lnc.params.DcList = append(lnc.params.DcList, *d)
+		lnc.params.DcList[dc.Id] = dc.Name
 	}
 
 }
@@ -67,6 +64,7 @@ func (lnc ListNamespaceController) Get() {
 	//SessionIdFromClient := iuc.RequestHeader("Authorization")
 
 	lnc.params = new(NamespaceList)
+	lnc.params.DcList = make(map[int32]string, 0)
 
 	orgList := lnc.getNamespaceList()
 	if lnc.CheckError() {

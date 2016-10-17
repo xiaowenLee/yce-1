@@ -40,18 +40,21 @@ func (inc InitNamespaceController) getAccount() {
 func (inc InitNamespaceController) getQuotaPkg() {
 	quotaPkgList := make([]QuotaPkgType, 0)
 	quotaPkg1 := &QuotaPkgType{
+		Name: "普通版",
 		Cpu: 200,
 		Mem: 400,
 		Cost: 200.00,
 	}
 
 	quotaPkg2 := &QuotaPkgType{
+		Name: "进阶版",
 		Cpu: 500,
 		Mem: 1000,
 		Cost: 500.00,
 	}
 
 	quotaPkg3 := &QuotaPkgType{
+		Name: "高级版",
 		Cpu: 1000,
 		Mem: 2000,
 		Cost: 1000.00,

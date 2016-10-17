@@ -16,7 +16,7 @@ const (
 		"FROM organization WHERE id=?"
 	ORG_SELECT_ALL = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM organization"
+		"FROM organization where status=1"
 
 	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
@@ -252,6 +252,15 @@ func (o *Organization) UpdateBalanceById(balance string, op int32) {
 	o.UpdateOrganization(op)
 }
 
+func (o *Organization) UpdateQuotaById(quota *QuotaType, op int32) {
+	o.CpuQuota = quota.CpuQuota
+	o.MemQuota = quota.MemQuota
+
+	log.Infof("UpdateQuotaById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
+	o.UpdateOrganization(op)
+}
+
 func (o *Organization) DeleteOrganization(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
@@ -275,7 +284,7 @@ func (o *Organization) DeleteOrganization(op int32) error {
 		return err
 	}
 
-	log.Infof("DeleteBudgetById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+	log.Infof("DeleteOrganization: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }

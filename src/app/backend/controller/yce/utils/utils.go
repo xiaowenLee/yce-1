@@ -460,6 +460,22 @@ func GetDatacenterListByOrgId(orgId string) (*DatacenterList, *myerror.YceError)
 
 }
 
+func GetDcIdListByOrgName(orgName string) ([]int32, *myerror.YceError) {
+	org := new(myorganization.Organization)
+	err := org.QueryOrganizationByName(orgName)
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	dcIdList, ye := DecodeDcIdList(org.DcIdList)
+	if ye != nil {
+		return nil, ye
+	}
+
+	return dcIdList, nil
+}
+
 func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 	if CheckValidate(orgId) {
 		org, err := organization.GetOrganizationById(orgId)
@@ -800,8 +816,21 @@ func QueryDuplicatedOrgName(name string) (*myorganization.Organization, *myerror
 		return nil, ye
 	}
 
-	// found, cann't user this name
+	// found, cann't use this name
 	return org, nil
+}
+
+func QueryDuplicatedDcName(name string) (*mydatacenter.DataCenter, *myerror.YceError) {
+	dc := new(mydatacenter.DataCenter)
+	err := dc.QueryDataCenterByName(name)
+	//not found, could use this name
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	// found, cann't use this name
+	return dc, nil
 }
 
 func GetOrgNameList() ([]string, *myerror.YceError) {

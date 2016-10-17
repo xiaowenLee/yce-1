@@ -29,21 +29,20 @@ type UpdateNamespaceParam struct {
 }
 
 func (unc *UpdateNamespaceController) updateNamespaceDbItem() {
-	dcIdList, ye := yceutils.EncodeDcIdList(unc.params.DcIdList)
-	if ye != nil {
-		unc.Ye = myerror.NewYceError(myerror.EJSON, "")
-		return
-	}
-
-	org := myorganization.NewOrganization(unc.params.Name, unc.params.Budget, unc.params.Balance, "", string(dcIdList),
-		unc.params.CpuQuota, unc.params.MemQuota, unc.params.UserId)
-
-	err  := org.UpdateOrganization(unc.params.UserId)
-
+	org := new(myorganization.Organization)
+	err := org.QueryOrganizationByName(unc.params.Name)
 	if err != nil {
-		unc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
+		unc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return
 	}
+
+
+	quota := new(myorganization.QuotaType)
+	quota.CpuQuota = unc.params.CpuQuota
+	quota.MemQuota = unc.params.MemQuota
+
+
+	org.UpdateQuotaById(quota, unc.params.UserId)
 
 	log.Infof("UpdateNamespaceController updateNamespaceDbItem success")
 }
@@ -58,22 +57,35 @@ func (unc *UpdateNamespaceController) updateResourceQuota() {
 	cpuQuota := resource.NewQuantity(int64(unc.params.CpuQuota)*CPU_MULTIPLIER, resource.DecimalSI)
 	memQuota := resource.NewQuantity(int64(unc.params.MemQuota)*MEM_MULTIPLIER, resource.BinarySI)
 
-	//TODO: didn't create quota or limits
+	//TODO: didn't update quota
 	resourceQuota.Spec.Hard[api.ResourceCPU] = *cpuQuota
 	resourceQuota.Spec.Hard[api.ResourceMemory] = *memQuota
 
 	// Foreach every k8sClient to create resourceQuota
 	for index, cli := range unc.k8sClients {
-		_, err := cli.ResourceQuotas(unc.params.Name).Create(resourceQuota) //TODO: change to Update()
+		//_, err := cli.ResourceQuotas(unc.params.Name).Create(resourceQuota)
+		r, err := cli.ResourceQuotas(unc.params.Name).Update(resourceQuota)
 		if err != nil {
 			log.Errorf("updateResoruceQuota Error: apiServer=%s, namespace=%s, err=%s",
 				unc.apiServers[index], unc.params.Name, err)
-			unc.Ye = myerror.NewYceError(myerror.EKUBE_CREATE_NAMESPACE, "")
+			unc.Ye = myerror.NewYceError(myerror.EKUBE_UPDATE_RESOURCEQUOTA, "")
 		}
+
+		log.Infof("UpdateNamespaceController resourceQuota: cpu=%s, mem=%s", r.Spec.Hard.Cpu().String(), r.Spec.Hard.Memory().String())
 	}
 
-	log.Infof("UpdateNamespaceController UpdateResourceQuota: create Resource Quota success")
+	log.Infof("UpdateNamespaceController UpdateResourceQuota: update Resource Quota success")
 
+}
+
+func (unc *UpdateNamespaceController) getDcIdList() {
+	dcIdList, ye := yceutils.GetDcIdListByOrgName(unc.params.Name)
+	if ye != nil {
+		unc.Ye = ye
+		return
+	}
+
+	unc.params.DcIdList = dcIdList
 }
 
 func (unc UpdateNamespaceController) Post() {
@@ -97,11 +109,17 @@ func (unc UpdateNamespaceController) Post() {
 		return
 	}
 
+	unc.getDcIdList()
+	if unc.CheckError() {
+		return
+	}
+
 	// Get ApiServer List
 	unc.apiServers, unc.Ye = yceutils.GetApiServerList(unc.params.DcIdList)
 	if unc.CheckError() {
 		return
 	}
+
 
 	// Create K8sClient List
 	unc.k8sClients, unc.Ye = yceutils.CreateK8sClientList(unc.apiServers)
@@ -120,6 +138,6 @@ func (unc UpdateNamespaceController) Post() {
 	}
 
 	unc.WriteOk("")
-	log.Infoln("UpdateNamespaceController Post Over!")
+	log.Infoln("UpdateNamespaceController Update Over!")
 	return
 }
