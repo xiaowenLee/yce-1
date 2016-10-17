@@ -133,7 +133,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/endpoints/:epName", *r.DeleteEndpoint)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
 	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/deployments/:name/history", *r.HistoryDeploy)
-	iris.API("/api/v1/organizations/:orgId/topology", *r.Topology)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/topology", *r.Topology)
 	iris.API("/", *r.Api)
 	iris.API("/version", *r.Version)
 	iris.API("/healthz", *r.Healthz)
