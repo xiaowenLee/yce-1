@@ -41,13 +41,13 @@
 {
     "name": "xxx",
     "nodePort" [
-        30000,
-        32767
+        "30000",
+        "32767"
     ]
     "host": "192.168.1.110",
     "port": 8080,
     "orgId": "3",          // 表示创建者所在的组织, 用来验证管理员会话 
-    "op": "1"           // 管理员datacenterId
+    "op": 1           // 管理员datacenterId
     //"secret": xxx       // 暂时空接口
 }
 ```
@@ -107,7 +107,7 @@ ID, 数据中心名, 地址, 端口, NodePort, 创建时间, 操作
 携带数据:
 ```
 {
-    "op": 1,              // 管理员datacenterId
+    "op": 1,              // 管理员userId
     "name": "xxx",
     "orgId": "3",         // 管理员所属orgId
     "nodePort": [

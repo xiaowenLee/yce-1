@@ -48,7 +48,7 @@ const (
 	EKUBE_DELETE_NAMESPACE		      = 1229
 	EKUBE_DELETE_RESOURCEQUOTA	      = 1230
 	EKUBE_UPDATE_RESOURCEQUOTA            = 1231
-	EKUBE_GET_ALL_NAMESPACES              = 1222
+	EKUBE_GET_ALL_NAMESPACES              = 1232
 
 	EIRIS int32 = 1300
 
@@ -229,11 +229,10 @@ var Errors = map[int32]*Error{
 		LogMsg: "Kubernetes Find New ReplicaSet Error",
 		ErrMsg: "查找最新的ReplicaSet失败",
 	},
-<<<<<<< HEAD
 	EKUBE_GET_ALL_NAMESPACES: &Error{
 		LogMsg: "Kubernetes Get all namespaces Error",
 		ErrMsg: "获取全部namespace失败",
-=======
+	},
 	EKUBE_DELETE_NAMESPACE: &Error {
 		LogMsg: "Kubernetes Delete Namespace Error",
 		ErrMsg: "删除组织失败",
@@ -245,7 +244,6 @@ var Errors = map[int32]*Error{
 	EKUBE_UPDATE_RESOURCEQUOTA: &Error {
 		LogMsg: "Kubernetes Update ResourceQuota Error",
 		ErrMsg: "更新资源配额失败",
->>>>>>> 94d979d908ebc8072461b23661fb0c48e29d3c9f
 	},
 
 	// 1300~1399 Iris错误
