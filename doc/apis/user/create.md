@@ -76,8 +76,7 @@
             ....
         }] 
         "orgList": [{
-            "orgId": 1,
-            "orgName": "xxx" 
+            "orgId": orgName,    // map例如: "1": "dev"
         }]
     }
 }
@@ -95,3 +94,31 @@ ID, 用户名, 所属组织, 创建时间, 操作
 * 操作: 更新、删除
 
 所属组织名称根据orgId获取orgName
+
+#### 删除用户
+请求URL: /api/v1/user/delete
+请求方法: POST
+请求头: Authorization:SessionId
+携带数据:
+```
+{
+    "op": 1,
+    "userName": "xxx"
+}
+```
+
+#### 更新用户
+请求URL: /api/v1/user/update
+请求方法: POST
+请求头: Authorization:SessionId
+
+携带数据:
+```
+{
+    "op": 1,              // 管理员userId
+    "name": "xxx",
+    "orgId": "3",         // 管理员所属orgId
+    "password": "xxx",    // 更新的密码
+    "orgName":  "xxx",    // 更新的组织, 目前不支持
+}
+```

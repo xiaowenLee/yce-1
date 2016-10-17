@@ -19,6 +19,7 @@ import (
 	mynamespace "app/backend/controller/yce/namespace"
 	"github.com/kataras/iris"
 	myoperationstat "app/backend/controller/yce/dashboard/operationstat"
+	mydatacenter "app/backend/controller/yce/datacenter"
 )
 
 type Router struct {
@@ -55,11 +56,20 @@ type Router struct {
 	CreateUser 	 *myuser.CreateUserController
 	CheckUser 	 *myuser.CheckUserController
 	ListUser         *myuser.ListUserController
+	DeleteUser	 *myuser.DeleteUserController
+	UpdateUser       *myuser.UpdateUserController
 	CheckNamespace	 *mynamespace.CheckNamespaceController
 	InitNamespace    *mynamespace.InitNamespaceController
 	ListNamespace    *mynamespace.ListNamespaceController
 	CreateNamespace  *mynamespace.CreateNamespaceController
+	UpdateNamespace  *mynamespace.UpdateNamespaceController
+	DeleteNamespace  *mynamespace.DeleteNamespaceController
 	OperationStat    *myoperationstat.OperationStatController
+	CreateDatacenter *mydatacenter.CreateDatacenterController
+	ListDatacenter   *mydatacenter.ListDatacenterController
+	DeleteDatacenter *mydatacenter.DeleteDatacenterController
+	UpdateDatacenter *mydatacenter.UpdateDatacenterController
+	CheckDatacenter  *mydatacenter.CheckDatacenterController
 }
 
 
@@ -98,11 +108,20 @@ func NewRouter() *Router {
 	r.CheckUser = new(myuser.CheckUserController)
 	r.CreateUser = new(myuser.CreateUserController)
 	r.ListUser = new(myuser.ListUserController)
+	r.DeleteUser = new(myuser.DeleteUserController)
+	r.UpdateUser = new(myuser.UpdateUserController)
 	r.CheckNamespace = new(mynamespace.CheckNamespaceController)
 	r.InitNamespace = new(mynamespace.InitNamespaceController)
 	r.ListNamespace = new(mynamespace.ListNamespaceController)
 	r.CreateNamespace = new(mynamespace.CreateNamespaceController)
+	r.UpdateNamespace = new(mynamespace.UpdateNamespaceController)
+	r.DeleteNamespace = new(mynamespace.DeleteNamespaceController)
 	r.OperationStat = new(myoperationstat.OperationStatController)
+	r.CreateDatacenter = new(mydatacenter.CreateDatacenterController)
+	r.DeleteDatacenter = new(mydatacenter.DeleteDatacenterController)
+	r.ListDatacenter = new(mydatacenter.ListDatacenterController)
+	r.UpdateDatacenter = new(mydatacenter.UpdateDatacenterController)
+	r.CheckDatacenter = new(mydatacenter.CheckDatacenterController)
 
 	return r
 }
@@ -143,11 +162,20 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/user/check", *r.CheckUser)
 	iris.API("/api/v1/user/new", *r.CreateUser)
 	iris.API("/api/v1/user", *r.ListUser)
+	iris.API("/api/v1/user/delete", *r.DeleteUser)
+	iris.API("/api/v1/user/update", *r.UpdateUser)
 	iris.API("/api/v1/organization/check", *r.CheckNamespace)
 	iris.API("/api/v1/organization/init", *r.InitNamespace)
 	iris.API("/api/v1/organization", *r.ListNamespace)
 	iris.API("/api/v1/organization/new", *r.CreateNamespace)
+	iris.API("/api/v1/organization/update", *r.UpdateNamespace)
+	iris.API("/api/v1/organization/delete", *r.DeleteNamespace)
 	iris.API("/api/v1/organizations/:orgId/operationstat", *r.OperationStat)
+	iris.API("/api/v1/datacenter/new", *r.CreateDatacenter)
+	iris.API("/api/v1/datacenter/delete", *r.DeleteDatacenter)
+	iris.API("/api/v1/datacenter", *r.ListDatacenter)
+	iris.API("/api/v1/datacenter/update", *r.UpdateDatacenter)
+	iris.API("/api/v1/datacenter/check", *r.CheckDatacenter)
 
 	iris.StaticServe("../frontend", "/static")
 }

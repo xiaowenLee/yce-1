@@ -35,13 +35,9 @@ func (cuc *CreateUserController) createUser() {
 		return
 	}
 
-	user := &myuser.User{
-		Name: cuc.params.UserName,
-		Password: encryptPassword,
-		OrgId: org.Id,
-	}
-
 	op, _ := strconv.Atoi(cuc.params.Op)
+	user := myuser.NewUser(cuc.params.UserName, encryptPassword, "", org.Id, int32(op))
+
 	err = user.InsertUser(int32(op))
 	if err != nil {
 		cuc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")

@@ -20,15 +20,15 @@ type User struct {
 	NavList    string `json:"navList"`
 }
 
-func NewUser(name, password, comment, navList string, orgId, status, modifiedOp int32) *User {
+func NewUser(name, password, comment string, orgId, modifiedOp int32) *User {
 
 	return &User{
 		Name:       name,
 		Password:   password,
 		OrgId:      orgId,
-		Status:     status,
+		Status:     VALID,
 		Comment:    comment,
-		NavList:    navList,
+		NavList:    USER_NAVLIST,
 		ModifiedAt: localtime.NewLocalTime().String(),
 		CreatedAt:  localtime.NewLocalTime().String(),
 		ModifiedOp: modifiedOp,

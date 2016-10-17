@@ -136,18 +136,19 @@
 携带数据:
 ```
 {
-    "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
     "userId": xxx,        // 操作者的用户ID,这里是数字,不是字符串, 管理员
-    "orgName": xxx,       // 组织名称
-    "dcIdList": [1, 2]    // 数据中心列表
-    "orgName": "dev",     // 组织名称也是K8s里namespace的名称
+    "name":  "xxx",       // 组织名称
+    "orgId": "xxx",       // 操作者的组织ID(管理员),不是新创建的那个组织ID
     "cpuQuota": 100,      // CPU配额
     "memQuota": 200,      // 内存配额
+  //目前只返回上面内容的json, 即只更新配额 
+    "dcIdList": [1, 2]    // 数据中心列表
     "budget": 10000,      // 预算
     "balance": 10000,     // 余额
 }
 ```
 
+资源配额(套餐)已经在组织管理返回了quotaPkg
     
 
 
@@ -167,8 +168,7 @@
             ... 
         }],
         "dcList": [{
-            "dcId": 1,
-            "dcName": "xxx
+            "dcId": dcName,    //  map例如: "1": "电信" 
         }]
         
     }
@@ -190,3 +190,18 @@ ID, 组织名称, CPU, MEM, 账户余额, 创建时间, 数据中心, 操作
 * 操作: 更新、删除
 
 dcIdList为JSON, 从里面取值到dcList里获取相应的名字对应起来
+
+### 删除组织
+请求URL: POST /api/v1/organization/delete 待讨论
+请求头: Authorization: ${sessionId}
+
+携带数据: 待讨论
+```
+{
+    "orgName": "xxx",
+    "orgId": "3",
+    "op": 1
+}
+
+```
+
