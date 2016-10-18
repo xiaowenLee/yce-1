@@ -31,9 +31,11 @@ type Router struct {
 	ListService      *myservice.ListServiceController
 	InitService      *myservice.InitServiceController
 	CreateService    *myservice.CreateServiceController
+	CheckService     *myservice.CheckServiceController
 	ListEndpoints    *myendpoint.ListEndpointsController
 	InitEndpoints    *myendpoint.InitEndpointsController
 	CreateEndpoints  *myendpoint.CreateEndpointsController
+	CheckEndpoints   *myendpoint.CheckEndpointsController
 	ListExtensions   *myextensions.ListExtensionsController
 	InitDeploy       *mydeploy.InitDeploymentController
 	CreateDeploy     *mydeploy.CreateDeploymentController
@@ -41,6 +43,7 @@ type Router struct {
 	RollbackDeploy   *mydeploy.RollbackDeploymentController
 	ScaleDeploy      *mydeploy.ScaleDeploymentController
 	DeleteDeploy     *mydeploy.DeleteDeploymentController
+	CheckDeploy      *mydeploy.CheckDeploymentController
 	LogsPod          *mydeploy.LogsPodController
 	ListOperationLog *mydeploy.ListOperationLogController
 	DeleteService    *myservice.DeleteServiceController
@@ -83,9 +86,11 @@ func NewRouter() *Router {
 	r.ListService = new(myservice.ListServiceController)
 	r.InitService = new(myservice.InitServiceController)
 	r.CreateService = new(myservice.CreateServiceController)
+	r.CheckService = new(myservice.CheckServiceController)
 	r.ListEndpoints = new(myendpoint.ListEndpointsController)
 	r.InitEndpoints = new(myendpoint.InitEndpointsController)
 	r.CreateEndpoints = new(myendpoint.CreateEndpointsController)
+	r.CheckEndpoints = new(myendpoint.CheckEndpointsController)
 	r.ListExtensions = new(myextensions.ListExtensionsController)
 	r.InitDeploy = new(mydeploy.InitDeploymentController)
 	r.CreateDeploy = new(mydeploy.CreateDeploymentController)
@@ -93,6 +98,7 @@ func NewRouter() *Router {
 	r.RollbackDeploy = new(mydeploy.RollbackDeploymentController)
 	r.ScaleDeploy = new(mydeploy.ScaleDeploymentController)
 	r.DeleteDeploy = new(mydeploy.DeleteDeploymentController)
+	r.CheckDeploy = new(mydeploy.CheckDeploymentController)
 	r.LogsPod = new(mydeploy.LogsPodController)
 	r.ListOperationLog = new(mydeploy.ListOperationLogController)
 	r.DeleteService = new(myservice.DeleteServiceController)
@@ -134,6 +140,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments", *r.ListDeploy)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/init", *r.InitDeploy)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/new", *r.CreateDeploy)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/deployments/check", *r.CheckDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rolling", *r.RollingDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/rollback", *r.RollbackDeploy)
 	iris.API("/api/v1/organizations/:orgId/deployments/:deploymentName/scale", *r.ScaleDeploy)
@@ -145,10 +152,12 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services", *r.ListService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/init", *r.InitService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/services/new", *r.CreateService)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/services/check", *r.CheckService)
 	iris.API("/api/v1/organizations/:orgId/services/:svcName", *r.DeleteService)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints", *r.ListEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/init", *r.InitEndpoints)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/new", *r.CreateEndpoints)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/endpoints/check", *r.CheckEndpoints)
 	iris.API("/api/v1/organizations/:orgId/endpoints/:epName", *r.DeleteEndpoint)
 	iris.API("/api/v1/organizations/:orgId/users/:userId/extensions", *r.ListExtensions)
 	iris.API("/api/v1/organizations/:orgId/datacenters/:dcId/deployments/:name/history", *r.HistoryDeploy)
