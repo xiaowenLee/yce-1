@@ -24,6 +24,10 @@ func (duc *DeleteUserController) deleleUserDbItem() {
 		return
 	}
 	log.Infof("DeleteUserController: name=%s", user.Name)
+	if user.Name == "admin" {
+		duc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
 	err = user.DeleteUser(duc.params.Op)
 	if err != nil {
 		duc.Ye = myerror.NewYceError(myerror.EMYSQL_DELETE, "")

@@ -4,12 +4,12 @@ import (
 	myerror "app/backend/common/yce/error"
 	yce "app/backend/controller/yce"
 	yceutils "app/backend/controller/yce/utils"
+	mydatacenter "app/backend/model/mysql/datacenter"
 	"encoding/json"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	deployutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"strconv"
+	"strings"
 )
 
 type DcList struct {
@@ -24,45 +24,6 @@ type TopologyController struct {
 	orgId      int32
 	topology   *Topology
 	dcIdList   []int32
-}
-
-/*==========================================================================
- Definations
-==========================================================================*/
-type PodType struct {
-	api.Pod
-	Kind       string `json:"kind"`
-	ApiVersion string `json:"apiVersion"`
-}
-
-type ServiceType struct {
-	api.Service
-	Kind       string `json:"kind"`
-	ApiVersion string `json:"apiVersion"`
-}
-
-type ReplicaSetType struct {
-	extensions.ReplicaSet
-	Kind       string `json:"kind"`
-	ApiVersion string `json:"apiVersion"`
-}
-
-type NodeType struct {
-	api.Node
-	Kind       string `json:"kind"`
-	ApiVersion string `json:"apiVersion"`
-}
-
-type ItemType map[string]interface{}
-
-type RelationsType struct {
-	Source string `json:"source"`
-	Target string `json:"target"`
-}
-
-type Topology struct {
-	Items     ItemType        `json:"items"`
-	Relations []RelationsType `json:"relations"`
 }
 
 /*==========================================================================
@@ -85,6 +46,23 @@ begin:
 		service <---> pod
 :end
 */
+
+func (tc *TopologyController) getAllDcIdList() error {
+	dcs, err := mydatacenter.QueryAllDatacenters()
+
+	if err != nil {
+		tc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return err
+	}
+
+	tc.dcIdList = make([]int32, 0)
+
+	for _, dc := range dcs {
+		tc.dcIdList = append(tc.dcIdList, dc.Id)
+	}
+	return nil
+}
+
 func (tc *TopologyController) getTopology(c *client.Client, namespace string) bool {
 	// Get Deployments.List
 	dpList, ye := yceutils.GetDeploymentByNamespace(c, namespace)
@@ -243,10 +221,26 @@ func (tc *TopologyController) getTopologyForAllDc() {
 
 }
 
-// GET /api/v1/organizations/{orgId}/topology
+func (tc *TopologyController) getTopologyForAllDcAndAllNamespaces() {
+	for index, client := range tc.k8sClients {
+		namespaces, ye := yceutils.GetAllNamespaces(client)
+		if ye != nil {
+			tc.Ye = ye
+			return
+		}
+
+		for _, name := range namespaces {
+			tc.getTopology(client, name)
+			log.Infof("Get Topology data for every datacenter: apiServer=%s, client=%p, namespace=%s\n", tc.apiServers[index], client, name)
+		}
+	}
+}
+
+// GET /api/v1/organizations/{orgId}/users/{userId}/topology
 func (tc TopologyController) Get() {
 	sessionIdFromClient := tc.RequestHeader("Authorization")
 	orgIdStr := tc.Param("orgId")
+	userIdStr := tc.Param("userId")
 
 	log.Debugf("TopologyController Params: sessionId=%s, orgIdStr=%s", sessionIdFromClient, orgIdStr)
 
@@ -258,24 +252,33 @@ func (tc TopologyController) Get() {
 		return
 	}
 
-	tc.orgId = int32(orgId)
-
 	// Validate OrgId error
 	tc.ValidateSession(sessionIdFromClient, orgIdStr)
 	if tc.CheckError() {
 		return
 	}
 
-	// Get OrgName by OrgId
-	tc.orgName, tc.Ye = yceutils.GetOrgNameByOrgId(orgIdStr)
-	if tc.CheckError() {
-		return
-	}
+	if strings.EqualFold(userIdStr, ADMIN_ID) {
+		// Get all dcId for all datacenters
+		tc.getAllDcIdList()
+		if tc.CheckError() {
+			return
+		}
 
-	// Get DcIdList by OrgId
-	tc.dcIdList, tc.Ye = yceutils.GetDcIdListByOrgId(orgIdStr)
-	if tc.CheckError() {
-		return
+	} else {
+
+		tc.orgId = int32(orgId)
+		// Get OrgName by OrgId
+		tc.orgName, tc.Ye = yceutils.GetOrgNameByOrgId(orgIdStr)
+		if tc.CheckError() {
+			return
+		}
+
+		// Get DcIdList by OrgId
+		tc.dcIdList, tc.Ye = yceutils.GetDcIdListByOrgId(orgIdStr)
+		if tc.CheckError() {
+			return
+		}
 	}
 
 	// Get k8s ApiServer by DcIdList
@@ -292,7 +295,12 @@ func (tc TopologyController) Get() {
 
 	tc.initTopology()
 
-	tc.getTopologyForAllDc()
+	if strings.EqualFold(userIdStr, ADMIN_ID) {
+		tc.getTopologyForAllDcAndAllNamespaces()
+	} else {
+		tc.getTopologyForAllDc()
+	}
+
 	if tc.CheckError() {
 		return
 	}

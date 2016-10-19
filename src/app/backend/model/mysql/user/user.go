@@ -239,6 +239,7 @@ func (u *User) DeleteUser(op int32) error {
 	// Update modifiedAt and modifiedOp
 	u.ModifiedAt = localtime.NewLocalTime().String()
 	u.ModifiedOp = op
+	u.NavList = USER_NAVLIST
 
 	// Set user status  INVALID
 	u.Status = INVALID
