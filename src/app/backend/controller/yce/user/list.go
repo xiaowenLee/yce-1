@@ -29,17 +29,17 @@ func (luc *ListUserController) getOrgNames() {
 	for _, org := range organizations {
 		luc.params.OrgList[org.Id] = org.Name
 	}
-
+	log.Infof("ListUserController getOrgNames: len(OrgNames)=%d", len(luc.params.OrgList))
 }
 
 func (luc *ListUserController) getUsers() string {
 	users, ye := yceutils.GetUsers()
-	log.Infof("ListUserController: len(users)=%d", len(users))
 	if ye != nil {
 		luc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
 		return ""
 	}
 	luc.params.Users = users
+	log.Infof("ListUserController getUsers: len(users)=%d", len(luc.params.Users))
 
 	luc.getOrgNames()
 	if luc.Ye != nil {
@@ -53,7 +53,7 @@ func (luc *ListUserController) getUsers() string {
 	}
 
 	usersString := string(usersJSON)
-	log.Infof("ListUserController: users=%s", usersString)
+	//log.Infof("ListUserController: users=%s", usersString)
 	return usersString
 
 }

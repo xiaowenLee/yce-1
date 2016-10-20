@@ -4,48 +4,72 @@ YCE部署指南
 本文档主要包含了首次部署YCE的操作流程、YCE的更新操作流程以及相关说明。
 
 ### 首次部署 
-#### 部署准备
+#### 部署前准备
 在首次部署开始之前需要做一些准备。这些准备包括
-* 基础环境搭建
+
+* 基础环境准备
 * 获取部署脚本
 * 私有镜像仓库搭建
 * 相关镜像创建
+* Git连接检查
+* NodePort检查
+* 数据库初始化
 
 
-#####  基础环境搭建
-基础环境搭建, 需要若干台机器, 安装好git、go、Docker、Kubernetes等开发环境, 建议版本为:
+#####  基础环境准备
+基础环境搭建, 需要若干台机器搭建Kubernetes集群, 在master节点上安装好git、go、Docker等开发环境, 建议版本为:
 * git的版本为1.9.1
 * go的版本为go 1.6.2 linux/amd64
 * Docker的版本为docker 1.11.1
 * Kubernetes的版本为1.2.0
 
 ##### 获取部署脚本 
-从prod3(10.149)上拷贝包~/ycetestplace/deploy-init.tar.gz到Kubernetes的master节点上, 并解压, 得到目录deploy/
+从prod3(10.149)上拷贝包~/ycetestplace/deploy-prod.tar.gz到Kubernetes的master节点上, 并解压, 得到目录deploy/
 
 ##### 私有镜像仓库搭建
-私有仓库的搭建, 用Docker直接启动, 对外开放端口15000, 域名为img.reg.3g, 相应的证书为deploy/docker/bin/domain.crt
+私有仓库的搭建, 用Docker直接启动, 对外开放端口15000, 域名为img.reg.3g, 相应的证书为deploy/docker/bin/domain.crt. 分别给集群里的每个节点更新证书,并重启Docker。
+证书md5为: d3cf84f3dc9efb9175e09fe3625cda2c
 
 ##### 相关镜像创建
 相关镜像创建(或导入), 这里的镜像包含了YCE运行所要依赖的MySQL镜像、Redis镜像等, 它们的名称为:
 * MySQL镜像, 地址为img.reg.3g:15000/mysql:5.7.13
-* Redis镜像, 主节点地址为img.reg.3g:15000/redis:3.0.7, 从节点地址为img.reg.3g:15000/redis-slave:3.0.3
+* Redis镜像, 主节点地址为img.reg.3g:15000/redis:3.0.7
+* 从节点地址为img.reg.3g:15000/redis-slave:3.0.3
 
 如果在别的镜像仓库已有这些镜像, 可以直接下载或者导出为tar文件,拷贝过来,再docker push到刚才搭建的镜像仓库。
+
+##### Git连接检查
+将master节点的公钥放入管理员Github账户的SSH-Keys里, 以便从开源仓库下拉源代码文件。
+
+##### NodePort检查
+在redis/redis-master-svc.yaml, redis/redis-slave-svc.yaml里指定了redis-master, redis-slave开放的NodePort端口为32379和32380。
+在yce/yce-svc.yaml里指定了yce开放的NodePort端口为32080
+要确保上面的端口未被占用,或在相应的文件里更改相应的端口。
+
+##### 数据库初始化
+数据库初始表位于mysql/sql/yce-initdata.sql, 但是在导入前需要对里面的内容进行初始化,以适配安装的集群环境。
+需要改动的表有:
+datacenter表: 这个表所指示的为数据中心列表, 需要将已有的Kubernetes集群名称、IP地址、端口等填入。
+organization表: 这个表所指示的是组织信息, 其中包含了该组织对应的数据中心的列表。
+
 
 #### 部署步骤
 切换到deploy/
 
-依次执行下面的命令:
-1. `make init`: 建立frontend和backend代码目录,初始化git并添加远程仓库地址。
-1. `make build`: 从远程仓库获取最新代码; 编译为二进制可执行文件; 打成Docker镜像; 推到镜像仓库;
-2. `make deploy`: 部署MySQL镜像; 导入初始数据库; 部署redis集群; 部署yce; 
+运行deploy.sh脚本
+
+部署完后不建议删除deploy目录,以便后续更新使用
 
 ### 更新 
 #### 更新准备
 更新需要准备好可运行的YCE环境, 通过打包新的镜像, 从YCE平台的滚动升级功能进行更新
 #### 更新步骤
-1. `make build`: 更新前端代码,并重新编译和打Docker镜像 
-2. 使用管理员账户登录, 在应用管理界面并滚动升级选择新版本镜像进行更新(建议)
+切换到deploy/目录
+
+运行update.sh脚本
+git pull
+go build
+docker push
 
 
 

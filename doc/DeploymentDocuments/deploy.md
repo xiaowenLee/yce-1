@@ -6,7 +6,7 @@ auto-deploy
 1. checkEnvironment
    * check git, docker, kubernetes, golang
    * check images (mysql, redis-master, redis-slave)
-   
+   * git connection validate 
    
 2. deploy
    * create ns, quota and limit
