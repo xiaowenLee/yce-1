@@ -49,7 +49,7 @@ func (lnc *ListNamespaceController) getNamespaceList() string {
 
 	lnc.params.Organizations = organizations
 	log.Infof("ListNamespaceController getNamespaceList: len(namespacelist)=%d", len(lnc.params.Organizations))
-
+	log.Infof("ListNamespaceController getNamespaceList: params=%v", lnc.params)
 
 	orgListJSON, err := json.Marshal(lnc.params)
 	if err != nil {
