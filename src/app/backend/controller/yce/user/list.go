@@ -45,6 +45,7 @@ func (luc *ListUserController) getUsers() string {
 	if luc.Ye != nil {
 		return ""
 	}
+	log.Infof("ListUserController getUsers: params=%v", luc.params)
 
 	usersJSON, err := json.Marshal(luc.params)
 	if err != nil {
