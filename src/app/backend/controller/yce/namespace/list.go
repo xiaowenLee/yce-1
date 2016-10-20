@@ -31,7 +31,7 @@ func (lnc *ListNamespaceController) getDcList() {
 	for _, dc := range datacenters {
 		lnc.params.DcList[dc.Id] = dc.Name
 	}
-
+	log.Infof("ListNamespaceController getDcList: len(dcList)=%d", len(lnc.params.DcList))
 }
 
 func (lnc *ListNamespaceController) getNamespaceList() string {
@@ -48,6 +48,9 @@ func (lnc *ListNamespaceController) getNamespaceList() string {
 	}
 
 	lnc.params.Organizations = organizations
+	log.Infof("ListNamespaceController getNamespaceList: len(namespacelist)=%d", len(lnc.params.Organizations))
+
+
 	orgListJSON, err := json.Marshal(lnc.params)
 	if err != nil {
 		lnc.Ye = myerror.NewYceError(myerror.EJSON, "")
