@@ -28,11 +28,13 @@ func (ldc *ListDatacenterController) listDatacenters() string {
 
 	dcListJSON, err := json.Marshal(ldc.params)
 	if err != nil {
+		log.Infof("ListDatacenterController listDatacenters: error=%s", err)
 		ldc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
 	}
 
 	dcListString := string(dcListJSON)
+	log.Infof("ListDatacenterController listDatacenters: dcListString=%s", dcListString)
 	return dcListString
 }
 

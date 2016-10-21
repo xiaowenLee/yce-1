@@ -53,6 +53,7 @@ func (lnc *ListNamespaceController) getNamespaceList() string {
 
 	orgListJSON, err := json.Marshal(lnc.params)
 	if err != nil {
+		log.Infof("ListNamespaceController getNamespaceList: error=%s", err)
 		lnc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
 	}
@@ -68,7 +69,7 @@ func (lnc ListNamespaceController) Get() {
 	//SessionIdFromClient := iuc.RequestHeader("Authorization")
 
 	lnc.params = new(NamespaceList)
-	lnc.params.DcList = make(map[int32]string, 0)
+	lnc.params.DcList = make(map[int32]string)
 
 	orgList := lnc.getNamespaceList()
 	if lnc.CheckError() {
