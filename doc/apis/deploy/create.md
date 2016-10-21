@@ -100,7 +100,7 @@ GET /api/v1/organizations/{orgId}/users/{userId}/deployments/init
 
 ### 应用发布请求提交
 
-请求的URL: POST /api/v1/organization/{orgId}/users/{userId}/deployments
+请求的URL: POST /api/v1/organization/{orgId}/users/{userId}/deployments/new
 
 请求头包含: Authorization: ${sessionId}
 
