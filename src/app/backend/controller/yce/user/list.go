@@ -29,7 +29,6 @@ func (luc *ListUserController) getOrgNames() {
 	for _, org := range organizations {
 		luc.params.OrgList[org.Id] = org.Name
 	}
-	log.Infof("ListUserController getOrgNames: len(OrgNames)=%d", len(luc.params.OrgList))
 }
 
 func (luc *ListUserController) getUsers() string {
@@ -39,23 +38,19 @@ func (luc *ListUserController) getUsers() string {
 		return ""
 	}
 	luc.params.Users = users
-	log.Infof("ListUserController getUsers: len(users)=%d", len(luc.params.Users))
 
 	luc.getOrgNames()
 	if luc.Ye != nil {
 		return ""
 	}
-	log.Infof("ListUserController getUsers: params=%v", luc.params)
 
 	usersJSON, err := json.Marshal(luc.params)
 	if err != nil {
-		log.Infof("ListUserController getUsers: error=%s", err)
 		luc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
 	}
 
 	usersString := string(usersJSON)
-	log.Infof("ListUserController: users=%s", usersString)
 	return usersString
 
 }
