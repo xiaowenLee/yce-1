@@ -49,19 +49,20 @@ func (luc *ListUserController) getUsers() string {
 
 	usersJSON, err := json.Marshal(luc.params)
 	if err != nil {
+		log.Infof("ListUserController getUsers: error=%s", err)
 		luc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
 	}
 
 	usersString := string(usersJSON)
-	//log.Infof("ListUserController: users=%s", usersString)
+	log.Infof("ListUserController: users=%s", usersString)
 	return usersString
 
 }
 
 func (luc ListUserController) Get() {
 	luc.params = new(UserList)
-	luc.params.OrgList = make(map[int32]string, 0)
+	luc.params.OrgList = make(map[int32]string)
 	users := luc.getUsers()
 	if luc.CheckError() {
 		return
