@@ -41,12 +41,17 @@
 4. 显示服布服务页面, 初始化服务的某些信息
    操作1: 初始化数据中心, 默认选择跟创建应用同样的数据中心
    操作2: 初始化选择器, 应用前面创建应用的label属性里的key name及对应值, 赋予选择器的key和value
+   操作3: 推荐nodePort
    
-5. 用户填写服务名完毕时检查是否重名,
+5. 用户填写服务名完毕时检查是否重名
    操作: 请求 POST /api/v1/organizations/:orgId/users/:userId/services/check
    目的: 检查用户所填服务名是否已经被使用
-   
-6. 用户填写完毕, 点击上一步时
+
+6. 用户填写nodePort完毕时检查是否重复
+   操作：请求 POST /api/v1/organizations/:orgId/users/:userId/nodeport/check (后台待开发)
+   目的：检查用户所填写nodePort是否已经被使用
+
+7. 用户填写完毕, 点击上一步时
    操作1: 将当前的服务信息保存为JSON
    目的: 为后面的提交做好准备
   
@@ -56,7 +61,7 @@
    操作3: 按用户之前所填的JSON填写相应的文本框控件等(依实际开发习惯而定)
    目的: 同上
 
-7. 用户所有信息填写完毕, 点击提交
+8. 用户所有信息填写完毕, 点击提交
    操作1: 请求 POST /api/v1/organizations/:orgId/users/:userId/deployments/new
    目的: 发布应用
    
