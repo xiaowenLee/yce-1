@@ -16,7 +16,6 @@ type ListNamespaceController struct {
 
 type NamespaceList struct {
 	Organizations []myorganization.Organization `json:"organizations"`
-	//DcList        []yceutils.DcIdAndNameType `json:"dcList"`
 	DcList 	     map[int32]string `json:"dcList"`
 }
 
@@ -31,7 +30,6 @@ func (lnc *ListNamespaceController) getDcList() {
 	for _, dc := range datacenters {
 		lnc.params.DcList[dc.Id] = dc.Name
 	}
-	log.Infof("ListNamespaceController getDcList: len(dcList)=%d", len(lnc.params.DcList))
 }
 
 func (lnc *ListNamespaceController) getNamespaceList() string {
@@ -48,18 +46,14 @@ func (lnc *ListNamespaceController) getNamespaceList() string {
 	}
 
 	lnc.params.Organizations = organizations
-	log.Infof("ListNamespaceController getNamespaceList: len(namespacelist)=%d", len(lnc.params.Organizations))
-	log.Infof("ListNamespaceController getNamespaceList: params=%v", lnc.params)
 
 	orgListJSON, err := json.Marshal(lnc.params)
 	if err != nil {
-		log.Infof("ListNamespaceController getNamespaceList: error=%s", err)
 		lnc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
 	}
 
 	orgListString := string(orgListJSON)
-	log.Infof("ListNamespaceController getNamespaceList: orgListString=%s", orgListString)
 	return orgListString
 }
 
