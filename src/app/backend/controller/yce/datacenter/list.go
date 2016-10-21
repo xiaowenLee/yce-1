@@ -25,7 +25,8 @@ func (ldc *ListDatacenterController) listDatacenters() string {
 	}
 
 	ldc.params.Datacenters = dcList
-
+	log.Infof("ListDatacenterController listDatacenters: len(dcList)=%d", len(ldc.params.Datacenters))
+	log.Infof("ListDatacenterController listDatacenters: dcList=%v", ldc.params.Datacenters)
 	dcListJSON, err := json.Marshal(ldc.params)
 	if err != nil {
 		log.Infof("ListDatacenterController listDatacenters: error=%s", err)
