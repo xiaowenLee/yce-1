@@ -54,7 +54,7 @@ func (luc *ListUserController) getUsers() string {
 	}
 
 	usersString := string(usersJSON)
-	//log.Infof("ListUserController: users=%s", usersString)
+	log.Infof("ListUserController: users=%s", usersString)
 	return usersString
 
 }

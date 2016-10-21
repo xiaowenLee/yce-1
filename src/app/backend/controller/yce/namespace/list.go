@@ -58,6 +58,7 @@ func (lnc *ListNamespaceController) getNamespaceList() string {
 	}
 
 	orgListString := string(orgListJSON)
+	log.Infof("ListNamespaceController getNamespaceList: orgListString=%s", orgListString)
 	return orgListString
 }
 

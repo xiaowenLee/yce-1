@@ -38,7 +38,7 @@ func (ldc *ListDatacenterController) listDatacenters() string {
 
 func (ldc ListDatacenterController) Get() {
 	ldc.params = new(DatacenterList)
-
+/*
 	err := ldc.ReadJSON(ldc.params)
 	if err != nil {
 		ldc.Ye = myerror.NewYceError(myerror.EJSON, "")
@@ -46,6 +46,7 @@ func (ldc ListDatacenterController) Get() {
 	if ldc.CheckError() {
 		return
 	}
+*/
 
 	result := ldc.listDatacenters()
 	if ldc.CheckError() {
