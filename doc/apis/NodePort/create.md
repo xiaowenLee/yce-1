@@ -26,3 +26,11 @@ NodePort
 推荐的时候改为VALID
 假设没有两个数据中心的交集, 应该按选择的数据中心进行推荐(该数据中心里第一个为VALID的nodePort)。 
 
+
+程序设计逻辑:
+
+1. admin账户用例: 创建数据中心, 初始化nodePort表
+2. admin账户用例: 查看nodePort被占用列表, 并提供详情展示comments等
+3. 普通账户用例: 填写服务nodePort, 检查nodePort是否可用
+4. 普通账户用例: 发布服务, 初始化发布服务页面, 附带返回推荐nodePort
+5. 普通账户用例: 发布服务, 更改nodePort状态; 删除服务, 更改nodePort状态。
