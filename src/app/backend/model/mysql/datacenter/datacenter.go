@@ -19,6 +19,9 @@ const (
 	DC_SELECT_NAME = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM datacenter WHERE name=?"
 
+	DC_QUERY_DUPLICATED_NAME = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
+		"FROM datacenter WHERE name=? and status=1"
+
 	DC_INSERT = "INSERT INTO " +
 		"datacenter(name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -162,6 +165,7 @@ func (dc *DataCenter) QueryDataCenterByName(name string) error {
 
 	dc.Secret = string(secret)
 	dc.Comment = string(comment)
+	dc.NodePort = string(nodePort)
 
 	if err != nil {
 		log.Errorf("QueryDataCenterByName Error: err=%s", err)
@@ -169,6 +173,39 @@ func (dc *DataCenter) QueryDataCenterByName(name string) error {
 	}
 
 	log.Infof("QureyDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, nodePort=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.NodePort, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
+
+	return nil
+}
+
+func (dc *DataCenter) QueryDuplicatedName(name string) error {
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-statement
+	stmt, err := db.Prepare(DC_QUERY_DUPLICATED_NAME)
+	if err != nil {
+		log.Errorf("QueryDuplicatedName Error: err=%s", err)
+		return err
+	}
+	defer stmt.Close()
+
+	var secret []byte
+	var comment []byte
+	var nodePort []byte
+	// Query idc by id
+	err = stmt.QueryRow(name).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status, &nodePort,
+		&dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &comment)
+
+	dc.Secret = string(secret)
+	dc.Comment = string(comment)
+
+	if err != nil {
+		log.Errorf("QueryDuplicatedName Error: err=%s", err)
+		return err
+	}
+
+	log.Infof("QureyDuplicatedName: id=%d, name=%s, host=%s, port=%d, status=%d, nodePort=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.NodePort, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 
 	return nil
@@ -190,6 +227,7 @@ func (dc *DataCenter) InsertDataCenter(op int32) error {
 	dc.CreatedAt = localtime.NewLocalTime().String()
 	dc.ModifiedAt = localtime.NewLocalTime().String()
 	dc.ModifiedOp = op
+	dc.Status = VALID
 
 	// Insert a idc
 	_, err = stmt.Exec(dc.Name, dc.Host, dc.Port, dc.Secret, dc.Status, dc.NodePort,
