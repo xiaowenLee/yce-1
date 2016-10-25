@@ -24,6 +24,39 @@ type UpdateDatacenterParams struct {
 	OrgId string `json:"orgId"`
 }
 
+func (udc *UpdateDatacenterController) updateNodePortDbItem() {
+	dc := new(mydatacenter.DataCenter)
+	err := dc.QueryDataCenterByName(udc.params.Name)
+	if err != nil {
+		udc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+
+	//oldNodePort := dc.NodePort
+	oldNodePort, ye := yceutils.DecodeNodePort(dc.NodePort)
+	if ye != nil {
+		udc.Ye = ye
+		return
+	}
+
+	//Delete old nodePorts, turn them into INVALID
+	ye = yceutils.DeleteNodePortTableOfDatacenter(oldNodePort, dc.Id, udc.params.Op)
+	if ye != nil {
+		udc.Ye = ye
+		return
+	}
+
+
+	newNodePort := udc.params.NodePort
+	ye = yceutils.InitNodePortTableOfDatacenter(newNodePort, dc.Id, udc.params.Op)
+	if ye != nil {
+		udc.Ye = ye
+		return
+	}
+
+}
+
+
 func (udc *UpdateDatacenterController) updateDcDbItem() {
 	dc := new(mydatacenter.DataCenter)
 	err := dc.QueryDataCenterByName(udc.params.Name)
@@ -48,6 +81,11 @@ func (udc UpdateDatacenterController) Post() {
 	if err != nil {
 		udc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
+	if udc.CheckError() {
+		return
+	}
+
+	udc.updateNodePortDbItem()
 	if udc.CheckError() {
 		return
 	}
