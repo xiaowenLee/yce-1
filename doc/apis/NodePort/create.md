@@ -29,8 +29,10 @@ NodePort
 
 程序设计逻辑:
 
-1. admin账户用例: 创建数据中心, 初始化nodePort表
-2. admin账户用例: 查看nodePort被占用列表, 并提供详情展示comments等
-3. 普通账户用例: 填写服务nodePort, 检查nodePort是否可用
-4. 普通账户用例: 发布服务, 初始化发布服务页面, 附带返回推荐nodePort
-5. 普通账户用例: 发布服务, 更改nodePort状态; 删除服务, 更改nodePort状态。
+1. admin账户用例: 创建数据中心, 初始化nodePort表, 每个新插入表中的nodePort状态为VALID, 表示可用
+2. admin账户用例: 查看nodePort被占用列表, 并提供详情展示comments等, 选择nodePort状态为INVALID的列出
+3. admin账户用例: 删除数据中心, 创建时插入的nodePort表, 将每个nodePort的状态置为INVALID, 表示不可用
+4. 普通账户用例: 填写服务nodePort, 检查nodePort是否可用。 可用为VALID
+5. 普通账户用例: 发布服务, 初始化发布服务页面, 附带返回推荐nodePort。 
+6. 普通账户用例: 发布服务, 更改nodePort状态为INVALID; 删除服务, 更改nodePort状态为VALID。
+
