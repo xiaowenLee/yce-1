@@ -30,7 +30,9 @@ const (
 
 	NP_SELECT_INVALID = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE status=0"
 
-	NP_SELECT_VALID_BYDC = "SELECT port=?, dcId=?, svcName=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=?" + " FROM nodeport WHERE status=1 AND port=? AND dcId=?"
+	NP_SELECT_VALID_BY_DC_AND_PORT = "SELECT port=?, dcId=?, svcName=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=?" + " FROM nodeport WHERE status=1 AND port=? AND dcId=?"
+
+	NP_SELECT_VALID_BY_DC = "SELECT port=?, dcId=?, svcName=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=?" + " FROM nodeport WHERE status=1 AND dcId=?"
 
 	VALID      = 1
 	INVALID    = 0
@@ -64,8 +66,9 @@ func NewNodePort(port, dcId int32, svcName string, modifiedOp int32) *NodePort {
 
 // 推荐一个未使用的或VALID的端口
 // TODO: check the recommand algorithm
+/*
 func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
-	availablePorts := make(map[int32]int, 1)
+	availablePorts := make(map[int32]int)
 	np = new(NodePort)
 
 	for _, v := range datacenters {
@@ -85,6 +88,73 @@ func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
 
 		return np
 	}
+}
+*/
+
+func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
+	dcIdList := make([]int32, 0)
+
+	for _, dc := range datacenters {
+		dcIdList := append(dcIdList, dc.Id)	
+	}
+
+	availableNodePorts := make(map[int32]int)
+
+	for _, dcId := range dcIdList {
+		npList, err := QueryNodePortByDcIdIfValid(dcId)
+		if err != nil { 
+			err := mylog.Log.Errorf("Recommand QueryNodeByDcIdIfValid Error: err=%s", err)	
+			return nil
+		}
+	
+		for _, np := range npList {
+			availableNodePorts[np.Port] += 1
+			if availableNodePorts[np.Port] == 2 {
+				mylog.Log.Infof("Recommand nodePort=%d", np.Port)				  return np	
+			}
+		}
+	}
+
+	mylog.Log.Infof("Recommand nodePort Failed!")
+	return nil
+}
+
+func QueryNodePortByDcIdIfValid(dcId)([]NodePort, error) {
+	nodeports := make([]NodePort, 0)
+
+	db := mysql.MysqlInstance().Conn()
+
+	// Prepare select-all-statement
+	stmt, err := db.Prepare(NP_SELECT_VALID_BY_DC)
+	if err != nil {
+		log.Errorf("QueryNodePortByDcIdIfValid Error: err=%s", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Errorf("QueryNodePortByDcIdIfValid Error: err=%s", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		np := new(NodePort)
+		err = rows.Scan(&np.Port, &np.DcId, &np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &np.Comment, &dcId)
+		if err != nil {
+			log.Errorf("QueryNodePortByDcIdIfValid Error: err=%s", err)
+			return nil, err
+		}
+
+		nodeports = append(nodeports, *np)
+
+		log.Infof("QueryNodePortByDcIdIfValid: port=%d, dcId=%d, svcName=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d, comment=%s",
+		np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
+	}
+
+	log.Infof("QueryNodePortByDcIdIfValid: len(nodeports)=%d", len(nodeports))
+	return nodeports, nil
 
 }
 
@@ -228,7 +298,7 @@ func (np *NodePort) QueryNodePortByPortAndDcIdIfValid(port, dcId int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	//"SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE status=1 AND port=? AND dcId=?"
-	stmt, err := db.Prepare(NP_SELECT_VALID_BYDC)
+	stmt, err := db.Prepare(NP_SELECT_VALID_BY_DC_AND_PORT)
 	if err != nil {
 		log.Errorf("QueryNodePortByPortAndDcIdIfValid Error: err=%s", err)
 		return err
