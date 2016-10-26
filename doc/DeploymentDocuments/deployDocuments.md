@@ -30,33 +30,38 @@ YCE部署指南
 私有仓库的搭建, 用Docker直接启动, 对外开放端口15000, 域名为img.reg.3g, 相应的证书为deploy/docker/bin/domain.crt. 分别给集群里的每个节点更新证书,并重启Docker。
 证书md5为: d3cf84f3dc9efb9175e09fe3625cda2c
 
+为Kubernetes的每个节点的/etc/docker/certs.d目录下,添加img.reg.3g:15000目录, 将该证书放置于此目录下
+
 ##### 相关镜像创建
 相关镜像创建(或导入), 这里的镜像包含了YCE运行所要依赖的MySQL镜像、Redis镜像等, 它们的名称为:
-* MySQL镜像, 地址为img.reg.3g:15000/mysql:5.7.13
-* Redis镜像, 主节点地址为img.reg.3g:15000/redis:3.0.7
-* 从节点地址为img.reg.3g:15000/redis-slave:3.0.3
+* MySQL镜像, 地址为img.reg.3g:15000/mysql:5.7.13, 校验: 1195b21c3a45 
+* Redis镜像, 主节点地址为img.reg.3g:15000/redis:3.0.7, 校验: bab6d3ebc78c
+* 从节点地址为img.reg.3g:15000/redis-slave:3.0.3, 校验: d1ae45cdf710
+* Ubuntu-base:v3, img.reg.3g:15000/ubuntu-base:v3, 校验: 9bce8c1d0877
 
-如果在别的镜像仓库已有这些镜像, 可以直接下载或者导出为tar文件,拷贝过来,再docker push到刚才搭建的镜像仓库。
+如果在别的镜像仓库已有这些镜像, 可以直接下载或者导出为tar文件,拷贝过来,再docker push到刚才搭建的镜像仓库。镜像存放在baseimg.tar.gz里
 
 ##### Git连接检查
-将master节点的公钥放入管理员Github账户的SSH-Keys里, 以便从开源仓库下拉源代码文件。
+将master节点的公钥放入管理员Github账户的SSH-Keys里, 以便从Github下拉源代码文件。
 
 ##### NodePort检查
-在redis/redis-master-svc.yaml, redis/redis-slave-svc.yaml里指定了redis-master, redis-slave开放的NodePort端口为32379和32380。
 在yce/yce-svc.yaml里指定了yce开放的NodePort端口为32080
 要确保上面的端口未被占用,或在相应的文件里更改相应的端口。
 
 ##### 数据库初始化
 数据库初始表位于mysql/sql/yce-initdata.sql, 但是在导入前需要对里面的内容进行初始化,以适配安装的集群环境。
-需要改动的表有:
+
+需要检查的表有:
 datacenter表: 这个表所指示的为数据中心列表, 需要将已有的Kubernetes集群名称、IP地址、端口等填入。
-organization表: 这个表所指示的是组织信息, 其中包含了该组织对应的数据中心的列表。
+organization表: 这个表所指示的是组织信息, 其中包含了该组织对应的数据中心的列表, 初始化为yce
+user表: 这个表所指示的是用户表, 初始化为admin 
+nodeport表: 这个表所指示的是nodePort使用, 初始化为32080, 供yce使用
 
 
 #### 部署步骤
 切换到deploy/
 
-运行deploy.sh脚本
+运行deploy.sh脚本: ./deploy.sh $Kube-Master-IP
 
 部署完后不建议删除deploy目录,以便后续更新使用
 
