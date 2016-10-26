@@ -193,5 +193,6 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/nodeports", *r.ListNodePort)
 	iris.API("/api/v1/nodeports/check", *r.CheckNodePort)
 
+
 	iris.StaticServe("../frontend", "/static")
 }
