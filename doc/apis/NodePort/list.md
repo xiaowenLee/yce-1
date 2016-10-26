@@ -11,17 +11,17 @@ Last Revised: 2016-10-26
 
 Content
 --------------
-####目的
+###目的
 为管理员列出所有被占用的NodePort. 被占用的含义是该nodePort在数据库表中的记录存在且status为INVALID.
 
-####请求
+###请求
 
 * 请求方法: GET
 * 请求URL: /api/v1/nodeports
 * 请求头: Authorization:$SessionId, 从LocalStorage读 
 * 请求参数: 无
 
-####页面设计 
+###页面设计 
 管理页面样式(参考应用管理). 显示表头: ID, NodePort, 数据中心, 服务名称, 创建时间, 其中:
 
 * ID: id, 按序生成
@@ -30,7 +30,7 @@ Content
 * 服务名称: data.nodePorts[0].svcName
 * 创建时间: data.nodePorts[0].createdAt 
 
-####程序实现逻辑:
+###程序实现逻辑:
 
 ```Sequence
 Title: NodePort占用列表
@@ -42,7 +42,7 @@ YCE<<--MySQL: 返回查询结果
 
 说明: 收到GET请求, 去数据库里查询所有status为INVALID的nodePort,并查询dcId与dcName的对应关系, 两者共同作为结果返回
 
-####响应数据结构: 
+###响应数据结构: 
 
 JSON, 示例如下:
 
@@ -77,5 +77,5 @@ JSON, 示例如下:
   } 
 
 ```
-#### 备注
+### 备注
 无
