@@ -960,6 +960,27 @@ func UseNodePortOfDatacenter(nodePort, dcId int32, svcName string, op int32) *my
 
 }
 
+func QueryDuplicatedNodePort(port, dcId int32) (*mynodeport.NodePort, *myerror.YceError) {
+	np := new(mynodeport.NodePort)
+	err := np.QueryNodePortByPortAndDcId(port, dcId)
+	if err != nil {
+		// not found
+		log.Infof("QueryDuplicatedNodePort Error: err=%s", err)
+		return nil, nil
+	} else {
+		// found valid
+		if np.Status == mynodeport.VALID {
+			log.Infof("QueryDuplicatedNodePort: nodePort.status=%d", np.Status)
+			return np, nil
+		} else {
+			// found invalid
+			ye := myerror.NewYceError(myerror.EYCE_EXISTED_NAME, "")
+			log.Infof("QueryDuplciatedNodePort: existed name")
+			return nil, ye
+		}
+	}
+}
+
 
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {

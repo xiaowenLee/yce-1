@@ -16,6 +16,8 @@ var log = mylog.Log
 const (
 	NP_SELECT = "SELECT svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE port=? AND dcId=?"
 
+	NP_SELECT_BY_DC_AND_PORT = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE port=? AND dcId=?"
+
 	NP_INSERT = "INSERT INTO " + "nodeport(port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment) " + "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 
 	NP_UPDATE = "UPDATE nodeport " + "SET port=?, dcId=?, svcName=?, status=?, modifiedAt=?, modifiedOp=?, comment=? " + "WHERE port=? AND dcId=?"
@@ -259,17 +261,14 @@ func (np *NodePort) QueryNodePortByPortAndDcId(port, dcId int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
-	stmt, err := db.Prepare(NP_SELECT)
+	stmt, err := db.Prepare(NP_SELECT_BY_DC_AND_PORT)
 	if err != nil {
 		log.Errorf("QueryNodePortByPortAndDcId Error: error=%s", err)
 		return err
 	}
 	defer stmt.Close()
 
-	var comment []byte
-	err = stmt.QueryRow(port, dcId).Scan(&np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &comment)
-	np.Comment = string(comment)
-
+	err = stmt.QueryRow(port, dcId).Scan(&np.Port, &np.DcId, &np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &np.Comment)
 	// port with dcId not exist
 	if err != nil {
 		log.Errorf("QuertNodePortByPortAndDcId Error: error=%s", err)
