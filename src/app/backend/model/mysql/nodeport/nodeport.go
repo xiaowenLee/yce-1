@@ -32,7 +32,7 @@ const (
 
 	NP_SELECT_VALID_BY_DC_AND_PORT = "SELECT port=?, dcId=?, svcName=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=?" + " FROM nodeport WHERE status=1 AND port=? AND dcId=?"
 
-	NP_SELECT_VALID_BY_DC = "SELECT port=?, dcId=?, svcName=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=?" + " FROM nodeport WHERE status=1 AND dcId=?"
+	NP_SELECT_VALID_BY_DC = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment" + " FROM nodeport WHERE status=1 AND dcId=?"
 
 	VALID      = 1
 	INVALID    = 0
@@ -95,7 +95,7 @@ func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
 	dcIdList := make([]int32, 0)
 
 	for _, dc := range datacenters {
-		dcIdList := append(dcIdList, dc.Id)	
+		dcIdList = append(dcIdList, dc.Id)
 	}
 
 	availableNodePorts := make(map[int32]int)
@@ -103,14 +103,15 @@ func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
 	for _, dcId := range dcIdList {
 		npList, err := QueryNodePortByDcIdIfValid(dcId)
 		if err != nil { 
-			err := mylog.Log.Errorf("Recommand QueryNodeByDcIdIfValid Error: err=%s", err)	
+			mylog.Log.Errorf("Recommand QueryNodeByDcIdIfValid Error: err=%s", err)
 			return nil
 		}
 	
 		for _, np := range npList {
 			availableNodePorts[np.Port] += 1
-			if availableNodePorts[np.Port] == 2 {
-				mylog.Log.Infof("Recommand nodePort=%d", np.Port)				  return np	
+			if availableNodePorts[np.Port] == len(dcIdList) {
+				mylog.Log.Infof("Recommand nodePort=%d", np.Port)
+				return &np
 			}
 		}
 	}
@@ -119,7 +120,7 @@ func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
 	return nil
 }
 
-func QueryNodePortByDcIdIfValid(dcId)([]NodePort, error) {
+func QueryNodePortByDcIdIfValid(dcId int32)([]NodePort, error) {
 	nodeports := make([]NodePort, 0)
 
 	db := mysql.MysqlInstance().Conn()
@@ -132,7 +133,7 @@ func QueryNodePortByDcIdIfValid(dcId)([]NodePort, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(dcId)
 	if err != nil {
 		log.Errorf("QueryNodePortByDcIdIfValid Error: err=%s", err)
 		return nil, err
@@ -141,7 +142,7 @@ func QueryNodePortByDcIdIfValid(dcId)([]NodePort, error) {
 
 	for rows.Next() {
 		np := new(NodePort)
-		err = rows.Scan(&np.Port, &np.DcId, &np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &np.Comment, &dcId)
+		err = rows.Scan(&np.Port, &np.DcId, &np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &np.Comment)
 		if err != nil {
 			log.Errorf("QueryNodePortByDcIdIfValid Error: err=%s", err)
 			return nil, err
