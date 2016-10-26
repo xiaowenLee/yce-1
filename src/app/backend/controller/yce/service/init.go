@@ -63,17 +63,15 @@ func (isc InitServiceController) Get() {
 		return
 	}
 
-	//TODO: nodePort mysql model realize recommandOne()
+	//TODO: nodePort mysql model realize Recommand()
 	// Get one nodePort
 	// isc.Init.Quotas, err = myqouta.QueryAllQuotas()
 	isc.Init.NodePort = mynodeport.Recommand(isc.Init.DataCenters)
-	if err != nil {
-		log.Errorf("Get Organization By orgId error: sessionId=%s, orgId=%s, error=%s", sessionIdFromClient, orgId, err)
-		isc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
-	}
 	if isc.CheckError() {
 		return
 	}
+
+	log.Infof("InitServiceController: Recommand nodePort=%d", isc.Init.NodePort.Port)
 
 	isc.WriteOk(isc.String())
 	log.Infoln("InitServiceController Get over!")
