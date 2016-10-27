@@ -84,6 +84,8 @@ func (ddc *DeleteDatacenterController) deleteDcDbItem() {
 	ddc.dc.DeleteDataCenter(ddc.params.Op)
 }
 
+
+
 func (ddc DeleteDatacenterController) Post() {
 	ddc.params = new(DeleteDatacenterParams)
 	ddc.dc = new(mydatacenter.DataCenter)
@@ -116,6 +118,7 @@ func (ddc DeleteDatacenterController) Post() {
 
 	//TODO: delete all services in this datacenter. Need to think.
 	//TODO: deleting means cann't be access temperorily or clean up all the stuff ?
+	//TODO: modify user, organization existed in this datacenter, change to INVALID
 	//ddc.deleteService()
 
 
