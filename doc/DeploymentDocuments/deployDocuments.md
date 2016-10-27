@@ -14,8 +14,8 @@ Content
 ###目的
 文档主要包含了首次部署YCE的操作流程、YCE的更新操作流程以及相关说明。
 
-如果确定部署环境已搭建好, 请直接按[首次部署步骤]()进行部署。如果不确定部署环境, 请先阅读[首次部署须知]()
-如果非首次部署,即进行更新, 请直接按[更新步骤]()进行更新
+如果确定部署环境已搭建好, 请直接按[首次部署步骤](https://github.com/maxwell92/yce/blob/master/doc/DeploymentDocuments/deployDocuments.md#首次部署步骤)进行部署。如果不确定部署环境, 请先阅读[首次部署须知](https://github.com/maxwell92/yce/blob/master/doc/DeploymentDocuments/deployDocuments.md#首次部署须知)
+如果非首次部署,即进行更新, 请直接按[更新步骤](https://github.com/maxwell92/yce/blob/master/doc/DeploymentDocuments/deployDocuments.md#更新步骤)进行更新
 
 ###首次部署
 #### 首次部署须知 
