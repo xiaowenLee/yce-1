@@ -41,7 +41,7 @@ Content
 * Kubernetes的版本为1.2.0
 
 ##### 获取部署脚本 
-从prod3(10.149)上拷贝包~/archives/yce/deploy.tar.gz到Kubernetes的master节点上, 并解压得到目录deploy/
+从prod3(10.149)上拷贝包~/archive/yce/deploy.tar.gz到Kubernetes的master节点上, 并解压得到目录deploy/
 
 ##### 私有镜像仓库搭建
 私有仓库的搭建, 用Docker直接启动, 对外开放端口15000, 域名为img.reg.3g, 相应的证书为deploy/docker/bin/domain.crt. 分别给集群里的每个节点更新证书,并重启Docker。
@@ -56,7 +56,7 @@ Content
 * Ubuntu-base:v3, img.reg.3g:15000/ubuntu-base:v3, 校验: 9bce8c1d0877
 
 如果在别的镜像仓库已有这些镜像, 可以直接下载或者导出为tar文件,拷贝过来,再docker push到刚才搭建的镜像仓库。
-这些镜像同时存放在prod3(10.149):~/archives/yce/baseimg.tar.gz里
+这些镜像同时存放在prod3(10.149):~/archive/yce/baseimg.tar.gz里
 
 ##### Git连接检查
 将master节点的公钥放入YCE管理员Github账户的SSH-Keys里, 以便从Github下拉源代码文件。
