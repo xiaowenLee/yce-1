@@ -1,12 +1,27 @@
+<img src="http://kubernetes.io/kubernetes/img/warning.png" alt="WARNING" width="25" height="25"> 
+
+####修改请谨慎
+
 YCE部署指南
-===============
+==============
 
-本文档主要包含了首次部署YCE的操作流程、YCE的更新操作流程以及相关说明。
+Author: [maxwell92](github.com/maxwell92)
 
-### 首次部署 
-#### 部署前准备
+Last Revised: 2016-10-27
+
+Content
+--------------
+###目的
+文档主要包含了首次部署YCE的操作流程、YCE的更新操作流程以及相关说明。
+
+如果确定部署环境已搭建好, 请直接按[首次部署步骤]()进行部署。如果不确定部署环境, 请先阅读[首次部署须知]()
+如果非首次部署,即进行更新, 请直接按[更新步骤]()进行更新
+
+###首次部署
+#### 首次部署须知 
 在首次部署开始之前需要做一些准备。这些准备包括
 
+* 切换到root用户
 * 基础环境准备
 * 获取部署脚本
 * 私有镜像仓库搭建
@@ -15,6 +30,8 @@ YCE部署指南
 * NodePort检查
 * 数据库初始化
 
+#####  切换到root用户
+需要切换到root用户进行后续操作, *注: 为减少安全隐患, 请在部署完成后退出root*
 
 #####  基础环境准备
 基础环境搭建, 需要若干台机器搭建Kubernetes集群, 在master节点上安装好git、go、Docker等开发环境, 建议版本为:
@@ -24,13 +41,12 @@ YCE部署指南
 * Kubernetes的版本为1.2.0
 
 ##### 获取部署脚本 
-从prod3(10.149)上拷贝包~/ycetestplace/deploy-prod.tar.gz到Kubernetes的master节点上, 并解压, 得到目录deploy/
+从prod3(10.149)上拷贝包~/archives/yce/deploy.tar.gz到Kubernetes的master节点上, 并解压得到目录deploy/
 
 ##### 私有镜像仓库搭建
 私有仓库的搭建, 用Docker直接启动, 对外开放端口15000, 域名为img.reg.3g, 相应的证书为deploy/docker/bin/domain.crt. 分别给集群里的每个节点更新证书,并重启Docker。
 证书md5为: d3cf84f3dc9efb9175e09fe3625cda2c
-
-为Kubernetes的每个节点的/etc/docker/certs.d目录下,添加img.reg.3g:15000目录, 将该证书放置于此目录下
+更新方法: 为Kubernetes的每个节点的/etc/docker/certs.d目录下,添加img.reg.3g:15000目录, 将该证书放置于此目录下, 最后重启docker
 
 ##### 相关镜像创建
 相关镜像创建(或导入), 这里的镜像包含了YCE运行所要依赖的MySQL镜像、Redis镜像等, 它们的名称为:
@@ -39,31 +55,36 @@ YCE部署指南
 * 从节点地址为img.reg.3g:15000/redis-slave:3.0.3, 校验: d1ae45cdf710
 * Ubuntu-base:v3, img.reg.3g:15000/ubuntu-base:v3, 校验: 9bce8c1d0877
 
-如果在别的镜像仓库已有这些镜像, 可以直接下载或者导出为tar文件,拷贝过来,再docker push到刚才搭建的镜像仓库。镜像存放在baseimg.tar.gz里
+如果在别的镜像仓库已有这些镜像, 可以直接下载或者导出为tar文件,拷贝过来,再docker push到刚才搭建的镜像仓库。
+这些镜像同时存放在prod3(10.149):~/archives/yce/baseimg.tar.gz里
 
 ##### Git连接检查
-将master节点的公钥放入管理员Github账户的SSH-Keys里, 以便从Github下拉源代码文件。
+将master节点的公钥放入YCE管理员Github账户的SSH-Keys里, 以便从Github下拉源代码文件。
+放入公钥后需要在服务器上执行: `ssh -T git@github.com`, 看到 `Hi maxwell92! You've successfully authenticated, but GitHub does not provide shell access.` 类似文字即表示认证通过。
 
 ##### NodePort检查
-在yce/yce-svc.yaml里指定了yce开放的NodePort端口为32080
-要确保上面的端口未被占用,或在相应的文件里更改相应的端口。
+在deploy/yce/yce-svc.yaml里指定了yce开放的NodePort端口为32080. 
+要确保上面的端口未被占用,否则需要释放该端口。
+*注: 这个端口已经讨论确定*
 
 ##### 数据库初始化
-数据库初始表位于mysql/sql/yce-initdata.sql, 但是在导入前需要对里面的内容进行初始化,以适配安装的集群环境。
+数据库初始表位于deploy/mysql/sql/yce-initdata.sql, 里面的内容默认初始化适配待部署的集群环境。
 
-需要检查的表有:
-datacenter表: 这个表所指示的为数据中心列表, 需要将已有的Kubernetes集群名称、IP地址、端口等填入。
+如果对表里的初始内容不确定, 需要检查的表有:
+datacenter表: 这个表所指示的为数据中心列表, 检查待部署的Kubernetes集群名称、IP地址、端口等。 *注: 名称初始化为湖南*
 organization表: 这个表所指示的是组织信息, 其中包含了该组织对应的数据中心的列表, 初始化为yce
-user表: 这个表所指示的是用户表, 初始化为admin 
+user表: 这个表所指示的是用户表, 初始化为仅有admin 
 nodeport表: 这个表所指示的是nodePort使用, 初始化为32080, 供yce使用
 
 
-#### 部署步骤
+#### 首次部署步骤 
 切换到deploy/
 
-运行deploy.sh脚本: ./deploy.sh $Kube-Master-IP
+运行deploy.sh脚本: ./deploy.sh
 
 部署完后不建议删除deploy目录,以便后续更新使用
+
+*注: 部署过程中如果出错, 请查看脚本信息或联系[maxwell](github.com/maxwell92))*
 
 ### 更新 
 #### 更新准备
@@ -71,15 +92,14 @@ nodeport表: 这个表所指示的是nodePort使用, 初始化为32080, 供yce�
 #### 更新步骤
 切换到deploy/目录
 
-运行update.sh脚本
-git pull
-go build
-docker push
+运行update.sh脚本: ./update.sh
+
+使用admin用户登录yce, 在应用管理页面上使用`升级`功能进行滚动升级, 数秒后刷新页面即可。
+
+*注: 更新过程中如果出错, 请查看脚本信息或联系[maxwell](github.com/maxwell92))*
 
 
-
-
-### 以下为旧版本, 无效
+### 以下为旧版本, 无效///////////////////////////////////////////////////
 
 部署前准备
 ---------------
