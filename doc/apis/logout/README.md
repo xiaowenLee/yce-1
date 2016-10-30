@@ -3,7 +3,8 @@
 
 ### 点击退出按钮
 
-请求的URL: POST /api/v1/users/{username}/logout
+//请求的URL: POST /api/v1/users/{username}/logout
+请求URL: POST /api/v1/users/logout
  
 请求头中: Authorization: ${sessionId}
 

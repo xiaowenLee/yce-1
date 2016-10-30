@@ -46,7 +46,8 @@ func (dsc *DeleteServiceController) deleteMysqlNodePort() {
 		DcId: dcId,
 	}
 
-	err := np.DeleteNodePort(op)
+	//err := np.DeleteNodePort(op)
+	err := np.ReleaseNodePort(op)
 	if err != nil {
 		log.Errorf("DeleteMysqlNodePort Error: nodeport=%d, dcId=%d, svcName=%s, error=%s", np.Port, np.DcId, np.SvcName, err)
 		dsc.Ye = myerror.NewYceError(myerror.EYCE_DELETE_NODEPORT, "")

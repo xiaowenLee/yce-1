@@ -7,6 +7,7 @@ import (
 	myorganization "app/backend/model/mysql/organization"
 	myqouta "app/backend/model/mysql/quota"
 	myuser "app/backend/model/mysql/user"
+	mynodeport "app/backend/model/mysql/nodeport"
 	"io/ioutil"
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
@@ -476,6 +477,17 @@ func GetDcIdListByOrgName(orgName string) ([]int32, *myerror.YceError) {
 	return dcIdList, nil
 }
 
+func GetDcIdByDcName(dcName string) (int32, *myerror.YceError) {
+	dc := new(mydatacenter.DataCenter)
+	err := dc.QueryDataCenterByName(dcName)
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_INSERT, "")
+		return -1, ye
+	}
+
+	return dc.Id, nil
+}
+
 func GetDcIdListByOrgId(orgId string) ([]int32, *myerror.YceError) {
 	if CheckValidate(orgId) {
 		org, err := organization.GetOrganizationById(orgId)
@@ -822,7 +834,8 @@ func QueryDuplicatedOrgName(name string) (*myorganization.Organization, *myerror
 
 func QueryDuplicatedDcName(name string) (*mydatacenter.DataCenter, *myerror.YceError) {
 	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterByName(name)
+	//err := dc.QueryDataCenterByName(name)
+	err := dc.QueryDuplicatedName(name)
 	//not found, could use this name
 	if err != nil {
 		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
@@ -870,6 +883,103 @@ func GetUsers() ([]myuser.User, *myerror.YceError) {
 	return userList, nil
 }
 
+func InitNodePortTableOfDatacenter(nodePort []string, dcId int32, op int32) *myerror.YceError {
+	npList := new(NodePortType)
+	npList.NodePort = nodePort
+
+	nodePortLowerLimit, err := strconv.Atoi(npList.NodePort[0])
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return ye
+	}
+	nodePortUpperLimit, err := strconv.Atoi(npList.NodePort[1])
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return ye
+	}
+
+	for i := nodePortLowerLimit; i <= nodePortUpperLimit; i++ {
+		np := new(mynodeport.NodePort)
+		np.DcId = dcId
+		np.Port = int32(i)
+		err := np.InsertNodePort(op)
+		if err != nil {
+			ye := myerror.NewYceError(myerror.EMYSQL_INSERT, "")
+			return ye
+		}
+	}
+
+	return nil
+}
+
+func DeleteNodePortTableOfDatacenter(nodePort []string, dcId, op int32) *myerror.YceError {
+	npList := new(NodePortType)
+	npList.NodePort = nodePort
+
+	nodePortLowerLimit, err := strconv.Atoi(npList.NodePort[0])
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return ye
+	}
+	nodePortUpperLimit, err := strconv.Atoi(npList.NodePort[1])
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return ye
+	}
+
+	for i := nodePortLowerLimit; i <= nodePortUpperLimit; i++ {
+		np := new(mynodeport.NodePort)
+		log.Infof("DeleteNodePortTableOfDatacenter port=%d", i)
+		np.Port = int32(i)
+		np.DcId = dcId
+		//err := np.InsertNodePort(op)
+		err := np.DeleteNodePort(op)
+		if err != nil {
+			ye := myerror.NewYceError(myerror.EMYSQL_DELETE, "")
+			return ye
+		}
+	}
+
+	return nil
+
+}
+
+
+func UseNodePortOfDatacenter(nodePort, dcId int32, svcName string, op int32) *myerror.YceError {
+	np := new(mynodeport.NodePort)
+	np.DcId = dcId
+	np.SvcName = svcName
+	np.Port = nodePort
+	err := np.UseNodePort(op)
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_INSERT, "")
+		return ye
+	}
+
+	return nil
+
+}
+
+func QueryDuplicatedNodePort(port, dcId int32) (*mynodeport.NodePort, *myerror.YceError) {
+	np := new(mynodeport.NodePort)
+	err := np.QueryNodePortByPortAndDcId(port, dcId)
+	if err != nil {
+		// not found
+		log.Infof("QueryDuplicatedNodePort Error: err=%s", err)
+		return nil, nil
+	} else {
+		// found valid
+		if np.Status == mynodeport.VALID {
+			log.Infof("QueryDuplicatedNodePort: nodePort.status=%d", np.Status)
+			return np, nil
+		} else {
+			// found invalid
+			ye := myerror.NewYceError(myerror.EYCE_EXISTED_NAME, "")
+			log.Infof("QueryDuplciatedNodePort: existed name")
+			return nil, ye
+		}
+	}
+}
 
 
 //TODO: Get Namespace List By Datacenter Id List

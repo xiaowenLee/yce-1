@@ -43,7 +43,8 @@ func (csc *CreateServiceController) createService(namespace string, service *api
 func (csc *CreateServiceController) createMysqlNodePort(success bool, nodePort int32, dcIdList []int32, svcName string, op int32) {
 	for _, dcId := range dcIdList {
 		np := mynodeport.NewNodePort(nodePort, dcId, svcName, op)
-		err := np.InsertNodePort(op)
+		//err := np.InsertNodePort(op)
+		err := np.UseNodePort(op)
 		if err != nil {
 			log.Errorf("createMysqlNodePort Error: nodeport=%d, dcId=%d, svcName=%s, error=%s", np.Port, np.DcId, np.SvcName, err)
 			csc.Ye = myerror.NewYceError(myerror.EYCE_NODEPORT_EXIST, "")
@@ -71,15 +72,19 @@ func (csc *CreateServiceController) addNodePort() {
 	for _, port := range cs.Service.Spec.Ports {
 		hasNodePort := mynodeport.PORT_START <= port.NodePort && port.NodePort <= mynodeport.PORT_LIMIT
 		if hasNodePort {
-			csc.createMysqlNodePort(hasNodePort, port.NodePort, cs.DcIdList, cs.Service.ObjectMeta.Name, int32(op))
-			if csc.CheckError() {
-				return
+			//csc.createMysqlNodePort(hasNodePort, port.NodePort, cs.DcIdList, cs.Service.ObjectMeta.Name, int32(op))
+			for _, dcId := range csc.params.DcIdList {
+				ye := yceutils.UseNodePortOfDatacenter(port.NodePort, dcId, csc.params.ServiceName, int32(op))
+				if ye != nil {
+					csc.Ye = ye
+					return
+				}
 			}
 		}
 		log.Infof("CreateServiceController addNodePort : nodeport=%d", port.NodePort)
 	}
-
 }
+
 
 // Post /api/v1/organizations/{:orgId}/user/{:userId}/services/new
 func (csc CreateServiceController) Post() {

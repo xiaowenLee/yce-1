@@ -20,6 +20,7 @@ import (
 	"github.com/kataras/iris"
 	myoperationstat "app/backend/controller/yce/dashboard/operationstat"
 	mydatacenter "app/backend/controller/yce/datacenter"
+	mynodeport "app/backend/controller/yce/nodeport"
 )
 
 type Router struct {
@@ -73,6 +74,8 @@ type Router struct {
 	DeleteDatacenter *mydatacenter.DeleteDatacenterController
 	UpdateDatacenter *mydatacenter.UpdateDatacenterController
 	CheckDatacenter  *mydatacenter.CheckDatacenterController
+	ListNodePort 	 *mynodeport.ListNodePortController
+	CheckNodePort    *mynodeport.CheckNodePortController
 }
 
 
@@ -128,6 +131,8 @@ func NewRouter() *Router {
 	r.ListDatacenter = new(mydatacenter.ListDatacenterController)
 	r.UpdateDatacenter = new(mydatacenter.UpdateDatacenterController)
 	r.CheckDatacenter = new(mydatacenter.CheckDatacenterController)
+	r.ListNodePort = new(mynodeport.ListNodePortController)
+	r.CheckNodePort = new(mynodeport.CheckNodePortController)
 
 	return r
 }
@@ -185,6 +190,9 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/datacenter", *r.ListDatacenter)
 	iris.API("/api/v1/datacenter/update", *r.UpdateDatacenter)
 	iris.API("/api/v1/datacenter/check", *r.CheckDatacenter)
+	iris.API("/api/v1/nodeports", *r.ListNodePort)
+	iris.API("/api/v1/nodeports/check", *r.CheckNodePort)
+
 
 	iris.StaticServe("../frontend", "/static")
 }

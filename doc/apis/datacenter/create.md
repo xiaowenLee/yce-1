@@ -1,121 +1,57 @@
-### 创建数据中心
------------
+<img src="http://kubernetes.io/kubernetes/img/warning.png" alt="WARNING" width="25" height="25"> 
 
-#### 创建初始化 
-目的: 为创建数据中心做准备, 获取组织列表供管理员为数据中心选择
-请求URL: /api/v1/datacenter/init
-请求头: Authorization:SessionId
-请求方法: GET 
+####修改请谨慎
 
-内容需讨论
+添加数据中心
+==============
 
-#### 数据中心检查
-目的: 当管理员输入数据中心名完毕后(离开输入框), 检查数据中心名是否重复
-请求URL: /api/v1/datacenter/check
-请求头: Authorization:SessionId
-请求方法: POST
+Author: [maxwell92](github.com/maxwell92)
 
-携带数据:
-```
-{
+Last Revised: 2016-10-27
+
+Content
+--------------
+###目的
+由管理员添加新的数据中心, 注意这个数据中心必须是已经部署了Kubernetes的集群 
+
+###请求
+
+* 请求方法: POST 
+* 请求URL: /api/v1/datacenter/new
+* 请求头: Authorization:$SessionId, 从LocalStorage读 
+* 请求参数: 
+  JSON
+```json
+  {
     "name": "xxx",
-    "orgId": "1"          //表示创建者(管理员)所在的组织,用来验证管理员会话, 从本地存储中获取
-}
-```
-
-返回是否存在, "code": 1415 为数据中心名已存在, 不能使用该名称, 需提示。 "code": 0为未被占用, 可以使用该名称, 无需提示。
-
-程序实现逻辑:
-
-去datacenter表里选择满足name的数据中心,如果有,返回存在,如果没有,返回不存在
-
-还应该检查Datacenter Host:Port对是否重复. 重复了会导致查询上的问题,但不影响实际部署 
-
-#### 创建
-请求URL: /api/v1/datacenter/new
-请求头: Authorization:SessionId
-请求方法: POST
-
-携带数据:
-```
-{
-    "name": "xxx",
-    "nodePort" [
+    "nodePort": [
         "30000",
         "32767"
-    ]
+    ],
     "host": "192.168.1.110",
     "port": 8080,
     "orgId": "3",          // 表示创建者所在的组织, 用来验证管理员会话 
     "op": 1           // 管理员datacenterId
     //"secret": xxx       // 暂时空接口
-}
+  }
 ```
 
-#### 数据中心列表
-请求URL: /api/v1/datacenter
-请求头: Authorization:SessionId
-请求方法: GET 
+###页面设计 
+无
 
-返回数据:
-```
-{
-    "code": 0,
-    "msg": "...",
-    "data": {
-        "datacenters": [{
-            "id": 1,
-            "name": "abc.de",
-            ....
-        }] 
-    }
-}
+###程序实现逻辑:
+
+```Sequence
+Title: 添加数据中心 
+YCE-->>MySQL: 插入新的数据中心记录
+YCE<<--MySQL: 返回插入结果
 ```
 
-列表显示内容:
-ID, 数据中心名, 地址, 端口, NodePort, 创建时间, 操作
+说明: 收到POST请求, 将用户填写的数据中心信息写入MySQL里。写入前进行检查, 如果该名字已经存在,将用新的信息覆盖,并更改status为VALID。如果该名字不存在, 则插入新记录。 
 
-数据均从data.datacenters的数组里每个元素中取, 其中: 
+###响应数据结构: 
+返回码为0, 表示可用。
+其他返回码表示出错。
 
-* ID: id
-* 数据中心名: name
-* 地址: host
-* 端口: port
-* NodePort: nodePort[0] - nodePort[1] //暂定
-* 创建时间: createdAt
-* 操作: 更新、删除
-
-
-#### 删除数据中心
-请求URL: /api/v1/datacenter/delete
-请求方法: POST
-请求头: Authorization:SessionId
-携带数据:
-```
-{
-    "op": 1,
-    "orgId": "3",
-    "name": "xxx"
-}
-```
-
-#### 更新数据中心
-请求URL: /api/v1/datacenter/update
-请求方法: POST
-请求头: Authorization:SessionId
-
-携带数据:
-```
-{
-    "op": 1,              // 管理员userId
-    "name": "xxx",
-    "orgId": "3",         // 管理员所属orgId
-    "nodePort": [
-        30000,
-        32767
-    ] 
-    "host": "xxx",
-    "port": 8080,
-    "secret": "xxx"       // 暂时为空
-}
-```
+### 备注
+考虑是否应该在创建数据中心的同时, 顺便占用
