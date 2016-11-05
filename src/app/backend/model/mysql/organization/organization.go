@@ -20,7 +20,7 @@ const (
 
 	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM organization WHERE name=?"
+		"FROM organization WHERE name=? and status=1"
 
 	ORG_INSERT = "INSERT INTO organization(name, cpuQuota, memQuota, budget, " +
 		"balance, status, dcIdList, createdAt, modifiedAt, modifiedOp, comment) " +
@@ -142,22 +142,22 @@ func (o *Organization) QueryOrganizationByName(name string) error {
 	// Prepare select-statement
 	stmt, err := db.Prepare(ORG_SELECT_NAME)
 	if err != nil {
-		log.Errorf("QueryOrganizationById Error: err=%s", err)
+		log.Errorf("QueryOrganizationByName Error: err=%s", err)
 		return err
 	}
 	defer stmt.Close()
 
 	var comment []byte
-	// Query organization by id
+	// Query organization by name
 	err = stmt.QueryRow(name).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
 	if err != nil {
-		log.Errorf("QureyOrganizationById Error: err=%s", err)
+		log.Errorf("QureyOrganizationByName Error: err=%s", err)
 		return err
 	}
 
 	o.Comment = string(comment)
 
-	log.Infof("QueryOrganizationById: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+	log.Infof("QueryOrganizationByName: id=%d, name=%s, cpuQuota=%d, memQuota=%d, budget=%s, balance=%s, status=%d, dcIdList=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		o.Id, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp)
 	return nil
 }
