@@ -7,7 +7,7 @@ YCE部署指南
 
 Author: [maxwell92](github.com/maxwell92)
 
-Last Revised: 2016-10-27
+Last Revised: 2016-11-05
 
 Content
 --------------
@@ -39,6 +39,9 @@ Content
 * go的版本为go 1.6.2 linux/amd64
 * Docker的版本为docker 1.11.1
 * Kubernetes的版本为1.2.0
+* MySQL
+
+注: 用于导入初始数据的MySQL
 
 ##### 获取部署脚本 
 从prod3(10.149)上拷贝包~/archive/yce/deploy.tar.gz到Kubernetes的master节点上, 并解压得到目录deploy/
