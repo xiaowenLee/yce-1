@@ -7,7 +7,7 @@ YCE部署指南
 
 Author: [maxwell92](github.com/maxwell92)
 
-Last Revised: 2016-11-05
+Last Revised: 2016-11-06
 
 Content
 --------------
@@ -78,6 +78,8 @@ datacenter表: 这个表所指示的为数据中心列表, 检查待部署的Kub
 organization表: 这个表所指示的是组织信息, 其中包含了该组织对应的数据中心的列表, 初始化为yce
 user表: 这个表所指示的是用户表, 初始化为仅有admin 
 nodeport表: 这个表所指示的是nodePort使用, 初始化为32080, 供yce使用
+
+管理员首次登录后要确认数据中心表信息是否正确, 这样nodePort才会被创建到nodePort表里, 提供更改名字功能。
 
 
 #### 首次部署步骤 
