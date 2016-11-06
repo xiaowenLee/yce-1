@@ -5,11 +5,11 @@
 NodePort重名检测
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-26
+最后修订: 2016-10-26
 
-Content
+目录
 --------------
 ###目的
 根据用户输入的nodePort以及选择的数据中心, 判断该nodePort是否重名, 即是否已经有应用占用了此端口.

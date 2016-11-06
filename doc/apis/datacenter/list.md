@@ -5,11 +5,11 @@
 数据中心列表
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-27
+最后修订: 2016-10-27
 
-Content
+目录
 --------------
 ###目的
 为管理员列出所有的可用数据中心列表。
