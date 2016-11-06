@@ -5,11 +5,11 @@
 YCE部署指南
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-11-06
+最后修订: 2016-11-06
 
-Content
+目录
 --------------
 ###目的
 文档主要包含了首次部署YCE的操作流程、YCE的更新操作流程以及相关说明。
@@ -39,7 +39,7 @@ Content
 * go的版本为go 1.6.2 linux/amd64
 * Docker的版本为docker 1.11.1
 * Kubernetes的版本为1.2.0
-* MySQL
+* 提供导入初始数据功能的MySQL
 
 注: 用于导入初始数据的MySQL
 
