@@ -1,5 +1,88 @@
-dashboard显示信息:
+<img src="http://kubernetes.io/kubernetes/img/warning.png" alt="WARNING" width="25" height="25"> 
 
+####修改请谨慎
+
+Dashboard显示信息
+==============
+
+作者: [maxwell92](https://github.com/maxwell92)
+
+最后修订: 2016-11-06
+
+目录
+--------------
+###目的
+在Dashboard上显示资源使用情况、应用情况以及最近操作情况的统计。反应大概情况。暂不支持详情查看。
+
+目前将dashboard划分为三块, 基本内容包括:
+
+* 资源总额/已用统计, 双环饼图。不同的数据中心不同的饼。可以看该组织的配额比例(Overall), 剩下的显示按数据中心使用的。注: 暂时不考虑云盘
+* 应用(Deployment)拓扑统计, rs->pods示例, 在卡片上的生成树, 不同的数据中心不同的条带, 每条里多个卡片。单行不够显示换行。
+* 操作统计, 柱状图。默认按数据中心显示最近7天内各种操作统计.
+
+###请求
+用户登录后默认进入Dashboard, 此时向后台发送请求并显示相关图表,需要一个默认刷新时间, 30s?
+
+见详细设计文档
+
+
+
+###页面设计 
+见详细设计文档
+
+
+###程序实现逻辑:
+见详细设计文档
+
+
+
+###响应数据结构: 
+见详细设计文档
+
+
+### 备注
+上面设计的是基本内容API及数据结构等,下面是一些设想中的高级内容API及数据结构设计:
+
+高级内容包括:
+* 应用拓扑统计: 高级选项可以由用户定义Pinned卡片。
+* 操作统计: 可以选择看该数据中心下具体的deployment相关操作。还可以按时间轴进行放缩。
+
+#### 高级内容API及数据结构设计
+
+##### 应用统计
+高级功能:
+
+该数据中心下该用户Pinned的5个项目
+请求URL: GET /api/v1/organizations/{:orgId}/datacenters/{:dcId}/pinned
+请求头: Authorization: SessionId
+
+##### 操作统计
+选择看该数据中心下具体的deployment相关操作。
+该组织下某项目(deployment)的操作统计:
+请求URL: POST /api/v1/organizations/{:orgId}/operationstat
+请求头: Authorization: SessionId
+携带数据:
+```
+{
+   "period": 7,      //为空表示默认7天
+   "dcIdList": [1],
+   "deploymentName": "test1-abc"
+}
+```
+
+还可以按时间轴进行放缩。
+请求URL: POST /api/v1/organizations/{:orgId}/operationstat
+请求头: Authorization: SessionId
+携带数据:
+```
+{
+   "period": 1,      
+   "dcIdList": [1],
+   "deploymentName":  //为空表示全部应用
+}
+```
+
+### 以下为旧版本, 无效///////////////////////////////////////////////////
 --------
 
 ### 获取dashboard统计信息
