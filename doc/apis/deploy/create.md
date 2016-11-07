@@ -1,3 +1,162 @@
+<img src="http://kubernetes.io/kubernetes/img/warning.png" alt="WARNING" width="25" height="25"> 
+
+####修改请谨慎
+
+发布应用
+==============
+
+作者: [maxwell92](https://github.com/maxwell92)
+
+最后修订: 2016-11-07
+
+目录
+--------------
+###目的
+由用户填写应用相关信息,按照deployment形式进行发布
+
+###请求
+
+* 请求方法: POST 
+* 请求URL: /api/v1/organization/{orgId}/users/{userId}/deployments/new
+* 请求头: Authorization:$SessionId, 从LocalStorage读 
+* 请求参数: 
+  JSON
+```json
+  {
+    "dataCenters": [
+        {
+            "dcId": 1
+        },
+        {
+            "dcId": 3
+        },
+        {
+            "dcId": 5
+        }
+    ]
+    "deployment": {
+        "spec": {
+        "template": {
+          "spec": {
+            "containers": [
+              {
+                "lifecycle": {
+                  "preStop": {  //  启动准备输入框
+                    "exec": {
+                      "command": [
+                        "echopreStop"
+                      ]
+                    }
+                  },
+                  "postStart": { // 优雅的停止输入框
+                    "exec": {
+                      "command": [
+                        "echopostStart"
+                      ]
+                    }
+                  }
+                },
+                "readinessProbe": {  // 可读性检查
+                  "failureThreshold": 0,
+                  "successThreshold": 0,
+                  "periodSeconds": 2,  // 每隔多长时间探测
+                  "timeoutSeconds": 0,
+                  "initialDelaySeconds": 3, // 启动等待时间
+                  "httpGet": {
+                    "httpHeaders": null,
+                    "scheme": "",
+                    "host": "",
+                    "port": 11001,  // 端口
+                    "path": "http://api/v1/readiness" // 路径
+                  }
+                },
+                "name": "nginx-test", // 名称,跟应用名称一样
+                "image": "nginx:1.7.9",  // 镜像名称
+                "command": [  // 启动命令输入框的
+                  "echo"
+                ],
+                "args": [ // 参数输入框的
+                  "abc"
+                ],
+                "ports": null,  // 端口
+                "env": [  // 环境变量列表
+                  {
+                    "value": "good",
+                    "name": "magic"
+                  },
+                  {
+                    "value": "mushroom",
+                    "name": "sheep"
+                  }
+                ],
+                "resources": {
+                  "requests": null
+                },
+                "livenessProbe": {  // 健康检查
+                  "failureThreshold": 0,
+                  "successThreshold": 0,
+                  "periodSeconds": 2, // 每隔多长时间
+                  "timeoutSeconds": 0,
+                  "initialDelaySeconds": 3,  // 启动等待时间
+                  "httpGet": {
+                    "httpHeaders": null,
+                    "scheme": "",
+                    "host": "",
+                    "port": 11000,  // 端口输入框
+                    "path": "http://api/v1/healthz" // 请求路径的输入框
+                  }
+                }
+              }
+            ]
+          },
+          "metadata": { // 这部分看跟下面的metadata同样,见下面metadata
+            "labels": {
+              "maintainer": "liyao",
+              "appname": "nginx-test"
+            },
+            "name": "nginx-test"
+          }
+        },
+        "replicas": 3 // 副本个数
+        },
+        "metadata": {
+          "labels": { // 标签,支持多个
+            "maintainer": "liyao",
+            "appname": "nginx-test"
+          },
+          "namespace": "default", // 组织名称
+          "name": "nginx-test"  // 应用名称那个输入框
+        },
+        "kind": "Deployment", // 这是写死的
+        "apiVersion": "extensions/v1beta1" // 这个默认写死的
+    }
+  }
+```
+
+###页面设计 
+无
+
+###程序实现逻辑:
+
+```Sequence
+Title: 发布应用
+YCE-->>K8s: 发布Deployment
+YCE--<<K8s: 返回发布结果
+YCE-->>MySQL: 插入发布记录
+YCE<<--MySQL: 返回插入结果
+```
+
+###响应数据结构: 
+返回码为0, 表示操作成功。
+其他返回码表示出错。
+
+### 备注
+应该将创建Deployment和数据库插入做成事务,保持一致。
+
+
+
+
+### 以下为旧版本, 无效///////////////////////////////////////////////////
 应用发布
 ============
 
