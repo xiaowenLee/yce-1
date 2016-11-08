@@ -4,12 +4,11 @@
 
 数据中心创建初始化
 ==============
+作者: [maxwell92](https://github.com/maxwell92)
 
-Author: [maxwell92](github.com/maxwell92)
+最后修订: 2016-10-27
 
-Last Revised: 2016-10-27
-
-Content
+目录
 --------------
 ###目的
 

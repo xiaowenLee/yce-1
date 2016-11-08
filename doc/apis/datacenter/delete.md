@@ -5,11 +5,11 @@
 删除数据中心
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-27
+最后修订: 2016-10-27
 
-Content
+目录
 --------------
 ###目的
 由管理员删除该数据中心信息, 即将其变为不可用。

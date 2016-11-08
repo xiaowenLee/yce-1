@@ -5,11 +5,11 @@
 NodePort占用列表
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-26
+最后修订: 2016-10-26
 
-Content
+目录
 --------------
 ###目的
 为管理员列出所有被占用的NodePort. 被占用的含义是该nodePort在数据库表中的记录存在且status为INVALID.

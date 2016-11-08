@@ -5,11 +5,11 @@
 数据中心重名检测
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-27
+最后修订: 2016-10-27
 
-Content
+目录
 --------------
 ###目的
 根据用户输入的数据中心名称, 判断该数据中心名称是否重名, 即是否已经有数据中心占用了此名称.

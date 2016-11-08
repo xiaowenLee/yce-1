@@ -2,7 +2,7 @@
 
 ####修改请谨慎
 
-应用回滚
+镜像搜索辅助
 ==============
 
 作者: [maxwell92](https://github.com/maxwell92)
@@ -12,23 +12,29 @@
 目录
 --------------
 ###目的
-对该应用进行回滚
+给用户提供创建应用时的镜像列表, 用户可以按照关键字进行搜索
 
 ###请求
 
-* 请求方法: POST 
-* 请求URL: /api/v1/organizations/:orgId/deployments/:deploymentName/rollback 
+* 请求方法: GET 
+* 请求URL: /api/v1/images
 * 请求头: Authorization:$SessionId, 从LocalStorage读 
 * 请求参数: 
   JSON
 ```json
-{
-    "appName": "xxx",
-	"dcIdList": [1],
-	"userId": "xxx",
-	"image": "xxx",
-	"revision": "xxx",
-	"comments": "xxx"
+ {
+    "code": 0,
+    "message": "....",
+    "data": [
+        {
+            "imageName": "",
+            "imageTag": "",
+            // 其他一些可有可无的信息,第一版不需考虑...
+        },
+        {
+            //...
+        }
+    ]
 }
 ```
 
@@ -39,10 +45,8 @@
 
 ```Sequence
 Title: 发布应用
-YCE-->>K8s: 发出回滚请求 
-YCE<<--K8s: 返回回滚结果
-YCE-->>MySQL: 插入操作记录
-YCE<<--MySQL: 返回插入结果
+YCE-->>Registry: 请求获取镜像列表
+YCE<<--Registry: 返回请求结果
 ```
 
 ###响应数据结构: 

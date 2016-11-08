@@ -5,11 +5,11 @@
 YCE部署指南
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-27
+最后修订: 2016-11-06
 
-Content
+目录
 --------------
 ###目的
 文档主要包含了首次部署YCE的操作流程、YCE的更新操作流程以及相关说明。
@@ -39,6 +39,9 @@ Content
 * go的版本为go 1.6.2 linux/amd64
 * Docker的版本为docker 1.11.1
 * Kubernetes的版本为1.2.0
+* 提供导入初始数据功能的MySQL
+
+注: 用于导入初始数据的MySQL
 
 ##### 获取部署脚本 
 从prod3(10.149)上拷贝包~/archive/yce/deploy.tar.gz到Kubernetes的master节点上, 并解压得到目录deploy/
@@ -75,6 +78,8 @@ datacenter表: 这个表所指示的为数据中心列表, 检查待部署的Kub
 organization表: 这个表所指示的是组织信息, 其中包含了该组织对应的数据中心的列表, 初始化为yce
 user表: 这个表所指示的是用户表, 初始化为仅有admin 
 nodeport表: 这个表所指示的是nodePort使用, 初始化为32080, 供yce使用
+
+管理员首次登录后要确认数据中心表信息是否正确, 这样nodePort才会被创建到nodePort表里, 提供更改名字功能。
 
 
 #### 首次部署步骤 

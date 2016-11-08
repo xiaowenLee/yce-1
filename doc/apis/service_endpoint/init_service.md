@@ -5,11 +5,11 @@
 服务创建初始化
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-27
+最后修订: 2016-10-27
 
-Content
+目录
 --------------
 ###目的
 为创建服务做准备, 返回数据中心列表以及推荐的nodePort等

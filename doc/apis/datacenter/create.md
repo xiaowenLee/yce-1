@@ -5,11 +5,11 @@
 添加数据中心
 ==============
 
-Author: [maxwell92](github.com/maxwell92)
+作者: [maxwell92](https://github.com/maxwell92)
 
-Last Revised: 2016-10-27
+最后修订: 2016-10-27
 
-Content
+目录
 --------------
 ###目的
 由管理员添加新的数据中心, 注意这个数据中心必须是已经部署了Kubernetes的集群 

@@ -1,3 +1,81 @@
+<img src="http://kubernetes.io/kubernetes/img/warning.png" alt="WARNING" width="25" height="25"> 
+
+####修改请谨慎
+
+创建服务
+==============
+
+作者: [maxwell92](https://github.com/maxwell92)
+
+最后修订: 2016-11-07
+
+目录
+--------------
+###目的
+由用户创建服务
+
+###请求
+
+* 请求方法: POST 
+* 请求URL: /api/v1/organizations/{orgId}/users/{userId}/services/new
+* 请求头: Authorization:$SessionId, 从LocalStorage读  
+* 请求参数: 
+JSON
+```json
+    {
+      "serviceName": "test-service-withselector",
+      "orgName": "ops",
+      "dcIdList": [1],
+      "service": {
+                     "kind": "Service",
+                     "apiVersion": "v1",
+                     "metadata": {
+                         "name": "1-test-nginx-service",
+                         "labels": {
+                             "name": "1-test-nginx-service",
+                             "type": "service"
+                         }
+                     },
+                     "spec": {
+                         "type": "NodePort",
+                         "selector": {
+                             "name": "test-nginx-test"
+                         },
+                         "ports": [
+                             {
+                                 "protocol": "TCP",
+                                 "port": 30091,
+                                 "targetPort": 80,
+                                 "nodePort": 32289
+                             }
+                         ]
+                     }
+                 }
+    }
+```
+
+
+###页面设计 
+无
+
+
+###程序实现逻辑
+```Title: 创建组织
+YCE-->>k8s: 每个k8s集群创建service
+YCE<<--K8s: 返回创建结果
+```
+
+###响应数据结构: 
+返回码为0, 表示可用。
+其他返回码表示出错。
+
+
+
+### 备注
+
+
+### 以下为旧版本, 无效///////////////////////////////////////////////////
+
 ### 服务发布准备
 
 用户点击服务发布(左侧菜单)时请求后台数据:
