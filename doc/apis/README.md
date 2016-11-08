@@ -1,3 +1,71 @@
+<img src="http://kubernetes.io/kubernetes/img/warning.png" alt="WARNING" width="25" height="25"> 
+
+####修改请谨慎
+
+容器云对外API定义(第一版)
+==============
+
+作者: [maxwell92](https://github.com/maxwell92)
+
+最后修订: 2016-11-08
+
+目录
+--------------
+### [控制台Dashboard](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/dashboard.md)
+
+* [资源统计](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/resources.md)
+* [应用统计](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/deployments.md)
+* [操作统计](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/operations.md)
+
+### [数据中心Datacenter](https://github.com/maxwell92/yce/tree/master/doc/apis/datacenter)
+
+* [检查重名](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/check.md) 
+* [添加组织](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/create.md)
+* [初始化创建](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/init.md)
+* [更新组织](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/update.md)
+* [删除组织](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/delete.md)
+* [管理组织列表](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/list.md)
+
+### [应用Deployment](https://github.com/maxwell92/yce/tree/master/doc/apis/deploy)
+
+* [检查重名]()
+
+### 绿色通道
+
+### 错误Error
+
+### 镜像image
+
+### 日志log
+
+### 登录login
+
+### 注销logout
+
+### 导航栏navList
+
+### 开放端口nodePort
+
+### 个人中心personal
+
+### 镜像仓库registry
+
+### 服务及访问点service_endpoint
+
+### 拓扑topoloty
+
+### 用户user
+
+
+
+
+
+
+
+
+
+
+
 容器云对外API定义(第一版)
 ==========================================================
 
