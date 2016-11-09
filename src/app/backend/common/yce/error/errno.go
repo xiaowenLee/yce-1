@@ -331,7 +331,7 @@ var Errors = map[int32]*Error{
 		ErrMsg: "私有镜像仓库为空",
 	},
 	EREGISTRY_GET: &Error{
-		LogMsg: "Can't Get value from redis",
+		LogMsg: "Can't Get value from Docker Registry",
 		ErrMsg: "不能检索镜像仓库",
 	},
 

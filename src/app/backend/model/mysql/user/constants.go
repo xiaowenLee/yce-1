@@ -193,7 +193,8 @@ const (
             "name": "Dashboard",
             "state": "main.dashboard",
             "includeState": "main.dashboard",
-            "className": "fa-dashboard"
+            "className": "fa-dashboard",
+            "href": "dashBoard"
         },
         {
             "id": 2,
@@ -201,18 +202,21 @@ const (
             "state": "main.appManage",
             "includeState": "main.appManage",
             "className": "fa-adn",
+            "href": "appManage",
             "item": [
                 {
                     "id": 21,
                     "name": "应用发布",
                     "state": "main.appManageDeployment",
-                    "includeState": "main.appManageDeployment"
+                    "includeState": "main.appManageDeployment",
+                    "href": "appManageDeployment"
                 },
                 {
                     "id": 22,
                     "name": "历史操作",
                     "state": "main.appManageHistory",
-                    "includeState": "main.appManageHistory"
+                    "includeState": "main.appManageHistory",
+                    "href": "appManageHistory"
                 }
             ]
         },
@@ -222,18 +226,21 @@ const (
             "state": "main.extensions",
             "includeState": "main.extensions",
             "className": "fa-arrows",
+            "href": "extensions",
             "item": [
                 {
                     "id": 31,
                     "name": "创建服务",
                     "state": "main.extensionsService",
-                    "includeState": "main.extensionsService"
+                    "includeState": "main.extensionsService",
+                    "href": "extensionsService"
                 },
                 {
                     "id": 32,
                     "name": "创建访问点",
                     "state": "main.extensionsEndpoint",
-                    "includeState": "main.extensionsEndpoint"
+                    "includeState": "main.extensionsEndpoint",
+                    "href": "extensionsEndpoint"
                 }
             ]
         },
@@ -243,12 +250,14 @@ const (
             "state": "main.imageManage",
             "includeState": "main.imageManage",
             "className": "fa-file-archive-o",
+            "href": "imageManage",
             "item": [
                 {
                     "id": 41,
                     "name": "基础镜像",
                     "state": "main.imageManageBase",
-                    "includeState": "main.imageManageBase"
+                    "includeState": "main.imageManageBase",
+                    "href": "imageBase"
                 }
             ]
         },
@@ -257,7 +266,8 @@ const (
             "name": "集群拓扑",
             "state": "main.topology",
             "includeState": "main.topology",
-            "className": "fa-share-alt"
+            "className": "fa-share-alt",
+            "href": "topology"
         },
         {
             "id": 6,
@@ -265,30 +275,35 @@ const (
             "state": "main.personalCenter",
             "includeState": "main.personalCenter",
             "className": "fa-adn",
+            "href": "personalCenter",
             "item": [
                 {
                     "id": 61,
                     "name": "个人设置",
                     "state": "main.personalSetting",
-                    "includeState": "main.personalSetting"
+                    "includeState": "main.personalSetting",
+                    "href": "personalSetting"
                 },
                 {
                     "id": 62,
                     "name": "修改密码",
                     "state": "main.personalPassword",
-                    "includeState": "main.personalPassword"
+                    "includeState": "main.personalPassword",
+                    "href": "personalPassword"
                 },
                 {
                     "id": 63,
                     "name": "事件提醒",
                     "state": "main.eventAlert",
-                    "includeState": "main.eventAlert"
+                    "includeState": "main.eventAlert",
+                    "href": "eventAlert"
                 },
                 {
                     "id": 64,
                     "name": "计费&充值",
                     "state": "main.recharge",
-                    "includeState": "main.recharge"
+                    "includeState": "main.recharge",
+		    "href": "recharge"
                 }
             ]
         },
@@ -297,7 +312,8 @@ const (
             "name": "绿色通道",
             "state": "main.walkthrogh",
             "includeState": "main.costManage",
-            "className": "fa-adn"
+            "className": "fa-adn",
+            "href": "walkthrogh"
         }
     ]
 }

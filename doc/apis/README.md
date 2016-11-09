@@ -1,3 +1,121 @@
+<img src="http://kubernetes.io/kubernetes/img/warning.png" alt="WARNING" width="25" height="25"> 
+
+####修改请谨慎
+
+容器云对外API定义(第一版)
+==============
+
+作者: [maxwell92](https://github.com/maxwell92)
+
+最后修订: 2016-11-08
+
+目录
+--------------
+### [控制台Dashboard](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/dashboard.md)
+
+* [资源统计](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/resources.md)
+* [应用统计](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/deployments.md)
+* [操作统计](https://github.com/maxwell92/yce/blob/master/doc/apis/dashboard/operations.md)
+
+### [数据中心Datacenter](https://github.com/maxwell92/yce/tree/master/doc/apis/datacenter)
+
+* [检查重名](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/check.md) 
+* [添加组织](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/create.md)
+* [初始化创建](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/init.md)
+* [更新组织](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/update.md)
+* [删除组织](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/delete.md)
+* [管理组织列表](https://github.com/maxwell92/yce/blob/master/doc/apis/datacenter/list.md)
+
+### [应用Deployment](https://github.com/maxwell92/yce/tree/master/doc/apis/deploy)
+
+* [检查重名](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/check.md)
+* [发布应用](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/create.md)
+* [删除应用](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/delete.md)
+* [应用详情](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/describe.md)
+* [发布历史](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/history.md)
+* [镜像搜索辅助](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/image.md)
+* [初始化创建](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/init.md)
+* [应用日志](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/log.md)
+* [应用回滚](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/rollback.md)
+* [滚动升级](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/rollingupdate.md)
+* [扩容](https://github.com/maxwell92/yce/blob/master/doc/apis/deploy/scale.md)
+
+### [绿色通道](https://github.com/maxwell92/yce/tree/master/doc/apis/EasyAccess)
+
+* [绿色通道](https://github.com/maxwell92/yce/blob/master/doc/apis/EasyAccess/easyaccess.md)
+
+### [错误Error](https://github.com/maxwell92/yce/tree/master/doc/apis/error)
+
+* [错误码](https://github.com/maxwell92/yce/blob/master/doc/apis/error/error.md)
+
+### [镜像image](https://github.com/maxwell92/yce/tree/master/doc/apis/image)
+
+* [镜像](https://github.com/maxwell92/yce/blob/master/doc/apis/image/list.md)
+
+### [日志log](https://github.com/maxwell92/yce/tree/master/doc/apis/log)
+
+* [日志处理](https://github.com/maxwell92/yce/blob/master/doc/apis/log/log.md)
+
+### [登录login](https://github.com/maxwell92/yce/tree/master/doc/apis/login)
+
+* [登录](https://github.com/maxwell92/yce/blob/master/doc/apis/login/README.md)
+
+### [注销logout](https://github.com/maxwell92/yce/tree/master/doc/apis/logout)
+
+* [注销](https://github.com/maxwell92/yce/blob/master/doc/apis/logout/README.md)
+
+### [组织namespace](https://github.com/maxwell92/yce/tree/master/doc/apis/namespace)
+
+* [检查重名](https://github.com/maxwell92/yce/blob/master/doc/apis/namespace/check.md)
+* [创建组织](https://github.com/maxwell92/yce/blob/master/doc/apis/namespace/create.md)
+* [删除组织](https://github.com/maxwell92/yce/blob/master/doc/apis/namespace/delete.md)
+* [创建初始化](https://github.com/maxwell92/yce/blob/master/doc/apis/namespace/init.md)
+* [组织列表](https://github.com/maxwell92/yce/blob/master/doc/apis/namespace/list.md)
+* [更新组织](https://github.com/maxwell92/yce/blob/master/doc/apis/namespace/update.md)
+
+### [导航栏navList](https://github.com/maxwell92/yce/tree/master/doc/apis/navList)
+
+* [导航栏](https://github.com/maxwell92/yce/blob/master/doc/apis/navList/README.md)
+
+### [开放端口nodePort](https://github.com/maxwell92/yce/tree/master/doc/apis/NodePort)
+
+* [检查重复](https://github.com/maxwell92/yce/blob/master/doc/apis/NodePort/check.md)
+* [添加端口](https://github.com/maxwell92/yce/blob/master/doc/apis/NodePort/create.md)
+* [端口列表](https://github.com/maxwell92/yce/blob/master/doc/apis/NodePort/list.md)
+
+### [个人中心personal](https://github.com/maxwell92/yce/tree/master/doc/apis/personal)
+
+### [镜像仓库registry](https://github.com/maxwell92/yce/tree/master/doc/apis/registry)
+
+* [镜像仓库](https://github.com/maxwell92/yce/blob/master/doc/apis/registry/README.md)
+
+### [服务及访问点service_endpoint](https://github.com/maxwell92/yce/tree/master/doc/apis/service_endpoint)
+
+* [检查重名](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/check_service%26endpoint.md)
+* [创建访问点](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/create_endpoint.md)
+* [创建服务](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/create_service.md)
+* [删除服务](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/delete_service.md)
+* [删除访问点](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/delete_endpoints.md)
+* [服务列表](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/extensions.md)
+* [初始化访问点创建](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/init_endpoint.md)
+* [初始化服务创建](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/init_service.md)
+
+### [拓扑topoloty](https://github.com/maxwell92/yce/tree/master/doc/apis/topology)
+
+* [应用拓扑](https://github.com/maxwell92/yce/blob/master/doc/apis/topology/README.md)
+
+### [用户user](https://github.com/maxwell92/yce/tree/master/doc/apis/user)
+
+* [创建用户](https://github.com/maxwell92/yce/blob/master/doc/apis/user/create.md)
+* [检查重名](https://github.com/maxwell92/yce/blob/master/doc/apis/user/check.md)
+* [删除用户](https://github.com/maxwell92/yce/blob/master/doc/apis/user/delete.md)
+* [初始化创建](https://github.com/maxwell92/yce/blob/master/doc/apis/user/init.md)
+* [用户列表](https://github.com/maxwell92/yce/blob/master/doc/apis/user/list.md)
+* [更新用户](https://github.com/maxwell92/yce/blob/master/doc/apis/user/update.md)
+
+
+### 以下为旧版本, 无效///////////////////////////////////////////////////
+
 容器云对外API定义(第一版)
 ==========================================================
 
