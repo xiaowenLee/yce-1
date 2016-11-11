@@ -79,6 +79,7 @@ type Router struct {
 	CheckNodePort    *mynodeport.CheckNodePortController
 	CheckTemplate    *mytemplate.CheckTemplateController
 	CreateTemplate   *mytemplate.CreateTemplateController
+	UpdateTemplate   *mytemplate.UpdateTemplateController
 }
 
 
@@ -138,6 +139,7 @@ func NewRouter() *Router {
 	r.CheckNodePort = new(mynodeport.CheckNodePortController)
 	r.CheckTemplate = new(mytemplate.CheckTemplateController)
 	r.CreateTemplate = new(mytemplate.CreateTemplateController)
+	r.UpdateTemplate = new(mytemplate.UpdateTemplateController)
 
 	return r
 }
@@ -199,6 +201,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/nodeports/check", *r.CheckNodePort)
 	iris.API("/api/v1/organization/:orgId/users/:userId/templates/check", *r.CheckTemplate)
 	iris.API("/api/v1/organization/:orgId/users/:userId/templates/new", *r.CreateTemplate)
+	iris.API("/api/v1/organization/:orgId/users/:userId/templates/update", *r.UpdateTemplate)
 
 
 	iris.StaticServe("../frontend", "/static")
