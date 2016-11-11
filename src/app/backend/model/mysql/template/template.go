@@ -64,7 +64,7 @@ func QueryAllTemplatesByOrgId(orgId int32) ([]Template, error) {
 
 		err = rows.Scan(&t.Id, &t.Name, &t.OrgId, &deployment, &service, &endpoints, &t.Status, &t.CreatedAt, &t.ModifiedAt, &t.ModifiedOp, &comment)
 		if err != nil {
-			log.Errorf("QueryAllTemplateByOrgId Error: err=%s", errr)
+			log.Errorf("QueryAllTemplateByOrgId Error: err=%s", err)
 			return nil, nil
 		}
 
@@ -89,15 +89,15 @@ func (t *Template) QueryTemplateByTemplateNameAndOrgId(name string, orgId int32)
 	stmt, err := db.Prepare(QUERY_DUPLICATED_NAME)
 	if err != nil {
 		log.Fatalf("QueryTemplateByTemplateNameAndOrgId Error: err=%s", err)
-		return
+		return nil
 	}
 
 	err = stmt.QueryRow(name, orgId).Scan(&t.Id, &t.Name, &t.OrgId, &t.Deployment, &t.Service, &t.Endpoints, &t.Status, &t.CreatedAt, &t.ModifiedAt, &t.ModifiedOp, &t.Comment)
 	if err != nil {
 		log.Errorf("QueryTemplateByTemplateNameAndOrgId Error: err=%s", err)
-		return
+		return err
 	}
-
+	return nil
 }
 
 func (t *Template) QueryTemplateById(id int32) error {

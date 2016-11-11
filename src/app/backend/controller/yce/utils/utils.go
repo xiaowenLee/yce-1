@@ -8,6 +8,7 @@ import (
 	myqouta "app/backend/model/mysql/quota"
 	myuser "app/backend/model/mysql/user"
 	mynodeport "app/backend/model/mysql/nodeport"
+	mytemplate "app/backend/model/mysql/template"
 	"io/ioutil"
 	"k8s.io/kubernetes/pkg/api"
 	unver "k8s.io/kubernetes/pkg/api/unversioned"
@@ -981,6 +982,26 @@ func QueryDuplicatedNodePort(port, dcId int32) (*mynodeport.NodePort, *myerror.Y
 	}
 }
 
+
+
+func QueryDuplicatedTemplateName(name string, orgId int32) (*mytemplate.Template, *myerror.YceError) {
+	t := new(mytemplate.Template)
+	err := t.QueryTemplateByTemplateNameAndOrgId(name, orgId)
+	// not found
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EYCE_NOTFOUND, "")
+		return nil, ye
+	}
+
+	// found but occupied
+	if t.Status == mytemplate.VALID {
+		ye := myerror.NewYceError(myerror.EYCE_EXISTED_NAME, "")
+		return t, ye
+	} else {
+		return t, nil
+	}
+
+}
 
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {

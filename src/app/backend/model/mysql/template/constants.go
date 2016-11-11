@@ -23,3 +23,4 @@ const (
 	QUERY_DUPLICATED_NAME = "SELECT id, name, orgId, deployment, service, endpoints, status, createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM template " +
 		"WHERE name=? AND orgId=?"
+)
