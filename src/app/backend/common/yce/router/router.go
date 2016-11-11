@@ -81,6 +81,7 @@ type Router struct {
 	CreateTemplate   *mytemplate.CreateTemplateController
 	UpdateTemplate   *mytemplate.UpdateTemplateController
 	DeleteTemplate   *mytemplate.DeleteTemplateController
+	ListTemplate     *mytemplate.ListTemplateController
 }
 
 
@@ -142,6 +143,7 @@ func NewRouter() *Router {
 	r.CreateTemplate = new(mytemplate.CreateTemplateController)
 	r.UpdateTemplate = new(mytemplate.UpdateTemplateController)
 	r.DeleteTemplate = new(mytemplate.DeleteTemplateController)
+	r.ListTemplate = new(mytemplate.ListTemplateController)
 
 	return r
 }
@@ -205,6 +207,7 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/organization/:orgId/users/:userId/templates/new", *r.CreateTemplate)
 	iris.API("/api/v1/organization/:orgId/users/:userId/templates/update", *r.UpdateTemplate)
 	iris.API("/api/v1/organization/:orgId/users/:userId/templates/delete", *r.DeleteTemplate)
+	iris.API("/api/v1/organization/:orgId/users/:userId/templates", *r.ListTemplate)
 
 
 	iris.StaticServe("../frontend", "/static")
