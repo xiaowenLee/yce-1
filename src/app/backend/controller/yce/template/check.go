@@ -39,7 +39,7 @@ func (ctc *CheckTemplateController) CheckDuplicatedName(orgId int32) {
 func (ctc CheckTemplateController) Post() {
 	SessionIdFromClient := ctc.RequestHeader("Authorization")
 
-	orgId := ctc.Param("OrgId")
+	orgId := ctc.Param("orgId")
 	//userId := ctc.Param("userId")
 
 	ctc.ValidateSession(SessionIdFromClient, orgId)
