@@ -24,7 +24,7 @@ JSON
 ```json
 {
   "name": "xxx",
-  "templateId": 1,
+  "id": 1,
 }
 ```
 
