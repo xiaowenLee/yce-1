@@ -34,8 +34,8 @@ type TestClient struct {
 	Response Response
 }
 
-func (t *TestClient) Validate(expect, actual string) {
-
+func (t *TestClient) Validate(expect, actual string) bool {
+	return strings.EqualFold(expect, actual)
 }
 
 func (t *TestClient) Get() {
@@ -62,7 +62,7 @@ func (t *TestClient) Get() {
 
 	defer resp.Body.Close()
 
-	t.Response.StatusCode = http.StatusOK
+	//t.Response.StatusCode = http.StatusOK
 	t.Response.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		mylog.Log.Errorf("Get error=%s", err)
