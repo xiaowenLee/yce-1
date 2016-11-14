@@ -66,4 +66,5 @@ JSON
 |应用信息       |  data[].templates[every].deployment, 点击看到详情 | 
 |服务信息       |  data[].templates[every].service, 点击看到详情 |
 |创建时间       |  data[].templates[every].createdAt |
+|创建人员       |  data[].users[data[].templates[every].modifiedOp] |
 
