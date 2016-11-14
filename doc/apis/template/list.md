@@ -53,8 +53,8 @@ JSON
         "modifiedOp": xx,
       }],
       "users": {
-         1: "xxx",
-         2: "yyy"
+         "1": "xxx",
+         "2": "yyy"
       }
    } 
 }
