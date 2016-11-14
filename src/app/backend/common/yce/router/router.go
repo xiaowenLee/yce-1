@@ -203,11 +203,11 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/datacenter/check", *r.CheckDatacenter)
 	iris.API("/api/v1/nodeports", *r.ListNodePort)
 	iris.API("/api/v1/nodeports/check", *r.CheckNodePort)
-	iris.API("/api/v1/organization/:orgId/users/:userId/templates/check", *r.CheckTemplate)
-	iris.API("/api/v1/organization/:orgId/users/:userId/templates/new", *r.CreateTemplate)
-	iris.API("/api/v1/organization/:orgId/users/:userId/templates/update", *r.UpdateTemplate)
-	iris.API("/api/v1/organization/:orgId/users/:userId/templates/delete", *r.DeleteTemplate)
-	iris.API("/api/v1/organization/:orgId/users/:userId/templates", *r.ListTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/check", *r.CheckTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/new", *r.CreateTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/update", *r.UpdateTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/delete", *r.DeleteTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates", *r.ListTemplate)
 
 
 	iris.StaticServe("../frontend", "/static")
