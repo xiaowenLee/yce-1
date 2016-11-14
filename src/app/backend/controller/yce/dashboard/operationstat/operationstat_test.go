@@ -3,6 +3,7 @@ package operationstat
 import (
 	"testing"
 	testclient "app/backend/common/yce/testclient"
+	"fmt"
 )
 
 
@@ -21,7 +22,7 @@ func Test_Operationstat(t *testing.T) {
 		Request: *req,
 		Response: *resp,
 	}
-
+	/*
 	testClient.Get()
 
 	respString := string([]byte(testClient.Response.Body))
@@ -30,5 +31,14 @@ func Test_Operationstat(t *testing.T) {
 		t.Errorf("Operationstat test failed")
 		t.Failed()
 	}
+	*/
 
+	result := testClient.Get()
+
+	if result.GetCode() == 0 {
+		fmt.Printf("OK\nData: %s\n", result.GetData())
+	} else {
+		fmt.Printf("\nCode: %d\nMessage: %s\nData: %s\n", result.GetCode(), result.GetMessage(), result.GetData())
+		t.Fail()
+	}
 }
