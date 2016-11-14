@@ -47,9 +47,9 @@ func (ctc CheckTemplateController) Post() {
 		return
 	}
 
-	params := new(CheckTemplateParams)
+	ctc.params = new(CheckTemplateParams)
 
-	err := ctc.ReadJSON(params)
+	err := ctc.ReadJSON(ctc.params)
 	if err != nil {
 		ctc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
