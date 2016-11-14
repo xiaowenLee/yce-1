@@ -51,7 +51,11 @@ JSON
         "service": { }  ,
         "createdAt": "xxx",
         "modifiedOp": xx,
-      }]
+      }],
+      "users": {
+         1: "xxx",
+         2: "yyy"
+      }
    } 
 }
 ```
