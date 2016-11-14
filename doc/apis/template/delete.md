@@ -34,7 +34,8 @@ JSON
 
 
 ###程序实现逻辑
-```Title: 删除模板 
+```Title: 
+删除模板 
 YCE-->>MySQL: 在template表中将对应记录的status变为INVALID
 YCE<<--MySQL: 返回删除结果 
 ```

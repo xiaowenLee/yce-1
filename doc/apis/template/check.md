@@ -33,7 +33,8 @@ JSON
 
 
 ###程序实现逻辑
-```Title: 重名检查 
+```Title: 
+重名检查 
 YCE-->>MySQL: 在template表中查询该模板名未被使用
 YCE<<--MySQL: 返回查询结果 
 ```
