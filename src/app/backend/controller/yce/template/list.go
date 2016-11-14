@@ -7,6 +7,7 @@ import (
 	"strconv"
 	mytemplate "app/backend/model/mysql/template"
 	"github.com/kubernetes/kubernetes/pkg/util/json"
+	yceutils "app/backend/controller/yce/utils"
 )
 
 type ListTemplateController struct {
@@ -17,6 +18,7 @@ type ListTemplateController struct {
 
 type ListTemplateParams struct {
 	Templates []mytemplate.Template `json:"templates"`
+	Users     map[int32]string `json:"users"`
 }
 
 func (ltc *ListTemplateController) getTemplateList(orgId int32) string {
@@ -27,7 +29,12 @@ func (ltc *ListTemplateController) getTemplateList(orgId int32) string {
 	}
 	ltc.params.Templates = templates
 
-	templateJSON, err := json.Marshal(ltc.params.Templates)
+	ltc.params.Users, ltc.Ye = yceutils.GetUsersByOrgId(orgId)
+	if ltc.Ye != nil {
+		return ""
+	}
+
+	templateJSON, err := json.Marshal(ltc.params)
 	if err != nil {
 		ltc.Ye = myerror.NewYceError(myerror.EJSON, "")
 		return ""
