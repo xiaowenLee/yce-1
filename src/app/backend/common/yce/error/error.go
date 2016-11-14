@@ -52,3 +52,15 @@ func (ye *YceError) SetError(code int32, message, data string) {
 	ye.Message = message
 	ye.Data = data
 }
+
+func (ye *YceError) GetCode() int32 {
+	return ye.Code
+}
+
+func (ye *YceError) GetMessage() string {
+	return ye.Message
+}
+
+func (ye *YceError) GetData() string {
+	return ye.Data
+}
