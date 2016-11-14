@@ -1003,6 +1003,22 @@ func QueryDuplicatedTemplateName(name string, orgId int32) (*mytemplate.Template
 
 }
 
+func GetUsersByOrgId(orgId int32) (map[int32]string, *myerror.YceError) {
+	users := make(map[int32]string)
+
+	userList, err := myuser.QueryUsersByOrgId(orgId)
+	if err != nil {
+		ye := myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return nil, ye
+	}
+
+	for _, u := range userList {
+		users[u.Id] = u.Name
+	}
+
+	return users, nil
+}
+
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {
 }
