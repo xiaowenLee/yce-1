@@ -24,8 +24,8 @@ JSON
 ```json
 {
    "name": "xxx",
-   "deployment": { },
-   "service": { }
+   "deployment": { }, //创建应用时生成的json
+   "service": { } //发布服务时生成的json
 }
 ```
 
@@ -54,7 +54,6 @@ template表设计
 外键: orgId
 模板名与应用名一致,没有的时候与服务名一致
 
-id | name | orgId | status | deployment | service | endpoints | createdAt | modifiedAt | modifiedOp | comment
 
 |列:           |  数据类型：| 说明:   |  示例:       |
 |:------------:|:------- :|:-------:|:-----------:|

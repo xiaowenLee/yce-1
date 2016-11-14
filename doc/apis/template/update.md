@@ -24,8 +24,8 @@ JSON
 ```json
 {
    "name": "xxx",
-   "deployment": { },
-   "service": { }
+   "deployment": { }, //创建应用时生成的json
+   "service": { } //发布服务时生成的json
 }
 ```
 

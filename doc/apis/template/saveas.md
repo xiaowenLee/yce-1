@@ -24,8 +24,8 @@ JSON
 ```json
 {
    "name": "xxx",
-   "deployment": { },
-   "service": { }
+   "deployment": { },//创建应用时生成的json
+   "service": { } //发布服务时生成的json
 }
 ```
 
@@ -35,7 +35,8 @@ JSON
 
 
 ###程序实现逻辑
-```Title: 另存为(同创建模板) 
+```Title: 
+另存为(同创建模板) 
 YCE-->>MySQL: 在template表中插入一条数据  
 YCE<<--MySQL: 返回插入结果 
 ```

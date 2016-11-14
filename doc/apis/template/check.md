@@ -23,7 +23,7 @@
 JSON
 ```json
 {
-   "name": "xxx"
+   "name": "xxx" //templateName
 }
 ```
 
