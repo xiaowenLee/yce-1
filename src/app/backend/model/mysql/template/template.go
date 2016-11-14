@@ -47,7 +47,7 @@ func QueryAllTemplatesByOrgId(orgId int32) ([]Template, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(orgId, VALID)
 	if err != nil {
 		log.Errorf("QueryAllTemplateByOrgId Error: err=%s", err)
 		return nil, nil
@@ -75,8 +75,8 @@ func QueryAllTemplatesByOrgId(orgId int32) ([]Template, error) {
 
 		templates = append(templates, *t)
 
-		log.Infof("QueryAllTemplateByOrgId: id=%d, name=%s, orgId=%d, deployment=%s, service=%s, endpoints=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d, comment=%s",
-			t.Id, t.Name, t.OrgId, t.Deployment, t.Service, t.Endpoints, t.Status, t.CreatedAt, t.ModifiedAt, t.ModifiedOp, t.Comment)
+		//log.Infof("QueryAllTemplateByOrgId: id=%d, name=%s, orgId=%d, deployment=%s, service=%s, endpoints=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d, comment=%s",
+		//	t.Id, t.Name, t.OrgId, t.Deployment, t.Service, t.Endpoints, t.Status, t.CreatedAt, t.ModifiedAt, t.ModifiedOp, t.Comment)
 	}
 
 	log.Infof("QueryAllTemplateByOrgId: len(templates)=%d", len(templates))
@@ -110,9 +110,28 @@ func (t *Template) QueryTemplateById(id int32) error {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(id).Scan(&t.Id, &t.Name, &t.OrgId, &t.Deployment, &t.Service, &t.Endpoints, &t.Status, &t.CreatedAt, &t.ModifiedAt, &t.ModifiedOp, &t.Comment)
+	err = stmt.QueryRow(id, VALID).Scan(&t.Id, &t.Name, &t.OrgId, &t.Deployment, &t.Service, &t.Endpoints, &t.Status, &t.CreatedAt, &t.ModifiedAt, &t.ModifiedOp, &t.Comment)
 	if err != nil {
 		log.Errorf("QueryTemplateById Error: err=%s", err)
+		return err
+	}
+
+	return nil
+}
+
+func (t *Template) QueryTemplateByName(name string) error {
+	db := mysql.MysqlInstance().Conn()
+
+	stmt, err := db.Prepare(QUERY_BY_NAME)
+	if err != nil {
+		log.Fatalf("QueryTemplateByName Error: err=%s", err)
+		return nil
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(name, VALID).Scan(&t.Id, &t.Name, &t.OrgId, &t.Deployment, &t.Service, &t.Endpoints, &t.Status, &t.CreatedAt, &t.ModifiedAt, &t.ModifiedOp, &t.Comment)
+	if err != nil {
+		log.Errorf("QueryTemplateByName Error: err=%s", err)
 		return err
 	}
 
@@ -123,7 +142,8 @@ func (t *Template) InsertTemplate(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statment
-	stmt, err := db.Prepare(TEMPLATE_INSERT)
+	//stmt, err := db.Prepare(TEMPLATE_INSERT)
+	stmt, err := db.Prepare(TEMPLATE_INSERT_ON_DUPLICATE_UPDATE)
 	if err != nil {
 		log.Fatalf("InsertTemplate Error: error=%s", err)
 	}
@@ -135,10 +155,10 @@ func (t *Template) InsertTemplate(op int32) error {
 	t.ModifiedOp = op
 
 	// Insert
-	_, err = stmt.Exec(t.Name, t.OrgId, t.Deployment, t.Service, t.Endpoints, t.Status, t.CreatedAt, t.ModifiedAt, t.ModifiedOp, t.Comment)
+	_, err = stmt.Exec(t.Name, t.OrgId, t.Deployment, t.Service, t.Endpoints, t.Status, t.CreatedAt, t.ModifiedAt, t.ModifiedOp, t.Comment, VALID)
 	if err != nil {
 		log.Errorf("InsertTemplate Error: error=%s", err)
-		return nil
+		return err
 	}
 
 	return nil
@@ -162,7 +182,7 @@ func (t *Template) UpdateTemplate(op int32) error {
 	_, err = stmt.Exec(t.Name, t.Deployment, t.Service, t.Endpoints, t.Id)
 	if err != nil {
 		log.Errorf("UpdateTemplate Error: err=%s", err)
-		return nil
+		return err
 	}
 
 	return nil
@@ -183,10 +203,10 @@ func (t *Template) DeleteTemplate(op int32) error {
 	t.ModifiedOp = op
 
 	// do
-	_, err = stmt.Exec(t.Status, t.ModifiedAt, t.ModifiedOp)
+	_, err = stmt.Exec(t.Status, t.ModifiedAt, t.ModifiedOp, t.Id)
 	if err != nil {
 		log.Errorf("DeleteTemplate Error: err=%s", err)
-		return nil
+		return err
 	}
 	return nil
 }
