@@ -7,7 +7,7 @@
 
 作者: [maxwell92](https://github.com/maxwell92)
 
-最后修订: 2016-11-11
+最后修订: 2016-11-14
 
 目录
 --------------
@@ -17,14 +17,14 @@
 ###请求
 
 * 请求方法: POST 
-* 请求URL: /api/v1/organization/{orgId}/users/{userId}/templates/delete
+* 请求URL: /api/v1/organizations/{orgId}/users/{userId}/templates/delete
 * 请求头: Authorization:$SessionId, 从LocalStorage读  
 * 请求参数: 
 JSON
 ```json
 {
-  "name": "xxx",
-  "id": 1,
+  "name": "xxx", // templateName
+  "id": 1,    // templateId
 }
 ```
 
