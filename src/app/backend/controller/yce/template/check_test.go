@@ -25,10 +25,14 @@ func Test_Check(t *testing.T) {
 		Response: *resp,
 	}
 
-	testClient.Post()
+	result := testClient.Post()
 
-	respString := string([]byte(testClient.Response.Body))
+	if result.GetCode() == 0 {
+		fmt.Println("OK")
+	} else {
+		fmt.Printf("\nCode: %d\nMessage: %s\nData: %s\n", result.GetCode(), result.GetMessage(), result.GetData())
+		t.Fail()
+	}
 
-	fmt.Println(respString)
 
 }

@@ -24,10 +24,13 @@ func Test_List(t *testing.T) {
 		Response: *resp,
 	}
 
-	testClient.Get()
+	result := testClient.Get()
 
-	respString := string([]byte(testClient.Response.Body))
-
-	fmt.Println(respString)
+	if result.GetCode() == 0 {
+		fmt.Printf("OK\nData: %s\n", result.GetData())
+	} else {
+		fmt.Printf("\nCode: %d\nMessage: %s\nData: %s\n", result.GetCode(), result.GetMessage(), result.GetData())
+		t.Fail()
+	}
 
 }

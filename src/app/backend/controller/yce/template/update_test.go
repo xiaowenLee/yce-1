@@ -25,10 +25,12 @@ func Test_Update(t *testing.T) {
 		Response: *resp,
 	}
 
-	testClient.Post()
-
-	respString := string([]byte(testClient.Response.Body))
-
-	fmt.Println(respString)
+	result := testClient.Post()
+	if result.GetCode() == 0 {
+		fmt.Println("OK")
+	} else {
+		fmt.Printf("\nCode: %d\nMessage: %s\nData: %s\n", result.GetCode(), result.GetMessage(), result.GetData())
+		t.Fail()
+	}
 
 }
