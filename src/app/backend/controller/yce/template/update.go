@@ -34,7 +34,18 @@ func (utc *UpdateTemplateController) updateDbItem(OrgId, Op int32) {
 		utc.Ye = myerror.NewYceError(myerror.EJSON, "")
 	}
 
-	t := mytemplate.NewTemplate(utc.params.Name, OrgId, string(deployment), string(service), "", Op, "")
+	t := new(mytemplate.Template)
+	err = t.QueryTemplateByName(utc.params.Name)
+	if err != nil {
+		utc.Ye = myerror.NewYceError(myerror.EMYSQL_QUERY, "")
+		return
+	}
+	t.Name = utc.params.Name
+	t.OrgId = OrgId
+	t.Deployment = string(deployment)
+	t.Service = string(service)
+	t.Endpoints = ""
+
 	err = t.UpdateTemplate(Op)
 	if err != nil {
 		utc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
