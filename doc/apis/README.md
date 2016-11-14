@@ -113,6 +113,13 @@
 * [用户列表](https://github.com/maxwell92/yce/blob/master/doc/apis/user/list.md)
 * [更新用户](https://github.com/maxwell92/yce/blob/master/doc/apis/user/update.md)
 
+### [模板template](https://github.com/maxwell92/yce/tree/master/doc/apis/template)
+
+* [创建模板](https://github.com/maxwell92/yce/blob/master/doc/apis/template/create.md)
+* [检查重名](https://github.com/maxwell92/yce/blob/master/doc/apis/template/check.md)
+* [模板列表](https://github.com/maxwell92/yce/blob/master/doc/apis/template/list.md)
+* [更新模板](https://github.com/maxwell92/yce/blob/master/doc/apis/template/update.md)
+* [删除模板](https://github.com/maxwell92/yce/blob/master/doc/apis/template/delete.md)
 
 ### 以下为旧版本, 无效///////////////////////////////////////////////////
 

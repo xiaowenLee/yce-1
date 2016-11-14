@@ -77,7 +77,44 @@ func QueryAllUsers() ([]User, error) {
 
 	log.Infof("QueryAllUsers: len(users)=%d", len(users))
 	return users, nil
+}
 
+func QueryUsersByOrgId(orgId int32) ([]User, error) {
+	users := make([]User, 0)
+
+	db := mysql.MysqlInstance().Conn()
+
+	stmt, err := db.Prepare(USER_SELECT_BY_ORGID)
+	if err != nil {
+		log.Errorf("QueryUsersByOrgId Error: err=%s", err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(orgId)
+	if err != nil {
+		log.Errorf("QueryUsersByOrgId Error: err=%s", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		u := new(User)
+		var comment []byte
+		err = rows.Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp, &comment)
+		if err != nil {
+			log.Errorf("QueryUsersByOrgId Error: err=%s", err)
+			return nil, err
+		}
+		u.Comment = string(comment)
+
+		users = append(users, *u)
+		log.Infof("QueryUsersByOrgId: id=%d, name=%s, orgId=%d, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+			u.Id, u.Name, u.OrgId, u.Status, u.CreatedAt, u.ModifiedAt, u.ModifiedOp)
+	}
+	log.Infof("QueryUsersByOrgId: len(users)=%d", len(users))
+	return users, nil
 
 }
 

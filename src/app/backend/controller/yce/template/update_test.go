@@ -1,4 +1,4 @@
-package resourcestat
+package template
 
 import (
 	"testing"
@@ -7,13 +7,15 @@ import (
 )
 
 
-func Test_Resourcestat(t *testing.T) {
+func Test_Update(t *testing.T) {
 	header := make(map[string]string)
 	header["Authorization"] = testclient.SessionId
 
 	req := &testclient.Request{
 		Header: header,
-		Path: testclient.LocalServer + "/api/v1/organizations/" + testclient.OrgId + "/resourcestat",
+		Path: testclient.LocalServer + "/api/v1/organizations/" + testclient.OrgId + "/users/" + testclient.UserId +
+			"/templates/update",
+		Body: []byte(testclient.UPDATE_TEMPLATE),
 	}
 
 	resp := new(testclient.Response)
@@ -22,23 +24,13 @@ func Test_Resourcestat(t *testing.T) {
 		Request: *req,
 		Response: *resp,
 	}
-	/*
-	testClient.Get()
 
-	respString := string([]byte(testClient.Response.Body))
-
-	if !testClient.Validate(respString, testclient.ResourceStat) {
-		t.Errorf("Resourcestat test failed")
-		t.Failed()
-	}
-	*/
-
-	result := testClient.Get()
-
+	result := testClient.Post()
 	if result.GetCode() == 0 {
-		fmt.Printf("OK\nData: %s\n", result.GetData())
+		fmt.Println("OK")
 	} else {
 		fmt.Printf("\nCode: %d\nMessage: %s\nData: %s\n", result.GetCode(), result.GetMessage(), result.GetData())
 		t.Fail()
 	}
+
 }

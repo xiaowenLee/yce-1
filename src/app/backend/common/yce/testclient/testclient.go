@@ -4,10 +4,12 @@ import (
 	//myhttpclient "app/backend/common/util/http"
 	//"k8s.io/kubernetes/pkg/runtime"
 	mylog "app/backend/common/util/log"
+	myerror "app/backend/common/yce/error"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"github.com/kubernetes/kubernetes/pkg/util/json"
 )
 
 type Request struct {
@@ -27,6 +29,8 @@ type Response struct {
 	//RawBody    *string
 }
 
+
+
 type TestClient struct {
 	//myhttpclient.HttpClient
 	http.Client
@@ -38,7 +42,7 @@ func (t *TestClient) Validate(expect, actual string) bool {
 	return strings.EqualFold(expect, actual)
 }
 
-func (t *TestClient) Get() {
+func (t *TestClient) Get() *myerror.YceError {
 
 	t.Request.r = strings.NewReader(string(t.Request.Body))
 
@@ -47,7 +51,7 @@ func (t *TestClient) Get() {
 	req, err := http.NewRequest("GET", t.Request.Path, t.Request.r)
 	if err != nil {
 		mylog.Log.Errorf("Get error=%s", err)
-		return
+		return nil
 	}
 
 	for k, v := range t.Request.Header {
@@ -57,7 +61,7 @@ func (t *TestClient) Get() {
 	resp, err := t.Do(req)
 	if err != nil {
 		mylog.Log.Errorf("Get error=%s", err)
-		return
+		return nil
 	}
 
 	defer resp.Body.Close()
@@ -66,17 +70,26 @@ func (t *TestClient) Get() {
 	t.Response.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		mylog.Log.Errorf("Get error=%s", err)
-		return
+		return nil
 	}
+
+	ye := new(myerror.YceError)
+	err = json.Unmarshal(t.Response.Body, ye)
+	if err != nil {
+		mylog.Log.Errorf("Get error=%s", err)
+		return nil
+	}
+
+	return ye
 
 }
 
-func (t *TestClient) Post() {
+func (t *TestClient) Post() *myerror.YceError {
 	t.Request.r = strings.NewReader(string(t.Request.Body))
 	req, err := http.NewRequest("POST", t.Request.Path, t.Request.r)
 	if err != nil {
 		mylog.Log.Errorf("Post error=%s", err)
-		return
+		return nil
 	}
 
 	for k, v := range t.Request.Header {
@@ -86,7 +99,7 @@ func (t *TestClient) Post() {
 	resp, err := t.Do(req)
 	if err != nil {
 		mylog.Log.Errorf("Post error=%s", err)
-		return
+		return nil
 	}
 
 	defer resp.Body.Close()
@@ -94,17 +107,25 @@ func (t *TestClient) Post() {
 	t.Response.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		mylog.Log.Errorf("Post error=%s", err)
-		return
+		return nil
 	}
 
+	ye := new(myerror.YceError)
+	err = json.Unmarshal(t.Response.Body, ye)
+	if err != nil {
+		mylog.Log.Errorf("Get error=%s", err)
+		return nil
+	}
+
+	return ye
 }
 
-func (t *TestClient) Delete() {
+func (t *TestClient) Delete() *myerror.YceError {
 	t.Request.r = strings.NewReader(string(t.Request.Body))
 	req, err := http.NewRequest("DELETE", t.Request.Path, t.Request.r)
 	if err != nil {
 		mylog.Log.Errorf("Delete error=%s", err)
-		return
+		return nil
 	}
 
 	for k, v := range t.Request.Header {
@@ -114,17 +135,27 @@ func (t *TestClient) Delete() {
 	resp, err := t.Do(req)
 	if err != nil {
 		mylog.Log.Errorf("Delete error=%s", err)
-		return
+		return nil
 	}
 	defer resp.Body.Close()
 
 	t.Response.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		mylog.Log.Errorf("Delete error=%s", err)
-		return
+		return nil
 	}
 
+	ye := new(myerror.YceError)
+	err = json.Unmarshal(t.Response.Body, ye)
+	if err != nil {
+		mylog.Log.Errorf("Get error=%s", err)
+		return nil
+	}
+
+	return ye
 }
+
+
 
 /*
 import (

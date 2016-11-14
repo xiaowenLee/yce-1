@@ -7,7 +7,7 @@
 
 作者: [maxwell92](https://github.com/maxwell92)
 
-最后修订: 2016-11-11
+最后修订: 2016-11-14
 
 目录
 --------------
@@ -17,13 +17,13 @@
 ###请求
 
 * 请求方法: POST 
-* 请求URL: /api/v1/organization/{orgId}/users/{userId}/templates/check
+* 请求URL: /api/v1/organizations/{orgId}/users/{userId}/templates/check
 * 请求头: Authorization:$SessionId, 从LocalStorage读  
 * 请求参数: 
 JSON
 ```json
 {
-   "name": "xxx"
+   "name": "xxx" //templateName
 }
 ```
 
@@ -33,7 +33,8 @@ JSON
 
 
 ###程序实现逻辑
-```Title: 重名检查 
+```Title: 
+重名检查 
 YCE-->>MySQL: 在template表中查询该模板名未被使用
 YCE<<--MySQL: 返回查询结果 
 ```

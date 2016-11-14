@@ -7,7 +7,7 @@
 
 作者: [maxwell92](https://github.com/maxwell92)
 
-最后修订: 2016-11-11
+最后修订: 2016-11-14
 
 目录
 --------------
@@ -17,7 +17,7 @@
 ###请求
 
 * 请求方法: GET 
-* 请求URL: /api/v1/organization/{orgId}/users/{userId}/templates
+* 请求URL: /api/v1/organizations/{orgId}/users/{userId}/templates
 * 请求头: Authorization:$SessionId, 从LocalStorage读  
 * 请求参数: 
 无
@@ -28,7 +28,8 @@
 
 
 ###程序实现逻辑
-```Title: 管理模板列表
+```Title: 
+管理模板列表
 YCE-->>MySQL: 在template表中请求所有可用数据并返回  
 YCE<<--MySQL: 返回请求结果 
 ```
@@ -50,12 +51,18 @@ JSON
         "service": { }  ,
         "createdAt": "xxx",
         "modifiedOp": xx,
-      }]
+      }],
+      "users": {
+         "1": "xxx",
+         "2": "yyy"
+      }
    } 
 }
 ```
 ### 备注
+
 页面列表:
+
 |信息：         |  说明：|
 |:------------:|:--------------:|
 |ID            |  数字，为页面显示ID|
@@ -63,4 +70,5 @@ JSON
 |应用信息       |  data[].templates[every].deployment, 点击看到详情 | 
 |服务信息       |  data[].templates[every].service, 点击看到详情 |
 |创建时间       |  data[].templates[every].createdAt |
+|创建人员       |  data[].users[data[].templates[every].modifiedOp] |
 

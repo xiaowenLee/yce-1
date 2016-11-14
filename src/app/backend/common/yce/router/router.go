@@ -21,6 +21,7 @@ import (
 	myoperationstat "app/backend/controller/yce/dashboard/operationstat"
 	mydatacenter "app/backend/controller/yce/datacenter"
 	mynodeport "app/backend/controller/yce/nodeport"
+	mytemplate "app/backend/controller/yce/template"
 )
 
 type Router struct {
@@ -76,6 +77,11 @@ type Router struct {
 	CheckDatacenter  *mydatacenter.CheckDatacenterController
 	ListNodePort 	 *mynodeport.ListNodePortController
 	CheckNodePort    *mynodeport.CheckNodePortController
+	CheckTemplate    *mytemplate.CheckTemplateController
+	CreateTemplate   *mytemplate.CreateTemplateController
+	UpdateTemplate   *mytemplate.UpdateTemplateController
+	DeleteTemplate   *mytemplate.DeleteTemplateController
+	ListTemplate     *mytemplate.ListTemplateController
 }
 
 
@@ -133,6 +139,11 @@ func NewRouter() *Router {
 	r.CheckDatacenter = new(mydatacenter.CheckDatacenterController)
 	r.ListNodePort = new(mynodeport.ListNodePortController)
 	r.CheckNodePort = new(mynodeport.CheckNodePortController)
+	r.CheckTemplate = new(mytemplate.CheckTemplateController)
+	r.CreateTemplate = new(mytemplate.CreateTemplateController)
+	r.UpdateTemplate = new(mytemplate.UpdateTemplateController)
+	r.DeleteTemplate = new(mytemplate.DeleteTemplateController)
+	r.ListTemplate = new(mytemplate.ListTemplateController)
 
 	return r
 }
@@ -192,6 +203,11 @@ func (r *Router) Registe() {
 	iris.API("/api/v1/datacenter/check", *r.CheckDatacenter)
 	iris.API("/api/v1/nodeports", *r.ListNodePort)
 	iris.API("/api/v1/nodeports/check", *r.CheckNodePort)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/check", *r.CheckTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/new", *r.CreateTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/update", *r.UpdateTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates/delete", *r.DeleteTemplate)
+	iris.API("/api/v1/organizations/:orgId/users/:userId/templates", *r.ListTemplate)
 
 
 	iris.StaticServe("../frontend", "/static")
