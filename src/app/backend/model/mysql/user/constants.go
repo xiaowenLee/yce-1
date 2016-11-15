@@ -345,8 +345,8 @@ const (
                     "id": 111,
                     "name": "添加模板",
                     "state": "main.addTp",
-                    "includeState": "main.addTp"
-            	    "href": "tpAdd",
+                    "includeState": "main.addTp",
+            	    "href": "tpAdd"
                 }
             ]
         }
