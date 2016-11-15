@@ -4,9 +4,11 @@ import (
 	"app/backend/controller/yce"
 	myerror "app/backend/common/yce/error"
 
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/api"
+	//"k8s.io/kubernetes/pkg/apis/extensions"
+	//"k8s.io/kubernetes/pkg/api"
 	mytemplate "app/backend/model/mysql/template"
+	mydeployment "app/backend/model/yce/deploy"
+	myservice "app/backend/model/yce/service"
 	"encoding/json"
 	"strconv"
 )
@@ -19,8 +21,8 @@ type CreateTemplateController struct {
 
 type CreateTemplateParams struct {
 	Name string `json:"name"`
-	Deployment *extensions.Deployment `json:"deployment"`
-	Service *api.Service `json:"service"`
+	Deployment *mydeployment.CreateDeployment `json:"deployment",omitempty`
+	Service  *myservice.CreateService `json:"service",omitempty`
 }
 
 func (ctc *CreateTemplateController)createDbItem(OrgId, Op int32) {
@@ -56,8 +58,8 @@ func (ctc CreateTemplateController) Post() {
 	}
 
 	ctc.params = new(CreateTemplateParams)
-	ctc.params.Deployment = new(extensions.Deployment)
-	ctc.params.Service = new(api.Service)
+	//ctc.params.Deployment = new(extensions.Deployment)
+	//ctc.params.Service = new(api.Service)
 
 	err := ctc.ReadJSON(ctc.params)
 	if err != nil {

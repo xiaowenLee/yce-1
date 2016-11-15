@@ -10,7 +10,7 @@ const (
 	TEMPLATE_INSERT_ON_DUPLICATE_UPDATE = "INSERT INTO " +
 		"template(name, orgId, deployment, service, endpoints, status, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
-		"ON DUPLICATE KEY UPDATE status=? "
+		"ON DUPLICATE KEY UPDATE status=?, deployment=?, service=?, endpoints=?"
 	TEMPLATE_UPDATE = "UPDATE template " +
 		"SET name=?, deployment=?, service=?, endpoints=? " +
 		"WHERE id=?"
