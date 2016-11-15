@@ -182,6 +182,21 @@ const (
             "state": "main.walkthrogh",
             "includeState": "main.costManage",
             "className": "fa-adn"
+        },
+	{
+            "id": 11,
+            "name": "模板管理",
+            "state": "main.tpManage",
+            "includeState": "main.tpManage",
+            "className": "fa-adn",
+            "item": [
+                {
+                    "id": 111,
+                    "name": "添加模板",
+                    "state": "main.addTp",
+                    "includeState": "main.addTp"
+                }
+            ]
         }
     ]
 }
@@ -317,6 +332,23 @@ const (
             "includeState": "main.costManage",
             "className": "fa-adn",
             "href": "walkthrogh"
+        },
+        {
+            "id": 11,
+            "name": "模板管理",
+            "state": "main.tpManage",
+            "includeState": "main.tpManage",
+            "className": "fa-adn",
+            "href": "tpManage",
+            "item": [
+                {
+                    "id": 111,
+                    "name": "添加模板",
+                    "state": "main.addTp",
+                    "includeState": "main.addTp"
+            	    "href": "tpAdd",
+                }
+            ]
         }
     ]
 }
