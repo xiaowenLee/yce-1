@@ -7,7 +7,7 @@
 
 作者: [maxwell92](https://github.com/maxwell92)
 
-最后修订: 2016-11-14
+最后修订: 2016-11-15
 
 目录
 --------------
@@ -67,8 +67,8 @@ JSON
 |:------------:|:--------------:|
 |ID            |  数字，为页面显示ID|
 |模板名称       |  data[].templates[every].name |
-|应用信息       |  data[].templates[every].deployment, 点击看到详情 | 
-|服务信息       |  data[].templates[every].service, 点击看到详情 |
+|应用信息       |  data[].templates[every].deployment.appName, 点击看到详情 | 
+|服务信息       |  data[].templates[every].service.serviceName, 点击看到详情 |
 |创建时间       |  data[].templates[every].createdAt |
 |创建人员       |  data[].users[data[].templates[every].modifiedOp] |
 
