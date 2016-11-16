@@ -155,7 +155,7 @@ func (t *Template) InsertTemplate(op int32) error {
 	t.ModifiedOp = op
 
 	// Insert
-	_, err = stmt.Exec(t.Name, t.OrgId, t.Deployment, t.Service, t.Endpoints, t.Status, t.CreatedAt, t.ModifiedAt, t.ModifiedOp, t.Comment, VALID)
+	_, err = stmt.Exec(t.Name, t.OrgId, t.Deployment, t.Service, t.Endpoints, t.Status, t.CreatedAt, t.ModifiedAt, t.ModifiedOp, t.Comment, VALID, t.Deployment, t.Service, t.Endpoints)
 	if err != nil {
 		log.Errorf("InsertTemplate Error: error=%s", err)
 		return err

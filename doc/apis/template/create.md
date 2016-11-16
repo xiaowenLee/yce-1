@@ -7,7 +7,7 @@
 
 作者: [maxwell92](https://github.com/maxwell92)
 
-最后修订: 2016-11-14
+最后修订: 2016-11-15
 
 目录
 --------------
@@ -89,3 +89,5 @@ DAO:
 ```
 
 两个按钮, 保存以及取消。
+
+允许只存储deployment或service。在模板管理内将依照deployment.appName和service.serviceName作为判断是否存在对应模板的依据。
