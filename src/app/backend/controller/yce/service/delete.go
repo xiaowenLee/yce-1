@@ -6,6 +6,7 @@ import (
 	yceutils "app/backend/controller/yce/utils"
 	mynodeport "app/backend/model/mysql/nodeport"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	_ "app/backend/controller/yce/endpoint"
 )
 
 type DeleteServiceController struct {
@@ -32,6 +33,26 @@ func (dsc *DeleteServiceController) deleteService(namespace, svcName string) {
 	}
 
 	log.Infof("Delete Service successfully: namespace=%s, apiServer=%s", namespace, dsc.apiServer)
+
+	return
+}
+
+// delete endpoints, temperarilly
+func (dsc *DeleteServiceController) deleteEndpoints(namespace, epName string) {
+
+	_, err := dsc.k8sClient.Endpoints(namespace).Get(epName)
+	if err != nil {
+		return
+	}
+
+	err = dsc.k8sClient.Endpoints(namespace).Delete(epName)
+	if err != nil {
+		log.Errorf("deleteEndpoints Error: apiServer=%s, namespace=%s, error=%s", dsc.apiServer, namespace, err)
+		dsc.Ye = myerror.NewYceError(myerror.EKUBE_DELETE_ENDPOINT, "")
+		return
+	}
+
+	log.Infof("Delete Endpoints successfully: namespace=%s, apiServer=%s", namespace, dsc.apiServer)
 
 	return
 }
@@ -117,6 +138,12 @@ func (dsc DeleteServiceController) Post() {
 	// Update NodePort Status to MySQL nodeport table
 	dsc.deleteMysqlNodePort()
 	if dsc.CheckError() {
+		return
+	}
+
+	dsc.deleteEndpoints(orgName, svcName)
+	if dsc.CheckError() {
+		log.Errorf("DeleteServiceController: delete related endpoints Error")
 		return
 	}
 

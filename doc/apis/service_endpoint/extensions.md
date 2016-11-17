@@ -7,7 +7,7 @@
 
 作者: [maxwell92](https://github.com/maxwell92)
 
-最后修订: 2016-11-08
+最后修订: 2016-11-17
 
 目录
 --------------
@@ -67,6 +67,9 @@ JSON
 
 
 ### 备注
+
+暂时只提供了删除服务。现在从[删除服务接口](https://github.com/maxwell92/yce/blob/master/doc/apis/service_endpoint/delete_service.md)应该同时将对应的访问点也删除。
+
 暂时没有用到的功能
 用户点击服务管理请求后台数据:
 
