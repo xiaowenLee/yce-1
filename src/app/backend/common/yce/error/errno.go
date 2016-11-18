@@ -68,6 +68,7 @@ const (
 	EYCE_DELETE_ENDPOINTS  int32 = 1413
 	EYCE_NOTFOUND 	       int32 = 1414
 	EYCE_EXISTED_NAME      int32 = 1415
+	EYCE_INVALID_PORT      int32 = 1416
 
 	EREGISTRY     int32 = 1500
 	EREGISTRY_GET int32 = 1501
@@ -323,6 +324,10 @@ var Errors = map[int32]*Error{
 	EYCE_EXISTED_NAME: &Error {
 		LogMsg: "Duplicated Resources Name",
 		ErrMsg: "资源名重复",
+	},
+	EYCE_INVALID_PORT: &Error {
+		LogMsg: "Invalid Port",
+		ErrMsg: "端口号无效",
 	},
 
 	// 1500~1599 Registr错误
