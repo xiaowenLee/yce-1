@@ -1032,6 +1032,15 @@ func ValidatePort(port int32) *myerror.YceError {
 	return nil
 }
 
+func ValidateNodePort(nodePortLowerLimit, nodePortUpperLimit int32) *myerror.YceError {
+	if nodePortLowerLimit >= nodePortUpperLimit || ValidatePort(nodePortLowerLimit) != nil || ValidatePort(nodePortUpperLimit) != nil {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return ye
+	}
+
+	return nil
+}
+
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {
 }
