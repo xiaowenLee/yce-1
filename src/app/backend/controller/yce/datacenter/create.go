@@ -38,7 +38,7 @@ func (cdc *CreateDatacenterController) createNodePortItems() {
 		return
 	}
 
-	if nodePortLowerLimit >= nodePortUpperLimit {
+	if nodePortLowerLimit >= nodePortUpperLimit || yceutils.ValidatePort(nodePortLowerLimit) != nil || yceutils.ValidatePort(nodePortUpperLimit) != nil {
 		cdc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
 		return
 	}
