@@ -1,56 +1,11 @@
 package datacenter
 
 import (
-	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
 )
 
-var log = mylog.Log
-
-const (
-	DC_SELECT_BY_ID = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter WHERE id=? AND status=?"
-
-	DC_SELECT_ALL = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter where status=?"
-
-	DC_SELECT_BY_NAME = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter WHERE name=? AND status=?"
-
-	DC_QUERY_DUPLICATED_NAME = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter WHERE name=? and status=?"
-
-	DC_INSERT = "INSERT INTO " +
-		"datacenter(name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-	DC_UPDATE = "UPDATE datacenter " +
-		"SET name=?, host=?, port=?, secret=?, status=?, nodePort=?, modifiedAt=?, modifiedOp=?, comment=? " +
-		"WHERE id=?"
-
-	DC_DELETE = "UPDATE datacenter " +
-		"SET status=?, modifiedAt=?, modifiedOp=? " +
-		"WHERE id=?"
-
-	VALID   = 1
-	INVALID = 0
-)
-
-type DataCenter struct {
-	Id         int32  `json:"id"`
-	Name       string `json:"name"`
-	Host       string `json:"host"`
-	Port       int32  `json:"port"`
-	Secret     string `json:"secret"` // maybe error
-	Status     int32  `json:"status"`
-	NodePort   string `json:"nodePort"`
-	CreatedAt  string `json:"createdAt"`
-	ModifiedAt string `json:"modifiedAt"`
-	ModifiedOp int32  `json:"modifiedOp"`
-	Comment    string `json:"comment"`
-}
 
 func NewDataCenter(name, host, secret, nodePort, comment string, port, modifiedOp int32) *DataCenter {
 	return &DataCenter{
