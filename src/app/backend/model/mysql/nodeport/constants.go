@@ -18,14 +18,17 @@ const (
 
 	NP_SELECT_NEW = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE port=? AND dcId=? ORDER BY port DESC"
 
-	NP_SELECT_INVALID = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE status=0"
+	NP_SELECT_OCCUPIED = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE status=?"
 
-	NP_SELECT_VALID_BY_DC_AND_PORT = "SELECT port=?, dcId=?, svcName=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=?" + " FROM nodeport WHERE status=1 AND port=? AND dcId=?"
+	NP_SELECT_FREE_BY_DC_AND_PORT = "SELECT port=?, dcId=?, svcName=?, status=?, createdAt=?, modifiedAt=?, modifiedOp=?, comment=?" + " FROM nodeport WHERE status=? AND port=? AND dcId=?"
 
-	NP_SELECT_VALID_BY_DC = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment" + " FROM nodeport WHERE status=1 AND dcId=?"
+	NP_SELECT_FREE_BY_DC = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment" + " FROM nodeport WHERE status=? AND dcId=?"
 
 	VALID      = 1
 	INVALID    = 0
 	PORT_START = 30000
 	PORT_LIMIT = 32767
+
+	OCCUPIED = 0
+	FREE = 1
 )

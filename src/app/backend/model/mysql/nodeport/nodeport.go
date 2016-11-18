@@ -86,14 +86,14 @@ func QueryNodePortByDcIdIfValid(dcId int32)([]NodePort, error) {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-all-statement
-	stmt, err := db.Prepare(NP_SELECT_VALID_BY_DC)
+	stmt, err := db.Prepare(NP_SELECT_FREE_BY_DC)
 	if err != nil {
 		log.Errorf("QueryNodePortByDcIdIfValid Error: err=%s", err)
 		return nil, err
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(dcId)
+	rows, err := stmt.Query(FREE, dcId)
 	if err != nil {
 		log.Errorf("QueryNodePortByDcIdIfValid Error: err=%s", err)
 		return nil, err
@@ -160,14 +160,14 @@ func QueryAllInvalidNodePort() ([]NodePort, error) {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-all-statement
-	stmt, err := db.Prepare(NP_SELECT_INVALID)
+	stmt, err := db.Prepare(NP_SELECT_OCCUPIED)
 	if err != nil {
 		log.Errorf("QueryAllInvalidNodePort Error: err=%s", err)
 		return nil, err
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(OCCUPIED)
 	if err != nil {
 		log.Errorf("QueryAllInvalidNodePort Error: err=%s", err)
 		return nil, err
@@ -256,7 +256,7 @@ func (np *NodePort) QueryNodePortByPortAndDcIdIfValid(port, dcId int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	//"SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE status=1 AND port=? AND dcId=?"
-	stmt, err := db.Prepare(NP_SELECT_VALID_BY_DC_AND_PORT)
+	stmt, err := db.Prepare(NP_SELECT_FREE_BY_DC_AND_PORT)
 	if err != nil {
 		log.Errorf("QueryNodePortByPortAndDcIdIfValid Error: err=%s", err)
 		return err
@@ -264,7 +264,7 @@ func (np *NodePort) QueryNodePortByPortAndDcIdIfValid(port, dcId int32) error {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment, np.Port, np.DcId)
+	_, err = stmt.Exec(np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment, FREE, np.Port, np.DcId)
 	if err != nil {
 		log.Errorf("QueryNodePortByPortAndDcIdIfValid Error: err=%s", err)
 		return err
@@ -409,7 +409,8 @@ func (np *NodePort) UseNodePort(op int32) error {
 
 	np.ModifiedAt = localtime.NewLocalTime().String()
 	np.ModifiedOp = op
-	np.Status = INVALID
+	//np.Status = INVALID
+	np.Status = OCCUPIED
 
 	_, err = stmt.Exec(np.Port, np.DcId, np.SvcName, np.Status, np.ModifiedAt, np.ModifiedOp, np.Comment, np.Port, np.DcId)
 	// update error
@@ -436,7 +437,8 @@ func (np *NodePort) ReleaseNodePort(op int32) error {
 
 	np.ModifiedAt = localtime.NewLocalTime().String()
 	np.ModifiedOp = op
-	np.Status = VALID
+	//np.Status = VALID
+	np.Status = FREE
 
 	_, err = stmt.Exec(np.Port, np.DcId, np.SvcName, np.Status, np.ModifiedAt, np.ModifiedOp, np.Comment, np.Port, np.DcId)
 	// update error
