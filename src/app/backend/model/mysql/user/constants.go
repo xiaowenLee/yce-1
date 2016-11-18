@@ -13,12 +13,12 @@ const (
 	USER_UPDATE = "UPDATE user SET password=?, orgId=?, modifiedAt=?, modifiedOp=?, navList=? WHERE id=?"
 
 	USER_DELETE = "UPDATE user SET status=?, modifiedAt=?, modifiedOp=?, navList=? WHERE id=?"
-	USER_SELECT_ALL = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp, comment FROM user where status=1"
-	USER_CHECK_DUPLICATE_NAME = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? AND status=1"
+	USER_SELECT_ALL = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp, comment FROM user where status=?"
+	USER_CHECK_DUPLICATE_NAME = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp FROM user WHERE name=? AND status=?"
 	// USER_NAVLIST = "SELECT navList FROM user WHERE id=?"
 	USER_SELECT_BY_ORGID = "SELECT id, name, password, orgId, createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM user " +
-		"WHERE status=1 AND orgId=?"
+		"WHERE status=? AND orgId=?"
 
 	VALID   = 1
 	INVALID = 0

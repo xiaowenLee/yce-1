@@ -35,7 +35,7 @@ func QueryAllUsers() ([]User, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(VALID)
 	if err != nil {
 		log.Errorf("QueryAllUsers Error: err=%s", err)
 		return nil, err
@@ -78,7 +78,7 @@ func QueryUsersByOrgId(orgId int32) ([]User, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(orgId)
+	rows, err := stmt.Query(orgId, VALID)
 	if err != nil {
 		log.Errorf("QueryUsersByOrgId Error: err=%s", err)
 		return nil, err
@@ -162,7 +162,7 @@ func (u *User) QueryUserByUserName(name string) error {
 	defer stmt.Close()
 
 	// Query user by name
-	err = stmt.QueryRow(name).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
+	err = stmt.QueryRow(name, VALID).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
 		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
 		log.Errorf("QueryUserByName Error: err=%s", err)
