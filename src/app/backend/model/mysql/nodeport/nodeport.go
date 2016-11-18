@@ -110,8 +110,8 @@ func QueryNodePortByDcIdIfValid(dcId int32)([]NodePort, error) {
 
 		nodeports = append(nodeports, *np)
 
-		log.Infof("QueryNodePortByDcIdIfValid: port=%d, dcId=%d, svcName=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d, comment=%s",
-		np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
+		//log.Infof("QueryNodePortByDcIdIfValid: port=%d, dcId=%d, svcName=%s, status=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d, comment=%s",
+		//np.Port, np.DcId, np.SvcName, np.Status, np.CreatedAt, np.ModifiedAt, np.ModifiedOp, np.Comment)
 	}
 
 	log.Infof("QueryNodePortByDcIdIfValid: len(nodeports)=%d", len(nodeports))
