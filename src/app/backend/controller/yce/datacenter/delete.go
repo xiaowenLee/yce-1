@@ -7,6 +7,7 @@ import (
 	yceutils "app/backend/controller/yce/utils"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/api"
+	"strconv"
 )
 
 type DeleteDatacenterController struct {
@@ -62,6 +63,22 @@ func (ddc *DeleteDatacenterController) deleteNodePortDbItem() {
 	nodePortList, ye := yceutils.DecodeNodePort(dc.NodePort)
 	if ye != nil {
 		ddc.Ye = myerror.NewYceError(myerror.EJSON, "")
+		return
+	}
+
+	nodePortLowerLimit, err := strconv.Atoi(nodePortList[0])
+	if err != nil {
+		ddc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
+	nodePortUpperLimit, err := strconv.Atoi(nodePortList[1])
+	if err != nil {
+		ddc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
+
+	ddc.Ye = yceutils.ValidateNodePort(int32(nodePortLowerLimit), int32(nodePortUpperLimit))
+	if ddc.Ye != nil {
 		return
 	}
 
