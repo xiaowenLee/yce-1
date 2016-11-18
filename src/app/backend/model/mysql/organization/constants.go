@@ -7,11 +7,11 @@ const (
 		"FROM organization WHERE id=?"
 	ORG_SELECT_ALL = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM organization where status=1"
+		"FROM organization where status=?"
 
 	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
 		"createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM organization WHERE name=? and status=1"
+		"FROM organization WHERE name=? and status=?"
 
 	ORG_INSERT = "INSERT INTO organization(name, cpuQuota, memQuota, budget, " +
 		"balance, status, dcIdList, createdAt, modifiedAt, modifiedOp, comment) " +

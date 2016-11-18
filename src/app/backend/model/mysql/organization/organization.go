@@ -68,7 +68,7 @@ func QueryAllOrganizations() ([]Organization, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(VALID)
 	if err != nil {
 		log.Errorf("QueryAllOrganizations Error: err=%s", err)
 		return nil, err
@@ -110,7 +110,7 @@ func (o *Organization) QueryOrganizationByName(name string) error {
 
 	var comment []byte
 	// Query organization by name
-	err = stmt.QueryRow(name).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
+	err = stmt.QueryRow(name, VALID).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
 	if err != nil {
 		log.Errorf("QureyOrganizationByName Error: err=%s", err)
 		return err
