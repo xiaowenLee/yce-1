@@ -1,56 +1,11 @@
 package datacenter
 
 import (
-	mylog "app/backend/common/util/log"
 	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
 )
 
-var log = mylog.Log
-
-const (
-	DC_SELECT = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter WHERE id=?"
-
-	DC_SELECT_ALL = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter where status=1"
-
-	DC_SELECT_NAME = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter WHERE name=?"
-
-	DC_QUERY_DUPLICATED_NAME = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM datacenter WHERE name=? and status=1"
-
-	DC_INSERT = "INSERT INTO " +
-		"datacenter(name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-	DC_UPDATE = "UPDATE datacenter " +
-		"SET name=?, host=?, port=?, secret=?, status=?, nodePort=?, modifiedAt=?, modifiedOp=?, comment=? " +
-		"WHERE id=?"
-
-	DC_DELETE = "UPDATE datacenter " +
-		"SET status=?, modifiedAt=?, modifiedOp=? " +
-		"WHERE id=?"
-
-	VALID   = 1
-	INVALID = 0
-)
-
-type DataCenter struct {
-	Id         int32  `json:"id"`
-	Name       string `json:"name"`
-	Host       string `json:"host"`
-	Port       int32  `json:"port"`
-	Secret     string `json:"secret"` // maybe error
-	Status     int32  `json:"status"`
-	NodePort   string `json:"nodePort"`
-	CreatedAt  string `json:"createdAt"`
-	ModifiedAt string `json:"modifiedAt"`
-	ModifiedOp int32  `json:"modifiedOp"`
-	Comment    string `json:"comment"`
-}
 
 func NewDataCenter(name, host, secret, nodePort, comment string, port, modifiedOp int32) *DataCenter {
 	return &DataCenter{
@@ -80,7 +35,7 @@ func QueryAllDatacenters() ([]DataCenter, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(VALID)
 	if err != nil {
 		log.Errorf("QueryAllDatacenters Error: err=%s", err)
 		return nil, err
@@ -116,7 +71,7 @@ func (dc *DataCenter) QueryDataCenterById(id int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
-	stmt, err := db.Prepare(DC_SELECT)
+	stmt, err := db.Prepare(DC_SELECT_BY_ID)
 	if err != nil {
 		log.Errorf("QueryDataCenterById Error: err=%s", err)
 		return err
@@ -127,7 +82,7 @@ func (dc *DataCenter) QueryDataCenterById(id int32) error {
 	var comment []byte
 	var nodePort []byte
 	// Query idc by id
-	err = stmt.QueryRow(id).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status, &nodePort,
+	err = stmt.QueryRow(id,VALID).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status, &nodePort,
 		&dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &comment)
 
 	dc.Secret = string(secret)
@@ -149,7 +104,7 @@ func (dc *DataCenter) QueryDataCenterByName(name string) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare select-statement
-	stmt, err := db.Prepare(DC_SELECT_NAME)
+	stmt, err := db.Prepare(DC_SELECT_BY_NAME)
 	if err != nil {
 		log.Errorf("QueryDataCenterByName Error: err=%s", err)
 		return err
@@ -160,7 +115,7 @@ func (dc *DataCenter) QueryDataCenterByName(name string) error {
 	var comment []byte
 	var nodePort []byte
 	// Query idc by id
-	err = stmt.QueryRow(name).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status, &nodePort,
+	err = stmt.QueryRow(name, VALID).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status, &nodePort,
 		&dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &comment)
 
 	dc.Secret = string(secret)
@@ -172,7 +127,7 @@ func (dc *DataCenter) QueryDataCenterByName(name string) error {
 		return err
 	}
 
-	log.Infof("QureyDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, nodePort=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
+	log.Infof("QueryDataCenterByName: id=%d, name=%s, host=%s, port=%d, status=%d, nodePort=%s, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.NodePort, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 
 	return nil
@@ -194,7 +149,7 @@ func (dc *DataCenter) QueryDuplicatedName(name string) error {
 	var comment []byte
 	var nodePort []byte
 	// Query idc by id
-	err = stmt.QueryRow(name).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status, &nodePort,
+	err = stmt.QueryRow(name, VALID).Scan(&dc.Id, &dc.Name, &dc.Host, &dc.Port, &secret, &dc.Status, &nodePort,
 		&dc.CreatedAt, &dc.ModifiedAt, &dc.ModifiedOp, &comment)
 
 	dc.Secret = string(secret)
@@ -238,7 +193,7 @@ func (dc *DataCenter) InsertDataCenter(op int32) error {
 		return err
 	}
 
-	log.Infof("InsertDataCenterById: id=%d, name=%s, host=%d, port=%s, status=%d, nodePort=%s, createdAt=%s, modifiedAt=%s, modifiedOp",
+	log.Infof("InsertDataCenterById: id=%d, name=%s, host=%d, port=%d, status=%d, nodePort=%s, createdAt=%s, modifiedAt=%s, modifiedOp",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.NodePort, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }

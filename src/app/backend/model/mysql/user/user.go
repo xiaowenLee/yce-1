@@ -7,19 +7,6 @@ import (
 )
 
 
-type User struct {
-	Id         int32  `json:"id"`
-	Name       string `json:"name"`
-	OrgId      int32  `json:"orgId"`
-	Password   string `json:"password"`
-	Status     int32  `json:"status"`
-	CreatedAt  string `json:"createdAt"`
-	ModifiedAt string `json:"modifiedAt"`
-	ModifiedOp int32  `json:"modifiedOp"`
-	Comment    string `json:"comment"`
-	NavList    string `json:"navList"`
-}
-
 func NewUser(name, password, comment string, orgId, modifiedOp int32) *User {
 
 	return &User{
@@ -48,7 +35,7 @@ func QueryAllUsers() ([]User, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(VALID)
 	if err != nil {
 		log.Errorf("QueryAllUsers Error: err=%s", err)
 		return nil, err
@@ -91,7 +78,7 @@ func QueryUsersByOrgId(orgId int32) ([]User, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(orgId)
+	rows, err := stmt.Query(orgId, VALID)
 	if err != nil {
 		log.Errorf("QueryUsersByOrgId Error: err=%s", err)
 		return nil, err
@@ -175,7 +162,7 @@ func (u *User) QueryUserByUserName(name string) error {
 	defer stmt.Close()
 
 	// Query user by name
-	err = stmt.QueryRow(name).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
+	err = stmt.QueryRow(name, VALID).Scan(&u.Id, &u.Name, &u.Password, &u.OrgId,
 		&u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp)
 	if err != nil {
 		log.Errorf("QueryUserByName Error: err=%s", err)

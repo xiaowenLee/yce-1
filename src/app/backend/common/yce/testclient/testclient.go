@@ -5,10 +5,12 @@ import (
 	//"k8s.io/kubernetes/pkg/runtime"
 	mylog "app/backend/common/util/log"
 	myerror "app/backend/common/yce/error"
+	mysql "app/backend/common/util/mysql"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	config "app/backend/common/yce/config"
 	"github.com/kubernetes/kubernetes/pkg/util/json"
 )
 
@@ -36,6 +38,10 @@ type TestClient struct {
 	http.Client
 	Request  Request
 	Response Response
+}
+
+func Instance() *TestClient {
+	return new(TestClient)
 }
 
 func (t *TestClient) Validate(expect, actual string) bool {
@@ -155,6 +161,12 @@ func (t *TestClient) Delete() *myerror.YceError {
 	return ye
 }
 
+
+func (t *TestClient)ConnectDB() *myerror.YceError {
+	config.Instance().Load()
+	mysql.MysqlInstance().Open()
+	return nil
+}
 
 
 /*

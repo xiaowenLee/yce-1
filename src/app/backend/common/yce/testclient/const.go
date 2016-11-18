@@ -9,7 +9,7 @@ const (
 	UserId = "7"
 	UserName = "liyao.miao"
 	OrgId = "1"
-	SessionId = "ba8aae7e-dd3b-4ba8-b582-cf15572be7fd"
+	SessionId = "94540f2c-1135-491a-b73a-410a08591fe4"
 
 	LocalServer = "http://localhost:8080"
 

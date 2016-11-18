@@ -5,6 +5,7 @@ import (
 	yceutils "app/backend/controller/yce/utils"
 	mydatacenter "app/backend/model/mysql/datacenter"
 	myerror "app/backend/common/yce/error"
+	"strconv"
 )
 
 type UpdateDatacenterController struct {
@@ -39,6 +40,22 @@ func (udc *UpdateDatacenterController) updateNodePortDbItem() {
 		return
 	}
 
+	nodePortLowerLimit, err := strconv.Atoi(oldNodePort[0])
+	if err != nil {
+		udc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
+	nodePortUpperLimit, err := strconv.Atoi(oldNodePort[1])
+	if err != nil {
+		udc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
+
+	udc.Ye = yceutils.ValidateNodePort(int32(nodePortLowerLimit), int32(nodePortUpperLimit))
+	if udc.Ye != nil {
+		return
+	}
+
 	//Delete old nodePorts, turn them into INVALID
 	ye = yceutils.DeleteNodePortTableOfDatacenter(oldNodePort, dc.Id, udc.params.Op)
 	if ye != nil {
@@ -46,8 +63,24 @@ func (udc *UpdateDatacenterController) updateNodePortDbItem() {
 		return
 	}
 
-
 	newNodePort := udc.params.NodePort
+
+	nodePortLowerLimit, err = strconv.Atoi(udc.params.NodePort[0])
+	if err != nil {
+		udc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
+	nodePortUpperLimit, err = strconv.Atoi(udc.params.NodePort[1])
+	if err != nil {
+		udc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return
+	}
+
+	udc.Ye = yceutils.ValidateNodePort(int32(nodePortLowerLimit), int32(nodePortUpperLimit))
+	if udc.Ye != nil {
+		return
+	}
+
 	ye = yceutils.InitNodePortTableOfDatacenter(newNodePort, dc.Id, udc.params.Op)
 	if ye != nil {
 		udc.Ye = ye

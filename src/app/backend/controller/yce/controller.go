@@ -20,7 +20,7 @@ type IController interface {
 
 func (c *Controller) WriteError() {
 	c.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	log.Infof("Controller Response YceError: controller=%p, code=%d, msg=%s", c, c.Ye.Code, myerror.Errors[c.Ye.Code].LogMsg)
+	log.Errorf("Controller Response YceError: controller=%p, code=%d, msg=%s", c, c.Ye.Code, myerror.Errors[c.Ye.Code].LogMsg)
 	c.Write(c.Ye.String())
 }
 

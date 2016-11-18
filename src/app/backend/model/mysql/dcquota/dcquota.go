@@ -1,54 +1,11 @@
 package dcquota
 
 import (
-	mylog "app/backend/common/util/log"
 	"app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
 )
 
-var log = mylog.Log
-
-const (
-	DCQUOTA_SELECT = "SELECT id, dcId, orgId, podNumLimit, podCpuMax, podMemMax, podCpuMin, " +
-		"podMemMin, rbdQuota, podRbdMax, podRbdMin, " +
-		"price, status, createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM dcquota WHERE id=?"
-
-	DCQUOTA_INSERT = "INSERT INTO dcquota(dcId, orgId, podNumLimit, podCpuMax, podMemMax, " +
-		"podCpuMin, podMemMin, rbdQuota, podRbdMax, podRbdMin, " +
-		"price, status, createdAt, modifiedAt, modifiedOp, comment) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-	DCQUOTA_UPDATE = "UPDATE dcquota SET dcId=?, orgId=?, podNumLimit=?, podCpuMax=?, " +
-		"podMemMax=?, podCpuMin=?, podMemMin=?, rbdQuota=?, podRbdMax=?, podRbdMin=?, " +
-		"price=?, status=?, modifiedAt=?, modifiedOp=?, comment=? WHERE id=?"
-
-	DCQUOTA_DELETE = "UPDATE dcquota SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
-
-	VALID   = 1
-	INVALID = 0
-)
-
-type DcQuota struct {
-	Id          int32  `json:"id"`
-	DcId        int32  `json:"dcId"`
-	OrgId       int32  `json:"orgId"`
-	PodNumLimit int32  `json:"podNumLimit"`
-	PodCpuMax   int32  `json:"podCpuMax"`
-	PodMemMax   int32  `json:"podMemMax"`
-	PodCpuMin   int32  `json:"podCpuMin"`
-	PodMemMin   int32  `json:"podMemMin"`
-	RbdQuota    int32  `json:"rbdQuota"`
-	PodRbdMax   int32  `json:"podRbdMax"`
-	PodRbdMin   int32  `json:"podRbdMin"`
-	Price       string `json:"price"`
-	Status      int32  `json:"status"`
-	CreatedAt   string `json:"createdAt`
-	ModifiedAt  string `json:"modifiedAt"`
-	ModifiedOp  int32  `json:"modifiedOp"`
-	Comment     string `json:"comment"`
-}
 
 func NewDcQuota(dcId, orgId, podNumLimit, podCpuMax, podMemMax, podCpuMin, podMemMin, rbdQuota, PodRbdMax, podRbdMin, modifiedOp int32, price, comment string) *DcQuota {
 	return &DcQuota{

@@ -58,8 +58,8 @@ func (ctc CreateTemplateController) Post() {
 	}
 
 	ctc.params = new(CreateTemplateParams)
-	//ctc.params.Deployment = new(extensions.Deployment)
-	//ctc.params.Service = new(api.Service)
+	//ctc.params.Deployment = new(mydeployment.CreateDeployment)
+	//ctc.params.Service = new(myservice.CreateService)
 
 	err := ctc.ReadJSON(ctc.params)
 	if err != nil {

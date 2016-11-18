@@ -1,4 +1,5 @@
-package user
+package datacenter
+
 
 import (
 	mylog "app/backend/common/util/log"
@@ -6,17 +7,16 @@ import (
 
 var log = mylog.Log
 
-
-
-type User struct {
+type DataCenter struct {
 	Id         int32  `json:"id"`
 	Name       string `json:"name"`
-	OrgId      int32  `json:"orgId"`
-	Password   string `json:"password"`
+	Host       string `json:"host"`
+	Port       int32  `json:"port"`
+	Secret     string `json:"secret"` // maybe error
 	Status     int32  `json:"status"`
+	NodePort   string `json:"nodePort"`
 	CreatedAt  string `json:"createdAt"`
 	ModifiedAt string `json:"modifiedAt"`
 	ModifiedOp int32  `json:"modifiedOp"`
 	Comment    string `json:"comment"`
-	NavList    string `json:"navList"`
 }

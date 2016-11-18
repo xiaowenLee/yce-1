@@ -1,55 +1,16 @@
 package organization
 
 import (
-	mylog "app/backend/common/util/log"
-	mysql "app/backend/common/util/mysql"
 	localtime "app/backend/common/util/time"
 	"encoding/json"
 	"github.com/shopspring/decimal"
+	mysql "app/backend/common/util/mysql"
 )
 
-var log = mylog.Log
 
-const (
-	ORG_SELECT = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
-		"createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM organization WHERE id=?"
-	ORG_SELECT_ALL = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
-		"createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM organization where status=1"
 
-	ORG_SELECT_NAME = "SELECT id, name, cpuQuota, memQuota, budget, balance, status, dcIdList," +
-		"createdAt, modifiedAt, modifiedOp, comment " +
-		"FROM organization WHERE name=? and status=1"
 
-	ORG_INSERT = "INSERT INTO organization(name, cpuQuota, memQuota, budget, " +
-		"balance, status, dcIdList, createdAt, modifiedAt, modifiedOp, comment) " +
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-	ORG_UPDATE = "UPDATE organization SET name=?, cpuQuota=?, memQuota=?, budget=?, " +
-		"balance=?, status=?, dcIdList=?, modifiedAt=?, modifiedOp=?, comment=? " +
-		"WHERE id=?"
-
-	ORG_DELETE = "UPDATE organization SET status=?, modifiedAt=?, modifiedOp=? WHERE id=?"
-
-	VALID   = 1
-	INVALID = 0
-)
-
-type Organization struct {
-	Id         int32  `json:"id"`
-	Name       string `json:"name"`
-	CpuQuota   int32  `json:"cpu_quota"`
-	MemQuota   int32  `json:"mem_quota"`
-	Budget     string `json:"buget"`
-	Balance    string `json:"balance"`
-	Status     int32  `json:"status"`
-	DcIdList   string `json:"dcIdList"`
-	CreatedAt  string `json:"createdAt"`
-	ModifiedAt string `json:"modifiedAt"`
-	ModifiedOp int32  `json:"modifiedOp"`
-	Comment    string `json:"comment,omitempty"`
-}
 
 func NewOrganization(name, budget, balance, comment, dcIdList string, cpuQuota, memQuota, modifiedOp int32) *Organization {
 
@@ -107,7 +68,7 @@ func QueryAllOrganizations() ([]Organization, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(VALID)
 	if err != nil {
 		log.Errorf("QueryAllOrganizations Error: err=%s", err)
 		return nil, err
@@ -149,7 +110,7 @@ func (o *Organization) QueryOrganizationByName(name string) error {
 
 	var comment []byte
 	// Query organization by name
-	err = stmt.QueryRow(name).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
+	err = stmt.QueryRow(name, VALID).Scan(&o.Id, &o.Name, &o.CpuQuota, &o.MemQuota, &o.Budget, &o.Balance, &o.Status, &o.DcIdList, &o.CreatedAt, &o.ModifiedAt, &o.ModifiedOp, &comment)
 	if err != nil {
 		log.Errorf("QureyOrganizationByName Error: err=%s", err)
 		return err

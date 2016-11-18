@@ -928,9 +928,10 @@ func DeleteNodePortTableOfDatacenter(nodePort []string, dcId, op int32) *myerror
 		return ye
 	}
 
+	var cnt int
 	for i := nodePortLowerLimit; i <= nodePortUpperLimit; i++ {
 		np := new(mynodeport.NodePort)
-		log.Infof("DeleteNodePortTableOfDatacenter port=%d", i)
+		//log.Infof("DeleteNodePortTableOfDatacenter port=%d", i)
 		np.Port = int32(i)
 		np.DcId = dcId
 		//err := np.InsertNodePort(op)
@@ -939,7 +940,10 @@ func DeleteNodePortTableOfDatacenter(nodePort []string, dcId, op int32) *myerror
 			ye := myerror.NewYceError(myerror.EMYSQL_DELETE, "")
 			return ye
 		}
+		cnt++
 	}
+
+	log.Infof("DeleteNodePortTableOfDatacenter len(port)=%d", cnt)
 
 	return nil
 
@@ -1017,6 +1021,24 @@ func GetUsersByOrgId(orgId int32) (map[int32]string, *myerror.YceError) {
 	}
 
 	return users, nil
+}
+
+func ValidatePort(port int32) *myerror.YceError {
+	if port < 1024 || port > 65535 {
+		ye := myerror.NewYceError(myerror.EYCE_INVALID_PORT, "")
+		return ye
+	}
+
+	return nil
+}
+
+func ValidateNodePort(nodePortLowerLimit, nodePortUpperLimit int32) *myerror.YceError {
+	if nodePortLowerLimit >= nodePortUpperLimit || ValidatePort(nodePortLowerLimit) != nil || ValidatePort(nodePortUpperLimit) != nil {
+		ye := myerror.NewYceError(myerror.EINVALID_PARAM, "")
+		return ye
+	}
+
+	return nil
 }
 
 //TODO: Get Namespace List By Datacenter Id List
