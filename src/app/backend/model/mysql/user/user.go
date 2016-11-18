@@ -78,7 +78,8 @@ func QueryUsersByOrgId(orgId int32) ([]User, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(orgId, VALID)
+	//rows, err := stmt.Query(orgId, VALID)
+	rows, err := stmt.Query(VALID, orgId)
 	if err != nil {
 		log.Errorf("QueryUsersByOrgId Error: err=%s", err)
 		return nil, err
@@ -89,7 +90,7 @@ func QueryUsersByOrgId(orgId int32) ([]User, error) {
 	for rows.Next() {
 		u := new(User)
 		var comment []byte
-		err = rows.Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp, &comment)
+		err = rows.Scan(&u.Id, &u.Name, &u.Password, &u.OrgId, &u.Status, &u.CreatedAt, &u.ModifiedAt, &u.ModifiedOp, &comment)
 		if err != nil {
 			log.Errorf("QueryUsersByOrgId Error: err=%s", err)
 			return nil, err
