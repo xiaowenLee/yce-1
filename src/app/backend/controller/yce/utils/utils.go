@@ -928,9 +928,10 @@ func DeleteNodePortTableOfDatacenter(nodePort []string, dcId, op int32) *myerror
 		return ye
 	}
 
+	var cnt int
 	for i := nodePortLowerLimit; i <= nodePortUpperLimit; i++ {
 		np := new(mynodeport.NodePort)
-		log.Infof("DeleteNodePortTableOfDatacenter port=%d", i)
+		//log.Infof("DeleteNodePortTableOfDatacenter port=%d", i)
 		np.Port = int32(i)
 		np.DcId = dcId
 		//err := np.InsertNodePort(op)
@@ -939,7 +940,10 @@ func DeleteNodePortTableOfDatacenter(nodePort []string, dcId, op int32) *myerror
 			ye := myerror.NewYceError(myerror.EMYSQL_DELETE, "")
 			return ye
 		}
+		cnt++
 	}
+
+	log.Infof("DeleteNodePortTableOfDatacenter len(port)=%d", cnt)
 
 	return nil
 
