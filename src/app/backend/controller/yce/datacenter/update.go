@@ -65,12 +65,12 @@ func (udc *UpdateDatacenterController) updateNodePortDbItem() {
 
 	newNodePort := udc.params.NodePort
 
-	nodePortLowerLimit, err := strconv.Atoi(udc.params.NodePort[0])
+	nodePortLowerLimit, err = strconv.Atoi(udc.params.NodePort[0])
 	if err != nil {
 		udc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
 		return
 	}
-	nodePortUpperLimit, err := strconv.Atoi(udc.params.NodePort[1])
+	nodePortUpperLimit, err = strconv.Atoi(udc.params.NodePort[1])
 	if err != nil {
 		udc.Ye = myerror.NewYceError(myerror.EINVALID_PARAM, "")
 		return
