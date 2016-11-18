@@ -1023,6 +1023,15 @@ func GetUsersByOrgId(orgId int32) (map[int32]string, *myerror.YceError) {
 	return users, nil
 }
 
+func ValidatePort(port int32) *myerror.YceError {
+	if port < 1024 || port > 65535 {
+		ye := myerror.NewYceError(myerror.EYCE_INVALID_PORT, "")
+		return ye
+	}
+
+	return nil
+}
+
 //TODO: Get Namespace List By Datacenter Id List
 func GetNamespaceListByDcIdList() {
 }
