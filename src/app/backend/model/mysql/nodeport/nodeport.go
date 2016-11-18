@@ -63,20 +63,20 @@ func Recommand(datacenters []mydatacenter.DataCenter) (np *NodePort) {
 	for _, dcId := range dcIdList {
 		npList, err := QueryNodePortByDcIdIfValid(dcId)
 		if err != nil { 
-			mylog.Log.Errorf("Recommand QueryNodeByDcIdIfValid Error: err=%s", err)
+			log.Errorf("Recommand QueryNodeByDcIdIfValid Error: err=%s", err)
 			return nil
 		}
 	
 		for _, np := range npList {
 			availableNodePorts[np.Port] += 1
 			if availableNodePorts[np.Port] == len(dcIdList) {
-				mylog.Log.Infof("Recommand nodePort=%d", np.Port)
+				log.Infof("Recommand nodePort=%d", np.Port)
 				return &np
 			}
 		}
 	}
 
-	mylog.Log.Infof("Recommand nodePort Failed!")
+	log.Infof("ddc nodePort Failed!")
 	return nil
 }
 
@@ -135,7 +135,7 @@ func (np *NodePort) QueryNewNodePort(datacenters []mydatacenter.DataCenter) {
 		for j = 0; j < len(datacenters); j++ {
 			err := stmt.QueryRow(i, datacenters[j].Id).Scan(&np.Port, &np.DcId, &np.SvcName, &np.Status, &np.CreatedAt, &np.ModifiedAt, &np.ModifiedOp, &comment)
 			if err != nil {
-				mylog.Log.Errorf("QueryNewNodePort Error: error=%s", err)
+				log.Errorf("QueryNewNodePort Error: error=%s", err)
 				continue
 			} else {
 				break
