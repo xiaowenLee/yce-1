@@ -358,6 +358,21 @@ const (
 	ADMIN_NAVLIST = `
 {
     "list": [
+    	{
+            "id": 2,
+            "name": "应用管理",
+            "state": "main.appManage",
+            "includeState": "main.appManage",
+            "className": "fa-adn",
+            "item": [
+                {
+                    "id": 22,
+                    "name": "历史操作",
+                    "state": "main.appManageHistory",
+                    "includeState": "main.appManageHistory"
+                }
+            ]
+        },
         {
             "id": 4,
             "name": "镜像管理",
