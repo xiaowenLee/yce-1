@@ -125,6 +125,7 @@ JSON
 |镜像|data.deployment.spec.template.spec.containers[0].image||
 |副本数|data.deployment.spec.replicas|整型|
 |环境变量NAME|data.deployment.spec.template.spec.containers[0].env[$index].name||
+|环境变量NAME|data.deployment.spec.template.spec.containers[0].env[$index].name||
 |环境变量VALUE|data.deployment.spec.template.spec.containers[0].env[$index].value||
 |开放端口名称|data.deployment.spec.template.spec.containers[0].ports[$index].name||
 |开放端口端口|data.deployment.spec.template.spec.containers[0].ports[$index].port|整型|
