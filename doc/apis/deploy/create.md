@@ -21,7 +21,7 @@
 * 请求头: Authorization:$SessionId, 从LocalStorage读 
 * 请求参数: 
 JSON
-``json
+```json
 {
   "appName": "xxx", // 应用名
   "orgName": "xxx", // 组织名
@@ -107,7 +107,6 @@ JSON
         }
     }
   }
-
 }
 ```
 
@@ -116,8 +115,10 @@ JSON
 假设最终生成的json名为data
 
 基本配置:
-|项目|变量|说明|
-|:-:|:--:|:-:|
+
+
+| 项目 | 变量 | 说明 |
+|:------:|:--:|:----:|
 |应用名|data.appName, data.deployment.metadata.name, data.deployment.metadata.labels["name"], data.deployment.spec.template.spec.containers[0].name|上述四处值一致|
 |组织名|data.orgName, data.deployment.metadata.namespace| 上述值均相同, 从本地读取orgName|
 |数据中心|data.dcIdList|可多选|
@@ -129,7 +130,10 @@ JSON
 |开放端口端口|data.deployment.spec.template.spec.containers[0].ports[$index].port|整型|
 |开放端口协议|data.deployment.spec.template.spec.containers[0].ports[$index].protocol||
 
+
+
 高级配置:
+
 |项目|变量|说明|
 |:-:|:--:|:-:|
 |标签组Key|name|默认|
