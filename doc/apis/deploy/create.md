@@ -129,8 +129,8 @@ JSON
 |组织名|data.orgName, data.deployment.metadata.namespace| 上述值均相同, 从本地读取orgName|
 |数据中心|data.dcIdList|可多选|
 |镜像|data.deployment.spec.template.spec.containers[0].image||
-|CPU规格|data.deployment.spec.template.spec.containers[0].resources.limits["cpu"]||
-|MEMORY规格|data.deployment.spec.template.spec.containers[0].resources.limits["memory"]||
+|CPU规格|data.deployment.spec.template.spec.containers[0].resources.limits["cpu"]|从用户选择的quota里读cpu,再乘以1000, 以m结尾的字符串|
+|MEMORY规格|data.deployment.spec.template.spec.containers[0].resources.limits["memory"]|从用户选择的quota里读mem,再乘以1000,以M结尾的字符串|
 |副本数|data.deployment.spec.replicas|整型|
 |环境变量NAME|data.deployment.spec.template.spec.containers[0].env[$index].name||
 |环境变量NAME|data.deployment.spec.template.spec.containers[0].env[$index].name||
