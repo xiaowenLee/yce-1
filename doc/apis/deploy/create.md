@@ -51,6 +51,12 @@ JSON
                 ],
                 "containers": [
                     "name": "xxx", // 应用名 
+                    "resources": { // 规格
+                      "limits":{
+                        "cpu": "1000m", // CPU规格
+                        "memory": "2000M" // MEMORY规格
+                      } 
+                    },
                     "image": "xxx", //镜像
                     "env": [        // 环境变量
                         {
@@ -123,6 +129,8 @@ JSON
 |组织名|data.orgName, data.deployment.metadata.namespace| 上述值均相同, 从本地读取orgName|
 |数据中心|data.dcIdList|可多选|
 |镜像|data.deployment.spec.template.spec.containers[0].image||
+|CPU规格|data.deployment.spec.template.spec.containers[0].resources.limits["cpu"]||
+|MEMORY规格|data.deployment.spec.template.spec.containers[0].resources.limits["memory"]||
 |副本数|data.deployment.spec.replicas|整型|
 |环境变量NAME|data.deployment.spec.template.spec.containers[0].env[$index].name||
 |环境变量NAME|data.deployment.spec.template.spec.containers[0].env[$index].name||
