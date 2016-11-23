@@ -9,6 +9,11 @@ const (
 	USER_INSERT = "INSERT INTO " +
 		"user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment, navList) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	USER_INSERT_ON_DUPLICATE_KEY_UPDATE = "INSERT INTO " +
+		"user(name, password, orgId, status, createdAt, modifiedAt, modifiedOp, comment, navList) " +
+		"values(?,?,?,?,?,?,?,?,?) " +
+		"ON DUPLICATE KEY UPDATE " +
+		"orgId=?, status=?"
 
 	USER_UPDATE = "UPDATE user SET password=?, orgId=?, modifiedAt=?, modifiedOp=?, navList=? WHERE id=?"
 
