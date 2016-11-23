@@ -16,6 +16,11 @@ const (
 	ORG_INSERT = "INSERT INTO organization(name, cpuQuota, memQuota, budget, " +
 		"balance, status, dcIdList, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	ORG_INSERT_ON_DUPLICATE_KEY_UPDATE = "INSERT INTO " +
+		"organization(name, cpuQuota, memQuota, budget, balance, status, dcIdList, createdAt, modifiedAt, modifiedOp, comment) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+		"ON DUPLICATE KEY UPDATE " +
+		"name = ?, cpuQuota = ?, memQuota = ?, budget = ?, balance = ?, status = ?, dcIdList = ?"
 
 	ORG_UPDATE = "UPDATE organization SET name=?, cpuQuota=?, memQuota=?, budget=?, " +
 		"balance=?, status=?, dcIdList=?, modifiedAt=?, modifiedOp=?, comment=? " +
