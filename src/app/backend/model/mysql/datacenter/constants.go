@@ -13,9 +13,15 @@ const (
 	DC_QUERY_DUPLICATED_NAME = "SELECT id, name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment " +
 		"FROM datacenter WHERE name=? and status=?"
 
-	DC_INSERT = "INSERT INTO " +
+	/*DC_INSERT = "INSERT INTO " +
 		"datacenter(name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment) " +
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	*/
+	DC_INSERT_ON_DUPLICATE_KEY_UPDATE = "INSERT INTO " +
+		"datacenter(name, host, port, secret, status, nodePort, createdAt, modifiedAt, modifiedOp, comment) " +
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+		"ON DUPLICATE KEY UPDATE " +
+		"name = ?, status = ?"
 
 	DC_UPDATE = "UPDATE datacenter " +
 		"SET name=?, host=?, port=?, secret=?, status=?, nodePort=?, modifiedAt=?, modifiedOp=?, comment=? " +

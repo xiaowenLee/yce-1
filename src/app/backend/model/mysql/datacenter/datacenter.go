@@ -171,7 +171,7 @@ func (dc *DataCenter) InsertDataCenter(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
-	stmt, err := db.Prepare(DC_INSERT)
+	stmt, err := db.Prepare(DC_INSERT_ON_DUPLICATE_KEY_UPDATE)
 	if err != nil {
 		log.Errorf("InsertDataCenter Error: err=%s", err)
 		return err
@@ -186,14 +186,14 @@ func (dc *DataCenter) InsertDataCenter(op int32) error {
 
 	// Insert a idc
 	_, err = stmt.Exec(dc.Name, dc.Host, dc.Port, dc.Secret, dc.Status, dc.NodePort,
-		dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp, dc.Comment)
+		dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp, dc.Comment, dc.Name, VALID)
 
 	if err != nil {
 		log.Errorf("InsertDataCenter Error: err=%s", err)
 		return err
 	}
 
-	log.Infof("InsertDataCenterById: id=%d, name=%s, host=%d, port=%d, status=%d, nodePort=%s, createdAt=%s, modifiedAt=%s, modifiedOp",
+	log.Infof("InsertDataCenterById: id=%d, name=%s, host=%s, port=%d, status=%d, nodePort=%d, createdAt=%s, modifiedAt=%s, modifiedOp=%d",
 		dc.Id, dc.Name, dc.Host, dc.Port, dc.Status, dc.NodePort, dc.CreatedAt, dc.ModifiedAt, dc.ModifiedOp)
 	return nil
 }
