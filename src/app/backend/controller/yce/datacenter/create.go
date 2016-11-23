@@ -57,29 +57,11 @@ func (cdc *CreateDatacenterController) createDcDbItems() {
 		return
 	}
 
-	dc := new(mydatacenter.DataCenter)
-	err := dc.QueryDataCenterByName(cdc.params.Name)
+	dc := mydatacenter.NewDataCenter(cdc.params.Name, cdc.params.Host, "", nodePort, "", cdc.params.Port, cdc.params.Op)
+	err := dc.InsertDataCenter(cdc.params.Op)
 	if err != nil {
-		dc := mydatacenter.NewDataCenter(cdc.params.Name, cdc.params.Host, "", nodePort, "", cdc.params.Port, cdc.params.Op)
-		err := dc.InsertDataCenter(cdc.params.Op)
-		if err != nil {
-			cdc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
-			return
-		}
-	} else if dc.Status == mydatacenter.INVALID {
-		dc.Status = mydatacenter.VALID
-		dc.NodePort, ye = yceutils.EncodeNodePort(cdc.params.NodePort)
-		if ye != nil {
-			cdc.Ye = ye
-			return
-		}
-		err := dc.UpdateDataCenter(cdc.params.Op)
-		if err != nil {
-			cdc.Ye = myerror.NewYceError(myerror.EMYSQL, "")
-			return
-		}
-	} else {
-		cdc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT,  "")
+		cdc.Ye = myerror.NewYceError(myerror.EMYSQL_INSERT, "")
+		return
 	}
 
 	err = dc.QueryDataCenterByName(cdc.params.Name)

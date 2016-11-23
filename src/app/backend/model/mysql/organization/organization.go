@@ -145,7 +145,7 @@ func (o *Organization) InsertOrganization() error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
-	stmt, err := db.Prepare(ORG_INSERT)
+	stmt, err := db.Prepare(ORG_INSERT_ON_DUPLICATE_KEY_UPDATE)
 	if err != nil {
 		log.Errorf("InsertOrganization Error: err=%s", err)
 		return err
@@ -157,7 +157,7 @@ func (o *Organization) InsertOrganization() error {
 	o.ModifiedAt = localtime.NewLocalTime().String()
 
 	// Insert a organization
-	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp, o.Comment)
+	_, err = stmt.Exec(o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, o.Status, o.DcIdList, o.CreatedAt, o.ModifiedAt, o.ModifiedOp, o.Comment, o.Name, o.CpuQuota, o.MemQuota, o.Budget, o.Balance, VALID, o.DcIdList)
 	if err != nil {
 		log.Errorf("InsertOrganization Error: err=%s", err)
 		return err

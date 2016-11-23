@@ -199,7 +199,8 @@ func (u *User) InsertUser(op int32) error {
 	db := mysql.MysqlInstance().Conn()
 
 	// Prepare insert-statement
-	stmt, err := db.Prepare(USER_INSERT)
+	//stmt, err := db.Prepare(USER_INSERT)
+	stmt, err := db.Prepare(USER_INSERT_ON_DUPLICATE_KEY_UPDATE) //add user name with unique constrains
 	if err != nil {
 		log.Fatalf("InsertUser Error: err=%s", err)
 	}
@@ -212,11 +213,12 @@ func (u *User) InsertUser(op int32) error {
 
 	// Insert a user
 	_, err = stmt.Exec(u.Name, u.Password, u.OrgId, u.Status,
-		u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment, u.NavList)
+		u.CreatedAt, u.ModifiedAt, u.ModifiedOp, u.Comment, u.NavList,
+		u.OrgId, VALID)
 
 	if err != nil {
 		log.Errorf("InsertUser Error: err=%s", err)
-		return nil
+		return err
 	}
 
 	return nil
