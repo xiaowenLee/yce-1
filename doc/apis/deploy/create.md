@@ -44,10 +44,12 @@ JSON
         "template": {
             "spec": {
                 "volumes": [
+                  {
                     "name": "xxx", //存储卷名字
                     "hostPath": {
                         "path": "xxx"  //存储卷宿主文件
                     }
+                  }
                 ],
                 "containers": [
                     "name": "xxx", // 应用名 

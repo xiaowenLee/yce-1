@@ -369,11 +369,13 @@ const (
             "state": "main.appManage",
             "includeState": "main.appManage",
             "className": "fa-adn",
+            "href": "appManage",
             "item": [
                 {
                     "id": 22,
                     "name": "历史操作",
                     "state": "main.appManageHistory",
+                    "href": "appManageHistory",
                     "includeState": "main.appManageHistory"
                 }
             ]
@@ -384,11 +386,13 @@ const (
             "state": "main.imageManage",
             "includeState": "main.imageManage",
             "className": "fa-file-archive-o",
+            "href": "imageManage",
             "item": [
                 {
                     "id": 41,
                     "name": "基础镜像",
                     "state": "main.imageManageBase",
+                    "href":"imageManageBase",
                     "includeState": "main.imageManageBase"
                 }
             ]
@@ -398,6 +402,7 @@ const (
             "name": "集群拓扑",
             "state": "main.topology",
             "includeState": "main.topology",
+            "href":"topology",
             "className": "fa-share-alt"
         },
         {
@@ -405,18 +410,21 @@ const (
             "name": "个人中心",
             "state": "main.personalCenter",
             "includeState": "main.personalCenter",
+            "href":"personalCenter",
             "className": "fa-adn",
             "item": [
                 {
                     "id": 61,
                     "name": "个人设置",
                     "state": "main.personalSetting",
+                    "href":"personalSetting",
                     "includeState": "main.personalSetting"
                 },
                 {
                     "id": 62,
                     "name": "修改密码",
                     "state": "main.personalPassword",
+                    "href":"personalPassword",
                     "includeState": "main.personalPassword"
                 }
             ]
@@ -427,11 +435,13 @@ const (
             "state": "main.userManage",
             "includeState": "main.userManage",
             "className": "fa-adn",
+            "href":"userManage",
             "item": [
                 {
                     "id": 71,
                     "name": "创建用户",
                     "state": "main.createUser",
+                    "href":"createUser",
                     "includeState": "main.createUser"
                 }
             ]
@@ -442,11 +452,13 @@ const (
             "state": "main.dcManage",
             "includeState": "main.dcManage",
             "className": "fa-adn",
+            "href":"dcManage",
             "item": [
                 {
                     "id": 81,
                     "name": "添加数据中心",
                     "state": "main.addDc",
+                    "href":"addDc",
                     "includeState": "main.addDc"
                 }
             ]
@@ -457,11 +469,13 @@ const (
             "state": "main.orgManage",
             "includeState": "main.orgManage",
             "className": "fa-adn",
+            "href":"orgManage",
             "item": [
                 {
                     "id": 91,
                     "name": "添加组织",
                     "state": "main.addOrg",
+                    "href":"addOrg",
                     "includeState": "main.addOrg"
                 }
             ]

@@ -18,6 +18,8 @@ import (
 	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"reflect"
 	"strconv"
+	"app/backend/common/util/Placeholder"
+	"github.com/coreos/rkt/store/db"
 )
 
 // Create K8s Client List by ApiServerList
@@ -1039,6 +1041,20 @@ func ValidateNodePort(nodePortLowerLimit, nodePortUpperLimit int32) *myerror.Yce
 	}
 
 	return nil
+}
+
+func MakeNodePortTableInitSql(nodePortLowerLimit, nodePortUpperLimit int32) *myerror.YceError {
+
+	ph := placeholder.NewPlaceHolder(mynodeport.NP_INSERT_ON_DUPLICATE_KEY_UPDATE_BATCH)
+
+	var value, update string
+
+	for i := nodePortLowerLimit; i <= nodePortUpperLimit; i++ {
+		value += "VALUES()"
+	}
+
+	np_Insert_Batch := ph.Replace("<values>", "", "<updates>", "")
+
 }
 
 //TODO: Get Namespace List By Datacenter Id List
