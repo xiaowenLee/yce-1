@@ -14,6 +14,8 @@ const (
 
 	NP_INSERT_ON_DUPLICATE_KEY_UPDATE = "INSERT INTO nodeport(port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE svcName=?, status=?, modifiedAt=?, modifiedOp=? "
 
+
+
 	NP_SELECT_VALID = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE status=? AND dcId=?"
 
 	NP_SELECT_NEW = "SELECT port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment " + "FROM nodeport WHERE port=? AND dcId=? ORDER BY port DESC"
@@ -31,4 +33,9 @@ const (
 
 	OCCUPIED = 0
 	FREE = 1
+
+	NP_INSERT_ON_DUPLICATE_KEY_UPDATE_BATCH = "INSERT INTO " +
+		"nodeport(port, dcId, svcName, status, createdAt, modifiedAt, modifiedOp, comment) " +
+ 		"<values> " +
+		"ON DUPLICATE KEY UPDATE <updates> "
 )

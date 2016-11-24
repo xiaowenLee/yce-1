@@ -43,6 +43,11 @@ func (cdc *CreateDatacenterController) createNodePortItems() {
 		return
 	}
 
+	cdc.Ye = yceutils.MakeNodePortTableInitSql(int32(nodePortLowerLimit), int32(nodePortUpperLimit))
+	if cdc.Ye != nil {
+		return
+	}
+
 	cdc.Ye = yceutils.InitNodePortTableOfDatacenter(cdc.params.NodePort, cdc.params.DcId, cdc.params.Op)
 	if cdc.Ye != nil {
 		return
